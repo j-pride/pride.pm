@@ -1,0 +1,296 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [de] (WinNT; U) [Netscape]">
+                
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE Features</title>
+                          
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+        
+<h1> PriDE Feature List</h1>
+        
+<hr width="100%">    
+<p>The following list of features for persistence frameworks is mostly adopted 
+ from Scott W. Ambler's white paper "<a
+ href="http://www.ambysoft.com/persistenceLayer.pdf">The Design of a Robust 
+ Persistence Layer For Relational Databases</a>" and should help to decide 
+ if PriDE matches the individual requirements in a software development project. 
+ Some common issues are not directly covered by PriDE but by a set of simple 
+ <a href="PriDE-Patterns.html">patterns</a>.<br>
+   &nbsp; </p>
+     
+<p>Legend: <br>
+   <b><tt>+++</tt></b> Yes, very good, <b><tt>++</tt></b>&nbsp; Yes, <b><tt>+</tt></b> 
+ Yes, with limmitations, <b><tt>-</tt></b> No, with exceptions, <b><tt>--</tt></b> 
+ No, <b><tt>---</tt></b> No, very week <br>
+   &nbsp; <br>
+   &nbsp;    
+<table border="1" cellspacing="2" cellpadding="2" bgcolor="#ffffcc">
+    <tbody>
+       <tr>
+    <td><b><u>Feature</u></b></td>
+     <td><b><u>Support</u></b>&nbsp; <br>
+         <b><u>in PriDE</u></b></td>
+     <td><b><u>JDO</u></b> <br>
+         <b><u>(intelliBO)</u></b></td>
+     <td><b><u>Oracle</u></b> <br>
+         <b><u>TopLink</u></b></td>
+     <td><b><u>EJB</u></b> <br>
+         <b><u>CMP 2.0</u></b></td>
+    </tr>
+     <tr valign="top">
+    <td><b>Multiple types of persistence mechanisms<br>
+         </b>e.g. flat files, SQL databases, OODBs, ...</td>
+     <td>--</td>
+     <td>+<br>
+        </td>
+     <td>+<br>
+        </td>
+     <td>+<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Encapsulation of persistence mechanisms<br>
+         </b>Except in special siatuations, programming is completely based 
+ on the framework.</td>
+     <td>+</td>
+     <td>++</td>
+     <td>++</td>
+     <td>++<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Multi-object actions</b> <br>
+   Queries, updates and deletions of multiple objects within a single operation<br>
+         </td>
+     <td>++</td>
+     <td>-</td>
+     <td>+</td>
+     <td>-</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Transactions</b></td>
+     <td>++</td>
+     <td>++</td>
+     <td>++</td>
+     <td>+++<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Extensibility</b> <br>
+   Extensible for future requirements concerning persistence mechanisms,
+application  architecture, ...</td>
+     <td>+</td>
+     <td>-</td>
+     <td>--</td>
+     <td>-</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Object IDs</b> <br>
+   Unique identification attributes of objects in the system</td>
+     <td>-- <br>
+   (see <a href="PriDE-Patterns.html">Patterns</a>)</td>
+     <td>+</td>
+     <td>+</td>
+     <td>--</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Cursor</b> <br>
+   Sequential processing of (large) result sets</td>
+     <td>+++</td>
+     <td>++</td>
+     <td>+</td>
+     <td>---</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Proxies</b> <br>
+   Simplified representation of objects, limited to characteristics for human 
+ and programmatic identification</td>
+     <td>- <br>
+   (see <a href="PriDE-Patterns.html">Patterns</a>)</td>
+     <td>-</td>
+     <td>+</td>
+     <td>-</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Records</b> <br>
+   Access to native database records in query results for direct forwarding 
+ to reporting tools<br>
+         </td>
+     <td>++</td>
+     <td>++</td>
+     <td>+</td>
+     <td>-</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Multiple architectures</b><br>
+   Support for different architecture and design principles</td>
+     <td>++ <br>
+   (see also <a href="PriDE-Patterns.html">Patterns</a>)</td>
+     <td>+</td>
+     <td>-</td>
+     <td>--</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Multiple database versions and vendors</b> <br>
+   Mostly independent from vendors and database versions to allow rapid updates 
+ and database changes</td>
+     <td>+ <br>
+   (JDBC)</td>
+     <td>++ <br>
+   (JDBC)</td>
+     <td>++ <br>
+   (JDBC)</td>
+     <td>+++<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Multiple connections</b><br>
+   Access to multiple databases via multiple, concurrently available connections</td>
+     <td>++</td>
+     <td>+</td>
+     <td>+</td>
+     <td>++<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Native and non-native drivers</b><br>
+   Support for multiple access strategies, including vendor-specific native 
+ drivers</td>
+     <td>- <br>
+   (JDBC only)</td>
+     <td>-- <br>
+   (JDBC only)</td>
+     <td>-- <br>
+   (JDBC only)</td>
+     <td>--</td>
+    </tr>
+     <tr valign="top">
+    <td><b>SQL queries</b><br>
+   Support for direct SQL queries for special cases</td>
+     <td>++</td>
+     <td>++</td>
+     <td>++</td>
+     <td>-</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Caching</b> <br>
+   Transparent temporary in-memory storage of data for load and store optimization.</td>
+     <td>-- <br>
+   (see <a href="PriDE-Patterns.html">Patterns</a>)</td>
+     <td>++</td>
+     <td>++</td>
+     <td>++<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Expression builder</b> <br>
+   Helper for programmatic object-oriented assembly of SQL expressions</td>
+     <td>+</td>
+     <td>++</td>
+     <td>++</td>
+     <td>---</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Expression optimizer</b> <br>
+   Automatic analysis and optimization of expressions, assembled with the 
+expression  builder</td>
+     <td>--</td>
+     <td>+</td>
+     <td>++</td>
+     <td>-</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Optimistic locking</b></td>
+     <td>-- <br>
+   (see <a href="PriDE-Patterns.html">Patterns</a>)</td>
+     <td>+</td>
+     <td>+</td>
+     <td>--</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Joins</b></td>
+     <td>+ <br>
+   (see <a href="PriDE-Patterns.html">Patterns</a>)</td>
+     <td>++</td>
+     <td>++</td>
+     <td>++<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Prepared Statements</b></td>
+     <td>+</td>
+     <td>++</td>
+     <td>+</td>
+     <td>++<br>
+        </td>
+    </tr>
+     <tr valign="top">
+    <td><b>Stored Procedures</b></td>
+     <td>++</td>
+     <td>+</td>
+     <td>+</td>
+     <td>--</td>
+    </tr>
+     <tr valign="top">
+    <td><b>Design helper</b> <br>
+   Supporting utilities for the definition of mappings</td>
+     <td>+</td>
+     <td>++</td>
+     <td>++</td>
+     <td>-</td>
+    </tr>
+     <tr>
+    <td><b>Simple to use / quick to learn</b></td>
+     <td>++</td>
+     <td>+</td>
+     <td>-</td>
+     <td>-</td>
+    </tr>
+      <tr>
+        <td valign="top"><b>Relationship support</b><br>
+  Mapping of inter-object relationships, cascading delete, preservation of
+ referential integrity<br>
+        </td>
+        <td valign="top">--<br>
+        </td>
+        <td valign="top">+<br>
+        </td>
+        <td valign="top">++<br>
+        </td>
+        <td valign="top">++<br>
+        </td>
+      </tr>
+             
+  </tbody>   
+</table>
+     </p>
+     
+<p> </p>
+     
+<hr width="100%">    
+<table cellpadding="5">
+    <tbody>
+       <tr>
+    <td><a href="PriDE.html">Home</a></td>
+     <td><a href="PriDE-Introduction.html">Introduction</a></td>
+     <td><a href="javadoc/index.html">Javadoc</a></td>
+    </tr>
+             
+  </tbody>   
+</table>
+     <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

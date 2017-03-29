@@ -1,0 +1,163 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                
+  <meta name="GENERATOR"
+ content="Mozilla/4.7 [de] (WinNT; I) [Netscape]">
+                
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE Caching</title>
+                             
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+        
+<h1> PriDE Design Patterns: Caching</h1>
+        
+<hr width="100%">    
+<p>A strong measure to speed up persistent data access is the introduction 
+ of a cache for repeatedly queried entities. The only basic requirement is 
+ a unique identification of all entities of interest as it is defined by primary
+ key or at least unique constraints in the database. PriDE does not provide
+ any caching functionality by itself, so the following explainations must
+be understood as general remarks on that issue.</p>
+     
+<p>As mentioned already in the <a href="PriDE-Patterns-Decoupling.html">patterns 
+ for separation of database and business concerns</a>, it is generally recommended 
+ for larger applications to follow a layered architectural model. By definition 
+ of a persistence layer, the database access can be encapsulated in the implementation 
+ of <i>storage facades</i> or <i>data access objects</i>. For the well-known 
+ class <tt>Customer</tt> this may look like this:<br>
+   &nbsp;    
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+    <tbody>
+       <tr>
+    <td><tt>class CustomerStore {</tt>                      
+      <p><tt>&nbsp;&nbsp;&nbsp; void createCustomer(Customer customer) throws
+  SQLException {</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; customer.create();</tt>
+        <br>
+         <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                       
+      <p><tt>&nbsp;&nbsp;&nbsp; Customer getCustomer(int id) throws SQLException
+  {</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new Customer(id);</tt>
+        <br>
+         <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // and so forth</tt> <br>
+         <tt>}</tt></p>
+         </td>
+    </tr>
+             
+  </tbody>   
+</table>
+     </p>
+     
+<p>Under this precondition, the implementation can easily by extended by caching
+functionality as it is demonstrated in the most simple form in the following
+example: <br>
+   &nbsp;    
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+    <tbody>
+       <tr>
+    <td><tt>class CustomerStore {</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp; private Map customers = new HashMap();</tt>
+       <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp; void createCustomer(Customer customer) throws
+  SQLException {</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; customer.create();</tt>
+        <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; customers.put(new 
+Integer(customer.getId()),  customer);</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp; Customer getCustomer(int id) throws SQLException
+  {</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Customer c = (Customer)customers.get(new
+  Integer(id));</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (c == null) {</tt>
+        <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  c = new Customer(id);</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  customers.put(new Integer(id), c);</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return c;</tt> <br>
+         <tt>&nbsp;&nbsp;&nbsp; }</tt>                      
+      <p><tt>&nbsp;&nbsp;&nbsp; // and so forth</tt> <br>
+         <tt>}</tt></p>
+         </td>
+    </tr>
+             
+  </tbody>   
+</table>
+     </p>
+     
+<p>On introduction of caching functionality there are some important issues
+ to be kept in mind, which make this feature not as generally reasonable
+as  it is sold in many commercial O/R mapping toolkits: </p>
+     
+<ul>
+    <li> <b>Synchronicity of caches</b></li>
+     <br>
+  Although storage facades bundle the database access of one application, 
+there may still be other applications operating on the same database by different
+ means (e.g. batch update procedures). Caches therefore tend to be out of
+date and the application must perform updates in a reasonable time frame
+which is suitable for the modification rate of the data. Moreover it may
+depend on the application context wether particular data must exactly reflect
+the current database state or if a slight difference is acceptable. As a
+rule of thumb, caching may be reasonable for selected master data which itself
+ is not the focus of the current processing. I.e. caching should be introduced
+ function-based rather than entity-based and must be understood as an individual
+ algorithmic and temporary optimization. In best case, the caches dont keep
+ their state accross method boundaries which in turn makes them as easy to
+ manage as demonstrated above. As soon as the end of a processing frame is
+ reached, the caches are immediately flushed to get rid of the potentially
+ outdated data.<br>
+   &nbsp; <li> <b>Complex queries</b></li>
+     <br>
+  A database query of course does not always follow the simple scheme of
+fetching  a single record based on a unique combination of attributes. Thus,
+complex  queries often have to by-pass the caches assuming that they don't
+support  the full range of expression variety provided by SQL. On the other
+hand it  turns out in practice that only very few queries have a complex,
+dynamic  structure. The interfaces of storage facades give a good overview
+about what  is actually required by the business logic.<br>
+   &nbsp; <li> <b>Scope</b></li>
+     <br>
+  If there are multiple threads working concurrently in an application, the
+ scope of validity for the caches must be kept in mind. The main problem
+in  this context is not a difference of validity for different threads but
+the  risk of uncontrolled flushing, minimizing the intended optimization
+effect.  If possible, it is recommended to use read-caches only which can
+be managed  locally for every processing function without the risk of interference
+between  concurrent threads.  
+</ul>
+    The source code of the example above is available under <tt><a
+ href="../examples/caching">examples/caching</a></tt>.    
+<p> </p>
+     
+<hr width="100%">     
+<table cellpadding="5">
+    <tbody>
+       <tr>
+    <td><a href="PriDE.html">Home</a></td>
+    <td><a href="PriDE-Introduction.html">Introduction</a></td>
+    <td><a href="javadoc/index.html">Javadoc</a></td>
+    </tr>
+             
+  </tbody>   
+</table>
+     <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

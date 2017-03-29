@@ -1,0 +1,39 @@
+How to build a new PriDE release
+--------------------------------
+
+  1. Extend PriDE-History.html by appropriate release information
+
+  2. Potentially update PriDE version numbers and release dates in
+PriDE-About.html, PriDE.html, and readme.txt
+
+  3. Update the last-published short comment in index.html
+
+  4. Update the version number in plugin.xml
+
+  5. Run ant clean
+
+  6. Copy the complete PriDE working directory to a directory
+named pride<version>-src
+
+  7. Check the copy for undeliverable files. Especially the
+workshop directory must be removed. Also check the lib directory
+which should only contain junit.jar
+
+  8. Zip the directory to pride<version>-src.zip. The directory
+pride<version>-src is supposed to make up the root for the zip
+content.
+
+  9. In the PriDE working directory run ant compile
+
+ 10. Run ant javadoc
+
+ 11. Run ant jar
+
+ 12. Run ant zip
+
+ 13. Rename the created pride.zip in pride<version>.zip
+
+ 14. Upload the zip files
+
+ 15. Upload the modified online documentation, i.e. at least
+PriDE-History.html and index.html

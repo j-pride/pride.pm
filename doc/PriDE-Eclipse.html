@@ -1,0 +1,87 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+                
+  <meta name="Author" content="Jan Lessner, jan.lessner@mathema.de">
+  <title>PriDE Eclipse Plugin</title>
+                          
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+        
+<h1> PriDE Eclipse Plugin</h1>
+        
+<hr width="100%">    
+<p>For users of the Eclipse 2.x development plattform, there is a plugin
+available which allows to run PriDE's <a
+ href="PriDE-Introduction.html#GeneratingEntityTypes">entity generator</a> 
+in a convenient way from within the IDE. The plugin is distributed as a single 
+ZIP archive which has to be extracted in the Eclipse installation directory.
+If Eclipse is already running, the IDE must be restarted.<br>
+  </p>
+   
+<p>After successful installation of the PriDE plugin, the context menu for
+ packages in a Java projects' package explorer provides a menu item for entity
+ generation as shown below:<br>
+  </p>
+   
+<p><img src="PriDE-Eclipse-Package.gif" alt="PriDE Plugin" width="627"
+ height="692">
+  <br>
+   </p>
+     
+<p> </p>
+   <br>
+  Selecting the menu, brings up a wizard dialog for the specification of
+database  JDBC connection parameters.<br>
+  <br>
+  <img src="PriDE-Eclipse-DB.gif" alt="PriDE Plugin JDBC connection"
+ width="516" height="510">
+  <br>
+  <br>
+  The <b>Next </b>button will be enabled after having successfully tested 
+the specified database connection. In the second step, the database tables 
+have to be selected which the plugin should generate entities for. When selecting
+a single database table, the input field <b>Class name</b> allows to specify
+the name of the target class, otherwise the entity types have the same name
+as the corresponding tables. When selecting multiple tables, the check mark
+<b>Create joined type</b> allows to produce a single entity type, representing
+a join of all selected tables. By default, the plugin creates hybrid types
+as described in the introduction. A separation between mapping and value
+type can be achieved by setting the appropriate check mark. In this case
+the mappiung type's name is made up from appending the suffix <i><tt>DBA
+</tt></i>to the name of the value type.<br>
+  <br>
+  <img src="PriDE-Eclipse-Table.gif" alt="PriDE-Eclipse-Table.gif"
+ width="516" height="570">
+&nbsp;  <br>
+  <br>
+  The actual generation is run by pressing the button <b>Finish</b>. The
+entitiy  types are created in the package from which the generator was invoked.
+If an entity type already exists, it is overwritten if possible.<br>
+  <br>
+   
+<hr width="100%">    
+<table cellpadding="5">
+    <tbody>
+       <tr>
+    <td><a href="PriDE.html">Home</a></td>
+     <td><a href="PriDE-Introduction.html">Introduction</a></td>
+     <td><a href="javadoc/index.html">Javadoc</a></td>
+    </tr>
+             
+  </tbody>   
+</table>
+     <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

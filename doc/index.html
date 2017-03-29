@@ -1,0 +1,191 @@
+<!DOCTYPE html PUBLIC "-//CollabNet//DTD XHTML 1.0 Transitional//EN" "http://www.collabnet.com/dtds/collabnet_transitional_10.dtd">
+<html>
+<head>
+  <title>PriDE: PRImitive Database Environment - Welcome</title>
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+<body class="composite" marginheight="0" marginwidth="0">
+<div id="banner">
+<table border="0" cellpadding="8" cellspacing="0" width="100%">
+  <tbody>
+    <tr>
+      <td> <a href="http://pride.sourceforge.net/"> <img alt="PriDE"
+ src="pride.gif" align="left" border="0"> </a> </td>
+      <td>
+      <div id="login" align="right"> <a href="http://sourceforge.net">
+      <img src="http://sourceforge.net/sflogo.php?group_id=85962&amp;type=5"
+ alt="SourceForge.net Logo" border="0" height="62" width="210"> </a> </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<div id="breadcrumbs">
+<table border="0" cellpadding="4" cellspacing="0" width="100%">
+  <tbody>
+    <tr>
+      <td bgcolor="#d5e1e9"><b><small><small>Last published: 7. September
+2014 | Version 2.5.0 released</small></small></b></td>
+      <td bgcolor="#d5e1e9"><small> </small>
+      <div align="right"><b><small><small> <a
+ href="http://pride.sourceforge.net/">Home Page</a> | <a
+ href="http://sourceforge.net/projects/pride/">SourceForge
+Project Page</a> </small></small></b></div>
+      <small> </small></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<table border="0" cellpadding="8" cellspacing="0" width="100%">
+  <tbody>
+    <tr valign="top">
+      <td id="leftcol" bgcolor="#f7f8e4" width="20%">
+      <div id="navcolumn">
+      <div> <strong>PriDE</strong>
+      <div><small><small> <a href="PriDE-History.html">- History</a> </small></small></div>
+      <div><small><small> <a
+ href="http://sourceforge.net/project/showfiles.php?group_id=85962&amp;release_id=173977">-
+Download</a> </small></small></div>
+      <div><small><small> <a href="PriDE-FAQ.html">- FAQ</a> </small></small></div>
+      <div><small><small> <a href="LGPL.html">- License</a> </small></small></div>
+      <div><small><small> <a href="references.html">- References</a> </small></small></div>
+      </div>
+      <p> </p>
+      <div> <strong>Development</strong>
+      <div>
+      <div><small><small> <a href="PriDE-Quickstart.html">- Quickstart</a>
+      </small></small></div>
+      <small><small> <a href="PriDE.html">- Manual</a> </small></small></div>
+      <small><small> <a href="PriDE-Eclipse.html">- Eclipse Plugin<br>
+      </a></small></small><a href="PriDE-Eclipse.html"><small><small> </small></small></a><small><small><a
+ href="PriDE-Ant.html">- Ant Task</a></small></small><br>
+      </div>
+      <div><small><small> <a href="PriDE-Patterns.html">- Design
+Patterns</a> </small></small></div>
+      <div><small><small> <a href="javadoc/index.html">- Javadoc (API)</a><br>
+      <br>
+      </small></small> </div>
+      </div>
+      </td>
+      <td rowspan="2">
+      <div id="bodycol">
+      <div class="app">
+      <div class="h3">
+      <h3> <a name="What is PriDE?">What is PriDE?</a> </h3>
+PriDE is an ultra-thin and high-performance Java O/R mapper for
+relational databases, originally developed by <a
+ href="http://www.mathema.de">MATHEMA Software GmbH</a>. It doesn't
+follow
+any persistence management standards but relies on common design
+patterns
+and is production-proved in both J2SE and J2EE environments. PriDE can
+really claim to be the world's smallest <i></i>persistence manager,
+coming
+as a single library of less than 100k, without requiring XML and
+appropriate parser frameworks or other helper libraries beside the JDK.<br>
+      <br>
+PriDE gains its simplicity from a few <a href="PriDE-Inside.html">important
+design decisions</a> assuming an application architecture based on
+approved and widly recommended design patterns. This allows to dispense
+with some popular features which make O/R mapping toolkits fat and
+sometimes cause a kind of uncontrollable
+and unexplainable self-will when being used extensively. Many of these
+design patterns are related to a layered software architecture which is
+most often used for the design of distributed 3-tier systems. However,
+a layered architecture is in general reasonable and strongly
+recommended for any complex system, not only for distributed
+applications.<br>
+      <br>
+The design was partly inspired by Scott W. Ambler's
+white paper "<a href="http://www.ambysoft.com/persistenceLayer.pdf">The
+Design of a Robust Persistence Layer For Relational Databases</a>". The
+manual provides a <a href="PriDE-Features.html">feature list</a>
+allowing to decide if the toolkit matches the individual requirements
+in a software development project.<br>
+      <h3> <a name="How to learn PriDE?">How to learn PriDE?</a> </h3>
+For a quick introduction, it is recommended to have a look at the <a
+ href="PriDE-Quickstart.html">quick start tutorial</a>. A complete
+overview about PriDE's working principles can be found in the <a
+ href="PriDE-Introduction.html">introduction </a>chapter.<br>
+      </div>
+      <div class="h3">
+      <h3><a name="Why another O/R mapping toolkit?">Why another O/R
+mapping toolkit?</a></h3>
+Allthough PriDE wasn't released as an OpenSource project before mid of
+2003, this toolkit is not new at all. It is already in use silently in
+various different production systems as it can
+be seen from the <a href="references.html">reference list</a>. And
+allthough a lot of O/R mappers have already been released, refined, and
+evolved over years now, it is still a fact that the most simple
+persistence management approaches have the best chance to lead to a
+stable solution. Simplicity turned out to be a key attribute for such a
+critical thing like database access which is the performance bottle
+neck for most software system's. PriDE provides both crucial developer
+convenience as supposed by an O/R mapper, and an absolutely slim
+framework implementation which can actually be understood and
+maintained by its users if necessary.<br>
+      <br>
+PriDE claims to be high-performant in the sense, that it does not waste
+mentionable time over pure JDBC. In particular it
+allows e.g. fast processing of large result sets which is a known
+problem with standards like JDO or EJB-CMP. It does not show any
+side-effects by transparent caching, relationship or entity management
+and thus doesn't cause bad surprises when being used in large-scale
+projects. It does <i>not </i>claim to be <i>faster </i>than the
+database itself, as it does not automatically perform any caching,
+expression optimization, or load/store-optimization. Optimization is
+supposed to
+be in the application's responsibility as it often turned out in
+practice
+that automatic optimizations by persistence managers caused at least
+as many problems as they solve.<br>
+      <br>
+      <h3>PriDE integrates with <a
+ href="http://sourceforge.net/projects/cuba/">CUBA</a></h3>
+CUBA is a small OpenSource framework for the development of components
+which can be run as EJBs, AXIS WebServices, or in a stand-alone
+application. PriDE can be used as a persistence manager for CUBA
+components. Check out the examples on the CUBA website at <a
+ href="http://cuba.sourceforge.net/examples/pride">http://cuba.sourceforge.net/examples/pride</a>.<br>
+      </div>
+      </div>
+      </div>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<div id="footer"><small> </small> <small> </small><small> </small><small>
+</small><small> </small>
+<table style="width: 100%;" border="0" cellpadding="4" cellspacing="0">
+  <tbody>
+    <tr>
+      <td><small><small> &copy; 2001-2007, The PriDE Team </small></small></td>
+    </tr>
+  </tbody>
+</table>
+<small> </small></div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

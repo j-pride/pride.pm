@@ -1,0 +1,223 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                            
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                            
+  <meta name="GENERATOR"
+ content="Mozilla/4.78 [de] (WinNT; U) [Netscape]">
+                            
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE Queries</title>
+                                               
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+              
+<h1> PriDE Design Patterns:<br>
+       Extended and complex queries</h1>
+              
+<hr width="100%">       
+<p>The <a href="PriDE-Introduction.html">introduction</a> explained already 
+  how to perform a query-by-example just using PriDE base functionality to 
+ read records according to an attribute value combination (in the simplest 
+ case: according to the primary key). This approach is the most needed one. 
+ For the assembly of more complex query expressions, the methods  <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter#find%28java.lang.String%29">ObjectAdapter.find(String)</a></tt> 
+  and <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#query%28java.lang.String%29">ObjectAdapter.query(String)</a></tt>
+can be used. As a difference (like in all other variants of theses two functions) 
+  <tt>find()</tt> returns only the first matching record while <tt>query()</tt> 
+  returns <i>all</i> matches. Both functions get a where-clause passed the 
+ syntactic and semantic correctness of which must be ensured by the application. 
+ PriDE does not analyse this expression internally, except a check for <tt>null</tt>, 
+  which will cause no where clause at all to be attached resulting in a query 
+  for <i>all</i>  records of a table. The following example shows a query 
+for  all customers of IDs 1000 up to 2000: <br>
+      &nbsp;       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+          <tr>
+       <td><tt>Customer c = new Customer();</tt> <br>
+            <tt>ResultIterator iter = c.query("id &gt;= 1000 AND id &lt;= 
+2000");</tt><br>
+            <tt>Customer[] result = (Customer[])iter.toArray();</tt><tt></tt></td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        </p>
+           
+<p>Building the expressions completely unassisted is of course an error prone 
+  task as this is e.g. well-known from JDO. As an alternative to self-defined 
+  conditions, PriDE provides the class <tt><a
+ href="javadoc/de/mathema/pride/SQLExpression.html">SQLExpression</a></tt>. 
+   This class eases the dynamic assembly of expressions based on the most 
+important  and popular SQL operators (siehe Interface <tt><a
+ href="javadoc/de/mathema/pride/SQLExpression.Operator.html">SQLExpression.Operator</a></tt>). 
+  As another advantage, there is a common central formatting of SQL expressions. 
+  The constructor gets passed an <tt><a
+ href="javadoc/de/mathema/pride/SQLFormatter.html">SQLFormatter</a></tt>,
+   which usually is just the current <tt><a
+ href="javadoc/de/mathema/pride/Database.html">Database </a></tt>object, forwarding
+the formatting to its current <tt><a
+ href="javadoc/de/mathema/pride/ResourceAccessor.html">ResourceAccessor</a>. 
+  </tt>The following example illustrates the usage of <tt>SQLExpression</tt>, 
+   to define the same query as above:<br>
+      &nbsp;       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+          <tr>
+       <td><tt>Customer c = new Customer();<br>
+       SQLExpression exp = new SQLExpression(DatabaseFactory.getDatabase());<br>
+       exp = exp.and("id", SQLExpression.Operator.GREATEREQUAL, 1000);</tt> 
+       <br>
+            <tt>exp = exp.and("id", SQLExpression.Operator.LESSEQUAL, 2000);</tt> 
+         <br>
+            <tt>ResultIterator iter = c.query(exp.toString());</tt><br>
+      <tt>Customer[] result = (Customer[])iter.toArray();</tt></td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        </p>
+           
+<p>Sometimes a query-by-example is generally desirable but there are some 
+  additional constraints to be considered.  For these cases, the function 
+<tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#constraint%28java.lang.String%5B%5D%29">getConstraint()</a></tt> 
+   allows to use PriDE's dynamic SQL generation as far as possible and to 
+assemble  only the additional constraint. The following example demonstrates 
+this for  a query which causes the matching records to be blocked for update:<br>
+      &nbsp;       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+          <tr>
+       <td><tt>Customer c = new Customer();</tt> <br>
+            <tt>c.setName("L%");</tt> <br>
+            <tt>String constraint = c.constraint(new String[] { "name" }, 
+true);</tt>          <br>
+            <tt>ResultIterator iter = c.query(constraint + " FOR UPDATE");</tt> 
+         <br>
+            <tt>Customer[] result = (Customer[])iter.toArray();</tt></td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        </p>
+           
+<p>Of course, this approach is limited to results which can be mapped to entities.
+The more a query varies from this principle, the less support it gains from
+PriDE. In extreme cases the function <tt><a
+ href="javadoc/de/mathema/pride/Database.html#sqlQuery%28java.lang.String%29">Database.sqlQuery(String)</a></tt> 
+   must be used to self-define a query completely in all details. In worst 
+ case, the function <tt><a
+ href="javadoc/de/mathema/pride/Database.html#getConnection%28%29">Database.getConnection()</a></tt> 
+  can be used to exploit the full flexibility of ordinary JDBC programming. 
+  When using this function, it must be kept in mind that the fetched connection 
+  must be released by <tt><a
+ href="javadoc/de/mathema/pride/Database.html#releaseConnection%28java.sql.Connection%29">Database.releaseConnection(Connection)</a></tt> 
+   after the work is done. The ResourceAccessors ensure that repeated calls 
+  of <tt>getConnection()</tt> and <tt>releaseConnection(Connection)</tt> are
+  very efficient and perform thread-based connection reuse. </p>
+           
+<p>Nevertheless, PriDE's basic query concept allows to run very different 
+  queries even if this is not obvious on first sight. The following example 
+ demonstrates a query for the highest ID of all <tt>Customer</tt> records, 
+ using a modified <tt>RecordDescriptor</tt>.  <br>
+      &nbsp;       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+          <tr>
+       <td><tt>// Commonly usable class for attribute maximum calculation</tt> 
+        <br>
+            <tt>public class MaxDescriptor extends RecordDescriptor {</tt>
+       <br>
+            <tt>&nbsp;&nbsp;&nbsp; private String maxfield; // The database
+ field   to get the maximum of</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; private Integer max;&nbsp;&nbsp;&nbsp;&nbsp; 
+   // The maximum found</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; public Integer getMax() { return max;
+}</tt>          <br>
+            <tt>&nbsp;&nbsp;&nbsp; public void setMax(Integer max) { this.max 
+  =  max; }</tt> <br>
+            <tt>&nbsp;</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; // MaxDescriptor defines itself as the 
+sink   for query results.</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; public MaxDescriptor(RecordDescriptor
+baseDescriptor,    String maxfield)</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throws IllegalDescriptorException 
+   {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super(MaxDescriptor.class, 
+   baseDescriptor.getTableName(), null,</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   new String[][]{ {null, "getMax", "setMax"} });</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.maxfield
+=  maxfield;</tt>         <br>
+            <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+            <tt>&nbsp;</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; // As a difference to an ordinary record 
+ descriptor,   MaxDescriptor</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; // does not ask the database for '*' (i.e. 
+  all  fields) but for the</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; // maximum of a particular field</tt>
+      <br>
+            <tt>&nbsp;&nbsp;&nbsp; protected String getResultFields() { return 
+  "max(" + maxfield + ")"; }</tt> <br>
+            <tt>&nbsp;</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; public static int getMax(String field, 
+String    where, RecordDescriptor red)</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throws SQLException 
+  {</tt>        <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; MaxDescriptor
+maxdesc    =&nbsp; new MaxDescriptor(red, field);</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; DatabaseFactory.getDatabase().query(where, 
+   maxdesc, maxdesc, false);</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (maxdesc.getMax() 
+   == null) ? -1 : maxdesc.getMax().intValue();</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+            <tt>}</tt>                                           
+      <p><tt>class Customer extends MappedObject {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; // Attributes and descriptor as always</tt> 
+        </p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; public int getMaxID() throws SQLException
+   {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return MaxDescriptor.getMax("id", 
+   null, getDescriptor());</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+            <tt>}</tt></p>
+            </td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        </p>
+           
+<p>The complete source code of the examples above can be found in <tt><a
+ href="../examples/query">examples/query</a></tt>. </p>
+           
+<p> </p>
+           
+<hr width="100%">       
+<table cellpadding="5">
+       <tbody>
+          <tr>
+       <td><a href="PriDE.html">Home</a></td>
+        <td><a href="PriDE-Introduction.html">Introduction</a></td>
+        <td><a href="javadoc/index.html">Javadoc</a></td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        <br>
+      <br>
+     <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

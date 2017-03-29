@@ -1,0 +1,220 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                        
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+                        
+  <meta name="Author" content="Jan Lessner, jan.lessner@mathema.de">
+  <title>PriDE Document Template, No Title</title>
+                                        
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+            
+<h1> PriDE Design Patterns: Relationships</h1>
+            
+<hr width="100%">      
+<p>An entity resp. a database record usually doesn't stand by its own but
+ is somehow related to other data. A customer has an address, an account
+has  an owner, a car has four wheels and so on. In object-oriented systems
+these  relationships are expressed by object references making up a navigatable
+tree or net structure of objects. Many O/R mapping tools and also the established
+ standards JDO and EJB CMP (version 2.0) include transparent support of object
+ relations. E.g. if there is a 1:1 relationship defined between a customer
+ and his address, an expression like <tt>myCustomer.getAddress()</tt> is
+supposed  to return an Address object. No programming should be required
+for that, and loading of the address record is performed on demand or as
+a join together  with the rest of customer data or somehow else but somehow
+reasonable. Depending  on the O/R mapper's capabilities or the standard it
+follows, it also supports  cascade delete or ensures referencial intergrity
+if object relations are modified.</p>
+   
+<p>At first sight it may be shocking to hear that by default none of these
+ features is supported by PriDE. However, on second sight it turns out that
+ most of these capabilities can easiliy be implemented individually while
+being an unnessesary burden for any toolkit when proclaimed as a standard.
+The example of a customer and its address allows to demonstrate that. When
+using a canonical mapping of an 'addressable' customer, the corresponding
+entity in PriDE would e.g. look like this:<br>
+    <br>
+    </p>
+       
+<p>            </p>
+       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+                <tbody>
+                   <tr>
+                <td><tt>class Customer extends MappedObject {</tt> <br>
+                     <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor 
+  red   =  new  RecordDescriptor</tt>        <br>
+                     <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class,
+      "customer",   null, new String[][] {</tt> <br>
+                     <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        { "id",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        "setId" },</tt> <br>
+                     <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        { "name",&nbsp;&nbsp;&nbsp; "getName",&nbsp;&nbsp;&nbsp; "setName"
+ },</tt>             <br>
+                     <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        { "address_key",&nbsp;&nbsp;&nbsp; "getAddressKey",&nbsp;&nbsp;&nbsp;
+  "setAddressKey" },</tt>             <br>
+                     <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt>
+                                                                        
+                                  
+      <p><tt>&nbsp;&nbsp;&nbsp; private int id;</tt> <br>
+                     <tt>&nbsp;&nbsp;&nbsp; private String name;<br>
+    &nbsp; &nbsp; private int addressKey;<br>
+          </tt> </p>
+                                                                        
+                                              
+      <p><tt>&nbsp;&nbsp;&nbsp; public int getId() { return id; }</tt> <br>
+                     <tt>&nbsp;&nbsp;&nbsp; public String getName() { return
+  name;    }<br>
+    &nbsp; &nbsp; public int getAddressKey() { return addressKey; }<br>
+          </tt>          </p>
+                                                                        
+                                              
+      <p><tt>&nbsp;&nbsp;&nbsp; public void setId(int val) { id = val; }</tt>
+              <br>
+                     <tt>&nbsp;&nbsp;&nbsp; public void setName(String val) 
+ {  name   =  val;   }<br>
+    &nbsp; &nbsp; public void setAddressKey(int val) { addressKey = val;
+}<br>
+          </tt> </p>
+                                                                        
+                                              
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt> <br>
+                     <tt>}</tt></p>
+                     </td>
+                </tr>
+                                                             
+  </tbody>               
+</table>
+                                          
+<p><br>
+  The function <tt>getAddessKey()</tt> only returns the foreign key of an 
+address record but not the data itself. However, providing a transparent navigation
+function is very easy to implement as illustrated in the following extension
+of the <tt>Customer</tt> class:<br>
+    <br>
+    </p>
+       
+<p>            </p>
+         
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+                 <tbody>
+                   <tr>
+                <td><tt>class Customer extends MappedObject &nbsp;{ &nbsp;
+&nbsp;   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;</tt><br>
+                     <tt>&nbsp; &nbsp; // as before<br>
+          <br>
+    &nbsp; &nbsp; Address getAddress() throws SQLException {<br>
+    &nbsp; &nbsp; &nbsp; &nbsp; return new Address(getAddressKey());<br>
+    &nbsp; &nbsp; }<br>
+          </tt>                            
+      <p><tt>}</tt></p>
+                     </td>
+                </tr>
+                                                             
+  </tbody>               
+</table>
+                                       <br>
+         
+<p>Also 1:n relationships or cascade delete can be implemented very easily.
+ Furthermore it turned out in daily practice that self-defined functions
+ of this kind improve the common understanding of the application and the
+traceability of system behaviour in debugging sessions. When using a layered
+architecture with <i>data access objects</i> for database access encapsulation,
+the advantage of transparent relationship support becomes almost irrelevant.
+At last it doesn't count if the implementation of navigation functions is
+based on object networks or any other technique as long as it is simple.
+The following example shows two typical (a little simplified) functions from
+an enterprise solution to demonstrate that relationship support is not important
+for a convenient implementation:<br>
+  <br>
+    </p>
+       
+<p>   </p>
+       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+          <tr>
+       <td><tt>class CustomerStore {</tt>                               
+           
+      <p><font color="#666666"><tt>&nbsp; &nbsp; // Proposed implementation 
+ of an address retrieval with an<br>
+    &nbsp; &nbsp; // O/R mapper with relationship support (1:1)<br>
+    &nbsp;&nbsp;&nbsp; Address getCustomerAddress(Customer customer) throws 
+ SQLException {</tt><br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   return customer.getAddress();</tt><br>
+         <tt>&nbsp;&nbsp;&nbsp; }</tt></font>                  </p>
+                                               
+      <p><font color="#666666"><tt>&nbsp; &nbsp; // Proposed implementation 
+ of &nbsp;a 1:n relationship navigation using an<br>
+    &nbsp; &nbsp; // O/R mapper with relationship support<br>
+         </tt><tt> &nbsp;&nbsp;&nbsp; Collection getCustomerOrders(Customer 
+ customer) throws SQLException {</tt><br>
+         <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   return customer.getOrders();</tt><br>
+         <tt>&nbsp;&nbsp;&nbsp; }</tt></font>                           
+            </p>
+                       
+      <p><tt>&nbsp; &nbsp; // Implementation of an address retrieval with
+  PriDE<br>
+          </tt><tt>&nbsp;&nbsp;&nbsp; Address getCustomerAddress(Customer 
+customer)  throws SQLException {</tt> <br>
+     <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  return new Address(customer.getAddressKey());</tt><br>
+             <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                    <tt></tt>                            
+      <p><tt>&nbsp; &nbsp; // Implementation of an order retrieval with PriDE<br>
+          </tt><tt>&nbsp;&nbsp;&nbsp; Collection getCustomerOrders(Customer 
+ customer) throws SQLException {<br>
+   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Order 
+ order = new Order(customer.getId());<br>
+   &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; return order.query(new String[] 
+ { "customer_id" }).asArrayList()</tt><tt>;</tt><br>
+             <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                                                 
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt><br>
+            <tt>}</tt></p>
+            </td>
+       </tr>
+                         
+  </tbody>      
+</table>
+               
+<p> </p>
+       <br>
+    The complete source code for the examples can be found in <tt><a
+ href="file:///D:/proj/MATHEMA/pride/examples/relation">examples/relation</a></tt>. 
+  <br>
+   <br>
+         
+<p> </p>
+         
+<hr width="100%">      
+<table cellpadding="5">
+      <tbody>
+         <tr>
+      <td><a href="PriDE.html">Home</a></td>
+       <td><a href="PriDE-Introduction.html">Introduction</a></td>
+       <td><a href="javadoc/index.html">Javadoc</a></td>
+      </tr>
+                     
+  </tbody>     
+</table>
+       <br>
+     <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

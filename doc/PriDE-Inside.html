@@ -1,0 +1,152 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                        
+  <meta name="GENERATOR"
+ content="Mozilla/4.77 [en]C-QXC032N1  (Windows NT 5.0; U) [Netscape]">
+  <title>PriDE Inside</title>
+                                        
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+                   
+  <meta name="author" content="Jan Lessner">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+            
+<h1> PriDE Inside</h1>
+            
+<hr width="100%">      
+<h2> Basic Design Principles</h2>
+      PriDE gains its simplicity from a few important design decisions assuming
+   an application architecture based on approved and widly recommended design
+   patterns. This allows to dispense with some popular features which make
+ O/R  mapping toolkits fat and sometimes cause a kind of uncontrollable and
+ unexplainable  self-will when being used extensively. Many of these design
+ patterns are related to a layered software architecture which is most often
+ used for the design of distributed 3-tier systems. However, a layered architecture
+ is in general reasonable and strongly recommended for any system of a certain 
+ complexity, not regarding its physical distribution. Applications of low 
+complexity can usually live with a low-complexity persistence management anyway.
+So a closer look on PriDE's design concepts is mainly of interest for middle
+and large scale systems.      
+<h3> Pure value object approach</h3>
+      In a layered system architecture it is commonly recommended to use
+value    objects like Java Beans for communication between client and server
+components    (see e.g. J2EE Blueprint patterns) rather than passing persistence-aware 
+  objects around, like Entity Beans in EJB CMP or instrumented entites in 
+JDO.  PriDE simply relies on a value object approach all through the system, 
+even  on the O/R mapping level. I.e. for database updates, PriDE gets passed 
+pure  value objects by the caller and it returns pure value objects as result
+  from a query. Copying data from persistence-aware objects to value objects
+  can be ommitted.      
+<h3> No relationship support</h3>
+      Another recommendation for layered systems is to hide database access 
+ in  appropriate facade components and liberate higher levels from any details
+   concerning restrictions or capabilities of the database or the persistence
+   manager (see e.g. design pattern Data Access Object from the J2EE blueprints).
+   As a consequence, relationship navigation is mainly hidden in the low-level
+   implementation of Data Access Objects and thus becomes of minor importance.
+   It could therefore as well be substituted by a less transparent approach
+  as long as it provides similar convenience. <a
+ href="PriDE-Patterns-Relationship.html">PriDE-Patterns-Relationship.html</a>
+demonstrates   how to implement inter-object navigation on PriDE's value
+object approach   in a very convenient way. Some O/R mapping toolkits as
+well as the EJB CMP   2.0 standard also proclaim some features for relationship
+manipulation to   be essential like cascade delete and preservation of referencial
+integrity.   However, implicite mechanisms like these tend to cause difficult
+to understand   system behaviour when being used extensively. Moreover they
+can just cover   a very few <i>technical</i> constraints and don't guarantee
+data consistency   from a <i>business</i> point of view which still needs
+explicit coding.  PriDE doesn't support relationships at all, assuming that
+any kind of inter-object   dependencies are maintained by the business logic.
+     
+<h3> Explicit load and store operations</h3>
+      PriDE does not attempt to provide any load and store optimization.
+Read   and write operations called by the application will always cause immediate
+  database access. Database updates always have to be called explicitly by 
+the application. If client components get passed value objects anyway (see 
+above), it is also the client's task to fetch and send data only where it 
+is actually needed to reduce the communication traffic between client and 
+server interactions. Otherwise the problem would only have been shifted from 
+the server-database layer to the client-server layer. So if the client already 
+takes care for an interaction reduction with its server components, there 
+is usually not much to optimize on lower levels.      
+<h3> No instance management</h3>
+      As a consequence of the approach above, PriDE does not perform any
+management    of instances it got passed for update or it returned from a
+query. It does    not guarantee any object identity, i.e. if the same database
+record is queried  more than once, PriDE will potentially return multiple
+objects representing   the same database record. Object identity and object
+management is lost on  the way to the client anyway when the data is passed
+as a value object on  a higher level. In the other direction the management
+of persistent-aware    objects just causes additional coding work to associate
+the client's value    objects with a managed entity again. This makes sense
+only if the managed    entities provide some key features like store optimization.
+However, PriDE    does not provide any features which require an instance
+management and so  it just keeps from doing so. As an advantage, PriDE's
+performance is always  predictable and never suffers from transparent instance
+management in the  background, which often turned out to cause much more
+trouble in practice  than it solves.<br>
+         
+<h3>No XML-based descriptors</h3>
+     PriDE follows a very pragmatic approach of mapping Java object attributes 
+  to database record fields. The mapping description is itself just an object 
+  which is usually declared as a static member of adapter classes or self-describing 
+  value types. As an advantage over XML-based descriptors (as required for 
+ most O/R mapping toolkits today), a descriptor object is much more flexible 
+ to use e.g. for optimizations or special cases as demonstrated in <a
+ href="PriDE-Patterns-Query.html">PriDE-Patterns-Query.html</a> (class <tt>MaxDescriptor</tt>). 
+  An XML-based representation for standard descriptors should just be a externalization 
+  form, available as an optional feature and not as an integral, mandatory 
+ part of the core toolkit itself. Moreover it is somehow unsuitable for a 
+simple framework with a library of about 60 kbyte size, to be based on megabytes-sized 
+  XML parser frameworks and all the incompatibility problems between these.<br>
+     PriDE is 100% XML-free.<br>
+     <br>
+         
+<h2> Design</h2>
+     The following picture gives an impression of PriDE's internal class
+structure   and the most important relationships.<br>
+     &nbsp;      
+<p><img src="PriDE-Inside-Design.gif" alt="PriDE class design"
+ width="1056" height="1366">
+    &nbsp;  <br>
+     &nbsp; </p>
+         
+<h2>Control flow</h2>
+     The following collaboration and sequence diagramms illustrate the control 
+  flow within PriDE when executing standard operations.      
+<ul>
+      <li> <b><a href="PriDE-Inside-Create-Col.gif">Creation</a> (<a
+ href="PriDE-Inside-Create-Seq.gif">sequence view</a>)</b></li>
+       <li> <b><a href="PriDE-Inside-Delete-Col.gif">Deletion</a> (<a
+ href="PriDE-Inside-Delete-Seq.gif">sequence view</a>)</b></li>
+       <li> <b><a href="PriDE-Inside-Query-Col.gif">Reading</a> (<a
+ href="PriDE-Inside-Query-Seq.gif">sequence view</a>)</b></li>
+       <li> <b><a href="PriDE-Inside-Update-Col.gif">Updating</a> (<a
+ href="PriDE-Inside-Update-Seq.gif">sequence view</a>)</b></li>
+           
+</ul>
+            
+<hr width="100%">      
+<table cellpadding="5">
+      <tbody>
+         <tr>
+      <td><a href="PriDE.html">Home</a></td>
+       <td><a href="PriDE-Introduction.html">Introduction</a></td>
+       <td><a href="javadoc/index.html">Javadoc</a></td>
+      </tr>
+                     
+  </tbody>     
+</table>
+       <br>
+     <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

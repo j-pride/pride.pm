@@ -1,0 +1,290 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+            
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+            
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+            
+  <meta name="Author" content="Jan Lessner, jan.lessner@mathema.de">
+  <title>PriDE Ant Task</title>
+                   
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+   
+  <meta name="author" content="Jan Lessner">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+      
+<h1> PriDE Ant Task</h1>
+      
+<hr width="100%">   
+<p>Users of the build-tool Ant can use a special Ant task to run PriDE's entity
+generator from an Ant build script. The task class is bundled in PriDE's runtime
+library, so it is sufficient to have this library added to the classpath to
+have the task class available. The task can be definied by Ant's taskdef-task 
+like this:<br>
+<br>
+     </p>
+ 
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+     <tbody>
+               
+  </tbody><tbody>
+               
+  </tbody><tbody>
+                 
+  </tbody>  <tbody>
+        <tr>
+     <td><tt>&lt;target name="taskdef" description="Define the PriDE task"&gt;<br>
+ &nbsp;&nbsp;&nbsp; &lt;taskdef name="pride" classname="de.mathema.pride.util.ant.PrideGen" 
+/&gt;<br>
+ &lt;/target&gt;</tt><br>
+       
+      <p></p>
+          </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      <br>
+<h3>Parameters<br>
+</h3>
+ 
+<table cellpadding="2" cellspacing="0" border="1" width="100%">
+   <tbody>
+     <tr>
+       <td valign="top"><b>Attribute</b><br>
+       </td>
+       <td valign="top"><b>Description</b><br>
+       </td>
+       <td valign="top"><b>Required</b><br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">driver<br>
+       </td>
+       <td valign="top">Name of the JDBC driver class for database access<br>
+       </td>
+       <td valign="top">Yes<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">url<br>
+       </td>
+       <td valign="top">Name/URL of the database to access<br>
+       </td>
+       <td valign="top">Yes<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">user<br>
+       </td>
+       <td valign="top">Database login name<br>
+       </td>
+       <td valign="top">No<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">password<br>
+       </td>
+       <td valign="top">   Password for the login name specified above<br>
+       </td>
+       <td valign="top">No<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">table<br>
+       </td>
+       <td valign="top">Name of the database table which to generate an entity 
+class for. This parameter can also be specified as a nested element to address 
+multiple tables. Multiple tables are required for the mapping of joins.<br>
+       </td>
+       <td valign="top">Yes<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">class<br>
+       </td>
+       <td valign="top">Name of the class to generate, including the full 
+package specification if requested. If there is only a single database table 
+addressed by parameter table, the class parameter defaults to the table name. 
+The package path for the class will automatically be created by the task if
+not yet existing. The directory structure is built relative <i>sourceBase 
+      </i>(see below).<br>
+       </td>
+       <td valign="top">Yes, in case of multiple tables<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">baseClass<br>
+       </td>
+       <td valign="top">  Optional name of a base class from which to derive 
+the generated one. Data  members and mappings are only generated for database 
+fields which are not  already mapped by the base class. The specified class 
+must have been already  compiled and must be available from the class path. 
+When generating a value  type only (<i>mode="bean"</i>), the corresponding 
+base <i>adapter      </i>type must be specified.<br>
+       </td>
+       <td valign="top">No<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">beanClass<br>
+       </td>
+       <td valign="top">Only required when generating pure adapter classes. 
+Specifies the name of the bean class to refer to in the adapter. The specified 
+class must have been already  compiled and must be available from the class 
+path.<br>
+       </td>
+       <td valign="top">Yes, for adapter generation<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">sourceBase<br>
+       </td>
+       <td valign="top">Base directory for the source code creation. If this 
+parameter is ommited, package directories and entity files are created relative 
+from the current project directory.<br>
+       </td>
+       <td valign="top">No<br>
+       </td>
+     </tr>
+     <tr>
+       <td valign="top">mode<br>
+       </td>
+       <td valign="top">Generator mode. Value "hybrid" generates  a hybrid 
+entity type including both a record descriptor  and the data members. Value 
+"bean"<i></i> generates a pure value type, including  only the data members. 
+Value "adapter" generates a pure mapping type making use of a seperate bean 
+type to store the data. This mode requires the bean type to be specified by
+parameter <i>beanClass</i>. See      <i><a
+ href="file:///D:/proj/MATHEMA/pride/doc/PriDE-Patterns-Decoupling.html">PriDE-Patterns-Decoupling.html</a></i> 
+ for further details concerning hybrid and decoupled entity types. Default 
+mode is "hybrid".<br>
+       </td>
+       <td valign="top">No<br>
+       </td>
+     </tr>
+   
+  </tbody> 
+</table>
+ <br>
+ 
+<h3>Parameters specified as nested elements</h3>
+<b>table</b><br>
+Specification of a database table to create an entity for. Specifiying this
+element multiple times allows to address all specified tybles at once in
+a joined type. Each table element requires a name attribute specifiying the
+database table name. See <i><a
+ href="file:///D:/proj/MATHEMA/pride/doc/PriDE-Patterns-Join.html">PriDE-Patterns-Join.html</a></i>
+for further information on joins.<br>
+<br>
+<b>classpath</b><br>
+Java's classpath attribute is a PATH-like structure<br>
+<br>
+<h3>Examples</h3>
+Create a hybrid entity type de.test.Customer from a table <i>customer </i>in
+a MySQL test database<br>
+<br>
+       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+     <tbody>
+               
+  </tbody><tbody>
+               
+  </tbody><tbody>
+                 
+  </tbody>  <tbody>
+        <tr>
+     <td><tt>&lt;pride<br>
+&nbsp; &nbsp; driver="com.mysql.jdbc.Driver"<br>
+&nbsp; &nbsp; url="jdbc:mysql://localhost/test"<br>
+&nbsp; &nbsp; class="de.test.Customer"<br>
+&nbsp; &nbsp; table="customer" /&gt;</tt><br>
+                 </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      <br>
+Create a bean type for the same table, specifying the table in a nested element<br>
+<br>
+        
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+      <tbody>
+               
+  </tbody><tbody>
+               
+  </tbody><tbody>
+                 
+  </tbody>  <tbody>
+        <tr>
+     <td><tt>&lt;pride<br>
+ &nbsp; &nbsp; driver="com.mysql.jdbc.Driver"<br>
+ &nbsp; &nbsp; url="jdbc:mysql://localhost/test"<br>
+ &nbsp; &nbsp; class="de.test.CustomerBean"<br>
+ &nbsp; &nbsp; mode="bean"&gt;<br>
+&nbsp; &nbsp; &lt;table name="customer" /&gt;<br>
+&lt;/pride&gt;</tt><br>
+                 </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+       <br>
+Create a corresponding adapter type, assuming that the bean type has already
+been compiled<br>
+ <br>
+         
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+               
+  </tbody><tbody>
+               
+  </tbody><tbody>
+                 
+  </tbody>  <tbody>
+        <tr>
+     <td><tt>&lt;pride<br>
+ &nbsp; &nbsp; driver="com.mysql.jdbc.Driver"<br>
+ &nbsp; &nbsp; url="jdbc:mysql://localhost/test"<br>
+ &nbsp; &nbsp; mode="adapter"<br>
+&nbsp; &nbsp; table="customer"<br>
+ &nbsp; &nbsp; class="de.test.CustomerDBA"<br>
+&nbsp; &nbsp; beanClass="de.test.CustomerBean"&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;classpath&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;pathelement location="." /&gt;<br>
+&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; &lt;pathelement path="${java.class.path}"
+/&gt;<br>
+&nbsp;&nbsp;&nbsp; &lt;/classpath&gt;<br>
+&lt;/pride&gt;</tt><br>
+                 </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+        
+<p><br>
+  </p>
+   
+<p> </p>
+   
+<hr width="100%">   
+<table cellpadding="5">
+   <tbody>
+      <tr>
+   <td><a href="PriDE.html">Home</a></td>
+    <td><a href="PriDE-Introduction.html">Introduction</a></td>
+    <td><a href="javadoc/index.html">Javadoc</a></td>
+   </tr>
+         
+  </tbody>  
+</table>
+    <br>
+  <br>
+ <br>
+</body>
+</html>

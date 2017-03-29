@@ -1,0 +1,1239 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (Windows NT 5.0; U) [Netscape]">
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE Introduction</title>
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+<body alink="#ff0000" bgcolor="#ffffff" link="#0000ef" text="#000000"
+ vlink="#59188e">
+<h1> PriDE Introduction</h1>
+<hr width="100%">
+<blockquote> <li type="square"> <b><a href="#WhatIsPriDE">What is
+PriDE?</a></b></li>
+  <li type="square"> <b><a href="#InitializationOfPriDE">Initialization
+of PriDE</a></b></li>
+  <li type="square"> <b><a href="#MappingOfData">Mapping of data</a></b></li>
+  <li type="square"> <b><a href="#GeneratingEntityTypes">Generation of
+entity classes</a></b></li>
+  <li type="square"> <b><a href="#StandardOperations">Standard
+operations</a></b></li>
+  <li type="square"> <b><a href="#TransactionHandling">Transaction
+handling</a></b></li>
+  <li type="square"> <b><a href="#ErrorHandling">Error handling</a></b></li>
+  <li type="square"> <b><a href="#AccessingMultipleDatabases">Accessing
+multiple databases</a></b></li>
+  <li type="square"> <b><a href="#PreparedStatements">Prepared
+Statements</a></b></li>
+  <li type="square"> <b><a href="#StoredProcedures">Stored Procedures</a></b></li>
+  <li type="square"> <b><a href="#FurtherReading">Further reading</a></b></li>
+</blockquote>
+<hr width="100%">
+<h2> <a name="WhatIsPriDE?"></a>What is PriDE?</h2>
+PriDE stands for '<i><b><u>Pri</u></b>mitive <b><u>D</u></b>atabase <b><u>E</u></b>nvironment</i>'
+and is a simple O/R mapper for relational databases. O/R mapping is the
+wide-spread
+approach to map records of a relation SQL database to objects of an
+object-oriented
+application. The application should operate on its entities as
+object-oriented
+as possible, not regarding that some of them come from a database or
+must
+be saved in one. PriDE provides an infrastructure to
+<ul>
+  <li> Describe the mapping of database tables to Java classes</li>
+  <li> Read and write data records without programming SQL statements</li>
+  <li> Simplify transaction and connection management</li>
+  <li> Unify the exception handling</li>
+</ul>
+In principle, the database access is performed via JDBC, version 2.0
+and uses plain standard SQL for communication. Therefore, PriDE is
+basically suitable for any databases supporting SQL 92 syntax. PriDE
+was designed for usage in J2SE and J2EE environments and is used
+identically in both except some initialization operations. The
+framework follows a very pragmatic approach to provide basic
+development support quickly and easily. It does not claim to conform
+with established persistence management standards but follows
+common design patterns and proved to be suitable in mission-critical
+projects
+over many years now. The feature list <a href="PriDE-Features.html">PriDE-Features.html</a>
+may help to figure out wether PriDE meets the requirements of
+individual development projects, and allows to roughly compare this
+toolkit with existing well-known O/R mapping products and standards
+like EJB CMP 2.0 and JDO. PriDE is probably the smallest O/R mapping
+framework available and thus meets the very key requirement for a
+persistence manager:
+<center>
+<p><b>If persistence management is a critical problem,</b> <br>
+<b>the persistence manager must be an uncritical solution</b></p>
+</center>
+<p><br>
+<br>
+</p>
+<p>PriDE is so small that it can actually be understood in any single
+line of its code, providing the developer full control over how data is
+exchanged between an SQL database and a Java application. Its
+simplicity is based on
+a few important (and partly unpopular) design principles which are
+explained in <a href="PriDE-Inside.html">PriDE-Inside.html</a>. The
+following examples gives a short impression about how PriDE works in an
+application: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>// Initialization</tt> <br>
+      <tt>DatabaseFactory.setResourceAccessor(myAccessor);</tt> <br>
+      <tt>DatabaseFactory.setDatabaseName(myDatabase);</tt>
+      <p><tt>// Record creation</tt> <br>
+      <tt>Customer customer = new Customer(01, "lessner");</tt> <br>
+      <tt>customer.create();</tt> </p>
+      <p><tt>// Single record retrieval</tt> <br>
+      <tt>customer = new Customer(01);</tt> <br>
+      <tt>customer.find();</tt> </p>
+      <p><tt>// Record update</tt> <br>
+      <tt>customer.setName("Lessner");</tt> <br>
+      <tt>customer.update();</tt> </p>
+      <p><tt>// Record deletion</tt> <br>
+      <tt>customer.delete();</tt> </p>
+      <p><tt>// Record query</tt> <br>
+      <tt>ResultIterator iter = customer.query("name");</tt> <br>
+      <tt>do {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; System.out.println(customer.getId());</tt>
+      <br>
+      <tt>} while(iter.next());</tt> </p>
+      <p><tt>// End of transaction</tt> <br>
+      <tt>DatabaseFactory.getDatabase().commit();</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>The operations above are explained in the following sections step by
+step. Basically, the application just deals with the following classes
+from the PriDE library. </p>
+<ul>
+  <li> <b><tt><font size="+0"><a
+ href="javadoc/de/mathema/pride/Database.html">Database</a></font></tt></b></li>
+  <li> <b><tt><font size="+0"><a
+ href="javadoc/de/mathema/pride/ResourceAccessor.html">ResourceAccessor</a></font></tt></b></li>
+  <li> <b><tt><font size="+0"><a
+ href="javadoc/de/mathema/pride/RecordDescriptor.html">RecordDescriptor</a></font></tt></b></li>
+  <li> <b><tt><font size="+0"><a
+ href="javadoc/de/mathema/pride/DatabaseFactory.html">DatabaseFactory</a></font></tt></b></li>
+  <li> <b><tt><font size="+0"><a
+ href="javadoc/de/mathema/pride/MappedObject.html">MappedObject</a>
+resp. <a href="javadoc/de/mathema/pride/ValueObjectAdapter.html">ValueObjectAdapter</a></font></tt></b></li>
+  <li> <b><tt><font size="+0"><a
+ href="javadoc/de/mathema/pride/ResultIterator.html">ResultIterator</a></font></tt></b></li>
+</ul>
+The class <tt><a href="javadoc/de/mathema/pride/Database.html">Database</a></tt>
+makes up the heart of the framework although its operations are usually
+not
+called directly. In general, there are the following different levels
+of
+abstraction, the user may work on:
+<ul>
+  <li> <b>Level 4</b></li>
+  <br>
+The convenience classes <tt><a
+ href="javadoc/de/mathema/pride/MappedObject.html">MappedObject</a></tt>
+and <tt><a href="javadoc/de/mathema/pride/ValueObjectAdapter.html">ValueObjectAdapter</a></tt>
+provide ready-to-use database operations on an per-object basis. This
+is the actual O/R mapping level, being explained in detail below.
+</ul>
+<ul>
+  <li> <b>Level 3</b></li>
+  <br>
+The convenience classes above are based on the methods <tt><a
+ href="javadoc/de/mathema/pride/Database.html#createRecord%28java.lang.Object,%20de.mathema.pride.RecordDescriptor%29">createRecord()</a></tt>,
+  <tt><a
+ href="javadoc/de/mathema/pride/Database.html#updateRecord%28java.lang.Object,%20de.mathema.pride.RecordDescriptor%29">updateRecord()</a></tt>,
+  <tt><a
+ href="javadoc/de/mathema/pride/Database.html#fetchRecord%28java.lang.Object,%20java.lang.Object,%20de.mathema.pride.RecordDescriptor%29">fetchRecord()</a></tt>
+and <tt><a
+ href="javadoc/de/mathema/pride/Database.html#deleteRecord%28java.lang.Object,%20de.mathema.pride.RecordDescriptor%29">deleteRecord()</a></tt>
+of class <tt><a href="javadoc/de/mathema/pride/Database.html">Database</a></tt>.
+They perform database operations using mappings between Java objects
+and database records described by class <tt><a
+ href="javadoc/de/mathema/pride/RecordDescriptor.html">RecordDescriptor</a></tt>.
+The exact principle is explained in the following sections. Additional
+methods on this level for object queries are <tt>query()</tt>, <tt>queryAll()</tt>
+und <tt>wildcardSearch()</tt>.
+</ul>
+<ul>
+  <li> <b>Level 2</b></li>
+  <br>
+The methods <tt><a
+ href="javadoc/de/mathema/pride/Database.html#sqlUpdate%28java.lang.String%29">sqlUpdate()</a></tt>
+und <tt><a
+ href="javadoc/de/mathema/pride/Database.html#sqlQuery%28java.lang.String%29">sqlQuery()</a></tt>
+allow low-level database queries and modifications. These methods
+should only be used in very special cases. They are at least embedded
+in the framework's SQL logging and connection management.
+</ul>
+<ul>
+  <li> <b>Level 1</b></li>
+  <br>
+The function <tt><a
+ href="javadoc/de/mathema/pride/Database.html#getConnection%28%29">getConnection()</a></tt>
+provides a connection to the database which allows to run any ordinary
+JDBC calls. This method should also only be used in very special cases,
+if there are actually no suitable secure and comfortable means of the
+framework suitable. At least the function benefits from the connection
+management of an underlying <tt><a
+ href="javadoc/de/mathema/pride/ResourceAccessor.html">ResourceAccessor</a></tt>.
+</ul>
+<h2> <a name="InitializationOfPriDE"></a>Initializing PriDE</h2>
+As already mentioned above, the database access is performed through
+the central class <tt>Database</tt>. An instance of this class can be
+fetched from the <tt><a
+ href="javadoc/de/mathema/pride/DatabaseFactory.html">DatabaseFactory</a></tt>
+calling the static function <tt><a
+ href="javadoc/de/mathema/pride/DatabaseFactory.html#getDatabase%28%29">getDatabase()</a></tt>.
+This requires a preceeding initialization of the DatabaseFactory to
+have suitable resources available like
+<ul>
+  <li> database driver</li>
+  <li> database URL</li>
+  <li> SQL protocol</li>
+</ul>
+The link to physical resources is provided by implementations of the
+interface <tt><a href="javadoc/de/mathema/pride/ResourceAccessor.html">ResourceAccessor</a></tt>
+following a strategy pattern for database access. PriDE provides the
+classes <tt><a
+ href="javadoc/de/mathema/pride/ResourceAccessorJ2SE.html">ResourceAccessorJ2SE</a></tt>,
+<tt><a href="javadoc/de/mathema/pride/ResourceAccessorWeb.html">ResourceAccessorWeb</a></tt>
+and <tt><a href="javadoc/de/mathema/pride/ResourceAccessorJ2EE.html">ResourceAccessorJ2EE</a></tt>,
+making the framework suitable for standard environments as well as
+servlet engines or application servers. The following example
+demonstrates the initialization of PriDE which has to be performed only
+once per application (e.g. in the <tt>main()</tt> function): <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>Properties props = new Properties();</tt> <br>
+      <tt>props.setProperty(ResourceAccessor.Config.DRIVER,"sun.jdbc.odbc.JdbcOdbcDriver"</tt>);&nbsp;
+      <br>
+      <tt>props.setProperty(ResourceAccessor.Config.USER, "sa"</tt>);&nbsp;
+      <br>
+      <tt>props.setProperty(ResourceAccessor.Config.PASSWORD, ""</tt>);&nbsp;
+      <br>
+      <tt>props.setProperty(ResourceAccessor.Config.LOGFILE, "sql.log"</tt>);&nbsp;
+      <p><tt>ResourceAccessorJ2SE accessor = new
+ResourceAccessorJ2SE(props);</tt> <br>
+      <tt>DatabaseFactory.setResourceAccessor(accessor);</tt> <br>
+      <tt>DatabaseFactory.setDatabaseName("jdbc:odbc:mydb");</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>The classes <tt>ResourceAccessorWeb</tt> and <tt>ResourceAccessorJ2EE</tt>
+assume a database being available as a <tt><a
+ href="http://java.sun.com/j2ee/sdk_1.3/techdocs/api/javax/sql/DataSource.html">DataSource</a></tt>
+by a JNDI lookup. The initialization is very similar and may look like
+this: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>Properties props = new Properties();</tt> <br>
+      <tt>props.setProperty(ResourceAccessor.Config.USER, "sa"</tt>);&nbsp;
+      <br>
+      <tt>props.setProperty(ResourceAccessor.Config.PASSWORD, ""</tt>);&nbsp;
+      <br>
+      <tt>props.setProperty(ResourceAccessor.Config.LOGFILE, "sql.log"</tt>);&nbsp;
+      <p><tt>ResourceAccessorJ2EE accessor = new
+ResourceAccessorJ2EE(props);</tt> <br>
+      <tt>DatabaseFactory.setResourceAccessor(accessor);</tt> <br>
+      <tt>DatabaseFactory.setDatabaseName("jdbc.mydb");</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>When using an application server, there is a suitable place to be
+found for such a static initialization. The <a
+ href="PriDE-Patterns.html">pattern collection</a> includes a general
+recommendation for that case. The usage of multiple databases is
+explained below. A complete list of all available configuration
+properties for the pre-defined resource accessor classes is listed at <a
+ href="PriDE-Config.html">PriDE-Config.html</a>.<br>
+&nbsp; </p>
+<h2> <a name="MappingOfData"></a>Mapping of data</h2>
+PriDE basically supports the mapping of records in a database to Java
+objects and vice versa. The results of a query are iteratively copied
+from
+a JDBC <tt><a
+ href="http://java.sun.com/j2se/1.3/docs/api/java/sql/ResultSet.html">ResultSet</a></tt>
+in a Java entity object of a corresponding type. For database
+manipulation of the database, the data is extracted from an entity
+object to dynamically assemble an SQL statement from it. The mapping
+details are fetched from a
+descriptor and per reflection from the entity object. The class <tt><a
+ href="javadoc/de/mathema/pride/RecordDescriptor.html">RecordDescriptor</a></tt>
+is used to provide mapping descriptions. The following example
+illustrates the usage of descriptor classes:
+<p>For a database table described by <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>CREATE TABLE customer</tt> <br>
+      <tt>(</tt> <br>
+      <tt>&nbsp;
+id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+INTEGER&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; NOT NULL,</tt> <br>
+      <tt>&nbsp; name&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+VARCHAR(20)&nbsp; NOT NULL,</tt>
+      <p><tt>&nbsp; CONSTRAINT PK_customer PRIMARY KEY (id)</tt> <br>
+      <tt>);</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>a corresponding Java entity type may be defined like this: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>class Customer extends MappedObject {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red =
+new RecordDescriptor</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class,
+"customer", null, new String[][] {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{ "id",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "setId" },</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{ "name",&nbsp;&nbsp;&nbsp; "getName",&nbsp;&nbsp;&nbsp; "setName" },</tt>
+      <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt>
+      <p><tt>&nbsp;&nbsp;&nbsp; private int id;</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; private String name;</tt> </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; public int getId() { return id; }</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; public String getName() { return name; }</tt>
+      </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; public void setId(int val) { id = val; }</tt>
+      <br>
+      <tt>&nbsp;&nbsp;&nbsp; public void setName(String val) { name =
+val; }</tt> </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt> <br>
+      <tt>}</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>The desriptor <tt>red</tt> describes the mapping of attributes from
+the Java class <tt>Customer</tt> to the columns of the database table <tt>customer</tt>.
+The constructor gets passed the following specifications </p>
+<ol>
+  <li> The Java class the descriptor refers to</li>
+  <li> The database table name, the descriptor maps the Java objects to</li>
+  <li> A base class descriptor if existing</li>
+  <li> A 2-dimensional string array with one entry per attribute/column:</li>
+  <ul>
+    <li> Name of the database table column</li>
+    <li> Name of the get-method used to read the corresponding value
+from the entity object</li>
+    <li> Name of the set-method used to write a value to the entity
+object</li>
+  </ul>
+</ol>
+The mapping of an entity class to a database table is based on the
+existence of public read and write methods for all attributes which are
+supposed to be persisted. An entity class' mapping descriptor may
+simply be defined
+as a static class variable of the entity class itself. It is
+recommended
+to define the descriptor as a protected member so that it can be
+referred
+from derived entity types. Using the base class <tt><a
+ href="javadoc/de/mathema/pride/MappedObject.html">MappedObject</a></tt>
+is
+not mandatory here, but it provides a set of ready-to-use database read
+and
+write operations. Synchronization with the database is not performed
+automatically
+but requires explicite calls of appropriate member functions. The
+following
+extension of the class above shows how to use the standard operations
+provided
+by <tt>MappedObject </tt>to define a <i>persistence constructor</i>
+and a
+<i>reconstructor</i>. A persistence constructor immediately stores an
+entity
+in the database on construction. A reconstructor restores an entity's
+data
+by key from the database when the entitiy is created. The notions <i>persistence
+constructor</i> and <i>reconstructor </i>are used with the meaning
+above
+in this documentation. <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>class Customer extends MappedObject {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; // attributes and descriptor like above</tt>
+      <p><tt>&nbsp;&nbsp;&nbsp; // provide descriptor access</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; protected RecordDescriptor getDescriptor()
+{ return red; }</tt> </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; // typical persistent construction</tt>
+      <br>
+      <tt>&nbsp;&nbsp;&nbsp; public Customer(int id, String name)
+throws SQLException {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setId(id);</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setName(name);</tt>
+      <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create();</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; // typical reconstruction</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; public Customer(int id) throws
+SQLException {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setId(id);</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; find();</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+      <tt>}</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Find, update and deletion functions for an existing record require a
+primary key to identify the record in the database. By default, the
+methods <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#update%28%29">MappedObject.update()</a></tt>
+and <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#delete%28%29">MappedObject.delete()</a></tt>
+assume that the first database field in the entity's mapping descriptor
+makes
+up the primary key. If this rule is not applicable, an alternative
+specification
+can be provided by overriding the function <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#getKeyFields%28%29">getKeyFields()</a></tt>.
+The following example illustrates the required extensions for such a
+case: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>class Customer extends MappedObject {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; // attributes and descriptor like above</tt>
+      <p><tt>&nbsp;&nbsp;&nbsp; // primary key</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; protected static String[] pk = { "id" };</tt>
+      </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; // primary key access function</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; public String[] getKeyFields() { return
+pk; }</tt> <br>
+      <tt>}</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<h2> <a name="GeneratingEntityTypes"></a>Generating entity types</h2>
+Entity types with a canonic 1:1 mapping for existing database tables
+can be generated by a simple generator. The generator is located in
+package&nbsp; <tt><a
+ href="javadoc/de/mathema/pride/util/package-summary.html">de.mathema.pride.util</a></tt>
+and is called by the following command: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt><a
+ href="javadoc/de/mathema/pride/util/CreateTableTemplate.html">java
+de.mathema.pride.util.CreateTableTemplate</a> \</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp; &lt;driver&gt; &lt;db&gt;
+&lt;user&gt; &lt;password&gt; &lt;table&gt;[,&lt;table2&gt;,...] [
+&lt;class name&gt;
+] [-h | -b | &lt;bean class name&gt;] [ &lt;base class name&gt; ]</tt></td>
+    </tr>
+  </tbody>
+</table>
+<ul>
+  <li> <b><tt>&lt;driver&gt;</tt></b> <br>
+Name of the database driver class, e.g. <tt>sun.jdbc.odbc.JdbcOdbcDriver</tt><br>
+&nbsp; </li>
+  <li> <b><tt>&lt;db&gt;</tt></b> <br>
+Name/URL of the database to access, e.g. <tt>jdbc:odbc:mydb</tt><br>
+&nbsp; </li>
+  <li> <b><tt>&lt;user&gt;</tt></b> <br>
+Database login name <br>
+&nbsp; </li>
+  <li> &nbsp;<b><tt>&lt;password&gt;</tt></b> <br>
+Password for the login name specified above <br>
+&nbsp; </li>
+  <li> <b><tt>&lt;table&gt;,&lt;table2&gt;,...</tt></b> <br>
+Name(s) of the table(s) for which to generate an entity class for.
+Specifiying multiple tables is required for the mapping of joins (see
+also <i><a href="PriDE-Patterns-Join.html">PriDE-Patterns-Join.html</a></i>).<br>
+&nbsp; </li>
+  <li> <b><tt>&lt;class name&gt;</tt></b> <br>
+Optional name of the entity class to generate. By default, the name of
+the database table is used.<br>
+&nbsp; </li>
+  <li><b><tt>-h</tt></b><tt> or </tt><b><tt>-b</tt></b><tt> or</tt><b><tt>
+&lt;bean class name&gt;</tt></b><br>
+Optional specification of the generation mode. Option <i>-h</i>
+generates a hybrid entity type as in the examples above, including both
+a record descriptor and the data members. Option <i>-b</i> generates a
+pure value type, including only the data members. In any other case,
+there is a pure mapping type generated assuming the data to be stored
+in a value type specified as parameter. See <i><a
+ href="PriDE-Patterns-Decoupling.html">PriDE-Patterns-Decoupling.html</a></i>
+for further details. Default is <i>-h</i>.<br>
+&nbsp; </li>
+  <li><b><tt>&lt;base class name&gt;</tt></b><br>
+Optional name of a base class from which to derive the generated one.
+Data members and mappings are only generated for databaes fields which
+are not already mapped by the base class. The specified class must have
+been already compiled and must be available from the class path. When
+generating a value type only (option <i>-b</i>, see above), the
+corresponding base <i>adapter </i>type must be specified.<br>
+  </li>
+</ul>
+<br>
+When using the Eclipse 2.x platform, the generatror can also be run
+from within the IDE by installing the <a href="PriDE-Eclipse.html">PriDE
+plugin</a>.<br>
+<h2> <a name="StandardOperations"></a>Standard operations</h2>
+Entity types derived from <tt><a
+ href="javadoc/de/mathema/pride/MappedObject.html">MappedObject</a></tt>,
+inherit a set of standard operations for creating, reading, updating
+and deleting records in the database. The same operations are available
+in the <tt><a href="javadoc/de/mathema/pride/ValueObjectAdapter.html">ValueObjectAdapter</a></tt>
+suitable for mapping pure value objects like ordinary Java Beans
+instead of itself. The&nbsp; most important operations are roughly
+explained in a few examples below.
+<h3> Creation</h3>
+The member function <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#create%28%29">create()</a></tt>
+allows to create a database record. It reads the contents of an entity
+object and assembles an SQL insert statement according to the object's
+mapping
+descriptor to transmit the data to the database. PriDE's internal
+operations
+on record creation are illustrated in a <a
+ href="PriDE-Inside-Create-Col.gif">UML diagramm</a> (<a
+ href="PriDE-Inside-Create-Seq.gif">sequence view</a>). Before calling
+the
+operation, the object's attributes must be reasonably initialized e.g.
+concerning
+<ul>
+  <li> NULL-value constraints</li>
+  <li> Unique constraints (especially the primary key if existing)</li>
+  <li> Validity of foreign keys</li>
+  <li> Value range limitations</li>
+</ul>
+Entity types created by PriDE's generator tool (<a
+ href="#Generieren+von+Entit%E4tsklassen">s.a.</a>) for example, map
+database columns to primitive data types if the columns don't accept
+NULL values.
+This technically elliminates the risk of setting these attributes to <tt>null</tt>
+and thus elliminates a typical source for mistakes. Nevertheless it is
+the application's responsibility to also fulfill all other constraints
+as well. If an error occurs on record creation, the creation method
+forwards any&nbsp; <tt><a
+ href="http://java.sun.com/j2se/1.3/docs/api/java/sql/SQLException.html">SQLExceptions</a></tt>
+to the caller. Any other exceptions are handled by a central error
+handler (see chapter <i><a href="#Fehlerbehandlung">Error handling</a></i>).
+<br>
+The following examples demonstrates the creation of an entity of type <tt>Customer</tt>
+according to the examples above. <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>try {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; new Customer(01, "Lessner");</tt> <br>
+      <tt>}</tt> <br>
+      <tt>catch(SQLException x) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; x.printStackTrace();</tt> <br>
+      <tt>}</tt></td>
+    </tr>
+  </tbody>
+</table>
+<h3> Read/Query</h3>
+Reading a particular instance by its primary key is performed by member
+function <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#find%28%29">find()</a></tt>.
+Overriding method <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#getKeyFields%28%29">getKeyFields()</a></tt>
+allows an entity type to declare the database fields making up the
+primary key. By default, the very first attribute in the entity's <tt>RecordDescriptor</tt>
+is interpreted as primary key. This is often a good guess as many
+databases use artificial technical keys for all tables. <br>
+Reading a record from the database usually follows a query-by-example
+approach. An entity is created and the primary key attributes are set.
+Afterwards
+the <tt>find()</tt> method is called which assembles an SQL query from
+an
+AND conjunction of all key attribute values. The result is put in the
+same
+entity i.e. all other but the key attributes are supplemented from the
+query's
+result set. PriDE's internal operations on record retrieval are
+illustrated
+in a <a href="PriDE-Inside-Query-Col.gif">UML diagramm</a> (<a
+ href="PriDE-Inside-Query-Seq.gif">sequence view</a>). As in all other
+database operations, any database errors are forwarded as <tt><a
+ href="http://java.sun.com/j2se/1.3/docs/api/java/sql/SQLException.html">SQLExceptions</a></tt>
+to the caller and all other exceptions are handled by a central error
+handler. The following example shows how to read an entity of type <tt>Customer</tt>.
+<br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>try {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; Customer c = new Customer();</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; c.setId(01);</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; c.find();</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; System.out.println(c.getName());</tt> <br>
+      <tt>}</tt> <br>
+      <tt>catch(NoResultsException nrx) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; System.out.println("no such customer");</tt>
+      <br>
+      <tt>}</tt> <br>
+      <tt>catch(SQLException sqlx) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; sqlx.printStackTrace();</tt> <br>
+      <tt>}</tt></td>
+    </tr>
+  </tbody>
+</table>
+<p>An unsuccessful database query in this connection must normally be
+understood as an error condition and is therefore reported by the <tt>find()</tt>
+function as a <tt><a
+ href="javadoc/de/mathema/pride/NoResultsException.html">NoResultsException</a></tt>.
+As it is a derivation from <tt>SQLException</tt>, appropriate catch
+blocks must always be defined <i>before </i>the one for
+SQLExpression. However, a special treatment can often be omitted
+anyway. Querying single objects by
+key attributes is often encapsulated in the entity types' constructors
+as
+shown above for Customer class' reconstructor. The following example
+shows the same query operation as above in a slightly simplified form: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>try {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; Customer c = new Customer(01);</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; System.out.println(c.getName());</tt> <br>
+      <tt>}</tt> <br>
+      <tt>catch(SQLException sqlx) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; sqlx.printStackTrace();</tt> <br>
+      <tt>}</tt></td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>A query-by-example can also be performed on any other combination of
+columns, using function <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#find%28java.lang.String%5B%5D%29">find(String[])</a></tt>.
+The entity always gets passed the data of the very first matching
+database record. If all matching records are of interest, the methods <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#query%28java.lang.String%5B%5D%29">query(String[])</a></tt>
+or <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#wildcard%28java.lang.String%5B%5D%29">wildcard(String[])</a></tt>
+must be used. They also store the very first matching record's data in
+the entity but additionally return a <tt><a
+ href="javadoc/de/mathema/pride/ResultIterator.html">ResultIterator</a></tt>,
+which allows iterative processing of all matching records. The
+following example shows an iteration over all <tt>Customers</tt> with
+a name starting with 'L': <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>try {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; Customer c = new Customer();</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; c.setName("L%");</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; ResultIterator iter = c.wildcard(new
+String[] { "name" });</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; do {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+System.out.println(c.getName());</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; while(iter.next());</tt> <br>
+      <tt>}</tt> <br>
+      <tt>catch(NoResultsException nrx) { /* Nothing to do */ }</tt> <br>
+      <tt>catch(SQLException sqlx) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; sqlx.printStackTrace();</tt> <br>
+      <tt>}</tt></td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>The functions <tt><a
+ href="javadoc/de/mathema/pride/ResultIterator.html#toArray%28%29">toArray()</a></tt>
+and <tt><a
+ href="javadoc/de/mathema/pride/ResultIterator.html#toArrayList%28%29">toArrayList()</a></tt>
+allow to fetch the complete query result as a whole, which is
+comfortable for the processing of small result&nbsp; sets. Additional
+variants for complex query operations can be found in the <a
+ href="PriDE-Patterns.html">pattern overview</a>. </p>
+<h3> Updates</h3>
+The method <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#update%28%29">update()</a></tt>
+allows updating of existing database records. Similar to the record
+creation, the attributes of an entity object are read to assemble an
+SQL update statement. As a difference, only those attributes are
+updated which are not part of the primary key. The latter ones are used
+to assemble a where-clause to identify the record in the database.
+PriDE's internal operations on record update
+are illustrated in a <a href="PriDE-Inside-Update-Col.gif">UML diagramm</a>
+(<a href="PriDE-Inside-Update-Seq.gif">sequence view</a>). The
+following
+example shows an update for the famous <tt>Customer</tt> class from
+the
+examples above. <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>try {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; Customer c = new Customer(01);</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; System.out.println(c.getName());</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; c.setName(c.getName() + "foo");</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; c.update();</tt> <br>
+      <tt>}</tt> <br>
+      <tt>catch(SQLException sqlx) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; sqlx.printStackTrace();</tt> <br>
+      <tt>}</tt></td>
+    </tr>
+  </tbody>
+</table>
+<p>Like for query operations, the method <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#update%28java.lang.String%5B%5D%29">update(String[])</a></tt>
+also allows updating multiple records in one statement by specifying
+another combination of identifying attributes. Of course, this function
+must only be used with great care. In addition it is often required to
+update only <i>selected </i>attributes when addressing mutiple
+records. Therefore the function <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#update%28java.lang.String%5B%5D,%20java.lang.String%5B%5D%29">update(String[],
+String[])</a></tt> is usually of more interest, as it allows to
+specifiy both, the key fields and the fields to update. </p>
+<h3> Deletion</h3>
+Similar to update calls, the function <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#delete%28%29">delete()</a></tt>
+uses an entity's primary key attributes as identification of the record
+which
+should be removed from the database. Also deletion can be performed on
+multiple
+objects in one operation, using function <tt><a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#delete%28java.lang.String%5B%5D%29">delete(String[])</a></tt>.
+PriDE's internal operations on record deletion are illustrated in a <a
+ href="PriDE-Inside-Delete-Col.gif">UML diagramm</a> (<a
+ href="PriDE-Inside-Delete-Seq.gif">sequence view</a>). The following
+example demonstrates record deletion for <tt>a Customer</tt> entity: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>try {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; Customer c = new Customer();</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; c.setId(01);</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; c.delete();</tt> <br>
+      <tt>}</tt> <br>
+      <tt>catch(SQLException sqlx) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; sqlx.printStackTrace();</tt> <br>
+      <tt>}</tt></td>
+    </tr>
+  </tbody>
+</table>
+<p>Most of the operations demonstrated above cause a database
+manipulation. If the database connection in use does not apply <i>auto
+commitment</i>, the operations require an explicite commitment of the
+current transaction before the changes become durable. The <tt><a
+ href="javadoc/de/mathema/pride/ResourceAccessorJ2SE.html">ResourceAccessorJ2SE</a></tt>
+and <tt><a href="javadoc/de/mathema/pride/ResourceAccessorWeb.html">ResourceAccessorJ2SE</a></tt>
+switch off the default auto commitment used by most database drivers.
+The following section gives a short insight to PriDE's transaction
+handling. </p>
+<h2> <a name="TransactionHandling"></a>Transaction handling</h2>
+Explicit transaction handling should only be performed in J2SE
+applications. In application servers it is recommended to use <i>container-managed
+transactions</i>, to keep the responsibility for transaction handling
+out of the application code. Even in J2SE applications, it is helpful
+not to spread explicit transaction handling all over the code but keep
+it in one dedicated layer of a structured software architecture.
+<p>Running transactions in J2SE applications are terminated by the
+functions <tt><a
+ href="javadoc/de/mathema/pride/Database.html#commit%28%29">Database.commit()</a></tt>
+and <tt><a href="javadoc/de/mathema/pride/Database.html#rollback%28%29">Database.rollback()</a></tt>.
+The corresponding functions in&nbsp; <tt>MappedObject</tt> resp. <tt>ValueObjectMapper</tt>
+have the same meaning, i.e. they are not limited to the object they are
+applied
+to. The termination of a transaction refers to the database connection
+of
+the current thread. A unique association of database connections to
+application threads is managed transparently by the <tt><a
+ href="javadoc/de/mathema/pride/ResourceAccessorJ2SE.html">ResourceAccessorJ2SE</a></tt>
+when calling <tt>Database.getConnection()</tt>. An explicit invokation
+of this function is not required as it is implicitely called as soon as
+there is any database interaction performed. The following code is a
+minimal example for transaction handling in PriDE: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>Customer customer = new Customer(01, "Lessner"); //
+Creation</tt> <br>
+      <tt>customer = new Customer(01); // Retrieval</tt> <br>
+      <tt>System.out.println(customer.getName());</tt> <br>
+      <tt>DatabaseFactory.getDatabase().commit();</tt> <br>
+      <tt>// Alternatively: customer.commit();</tt></td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>Components which must be informed about the termination of
+transactions can be registered as <tt><a
+ href="javadoc/de/mathema/pride/TransactionListener.html">TransactionListener</a></tt>.
+This is required e.g. to synchronize database-related caches. The
+following example illustrates the definition of such a listener: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>class TxListener implements TransactionListener {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; public TxListener() {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+DatabaseFactory.getDatabase().addListener(this);</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; public void commit(TransactionEvent e) {
+// Do something }</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; public void rollback(TransactionEvent e) {
+// Do something }</tt> <br>
+      <tt>}</tt></td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<h2> <a name="ErrorHandling"></a>Error handling</h2>
+By default PriDE provides a central error handling which is used for
+all exceptions not being of type <tt>java.sql.SQLException</tt>.
+SQLExceptions propagated to the caller who is supposed to handle it
+reasonably and potentially case-specific. Any other exceptions indicate
+bugs in PriDE or application errors which usually don't allow to
+continue the work in a reasonable way (e.g. a miss-defined <tt>RecordDescriptor</tt>
+may cause a <tt>java.lang.IllegalAccessException</tt> to be thrown). A
+centralized handling of these cases keep the throws-clauses of the
+PriDE API clear.
+<p>Objects of type <tt>Database</tt> get passed an <tt><a
+ href="javadoc/de/mathema/pride/ExceptionListener.html">ExceptionListener</a></tt>
+in the constructor which implements the methods <tt><a
+ href="javadoc/de/mathema/pride/ExceptionListener.html#process%28de.mathema.pride.Database,%20java.lang.Exception%29">process()</a></tt>
+and <tt><a
+ href="javadoc/de/mathema/pride/ExceptionListener.html#processSevere%28de.mathema.pride.Database,%20java.lang.Exception%29">processSevere()</a></tt>.
+The method <tt>process()</tt> is called in case of an error which
+cancels the current operation but does not compromize the application
+as a whole. The method&nbsp; <tt>processSevere()</tt> handles
+exceptions, which indicate a severe error in PriDE or the application
+code with the risk of loosing system integrity. PriDE currently only
+uses <tt>processSevere()</tt> inside. the function is not supposed to
+return control to the caller. i.e. it must either terminate the
+application or throw a runtime exception. </p>
+<p>The <tt>ExceptionListener</tt> to use can be changed with the
+function <tt><a
+ href="javadoc/de/mathema/pride/DatabaseFactory.html#setDefaultExceptionListener%28de.mathema.pride.ExceptionListener%29">DatabaseFactory.setDefaultExceptionListener()</a></tt>.
+The standard handling prints a stack trace of the processed exception
+and terminates the application with exit code 1. Function <tt>process()</tt>
+performs no handling at all, i.e. the passed exception is rethrown.
+Substituting this listener is reasonable if the default behaviour does
+not meet the expectations in a particular project, e.g. if the handling
+must be unified with an application-specific scheme for logging or
+exception propagation and reporting. </p>
+<h2> <a name="AccessingMultipleDatabases"></a>Accessing multiple
+databases</h2>
+The section above concerning PriDE initialization already explained the
+operations required to make a single database accessible. Multiple
+databases or different types of connections to the same database can be
+added with the
+<i>context </i>concept. A context is identified by a name and makes up
+the
+combination of a database name, a suitable <tt>ResourceAccessor</tt>
+and
+optionally an associated <tt>ExceptionListener</tt>. The
+initialization operations
+introduced so far, defined the details of the default context which is
+used,
+if nothing else is specified. The function <tt><a
+ href="javadoc/de/mathema/pride/DatabaseFactory.html#setContext%28java.lang.String%29">DatabaseFactory.setContext(String)</a></tt>
+allows to change the context. The first call of <tt>setContext</tt>
+with a so far undefined context name causes an implicit creation of a
+new context which can be initialized in the same way as already
+explained. The following example demonstrates a simple creation and
+usage of multiple contexts: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>// Initialization of the default context</tt> <br>
+      <tt>ResourceAccessorJ2SE accessor = new ResourceAccessorJ2SE</tt>
+      <br>
+      <tt>&nbsp;&nbsp;&nbsp; ("sun.jdbc.odbc.JdbcOdbcDriver", "sa", "",
+"sql.log");</tt> <br>
+      <tt>DatabaseFactory.setResourceAccessor(accessor);</tt> <br>
+      <tt>DatabaseFactory.setDatabaseName("jdbc:odbc:mydb");</tt>
+      <p><tt>// Creation and initialization of a second context</tt> <br>
+      <tt>// See ResourceAccessorJ2SE Javadocs for performance
+considerations</tt> <br>
+      <tt>DatabaseFactory.setContext("second");</tt> <br>
+      <tt>DatabaseFactory.setResourceAccessor(accessor);</tt> <br>
+      <tt>DatabaseFactory.setDatabaseName("jdbc:odbc:mydb2");</tt> </p>
+      <p><tt>// Fetch a record, now refering to second context</tt> <br>
+      <tt>Customer c = new Customer(8400719);</tt> </p>
+      <p><tt>// Switch to default context and store it in there</tt> <br>
+      <tt>DatabaseFactory.setContext(DatabaseFactory.DEFAULT_CONTEXT);</tt>
+      <br>
+      <tt>c.create();</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Beside an explicite programmatic change, the context may also be
+switched based on entity types. If different contexts are used for
+different databases, the schemata in these databases are usually also
+different and thus require different entity types for access. For this
+case there is an <a
+ href="javadoc/de/mathema/pride/RecordDescriptor.html#RecordDescriptor%28java.lang.Class,%20java.lang.String,%20java.lang.String,%20de.mathema.pride.RecordDescriptor,%20java.lang.String%5B%5D%5B%5D%29">extended
+constructor of RecordDescriptor</a> available, which gets passed the
+declaration of a context to refer to. The selection of the database is
+done implicitely and type-driven within the functions of class <tt>ObjectMapper</tt>
+and its
+derivations. The following example shows two entity types which by
+definition are associated to different contexts: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>// Entity A associated with default context</tt> <br>
+      <tt>class A extends MappedObject {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red =
+new RecordDescriptor</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class,
+DatabaseFactory.DEFAULT_CONTEXT, "A", null,</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+String[][] { { "id", "getId", "setId" } });</tt>
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt> <br>
+      <tt>}</tt> </p>
+      <p><tt>// Entity B associated with context "second"</tt> <br>
+      <tt>class B extends MappedObject {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red =
+new RecordDescriptor</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class,
+"second", "B", null,</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; new
+String[][] { { "id", "getId", "setId" } });</tt> </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; public B(A a) { setId(a.getId()); }</tt>
+      </p>
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt> <br>
+      <tt>}</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<p>An explicite context switch is not required any more which
+simplifies the
+application code and reduces the risk of applying wrong contexts. <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>// Initialization of the default context</tt> <br>
+      <tt>ResourceAccessorJ2SE accessor = new ResourceAccessorJ2SE</tt>
+      <br>
+      <tt>&nbsp;&nbsp;&nbsp; ("sun.jdbc.odbc.JdbcOdbcDriver", "sa", "",
+"sql.log");</tt> <br>
+      <tt>DatabaseFactory.setResourceAccessor(accessor);</tt> <br>
+      <tt>DatabaseFactory.setDatabaseName("jdbc:odbc:mydb");</tt>
+      <p><tt>// Creation and initialization of a second context</tt> <br>
+      <tt>DatabaseFactory.setContext("second");</tt> <br>
+      <tt>DatabaseFactory.setResourceAccessor(accessor);</tt> <br>
+      <tt>DatabaseFactory.setDatabaseName("jdbc:odbc:mydb2");</tt> </p>
+      <p><tt>// Fetch a record, implicitely using the default context</tt>
+      <br>
+      <tt>A a = new A(8400719);</tt> </p>
+      <p><tt>// Write a record, implicitely using the second context</tt>
+      <br>
+      <tt>B b = new B(a);</tt> <br>
+      <tt>b.create();</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<br>
+&nbsp; </p>
+<h2> <a name="PreparedStatements"></a>Prepared Statements</h2>
+PriDE's standard operations are all based on plain SQL and work without
+prepared statements. However, there is also rudimentary support for
+that in
+Version 2.0. The classes <tt><a
+ href="javadoc/de/mathema/pride/PreparedInsert.html">PreparedInsert</a></tt>
+and <tt><a href="javadoc/de/mathema/pride/PreparedUpdate.html">PreparedUpdate</a></tt>
+are available for the most popular types of prepared statements for the
+creation
+and the modification of database records. Additional helper classes may
+be
+derived from the common base class <tt><a
+ href="javadoc/de/mathema/pride/PreparedOperation.html">PreparedOperation</a></tt>
+following the same definition scheme. The concept may be changed in
+future versions of PriDE. The usage of prepared statements within PriDE
+is illustrated in the following example, using <tt>PreparedInsert</tt>
+for an optimized creation of Customer records: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>Customer customer = new Customer(01, "lessner");</tt> <br>
+      <tt>PreparedOperation pop = new
+PreparedInsert(customer.getDesc());</tt> <br>
+      <tt>pop.execute(customer);</tt> <br>
+      <tt>customer.setId(02);</tt> <br>
+      <tt>pop.execute(customer);</tt> <br>
+      <tt>customer.setId(03);</tt> <br>
+      <tt>pop.execute(customer);</tt> <br>
+      <tt>db.commit();</tt></td>
+    </tr>
+  </tbody>
+</table>
+<h2> <a name="StoredProcedures"></a>Stored Procedures</h2>
+For a simplified invocation of stored procedures, PriDE provides the
+abstract base class <tt><a
+ href="javadoc/de/mathema/pride/StoredProcedure.html">StoredProcedure</a></tt>.
+For any required concrete SP there is a corresponding caller class
+derived from <tt>StoredProcedure</tt>, defining the call parameters as
+public members. Input parameters are defined as final members which
+therefore must be initialized in the constructor. Output parameters are
+declared as non-final members. The execution is performed by calling <tt><a
+ href="javadoc/de/mathema/pride/StoredProcedure.html#execute%28de.mathema.pride.Database%29">StoredProcedure.execute()</a></tt>,
+which causes PriDE to dynamically assemble a call string and associate
+the object's members with the SP parameters. The following example
+shows such a caller class for the stored procedure <tt>"CreateCustomer"</tt>,
+which
+is supposed to create Customer records. If the SP has a different name
+than
+the class, the function <tt><a
+ href="javadoc/de/mathema/pride/StoredProcedure.html#getName%28%29">getName()</a></tt>
+must be overridden. <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt>// Accessor class for Stored Procedure "CreateCustomer"</tt>
+      <br>
+      <tt>public class CreateCustomer extends StoredProcedure {</tt> <br>
+      <tt>&nbsp; // Output parameter, is supposed to be generated by
+the SP here</tt> <br>
+      <tt>&nbsp; public int id;</tt> <br>
+      <tt>&nbsp; // Input parameter to be provided by the caller</tt> <br>
+      <tt>&nbsp; public final String name;</tt>
+      <p><tt>&nbsp; public CreateCustomer(String name) {</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; // This is a must, otherwise the compiler
+will complain</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp; this.name = name;</tt> <br>
+      <tt>&nbsp; }</tt> <br>
+      <tt>}</tt> </p>
+      <p><tt>// Usage</tt> <br>
+      <tt>StoredProcedure sp = new CreateCustomer("Lessner");</tt> <br>
+      <tt>sp.execute(DatabaseFactory.getDatabase());</tt></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<p>Like for entity types it were helpful to generate the access
+classes. Unfortunately
+the structure of meta data for SPs is strongly vendor-specific in the
+database.
+For Oracle databases there is a generator available in package <tt><a
+ href="javadoc/de/mathema/pride/util/package-summary.html">de.mathema.pride.util</a></tt>
+which is called by the following command line: <br>
+<br>
+<br>
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><tt><a
+ href="javadoc/de/mathema/pride/util/StoredProcedureGenerator.html">java
+de.mathema.pride.util.StoredProcedureGenerator</a>
+\</tt> <br>
+      <tt>&nbsp;&nbsp;&nbsp;&nbsp; -p &lt;package&gt; -s &lt;sp&gt; -c
+&lt;class&gt; -d &lt;driver&gt; -i &lt;db&gt; -u &lt;user&gt; -w
+&lt;password&gt;</tt></td>
+    </tr>
+  </tbody>
+</table>
+</p>
+<ul>
+  <li> <b><tt>-p &lt;package&gt;</tt></b></li>
+  <br>
+Optional name of the database package (not Java package!), containing
+the stored procedure <li> <b><tt>-d &lt;driver&gt;</tt></b></li>
+  <br>
+Name of the driver class, e.g. <tt>sun.jdbc.odbc.JdbcOdbcDriver</tt> <li>
+    <b><tt>-i &lt;db&gt;</tt></b></li>
+  <br>
+Name/URL of the database, e.g. <tt>jdbc:odbc:mydb</tt> <li> <b><tt>-u
+&lt;user&gt;</tt></b></li>
+  <br>
+Database login name <li> <b><tt>-w &lt;password&gt;</tt></b></li>
+  <br>
+Password for the login name above <li> <b><tt>-s &lt;sp&gt;</tt></b></li>
+  <br>
+Name of the stored procedure, which to generate an access class for <li>
+    <b><tt>-c &lt;class&gt;</tt></b></li>
+  <br>
+Optional name of the access class to generate. By default, the name of
+the SP is used
+</ul>
+<h2> <a name="FurtherReading"></a>Further reading</h2>
+For efficient usage of PriDE in more complex systems, it is stronly
+recommended to read through the <a href="PriDE-Patterns.html">patterns
+chapter</a> which explains solutions for common problems in persistence
+management not directly being covered by the PriDE standard
+functionality.
+<p>For an overview of PriDE's standard attribute type mappings and
+extension facilities, see chapter <a href="PriDE-Mapping.html">PriDE-Mapping.html</a>.
+</p>
+<p>An extended option for the mapping of entities are <a
+ href="PriDE-GenericAttrs.html">generic attributes</a>. This features
+hasn't evolved for a while now and therefore tends to be a little out
+of date.
+</p>
+<p>For the assembly of complex queries, there exists a simple <a
+ href="javadoc/de/mathema/pride/SQLExpression.html">expression builder</a>.
+<br>
+</p>
+<hr width="100%"> <br>
+<br>
+<table cellpadding="5">
+  <tbody>
+  </tbody><tbody>
+  </tbody><tbody>
+  </tbody> <tbody>
+    <tr>
+      <td><a href="PriDE.html">Home</a></td>
+      <td><a href="PriDE-Introduction.html">Introduction</a></td>
+      <td><a href="javadoc/index.html">Javadoc</a></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+&nbsp; <br>
+<br>
+<br>
+</body>
+</html>

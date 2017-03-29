@@ -1,0 +1,92 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                        
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+                        
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE FAQ</title>
+                                        
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+            
+<h1> PriDE FAQ</h1>
+            
+<hr width="100%">      
+<h3>What is PriDE?</h3>
+      PriDE stands for '<i><b><u>Pri</u></b>mitive <b><u>D</u></b>atabase 
+<b><u>E</u></b>nvironment</i>'   and is a simple O/R mapper for relational 
+databases. O/R mapping is the wide-spread approach to map records of a relational 
+SQL database to objects of a object-oriented application. See <a
+ href="PriDE-Introduction.html">PriDE Introduction</a>.
+
+<h3> What does PriDE?</h3>
+      The <a href="PriDE-Features.html">PriDE Featurelist</a> should help 
+to figure out wether PriDE is suitable for particular requirements. It also
+ allows a rough comparison with other well-known O/R mapping toolkits.   
+
+<h3> In which environments can PriDE be used?</h3>
+   PriDE is suitable for both J2SE and J2EE environment. Its <tt>ResourceAccessor 
+ </tt>interface also allows to integrate PriDE in any other resource management 
+ infrastructure. Since release 2.0.3 e.g. there is a <tt>ResourceAccessorWeb 
+ </tt>delivered for easy integration in servlet engines like Tomcat.<br>
+     
+<h3> Is PriDE fast enough?</h3>
+   Yes, it defnitely is! PriDE does not provide things like transparent caching
+ or a load/store optimization and therefore does not claim to be <i>faster
+ </i>than the underlaying database. But on the other hand it always works
+straight-forward and does not show unexplainable side-effects when being
+used in complex applications. For standard operations its performance is
+very close to plain JDBC, i.e. clearly faster than most other O/R mapping
+toolkits.<br>
+   
+<h3> Can I work with multiple databases in PriDE?</h3>
+Mutiple databases can be accessed by PriDE's concept of database contexts
+(see the  <a href="PriDE-Introduction.html">PriDE Introduction</a>).
+You just have to keep in mind that PriDE doesn't perform a sophisticated
+transaction and resource management. E.g. if you need distributed 2-phase-commit
+for resource-spanning transactions, you are supposed to run PriDE on an application
+server.<br>
+
+<h3>Tomcat sometimes dies when using PriDE in servlets!</h3>
+This is probably caused by PriDE's old default severe error handler which just
+prints an exception stack trace and calls System.exit(1). This behaviour has been
+changed since version 2.3.1 to throw a RuntimeException instead. You can also check
+the servlet example from the PriDE destribution how to handle severe error situations
+in a less restrictive way. However, you should spend some time thinking over if your
+application is actually able to continue working properly after unexpected severe
+error situations. It is often difficult to garuantee a consistent state of the
+application's internal data.<br>
+
+<h3>Do I have to organize transactions?</h3>
+PriDE does not perform any transaction management, so it depends on the runtime
+environment what to do. When running PriDE in a J2EE environment you can
+rely on the application server's transaction and resource management and
+use CMP for instance if you don't want your code to manage transactions.
+In J2SE environments, transactions must definitely by managed by the application.
+However, the <tt>ResourceAccessorJ2SE</tt> at least propagates open connections
+by a <tt>ThreadLocal </tt>allowing to share a connection by all functions
+along a call chain and terminate transactions only on the top level. So it
+is usually very simple to organize.            
+<p> </p>
+         
+<hr width="100%">      
+<table cellpadding="5">
+      <tbody>
+         <tr>
+      <td><a href="PriDE.html">Home</a></td>
+       <td><a href="PriDE-Introduction.html">Introduction</a></td>
+       <td><a href="javadoc/index.html">Javadoc</a></td>
+      </tr>
+                     
+  </tbody>     
+</table>
+       <br>
+</body>
+</html>

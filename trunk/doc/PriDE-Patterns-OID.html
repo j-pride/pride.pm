@@ -1,0 +1,250 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                                        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                                        
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+                                        
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE OIDs</title>
+                                                                       
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+                    
+<h1> PriDE Design Patterns: OIDs</h1>
+                    
+<hr width="100%">          
+<p>One of the features mentioned in the <a href="PriDE-Features.html">feature
+    list</a> which is not directly covered by PriDE, are unique object identifiers
+    (OIDs) for all entites of a system. A simple way to introduce these IDs
+  is  to provide an appropriate base class which all entites are derived
+from.    As PriDE does not perform a database initialization but is based
+on an existing   schema, the latter one must of course provide the required
+basic structure.   I.e. all tables must have a common field that is suitable
+for identification   purposes.<br>
+        The following examples shows a base class definition using a numeric
+  database   field <tt>id</tt> for identification: <br>
+         &nbsp;          
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt>abstract class Entity extends MappedObject {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red 
+ =  new  RecordDescriptor</tt>        <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Entity.class,
+  null,    null, new String[][] {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "id", "getId", "setId" },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt>  
+                                                             
+      <p><tt>&nbsp;&nbsp;&nbsp; private int id;</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; public int getId() { return id; }</tt>
+        <br>
+               <tt>&nbsp;&nbsp;&nbsp; public void setId(int val) { id = val; 
+  }</tt>         </p>
+                                                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // Reconstructor</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; protected Entity(int id) throws SQLException
+     {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.id = id;</tt>
+          <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; find();</tt>
+       <br>
+               <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                                                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; protected Entity() throws SQLException {</tt>
+           <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id = IDGenerator.newID();</tt>
+           <br>
+               <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+               <tt>}</tt></p>
+               </td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           </p>
+                 
+<p>The class <tt>Entity</tt> is defined <tt>abstract</tt> as it is only used
+    as a base class and should not be instantiated directly. The specification
+  of  the database table is <tt>null</tt> as there is no relationship  to
+ a particular table yet. The definition of function <tt>getDescriptor()</tt>
+    can be omitted for this abstract class. The function <tt>getKeyFields()</tt>
+   is also  not required as the primary key is the first attribute in the
+record   descriptor,  i.e. the ID. The question of automatic generation of
+object  IDs is discussed  later. In the example we assume that there is an
+ID generator   available somehow.  The class <tt>Customer </tt>from the PriDE
+introduction   can now be defined  as a derivation of that base class, inheriting
+the numeric   identification  attribute:<br>
+         &nbsp;          
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt>class Customer extends Entity {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red 
+ =  new  RecordDescriptor</tt>        <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class,
+   "customer",   Entity.red, new String[][] {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "name",&nbsp;&nbsp;&nbsp; "getName",&nbsp;&nbsp;&nbsp; "setName" },</tt>
+           <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; protected RecordDescriptor getDescriptor()
+    { return red; }</tt>                                                
+              
+      <p><tt>&nbsp;&nbsp;&nbsp; private String name;</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; public String getName() { return name;
+  }</tt>          <br>
+               <tt>&nbsp;&nbsp;&nbsp; public void setName(String val) { name
+  =  val;   }</tt> </p>
+                                                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // persistent construction</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; public Customer(String name) throws 
+SQLException     {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setName(name);</tt>
+          <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; create();</tt>
+        <br>
+               <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                                                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // reconstruction</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; public Customer(int id) throws SQLException
+    {</tt>        <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super(id);</tt> 
+        <br>
+               <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+               <tt>}</tt></p>
+               </td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           </p>
+                 
+<p>Of course, it would be nice if polymorphism could be applied for all base
+    operations for creation, update, deletion and selection in all classes
+ derived   from Entity. In fact, PriDE's reflection-based mapping mechanism
+ is already   suitable for polymorphic usage.: <br>
+         &nbsp;          
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt>Entity entity = new Customer("lessner");</tt> <br>
+               <tt>entity.create(); // Creates a record in the customer table</tt>
+           <br>
+               <tt>entity.update(); // Updates a record in the customer table</tt>
+           <br>
+               <tt>entity.delete(); // Deletes a record from the customer 
+table</tt></td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           </p>
+                 
+<p>If also a polymorphic reconstruction is required, the type information
+    must be coded into the ID, e.g. by number sets like in an EAN-13 coding
+  scheme  (IDs 2000xxxxxxxxx are <tt>Customer</tt> records). The class Entity
+  would  have to be extended by a static method extracting the required 
+entity   type from the ID and invoking the type's constructor which gets
+passed  the  ID as the only parameter:<br>
+         &nbsp;          
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt>abstract class Entity extends MappedObject {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; // Definitions like above</tt>    
+                                                           
+      <p><tt>&nbsp;&nbsp;&nbsp; static Entity find(int id) throws Exception 
+    {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Class entityClass 
+   = MyMap.findClassFromID(id);</tt>        <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Constuctor
+ctor   =  entityClass.getConstructor(new  Class[] { int.class });</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return (Entity)ctor.newInstance(new
+     Object[] { new Integer(id) });</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+               <tt>}</tt></p>
+               </td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           </p>
+                 
+<p>Generating suitable IDs is of course still an open issue. PriDE doesn't
+    provide any support for that yet (although it would be a nice utility
+class    for the future). At least there are some general approaches which
+make an   implementation quite easy: </p>
+                 
+<ul>
+          <li> Calculation of the currently highest number in the corresponding 
+   table (see also <a href="PriDE-Patterns-Query.html">patterns for complex 
+  queries</a>) and usage of this value +1. This may cause conflicts since 
+there  is a gap between reading and writing. The easiest way to work around 
+the conflicts is to repeat the creation attempt several times with step-wise 
+incremented ID values. This approach potentially causes expensive database 
+calls for the maximum calculation. However, it is sometimes used within stored 
+procedures.</li>
+           &nbsp; <li>Using automatic sequence numbers of the database system.
+   This  is usually a fast approach but may require an additional read operation
+   after  successful creation to make the sequence number available for follow-up
+   operations  on the same object. Such database-managed columns must usually 
+not be initialized in a record creation. You can therefore cause PriDE to 
+ommit initialization for particular columns by overriding function <a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html#getAutoFields%28%29"><tt>ObjectAdapter.getAutoFields()</tt></a>.
+The auto-generated fields are fetched from the database immediatly after
+insertion. This is by default done using function Statement.getGeneratedKeys()
+which unfortunately is not supported by all JDBC drivers. However, PriDE
+also knows about some vendor-specific ways to fetch this data.</li>
+           <br>
+          <li>Using self-defined counters in a separate table, e.g. the table 
+      <tt>attributes</tt>  used for <a href="PriDE-GenericAttrs.html">generic 
+  attributes</a>. For calculation  of a new ID, the counter is read from the
+  table and updated with an incremented  value. The retrieved value is used
+as ID.  Concurrent access to the table by different  applications must be
+managed   somehow, e.g. by <a href="PriDE-Patterns-Locking.html">optimistic 
+locking</a>.   This approach  is basically pretty slow due to repeated updates 
+on both,  the sequence table  and the actual table of interest. However, you
+can speed-up   the application by not querying a counter value for every single
+ID but reserving   a range of IDs with every call.<br>
+            <br>
+          </li>
+          <li>A decentralized approach, calculating unique IDs independently
+  from the database. The best-known pattern for this strategy is the UUID
+pattern  (see Java source code at <a
+ href="http://dev.w3.org/cvsweb/%7Echeckout%7E/java/classes/org/w3c/util/UUID.java">W3C</a>).
+  The IDs are usually a little ugly but they can be generated pretty fast
+with  no garantee but a good chance for actually being globally unique.</li>
+                   
+</ul>
+        <br>
+                     
+<hr width="100%">           
+<table cellpadding="5">
+          <tbody>
+             <tr>
+          <td><a href="PriDE.html">Home</a></td>
+          <td><a href="PriDE-Introduction.html">Introduction</a></td>
+          <td><a href="javadoc/index.html">Javadoc</a></td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           <br>
+         <br>
+        <br>
+       <br>
+      <br>
+     <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

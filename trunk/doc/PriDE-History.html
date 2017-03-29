@@ -1,0 +1,175 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (Windows NT 5.0; U) [Netscape]">
+  <title>PriDE History</title>
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+<body alink="#ff0000" bgcolor="#ffffff" link="#0000ef" text="#000000"
+ vlink="#59188e">
+<h1> PriDE History</h1>
+<hr width="100%">
+<h2>Version 2.5.0, 2014-09-07</h2>
+Postgres mappings updated<br>
+Support for Postgres column type hstore added<br>
+Support for Postgres array columns added<br>
+<h2>Version 2.4.0, 2009-10-27</h2>
+Support for Enums added which also means end-of-life for JDK 1.4 support<br>
+Extensions in SQLExpression<br>
+Improved detection of setter methods in AttributeDescriptor<br>
+<h2>Version 2.3.2, 2007-06-08</h2>
+Bugfix for prepared operations in conjunction with multiple database contexts (SF request 1414722)<br>
+Robustness of ResultIterator improved (SF request 1404043)<br>
+Seconds and milliseconds added to default SQL logging<br>
+Empty WHERE clauses cause complete selection rather than SQL syntax error (SF request 1733979)<br>
+<h2>Version 2.3.1, 2005-12-08</h2>
+Build script changed from make to Ant<br>
+Bugfix for <tt>SQLOperator.NOTIN</tt> (SR request 1340583)<br>
+Function <tt>Database.getDBName()</tt> added (SR request 1365576)<br>
+Function <tt>DatabaseFactory.getContext()</tt> added (SR request
+1372809)<br>
+<tt>System.exit(1)</tt> removed from default exception listener (SR
+request 1279860)<br>
+Check for closed connections added in <tt>ResourceAccessorJ2SE</tt>
+(SR request 1251960)<br>
+SQL command failures are reported to logfile (SR request 1372816)<br>
+Documentation of configuration properties added (SR request 259342)<br>
+Functions <tt>getFetchSize()</tt> and <tt>setFetchSize()</tt> added
+to <tt>ResultIterator</tt> (SR request 1363567)<br>
+Bugfix in where-clause assembly for prepared statements (SR request
+1363560)
+<h2>Version 2.3.0, 2005-06-05</h2>
+Licence changed to LGPL<br>
+Properties passed in constructor of ResourceAccessorJ2SE are forwarded
+to the DriverManager for potential connection configuration<br>
+Improvement in entity generator concerning tinyints, numerics and
+decimals
+as suggested by Franco Biaggi<br>
+Entity generator generates record descriptor as <i>final</i> member<br>
+Generator bugfix for tables/views without primary keys (SR request
+1186452)<br>
+Support for retrieval of auto-generated values after insertion<br>
+Support for HSQL added (in fact there was nothing to do except for
+auto-fields)<br>
+<h2>Version 2.2.3, 2005-03-17</h2>
+New function <tt>getDBType()</tt> added in classes <tt>ResourceAccessor</tt>,
+<tt>AbstractResourceAccessor</tt>, and <tt>Database</tt><br>
+<h2>Version 2.2.2, 2005-03-01</h2>
+Multi-threading bug fixed (SF request 1153527)<br>
+Ant Task for entity generator added (SF request 1120104)<br>
+<h2>Version 2.2.1, 2005-01-05</h2>
+Eclipse plugin updated (SF request 1087909)<br>
+Extensions in class <tt>RecordDescriptor</tt> for better support of
+joins<br>
+Documentation for join support extended<br>
+<h2> Version 2.2.0, 2004-07-29</h2>
+Improvement in entity generator by Andre Costa<br>
+Nasty debugging relict removed, speeding up query operations up to 50%
+(SF request 989952)<br>
+Flexible ResultSet data access, default is now by-name (SF request
+994472)
+<h2> Version 2.1.3, 2004-06-29</h2>
+Function <tt>ObjectAdapter.getAutoFields</tt> added to ommit
+initialization of database-managed columns
+<h2>Version 2.1.2, 2004-06-21</h2>
+Minor bugfixes in entity generator (SF requests 961379 and 959310)<br>
+Minor improvement in Eclipse plugin (SF request 965001)
+<h2> Version 2.1.1, 2004-04-12</h2>
+<tt>PreparedOperation</tt> extended by functions <tt>addBatch</tt> und
+<tt>executeBatch</tt><br>
+Separate generation of value and mapping types added in entity generator<br>
+Support for base classes for generated types added in entity generator<br>
+Eclipse plugin extended accordingly
+<h2> Version 2.1.0, 2004-02-23</h2>
+Eclipse plugin for entity generation added<br>
+Interface <tt>ResourceAccessorI</tt> slightly extended<br>
+Support for database-side system time added
+<h2> Version 2.0.4, 2003-10-28</h2>
+Quickstart tutorial added<br>
+Problem with wrong <tt>IllegalAccessException</tt> fixed (SF request
+831715)<br>
+Problem with missing update field fixed (SF request 831921)
+<h2> Version 2.0.3, 2003-10-16</h2>
+Handling of <tt>null</tt> parameters in prepared operations improved<br>
+<tt>ResourceAccessorWeb</tt> added for using PriDE in a servlet engine<br>
+Unit testing extended for DB2 and usage from servlet engines<br>
+Servlet example added<br>
+Typos removed in the documentation
+<h2> Version 2.0.2, 2003-09-30</h2>
+<tt>ResourceAccessorJ2SE </tt>improved for use in multiple contexts<br>
+Mapping for Java type <tt>byte </tt>added<br>
+SQL formating for boolean members added in <tt>AbstractResourceAccessor</tt><br>
+Passing NULL values to prepared statements improved<br>
+&nbsp; (caused <tt>NullPointerException </tt>for boolean parameters)
+<h2> Version 2.0.1, 2003-08-04</h2>
+Documentation reviewed and slightly improved<br>
+<h2> Version 2.0.0, 2003-06-30</h2>
+Baseline for Open Source release<br>
+Documentation translated to English<br>
+Convenience adapter classes refactored<br>
+Configuration of resource accessors by property lists<br>
+Improved error detection<br>
+New method <tt>formatPreparedValue </tt>in interface <tt>SQLFormatter</tt><br>
+Support for <tt>java.util.Date</tt> in prepared statements<br>
+Type <tt>java.util.Date</tt> by default mapped to <tt>java.sql.Timestamp</tt><br>
+Class <tt>ResultIterator </tt>extended<br>
+Partial update functionality added<br>
+<h2> Version 1.2.3, 2003-06-11</h2>
+Mappings f&uuml;r <tt>Clob</tt>, <tt>Blob</tt> und <tt>byte[]</tt>
+added<br>
+<tt>PreparedStatementAccess.init</tt> ist now public (analogous to <tt>ResultSetAccess</tt>)
+<br>
+New function <tt>ResultIterator.getObject</tt> added
+<h2> Version 1.2.2, 2002-12-04</h2>
+Generator supports entity types from multiple tables (joins)
+<br>
+Some imporvements in <tt>ResultIterator</tt> <br>
+Some improvements in <tt>ResultSetAccess</tt> <br>
+Bug fixed in wildcard methods<br>
+Type <tt>java.util.Date</tt> by default mapped to <tt>java.sql.Date</tt>
+<br>
+Typos in examples removed <br>
+JUnittests for base functionality added
+<h2> Version 1.2.0, 2002-09-11</h2>
+Rudimentary support for prepared statements <br>
+Neue base class <tt>StoredProcedure</tt> to call stored procedures <br>
+Simple SQL expression builder (class <tt>SQLExpression</tt>) <br>
+New interface <tt>SQLFormatter</tt> f&uuml;r common handling of SQL
+formatting
+<h2> Version 1.1.2, 2002-06-23</h2>
+New function <tt>ResourceAccessor.formatValue()</tt> f&uuml;r
+DB-specific SQL formatting
+<h2> Version 1.1.1, 2002-02-15</h2>
+Internal calls of <tt>getDeclaredMethod()</tt> replaced by <tt>getMethod()</tt>
+f&uuml;r applications in restrictive environments (e.g. J2EE
+implementation by SUN).
+<h2> Version 1.1.0, 2001-11-29</h2>
+First released version
+<p> </p>
+<hr width="100%">
+<table cellpadding="5">
+  <tbody>
+    <tr>
+      <td><a href="PriDE.html">Home</a></td>
+      <td><a href="PriDE-Introduction.html">Introduction</a></td>
+      <td><a href="javadoc/index.html">Javadoc</a></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

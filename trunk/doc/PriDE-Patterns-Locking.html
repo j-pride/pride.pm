@@ -1,0 +1,247 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                    
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                    
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+                    
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE Optimistic Locking</title>
+                                 
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+          
+<h1> PriDE Design Patterns: Optimistic Locking</h1>
+          
+<hr width="100%">     
+<p><i>Optimistic Locking</i> is a typical concept for the management of concurrent 
+ update access from multiple applications on one database. An update of an 
+existing record is only  performed if it has not been modified by someone 
+else since  the current application has read the record of interest the last 
+time. If  it was modified, the caller is informed about a concurrent access 
+conflict.  This concept can easily be implemented with PriDE making use of 
+the patterns  introduced so far. All entity types which optimistic locking 
+should be applied  to, inherit from a base class, providing the required locking
+information.  This is usually just a simple version counter for every record,
+e.g.<br>
+    &nbsp;     
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+     <tbody>
+        <tr>
+     <td><tt>class OptimisticLock extends MappedObject {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red =
+new  RecordDescriptor</tt>        <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (OptimisticLock.class, 
+  null, null, new String[][] {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  { "version", "getVersion", "setVersion" },</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; protected RecordDescriptor getDescriptor() 
+ { return red; }</tt>                             
+      <p><tt>&nbsp;&nbsp;&nbsp; private long version;</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; public long getVersion() { return version; 
+ }</tt>        <br>
+          <tt>&nbsp;&nbsp;&nbsp; public void setVersion(long val) { version 
+ =  val; }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp; protected OptimisticLock() { version = 0;
+  }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp; public int update() throws SQLException {</tt> 
+        </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Lock check goes
+  here...</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; super.update();</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+          <tt>}</tt></p>
+          </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      </p>
+       
+<p>For the detection of access conflicts there are two different approaches 
+ explained below. The more efficient one concerning the number of database 
+ operations increments the version counter with every update call. The non-incremented 
+ value is added to the where-clause causing the update to work only if the 
+ record's version counter wasn't modified by another application in the meanwhile. 
+ A simple implementation is an extension for the where-clause which PriDE 
+uses for a database update:<br>
+    &nbsp;     
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+     <tbody>
+        <tr>
+     <td><tt>class OptimisticLock extends MappedObject {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; //...</tt>                             
+      <p><tt>&nbsp;&nbsp;&nbsp; public int update() throws SQLException {</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setVersion(getVersion() 
+  + 1);</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int numRows = update</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  (constraint() + " AND version=" + (getVersion()-1));</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (numRows == 0)</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  throw new SQLException("optimistic lock error");</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return numRows;</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+          <tt>}</tt></p>
+          </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      </p>
+       
+<p>The application assumes a conflict, if the update returns 0, i.e. there 
+ was no record found matching the restriction by primary key and version number.<br>
+   Another concept is to read the version counter immediatly before update
+ in a way that the corresponding record is locked for concurrent write access 
+ by different applications (<i>select-for-update</i>). The actual update is
+ performed only if the entity's state and the record's state in the database 
+ are identical. This concept takes additional database operations and is therefore
+ less efficient. On the other hand it is much safer as it can also become
+aware  of a concurrent record deletion (both physical and logical). As a
+difference  to the standard read method, the entity's current data must not
+be overridden  in the select-for-update to keep the state which is required 
+for later update.  Reading only the version counter reduces the data transfer 
+between application  and database. The following class provides the corresponding 
+base functionality:<br>
+    &nbsp;     
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+     <tbody>
+        <tr>
+     <td><tt>public class OptimisticLockClone extends OptimisticLock {</tt> 
+       <br>
+          <tt>&nbsp;&nbsp;&nbsp; // The object to update and thus the one 
+to  take</tt>        <br>
+          <tt>&nbsp;&nbsp;&nbsp; // the primary key data for a version number 
+  query from</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; private OptimisticLock source;</tt>    
+                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // Specialized record descriptor, which takes 
+  data for a query from member</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; // 'source' above, queries only the 'version' 
+  field and stores the</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; // result in the clone.</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; private class CloneDescriptor extends RecordDescriptor 
+  {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public CloneDescriptor() 
+  {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  super(OptimisticLock.class, null, OptimisticLock.red, null);</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Always take the
+  table name from the 'source' object above</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public String getTableName() 
+  { return source.getDesc().getTableName(); }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Always build constraints 
+  from the 'source' object above</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public String getConstraint(Object 
+  obj, String[] dbfields, boolean byLike)</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  throws IllegalAccessException, InvocationTargetException {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  return source.getDesc().getConstraint(source, dbfields, byLike);</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; // Always query for
+  the 'version' field only</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public String getResultFields() 
+  { return "version"; }</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp; private RecordDescriptor red = new CloneDescriptor();</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp; public RecordDescriptor getDescriptor()
+{  return  red; }</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; public String[] getKeyFields() { return
+source.getKeyFields();   }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp; public OptimisticLockClone(OptimisticLock
+  source) { this.source = source; }</tt> </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp; public void findAndLock() throws SQLException 
+  {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; find(constraint()
+ + " FOR UPDATE");</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+          <tt>}</tt></p>
+          </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      </p>
+       
+<p>By means of class <tt>OptimisticLockClone</tt> the function <tt>OptimisticLock.update()</tt> 
+  can now be extended by the version check as follows:<br>
+    &nbsp;     
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+     <tbody>
+        <tr>
+     <td><tt>class OptimisticLock extends MappedObject {</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp; //...</tt>                             
+      <p><tt>&nbsp;&nbsp;&nbsp; public int update() throws SQLException {</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; OptimisticLockClone 
+ clone = new OptimisticLockClone(this);</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; clone.findAndLock();</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (clone.getVersion() 
+  &gt; getVersion())</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  throw new SQLException("optimistic lock error");</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (clone.getVersion() 
+  &lt; getVersion())</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  throw new SQLException("consistency error");</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setVersion(getVersion() 
+  + 1);</tt> <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return super.update();</tt> 
+        <br>
+          <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+          <tt>}</tt></p>
+          </td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      </p>
+       
+<p>The complete source code of the examples above can be found in <tt><a
+ href="../examples/locking">examples/locking</a></tt>. <br>
+     </p>
+       
+<hr width="100%">     
+<table cellpadding="5">
+     <tbody>
+        <tr>
+     <td><a href="PriDE.html">Home</a></td>
+      <td><a href="PriDE-Introduction.html">Introduction</a></td>
+      <td><a href="javadoc/index.html">Javadoc</a></td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

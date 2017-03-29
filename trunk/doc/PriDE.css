@@ -1,0 +1,22 @@
+/* PriDE style sheet */
+
+body {
+  FONT-FAMILY: Verdana,Geneva,Arial,Helvetica,sans-serif;
+  FONT-SIZE: 10pt;
+}
+td {
+  FONT-FAMILY: Verdana,Geneva,Arial,Helvetica,sans-serif;
+  FONT-SIZE: 10pt;
+}
+tt {
+  FONT-FAMILY: Courier-New;
+  FONT-SIZE: 10pt;
+}
+h1 { FONT-SIZE: 22pt; }
+h2 { FONT-SIZE: 15pt; MARGIN-TOP: 0.3in; }
+h3 { FONT-SIZE: 12pt; FONT-STYLE: italic; MARGIN-TOP: 0.2in; }
+h4 { FONT-SIZE: 10pt; }
+a:link { COLOR: #3366CC; }
+a:active { COLOR: #0000CC; }
+a:hover { COLOR: #FF0000; }
+a:visited { COLOR: #9999CC; }

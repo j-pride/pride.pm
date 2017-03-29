@@ -1,0 +1,193 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                            
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                            
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+                            
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE Separation of database and business concerns</title>
+                                                  
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+              
+<h1> PriDE Design Patterns:<br>
+     Separation of database and business concerns</h1>
+            
+<hr width="100%" size="2">     
+<p>The examples in the introduction all follow the approach of declaring 
+the <tt>RecordDescriptor</tt> of an entity type as a static member of this 
+ type itself.  As an advantage, the information about the actual data and 
+its mapping to  the database are kept in a single class making it easy to 
+overview and maintain in the whole. This approach is reasonable for simple 
+applications where the business  logic does not require any abstraction from 
+the physical persistence  design or - on the contrary - is so complex, that 
+the database access is completely encapsulated and data must be copied from 
+physical entities to higher-level ones anyway. Althouh encapsulation of database 
+operations is generally recommended (see also <a
+ href="PriDE-Patterns-Caching.html">caching</a>), the mapping between business 
+entities and physical database records may be quite trivial and copying of 
+data is not welcome with respect to maintainability and performance. </p>
+           
+<p>To achieve a separation of data and its database mapping, there is an alternative
+convenience class <tt><a
+ href="javadoc/de/mathema/pride/ValueObjectAdapter.html">ObjectAdapter</a></tt> 
+  available. It provides the same functions like <tt><a
+ href="javadoc/de/mathema/pride/MappedObject.html">MappedObject</a></tt>
+(which actually is derived from <a
+ href="javadoc/de/mathema/pride/ObjectAdapter.html"><tt>ObjectAdapter</tt></a>), 
+  but as a difference its functions don't operate on the object itself but 
+ on a separate object. This object just has to provide getter and setter methods
+  for all attributes which are supposed to be persisted. It may therefore 
+be  a pure value object according to the Java Bean conventions. The following 
+  example shows a variant of class <tt>Customer</tt>, which makes use of this
+  separation of concerns:<br>
+      &nbsp; <br>
+      &nbsp;       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+          <tr>
+       <td><tt>// Customer business object</tt> <br>
+            <tt>class Customer {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; private int id;</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; private String name;</tt>            
+                              
+      <p><tt>&nbsp;&nbsp;&nbsp; public int getId() { return id; }</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; public String getName() { return name; 
+}</tt>          </p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; public void setId(int val) { id = val; }</tt> 
+         <br>
+            <tt>&nbsp;&nbsp;&nbsp; public void setName(String val) { name 
+=  val;   }</tt><tt></tt> </p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; public Customer(int id, String name) {</tt> 
+         <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.id = id;</tt> 
+        <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; this.name = name;</tt> 
+         <br>
+            <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+            <tt>}</tt><tt></tt> </p>
+                                               
+      <p><tt>// Customer database adapter</tt> <br>
+            <tt>class CustomerAdapter extends ObjectAdapter {</tt></p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = new
+   RecordDescriptor</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class, 
+ "customer",   null, new String[][] {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   { "id",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   "setId" },</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   { "name",&nbsp;&nbsp;&nbsp; "getName",&nbsp;&nbsp;&nbsp; "setName" },</tt> 
+         <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt><br>
+            <tt><br>
+      &nbsp;&nbsp;&nbsp; public Customer getBizObject() {<br>
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; return (Customer)getEntity();<br>
+      &nbsp;&nbsp;&nbsp; }</tt> </p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; public CustomerAdapter(Customer bizobj) {
+   super(bizobj); }</tt> </p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; // Reconstruction</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; public CustomerAdapter(int id) {<br>
+      &nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; super(</tt><tt>new Customer(id, 
+ null));</tt><br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; find();</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                                               
+      <p><tt>}</tt></p>
+            </td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        </p>
+           
+<p>The class <tt>Customer</tt> in the example above is completely free from 
+  database mapping details and is reduced to the effective data. The class 
+ <tt>CustomerAdapter</tt> contains the mapping information and provides functions 
+ for data exchange with the database. It does <i>not </i>directly contain 
+the data to exchange but keeps a reference to the business object which its 
+operations refer to. </p>
+           
+<p>This approach is especially of interest in a layered system architecture 
+ as it is also recommened for the <a href="PriDE-Patterns-Caching.html">caching 
+  patterns</a>. The database access may e.g. completely be decoupled from 
+the  business logic, following a facade pattern and making up a so-called 
+<i>data  access object</i>. The facade interacts with the business logic by
+business  entities and primtive types and uses the mapping classes only internally.
+ The following class fragment demonstrates such a concept:<br>
+      &nbsp;       
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+       <tbody>
+          <tr>
+       <td><tt>class CustomerStore {</tt><tt></tt>                      
+                    
+      <p><tt>&nbsp;&nbsp;&nbsp; Customer getCustomer(int id) throws StoreException 
+   {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   return new CustomerAdapter(id).getBizObject();</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; catch(NoResultsException 
+   nrx) { return null; }</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; catch(SQLException 
+  sqlx)  { throw new StoreException(sqlx); }</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; }</tt><tt></tt> </p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; Customer updateCustomer(Customer customer)
+   throws StoreException {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   new CustomerAdapter(customer).update();</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   return customer;</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; catch(SQLException 
+  sqlx)  { throw new StoreException(sqlx); }</tt> <br>
+            <tt>&nbsp;&nbsp;&nbsp; }</tt><tt></tt> </p>
+                                               
+      <p><tt>&nbsp;&nbsp;&nbsp; // and so forth</tt> <br>
+            <tt>}</tt></p>
+            </td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        </p>
+           
+<p> </p>
+PriDE's entity generator allows to generate separate mapping and value types
+by appropriate options. See the <a href="PriDE-Introduction.html#GeneratingEntityTypes">
+introduction</a>
+for details.        
+<hr width="100%"><br>
+         
+<table cellpadding="5">
+       <tbody>
+          <tr>
+       <td><a href="PriDE.html">Home</a></td>
+       <td><a href="PriDE-Introduction.html">Introduction</a></td>
+       <td><a href="javadoc/index.html">Javadoc</a></td>
+       </tr>
+                         
+  </tbody>      
+</table>
+        <br>
+      <br>
+     <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

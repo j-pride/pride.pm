@@ -1,0 +1,390 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                                        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                                        
+  <meta name="GENERATOR"
+ content="Mozilla/4.79 [en] (Windows NT 5.0; U) [Netscape]">
+                                        
+  <meta name="Author" content="Jan Lessner, jan.lessner@mathema.de">
+  <title>PriDE Joins</title>
+                                                                    
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+                    
+<h1> PriDE Design Patterns: Joins</h1>
+                    
+<hr width="100%">          
+<p>A key feature of SQL databases is the ability to extract data of related
+    tables in a single call (this is actually what makes them 'relational').
+  The  SQL term for this feature is the so-called <i>join</i>. As a difference
+ to most other O/R mapping toolkits, PriDE simply treats a join as an entity
+ type being assembled from the data of multiple tables.   It just has to
+be  considered that join entities are not suitable for updates   and that
+the  relationship rule must somehow be provided by the application. PriDE
+provides  several different ways to build joins., depending on the application
+needs.<br>
+  </p>
+   
+<h3>Dedicated entity types</h3>
+   
+<p>The following example demonstrates an entity class for   a join from a
+ customer and an order table, providing an individual selection of fields
+from both tables and making use of a foreign-key relationship:<br>
+         &nbsp;          
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt>// Joined entity type providing customer ID, customer name,</tt>
+           <br>
+               <tt>// order ID and order volume from the tables 'customer'
+ and</tt>           <br>
+               <tt>// 'orders' in one query</tt> <br>
+               <tt>public class CustomerOrder extends MappedObject</tt> <br>
+               <tt>{</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; // The table relation to consider in
+ all   queries</tt>         <br>
+               <tt>&nbsp;&nbsp;&nbsp; private static final String JOIN =
+"  AND   customer.id=orders.customer_id";</tt>                          
+                                      
+      <p><tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = new 
+    RecordDescriptor</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (CustomerOrder.class,
+     "customer,orders", null, new String[][] {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "customer.id",&nbsp;&nbsp; "getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"setId"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "customer.name", "getName",&nbsp;&nbsp;&nbsp; "setName"&nbsp;&nbsp;&nbsp;
+     },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "orders.id",&nbsp;&nbsp;&nbsp;&nbsp; "getOrderId", "setOrderId" },</tt>
+           <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "orders.volume", "getVolume",&nbsp; "setVolume"&nbsp; },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; protected RecordDescriptor getDescriptor()
+    { return red; }</tt> </p>
+                                                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; //...</tt> </p>
+                                                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // Returns the list of all orders for the 
+    specified customer</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; public ResultIterator query(int customerId)
+    throws SQLException {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; id = customerId;</tt>
+           <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return super.query(constraint()
+     + JOIN);</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; }</tt> <br>
+               <tt>}</tt></p>
+               </td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           </p>
+                 
+<p>If the relationship rule becomes more complex, it is recommended to use
+    <tt><a href="javadoc/de/mathema/pride/SQLExpression.html">SQLExpression</a></tt>
+    for a safer expression assembly. Of course this would often require field
+    identifiers as right-hand side operators and thus a suppression of the
+ standard   SQL formatting. Using the helper class <tt><a
+ href="javadoc/de/mathema/pride/SQLRaw.html">SQLRaw</a></tt>  ommits any
+formatting of the provided value. The following example shows how to assemble
+the relationship rule above using an <tt>SQLExpression</tt>: <br>
+         &nbsp;          
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt>// Empty SQLExpression</tt> <br>
+               <tt>SQLExpression join = new SQLExpression(DatabaseFactory.getDatabase());</tt>
+           <br>
+               <tt>// Join criteria using SQLRaw to suppress SQL formatting 
+ of  "orders.customer_id"</tt>         <br>
+               <tt>join = join.and("customer.id", new SQLRaw("orders.customer_id"));</tt>
+           <br>
+               <tt>// join.and above didn't actually produce an "AND" as
+the   expression</tt>          <br>
+               <tt>// was formerly empty. So we add it explicitely here</tt>
+        <br>
+               <tt>String JOIN = "AND " + join.toString();</tt></td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           </p>
+                 
+<h3>Distinct</h3>
+     An important variant for join queries is to remove duplicates in the 
+result   set by adding the qualifier "DISTINCT" to the query expression. As
+join types  can only be used for read operations, a distinct join in PriDE 
+could simply  be expressed by adding the keyword to the very first field identfier
+in the  corresponding record descriptor, e.g.<br>
+     <br>
+                
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt></tt>                                                 
+               
+      <p><tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = new 
+    RecordDescriptor</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (CustomerOrder.class,
+     "customer,orders", null, new String[][] {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "DISTINCT customer.id",&nbsp;&nbsp; "getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+  "setId"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;   },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "customer.name", "getName",&nbsp;&nbsp;&nbsp; "setName"&nbsp;&nbsp;&nbsp;
+     },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "orders.id",&nbsp;&nbsp;&nbsp;&nbsp; "getOrderId", "setOrderId" },</tt>
+           <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "orders.volume", "getVolume",&nbsp; "setVolume"&nbsp; },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; protected RecordDescriptor getDescriptor()
+    { return red; }</tt> </p>
+                                                                       
+      <p><tt></tt></p>
+           </td>
+         </tr>
+                   
+  </tbody>     
+</table>
+     <br>
+     Allthough this solution actually works, it is of course conceptionally 
+ questionable  (it would cause troubles e.g. when having a base descriptor 
+ specified). A  safer way is e.g. to use a specialized record descriptor as
+ demonstrated in the following example.<br>
+     <br>
+               
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+          <tbody>
+             <tr>
+          <td><tt>public class DistinctRecordDescriptor extends RecordDescriptor 
+  {<br>
+     &nbsp; &nbsp; public DistinctRecordDescriptor(<br>
+     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; Class objectType, String dbtable,<br>
+     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; RecordDescriptor baseDescriptor, String[][] 
+  attributeMap)<br>
+     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; throws IllegalDescriptorException {<br>
+     &nbsp;&nbsp;&nbsp; &nbsp; &nbsp; super(objectType, dbtable, baseDescriptor, 
+  attributeMap);<br>
+     &nbsp; &nbsp; }<br>
+           <br>
+     &nbsp; &nbsp; protected String getResultFields() {<br>
+     &nbsp; &nbsp; &nbsp; &nbsp; return "DISTINCT " + super.getResultFields();<br>
+     &nbsp; &nbsp; }<br>
+     }</tt><br>
+           </td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+                       
+<p> The code above is suitable for any distinct join definition and will probably
+become a core PriDE class in the future. It is simply used instead of the
+standard <tt>RecordDescriptor</tt> type, performing a distinct selection, 
+  e.g.<br>
+            </p>
+         
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+           <tbody>
+             <tr>
+          <td>                                                           
+     
+      <p><tt>&nbsp;&nbsp;&nbsp; protected static DistinctRecordDescriptor 
+  red = new DistinctRecordDescriptor</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (CustomerOrder.class,
+     "customer,orders", null, new String[][] {</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "customer.id",&nbsp;&nbsp; "getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"setId"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "customer.name", "getName",&nbsp;&nbsp;&nbsp; "setName"&nbsp;&nbsp;&nbsp;
+     },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "orders.id",&nbsp;&nbsp;&nbsp;&nbsp; "getOrderId", "setOrderId" },</tt>
+           <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+     { "orders.volume", "getVolume",&nbsp; "setVolume"&nbsp; },</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt> <br>
+               <tt>&nbsp;&nbsp;&nbsp; protected RecordDescriptor getDescriptor()
+    { return red; }</tt> </p>
+                                    </td>
+         </tr>
+                   
+  </tbody>      
+</table>
+           
+<p>Entity classes for the data from multiple tables can automatically be
+created by the entity generator mentioned in the <a
+ href="PriDE-Introduction.html">introduction</a>. The tables of interest
+are passed as a comma-separated list instead of just passing a single table
+ name.  Another way to work with joins is the configuration of views in the
+ database which can be accessed within PriDE like an ordinary table.<br>
+ </p>
+ 
+<h3>Extended queries</h3>
+     
+<p>In many cases, a join simply queries a table which is already mapped but
+ has to take this table's relationship to other tables into account. For
+these  cases, PriDE provides an appropriate copy constructor for record descriptors.
+ The following example shows a derivation of the customer entity from the
+introduction chapter, making use of this feature. It retrieves all customers
+having ordered something in the past which requires to take a look on the
+related order table without actually returning any data from it:<br>
+   </p>
+     
+<p>        </p>
+     
+<table bgcolor="#ffffcc" cellpadding="10" cellspacing="10">
+           <tbody>
+             <tr>
+          <td><tt>// Extended customer type to retrieve "active" customers</tt><br>
+               <tt>public class ActiveCustomer extends Customer {<br>
+  &nbsp;&nbsp;&nbsp; // An inner join to use for retrieval<br>
+        </tt><tt>&nbsp;&nbsp;&nbsp; private static final String JOIN = "customer
+ c inner join orders o on o.customer_id = c.id";<br>
+        </tt><br>
+        <tt>&nbsp;&nbsp;&nbsp; // An extended record descriptor specifying
+ the alias "c"<br>
+  &nbsp;&nbsp;&nbsp; // and the alternate table expression JOIN<br>
+  &nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = new RecordDescriptor(Customer.red,
+ "c", JOIN);<br>
+        <br>
+  &nbsp;&nbsp;&nbsp; protected RecordDescriptor getDescriptor() { return
+red;  }<br>
+  }</tt>              
+      <p></p>
+               </td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+                            
+<h3>Complex entity types<br>
+   </h3>
+   
+<p>Another reason for the use of joins is the reduction of database interactions
+ by retrieving the data of multiple tables in a single step. In this case,
+ the query results can often be represented by an aggregation of already
+mapped  types. Using the copy constructor for records descriptors as shown
+above,  also allows to build specialized descriptors for complex entity types.
+The  following example shows a descriptor retrieving customers and their
+potential  last order, using an outer join with the order table:<br>
+                 </p>
+   
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+           <tbody>
+             <tr>
+          <td>                                                           
+     
+      <p><tt>public class JoinedCustomer extends Customer {<br>
+        </tt><br>
+        <tt>&nbsp;&nbsp;&nbsp; private static final String JOIN =<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "customer c left outer join
+orders  o on o.customer_id = c.id";<br>
+  &nbsp;&nbsp;&nbsp; &nbsp;<br>
+  &nbsp;&nbsp;&nbsp; private Order lastOrder;<br>
+  &nbsp;&nbsp;&nbsp; public Order getLastOrder() { return lastOrder; }<br>
+  &nbsp;&nbsp;&nbsp; public void setLastOrder(Order lastOrder) { this.lastOrder
+ = lastOrder; }<br>
+        </tt><br>
+        <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = new
+ JoinedDescriptor();<br>
+  &nbsp;&nbsp;&nbsp; public RecordDescriptor getDescriptor() { return red;
+ }<br>
+        <br>
+  &nbsp;&nbsp;&nbsp; /**<br>
+  &nbsp;&nbsp;&nbsp;&nbsp; * Specialized record descriptor for selecting
+customers  and their<br>
+  &nbsp;&nbsp;&nbsp;&nbsp; * potential last order by a single SQL command 
+using an outer join.<br>
+  &nbsp;&nbsp;&nbsp;&nbsp; */<br>
+  &nbsp;&nbsp;&nbsp; protected static class JoinedDescriptor extends RecordDescriptor
+ {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; private RecordDescriptor orderDesc
+ = new RecordDescriptor(Order.red, "o");<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public JoinedDescriptor() {
+super(Customer.red,  "c", JOIN); }<br>
+        </tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; protected String getResultFields()
+ {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+ super.getResultFields() + ", " + orderDesc.getFieldNames(null);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;</tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>
+        <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; public int record2object(Object
+ obj, ResultSet results, int position)<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; throws
+ SQLException, IllegalAccessException, InvocationTargetException {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; JoinedCustomer
+ jc = (JoinedCustomer)obj;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; position
+ = super.record2object(obj, results, position);</tt></p>
+       
+      <p><tt>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; // Check for existence 
+of an order part in the result record<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; results.getObject(position);<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!results.wasNull())
+ {<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ jc.lastOrder = new Order();<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ orderDesc.record2object(jc.lastOrder, results, position);<br>
+        </tt><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ }<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+ jc.lastOrder = null;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; position
+ += orderDesc.totalAttributes();<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return
+ position;<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp;&nbsp; }<br>
+  &nbsp;&nbsp; &nbsp;<br>
+  }</tt><br>
+   </p>
+                                    </td>
+         </tr>
+                   
+  </tbody>      
+</table>
+           
+<p>       The source code of the examples above can be found in <tt><a
+ href="file:///D:/proj/MATHEMA/pride/examples/join">examples/join</a></tt>.
+  </p>
+                 
+<p> </p>
+                 
+<hr width="100%">          
+<table cellpadding="5">
+          <tbody>
+             <tr>
+          <td><a href="PriDE.html">Home</a></td>
+           <td><a href="PriDE-Introduction.html">Introduction</a></td>
+           <td><a href="javadoc/index.html">Javadoc</a></td>
+          </tr>
+                                     
+  </tbody>         
+</table>
+           <br>
+         <br>
+        <br>
+       <br>
+      <br>
+     <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

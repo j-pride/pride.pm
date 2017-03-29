@@ -1,0 +1,124 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                     
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                     
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+  <title>PriDE Generic Attributes</title>
+                                      
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+            
+<h1>Generic Attributes</h1>
+            
+<hr width="100%">      
+<p>The features described in this chapter have not  evolved for a while now 
+ and therefore tend to be a little out of date.</p>
+     
+<p>Beside the standard mapping explained in the <a
+ href="PriDE-Introduction.html">Introduction</a>, there can also be generic 
+ extension attributes defined in entity classes which are stored in the database 
+ in a separate table. This table can be accessed either the ordinary way using
+ the entity class <tt>de.mathema.pride.Attribute</tt> or by extended descriptors
+ to embed the generic attributes in specific entity types. The following
+example  shows an extension of class <tt>Customer</tt>  from the introduction
+by a  generic attribute <tt>solvency</tt>:<br>
+    &nbsp;      
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+      <tbody>
+        <tr>
+      <td><tt>class Customer extends MappedObject {</tt>  <br>
+          <tt>&nbsp;&nbsp;&nbsp; // attributes, descriptor and access methods 
+   like above</tt>                              
+      <p><tt>&nbsp;&nbsp;&nbsp; // Additional datamember and its access methods</tt> 
+   <br>
+          <tt>&nbsp;&nbsp;&nbsp; private String solvency;</tt>  <br>
+          <tt>&nbsp;&nbsp;&nbsp; public String getSolvency() { return solvency; 
+   }</tt>  <br>
+          <tt>&nbsp;&nbsp;&nbsp; public void setSolvency(String val) { solvency 
+   = val; }</tt>  </p>
+                               
+      <p><tt>&nbsp;&nbsp;&nbsp; // Extension descriptor and its access method</tt> 
+   <br>
+          <tt>&nbsp;&nbsp;&nbsp; protected static ExtensionDescriptor xd
+=  new   ExtensionDescriptor</tt>  <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (red, new String[][] 
+   {</tt>  <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+   { "solvency", "getSolvency", "setSolvency" }</tt>  <br>
+          <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt> 
+   <br>
+          <tt>&nbsp;&nbsp;&nbsp; protected ExtensionDescriptor getXDescriptor()
+  { return  xd; }</tt>  <br>
+          <tt>}</tt></p>
+          </td>
+      </tr>
+                  
+  </tbody>    
+</table>
+        </p>
+       
+<p>Reading and writing of generic attributes is not performed automatically 
+ during reading and writing of other attributes but must explicitely be called 
+ by the functions <tt>fetchx()</tt>,  <tt>createx()</tt> and <tt>updatex()</tt>. 
+ The function <tt>updatex(String)</tt>   allows to update a single attribute 
+ to minimize database interactions. The class <tt>ExtensionDescriptor</tt> 
+ allows to map generic attributes to data members of an entity class. Its 
+structure  is pretty similar to the one for standard mappings. Its constructor 
+requires   </p>
+       
+<ol>
+      <li>The <tt>RecordDescriptor</tt> if the entity type</li>
+        <li>A 2-dimensional string array in the same style as for standard
+ mapping</li>
+          
+</ol>
+   Although seldomly used, generic attributes are much more flexible and
+have  some advantages:      
+<ul>
+      <li>  <b>Derivation in the database</b></li>
+        <br>
+   Although the standard mapping approach allows entity derivation, the records 
+ of derived types must be stored in different databases tables. Generic attributes 
+ provide full, transparent polymorphism.<br>
+    &nbsp;  <li>  <b>Extension of entities without database schema modification</b></li>
+        <br>
+   Generic attributes are stored type-neutral as separate records in table
+   <tt>attribute</tt>. An extension of an entity class by additional attributes
+ does not require any changes of the database schema but just causes appropriate
+ additional records to appear in the attribute table.  <br>
+    &nbsp;  <li>  <b>Variable number of attributes</b></li>
+        <br>
+   Generic attributes are also of interest if the number and structure of 
+attributes  is not known at compile time. However, in this case you can't
+use a static initialization as this relies on a fix structure.    
+</ul>
+   As a drawback, generic attributes potentially take a lot more space in
+ the database and a higher number of database interactions. They should therefore
+ only be used if the number of records and attributes is small and interactions
+ are not time-critical.      
+<p>  </p>
+       
+<hr width="100%">       
+<table cellpadding="5">
+     <tbody>
+        <tr>
+     <td><a href="PriDE.html">Home</a></td>
+     <td><a href="PriDE-Introduction.html">Introduction</a></td>
+     <td><a href="javadoc/index.html">Javadoc</a></td>
+     </tr>
+                 
+  </tbody>    
+</table>
+      <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

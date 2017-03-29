@@ -1,0 +1,104 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+  <meta name="GENERATOR"
+ content="Mozilla/4.75 [de]C-CCK-MCD DT  (WinNT; U) [Netscape]">
+  <meta name="Author" content="Jan Lessner, jan.lessner@mathema.de">
+  <title>PriDE Configuration</title>
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+  <meta content="Jan Lessner" name="author">
+</head>
+<body alink="#ff0000" bgcolor="#ffffff" link="#0000ef" text="#000000"
+ vlink="#59188e">
+<h1> PriDE Configuration<br>
+</h1>
+<hr width="100%">
+<p>PriDE's basic configuration mechanism is the interface
+ResourceAccessor. It defines details of an application's database
+access strategy as explained in the <a
+ href="PriDE-Introduction.html#InitializationOfPriDE">introduction</a>.
+Although every application may provide its own individual
+implementation, it is often sufficient to use the predefined ones
+delivered with PriDE. The classes <tt><a
+ href="javadoc/de/mathema/pride/ResourceAccessorJ2SE.html">ResourceAccessorJ2SE</a></tt>,
+<tt><a href="javadoc/de/mathema/pride/ResourceAccessorWeb.html">ResourceAccessorWeb</a></tt>
+and <tt><a href="javadoc/de/mathema/pride/ResourceAccessorJ2EE.html">ResourceAccessorJ2EE</a></tt>
+provide different implementations for managed and unmanaged Java
+environments. All classes are derived from <tt><a
+ href="javadoc/de/mathema/pride/AbstractResourceAccessor.html">AbstractResourceAccessor</a></tt>
+which can be configured by the properties listed below. The
+configuration parameters can be defined as system properties or passed
+in the constructor of the resource accessor.</p>
+<ul>
+  <li><span style="font-weight: bold;">pride.dbtype</span><br>
+Defines the type of database to be accessed. PriDE was tested with
+various different database systems and provides appropriate type
+constants in <tt><a
+ href="javadoc/de/mathema/pride/ResourceAccessor.html">ResourceAccessor.DBType</a></tt>.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.format.date</span><br>
+Specifies the SQL format to be used for writing java.util.Date and
+java.sql.Timestamp values to the database. PriDE&nbsp; already provides
+suitable formatting depending on the database type specified by
+property pride.dbtype. For unknown database types, PriDE uses the
+toString method.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.format.time</span><br>
+Like pride.format.date but for java.sql.Date.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.logfile</span><br>
+Name of the file to report all executed SQL statements to. If no
+logfile is specified, logging is omitted.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.logmax</span><br>
+Specifies the maximum number of SQL statements being reported to a log
+file before the file is rewritten from the start.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.user</span><br>
+User name to be used when fetching connections from Java's
+DriverManager. This property only makes sense in a J2SE environment.
+Managed environments usually provide connections through managed
+DataSources which have a user name already associated with the
+underlying connection pool.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.password</span><br>
+Password to be used when fetching connections from Java's
+DriverManager. This property only makes sense in a J2SE environment.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.driver</span><br>
+Driver class to be loaded into the DriverManager to fetch connections
+from. This property only makes sense in a J2SE environment.<br>
+    <br>
+  </li>
+  <li><span style="font-weight: bold;">pride.systime</span><br>
+Specifies a time in milliseconds since 1.1.1970 which is used as an
+indicator for the current system time. When writing this value to the
+database, it is replaced by a vendor-specific indentifier like
+"SYSDATE" for Oracle databases or "CURRENT_TIMESTAMP" for Microsoft SQL
+Server. By default, this value is 01.01.0001 00:00:01.<br>
+  </li>
+</ul>
+<br>
+<p> </p>
+<hr width="100%">
+<table cellpadding="5">
+  <tbody>
+    <tr>
+      <td><a href="PriDE.html">Home</a></td>
+      <td><a href="PriDE-Introduction.html">Introduction</a></td>
+      <td><a href="javadoc/index.html">Javadoc</a></td>
+    </tr>
+  </tbody>
+</table>
+<br>
+</body>
+</html>

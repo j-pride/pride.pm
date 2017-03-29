@@ -1,0 +1,211 @@
+<!DOCTYPE doctype PUBLIC "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+                        
+  <meta http-equiv="Content-Type"
+ content="text/html; charset=iso-8859-1">
+                        
+  <meta name="GENERATOR"
+ content="Mozilla/4.7 [de] (WinNT; I) [Netscape]">
+                        
+  <meta name="Author" content="Jan Lessner">
+  <title>PriDE Proxies</title>
+                                           
+  <link rel="stylesheet" type="text/css" href="PriDE.css" title="Style">
+</head>
+  <body text="#000000" bgcolor="#ffffff" link="#0000ef" vlink="#59188e"
+ alink="#ff0000">
+            
+<h1> PriDE Design Patterns: Proxies</h1>
+            
+<hr width="100%">      
+<p>Another functionality from the <a href="PriDE-Features.html">feature list</a>,
+   not being covered directly by PriDE are so-called <i>proxies</i> or <i>thin
+  objects</i>. Proxies are reduced representations of records which only
+allow   a human and programmatic identification. A typical application is
+e.g. the   selection of an element from a combobox, containing a quasi-unique
+string   representation for the user and an actually unique key information
+to reconstruct   the complete record from the database.<br>
+    A simple way to implement this concept is the encapsulation of proxy
+attributes   in a separate base class, similar to the proposed implementation
+for&nbsp;   <a href="PriDE-Patterns-OID.html">object IDs</a>.  Suppose a
+little bit more  realistic entity class for the representation of customer
+records:<br>
+     &nbsp;      
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+      <tbody>
+         <tr>
+      <td><tt>class Customer extends MappedObject {</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = 
+new  RecordDescriptor</tt>        <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class,
+ "customer",   null, new String[][] {</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "id",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   "setId" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "name",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "getName",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   "setName" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "surname",&nbsp;&nbsp; "getSurname",&nbsp;&nbsp; "setSurname" },</tt>
+       <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "phone",&nbsp;&nbsp;&nbsp;&nbsp; "getPhone",&nbsp;&nbsp;&nbsp;&nbsp;
+"setPhone"  },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "fax",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "setFax",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   "getFax" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "lastOrder", "getLastOrder", "setLastOrder" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "solvency",&nbsp; "getSolvency",&nbsp; "setSolvency" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "credit",&nbsp;&nbsp;&nbsp; "getCredit",&nbsp;&nbsp;&nbsp; "setCredit"
+  }</tt>        <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt>      
+                             
+      <p><tt>&nbsp;&nbsp;&nbsp; private int id;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private String name;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private String surname;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private String phone;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private String fax;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private Date lastOrder;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private int solvency;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private int credit;</tt> </p>
+                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt> <br>
+           <tt>}</tt></p>
+           </td>
+      </tr>
+                     
+  </tbody>     
+</table>
+       </p>
+         
+<p>Without discussing the particular details of the attributes above, it
+can be assumed that the ID makes up a unique customer number while the combination
+  of name and surname are a reasonable identification criterion for humans.
+  These three attributes might therefore be extracted as a proxy class, leading
+  to a definition like this:<br>
+     &nbsp;      
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+      <tbody>
+         <tr>
+      <td><tt>class CustomerProxy extends MappedObject {</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = 
+new  RecordDescriptor</tt>        <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (CustomerProxy.class,
+   "customer", null, new String[][] {</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "id",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "getId",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   "setId" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "name",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "getName",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   "setName" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "surname",&nbsp;&nbsp; "getSurname",&nbsp;&nbsp; "setSurname" },</tt>
+                                    
+      <p><tt>&nbsp;&nbsp;&nbsp; private int id;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private String name;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private String surname;</tt> </p>
+                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; /** Returns a string representation of the 
+  form</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; * "Lessner, Jan (22735004)"</tt>
+         <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; */</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; public String toString() {</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return name + ",
+ "  +  surname + " (" + id + ")";</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; }</tt> </p>
+                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt> <br>
+           <tt>}</tt> </p>
+                                       
+      <p><tt>class Customer extends CustomerProxy {</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; protected static RecordDescriptor red = 
+new  RecordDescriptor</tt>        <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (Customer.class,
+ "customer",   CustomerProxy.red, new String[][] {</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "phone",&nbsp;&nbsp;&nbsp;&nbsp; "getPhone",&nbsp;&nbsp;&nbsp;&nbsp;
+"setPhone"  },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "fax",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "setFax",&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   "getFax" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "lastOrder", "getLastOrder", "setLastOrder" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "solvency",&nbsp; "getSolvency",&nbsp; "setSolvency" },</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   { "credit",&nbsp;&nbsp;&nbsp; "getCredit",&nbsp;&nbsp;&nbsp; "setCredit"
+  }</tt>        <br>
+           <tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; });</tt> </p>
+                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; private String phone;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private String fax;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private Date lastOrder;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private int solvency;</tt> <br>
+           <tt>&nbsp;&nbsp;&nbsp; private int credit;</tt> </p>
+                                       
+      <p><tt>&nbsp;&nbsp;&nbsp; // to be continued</tt> <br>
+           <tt>}</tt></p>
+           </td>
+      </tr>
+                     
+  </tbody>     
+</table>
+       </p>
+         
+<p>The proxy class above can now be used as a reduced representation of <tt>Customer</tt>
+  objects. <tt>CustomerProxy</tt> ist <i>not </i>an abstract class and its
+ <tt>RecordDescriptor</tt> contains all information to access the database
+ table <tt>customer</tt>. This allows to get <tt>CustomerProxy</tt> objects
+ directly from a database query as demonstrated in the following example:<br>
+     &nbsp;      
+<table cellspacing="10" cellpadding="10" bgcolor="#ffffcc">
+      <tbody>
+         <tr>
+      <td><tt>CustomerProxy proxy = new CustomerProxy("L%");</tt><br>
+           <tt>ResultIterator iter = proxy.wildcard(new String[] { "name" 
+});</tt><br>
+           <tt>CustomerProxy[] results = (CustomerProxy[])iter.toArray();</tt></td>
+      </tr>
+                     
+  </tbody>     
+</table>
+       </p>
+         
+<p>Of course database access through a proxy class is limited to read, partial
+  update and delete operations. Record creation will usually not work, because
+  all fields in the <tt>customer</tt> table which are not known to the <tt>CustomerProxy</tt>
+   class will be left NULL. </p>
+         
+<p>The approach above just gives a rough impression how easy proxy objects
+  may be defined. As customers are in fact not a specialization of customer
+  proxies, it is conceptually douptful to derive one from the other. However,
+  also in a proper design, a proxy definition should be as simple as the
+one  above. The complete source code for the examples can be found in <tt><a
+ href="../examples/proxy">examples/proxy</a></tt>.  </p>
+         
+<p> </p>
+         
+<hr width="100%">       
+<table cellpadding="5">
+      <tbody>
+         <tr>
+      <td><a href="PriDE.html">Home</a></td>
+      <td><a href="PriDE-Introduction.html">Introduction</a></td>
+      <td><a href="javadoc/index.html">Javadoc</a></td>
+      </tr>
+                     
+  </tbody>     
+</table>
+       <br>
+     <br>
+    <br>
+   <br>
+  <br>
+ <br>
+</body>
+</html>

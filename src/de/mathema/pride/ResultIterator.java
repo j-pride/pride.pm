@@ -67,16 +67,22 @@ public class ResultIterator
      */
     public ResultSet getResultSet() { return results; }
 
-    /** Closes the iteration by closing the result set, the statement
-     * and the database connection passed in the constructor.
-     * This function is only required when aborting an iteration.
-     * If the complete result set is expected, the iterator is closed
-     * automatically.
+    /** Closes the iteration by closing the result set, the statement and the database connection
+     * passed in the constructor. This function is only required when aborting an iteration.
+     * If the complete result set gets iterated, the iterator is closed automatically.
+     * <p>
+     * If the ResultIterator is based on a prepared statement, the statement will not be closed
+     * assuming that it may be reused.
      */
     public void close() throws SQLException {
 		if (results != null) { // Keep from multiply closing operations on database resources
 		    results.close();
-		    statement.close();
+		    if (statement instanceof PreparedStatement) {
+		        ((PreparedStatement)statement).clearParameters();
+		    }
+		    else {
+	            statement.close();
+		    }
 		    db.releaseConnection(connection);
 		    results = null;
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
+ * Copyright (c) 2001-2005 The PriDE team and MATHEMA Software GmbH
  * All rights reserved. This toolkit and the accompanying materials 
  * are made available under the terms of the GNU Lesser General Public
  * License (LGPL) which accompanies this distribution, and is available
@@ -10,8 +10,8 @@
  *******************************************************************************/
 package de.mathema.pride;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import de.mathema.util.Singleton;
 
@@ -44,6 +44,7 @@ public class DatabaseFactory
         public static Context getContext(String name) { return (Context)contextMap.get(name); }
         
         private final Singleton _singleton = new Singleton() {
+                @Override
                 protected Object createInstance() {
                     return new Database(dbname, accessor, exlistener, true);
                 }
@@ -52,12 +53,14 @@ public class DatabaseFactory
         public String dbname;
         public ResourceAccessor accessor;
         public ExceptionListener exlistener = new ExceptionListener() {
+                @Override
                 public void process(Database db, Exception x) throws Exception { throw x; }
+                @Override
                 public void processSevere(Database db, Exception x) {
                     x.printStackTrace();
                     throw new RuntimeException("Severe error in database operation detected by PriDE. " +
-                    		"The application state may be inconsistent. Immediate shut down is recommended!" + 
-                    		"Caught " + x.getClass().getName() + ": " + x.getMessage(), x);
+                            "The application state may be inconsistent. Immediate shut down is recommended!" + 
+                            "Caught " + x.getClass().getName() + ": " + x.getMessage(), x);
                 }
             };
 
@@ -88,7 +91,7 @@ public class DatabaseFactory
 
     /** Returns the current context's {@link ResourceAccessor} */
     public static ResourceAccessor getResourceAccessor() {
-	return currentContext.accessor;
+    return currentContext.accessor;
     }
 
     /** Sets the database name for the current context
@@ -140,15 +143,27 @@ public class DatabaseFactory
         }
     }
 
+    public static void addContext(String name, String dbName, ResourceAccessor accessor) {
+        Context context = Context.getContext(name);
+        if (context == null) {
+            context = new Context(name);
+            context.dbname = dbName;
+            context.accessor = accessor;
+        }
+    }
+    
     /** Returns the name of the current database context */
     public static String getContext() { return currentContext.name; }
 
     private DatabaseFactory() { }
 
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/DatabaseFactory.java,v 1.2 2001/07/31 18:09:28 lessner Exp $";
+    public final static String REVISION_ID = "$Header: /framework/pride/src/de/mathema/pride/DatabaseFactory.java 3     3.02.06 13:41 Less02 $";
 }
 
-/* $Log: DatabaseFactory.java,v $
+/* $Log: /framework/pride/src/de/mathema/pride/DatabaseFactory.java $
+ * 
+ * 3     3.02.06 13:41 Less02
+ * Upgrade to PriDE 2.3.2
 /* Revision 1.2  2001/07/31 18:09:28  lessner
 /* Job monitor supports interactive toggling of SQL logging
 /*

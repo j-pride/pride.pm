@@ -31,6 +31,7 @@ public class Database implements SQLFormatter
 
     private final String dbname;
     private Vector txlisteners = null;
+    private Integer statementTimeout = null;
 
 
     // ------------- G e n e r a l   e x c e p t i o n   h a n d l i n g ------------
@@ -244,6 +245,8 @@ public class Database implements SQLFormatter
             sqlLog(operation);
             con = getConnection();
             stmt = con.createStatement();
+            if (statementTimeout != null)
+                stmt.setQueryTimeout(statementTimeout);
             String[] autoFieldsForExec = accessor.getAutoFields(stmt, autoFields);
             if (autoFieldsForExec != null && autoFieldsForExec.length > 0)
                 numRows = stmt.executeUpdate(operation, autoFieldsForExec);
@@ -291,6 +294,8 @@ public class Database implements SQLFormatter
             sqlLog(operation);
             con = getConnection();
             stmt = con.createStatement();
+            if (statementTimeout != null)
+                stmt.setQueryTimeout(statementTimeout);
             ResultSet rs = stmt.executeQuery(operation);
             return new ResultIterator(stmt, rs, obj, red, this, con);
         }
@@ -304,9 +309,39 @@ public class Database implements SQLFormatter
         }
     }
 
+    /**
+     * Executes an SQL Statement that is neither a query nor an update and does not return anything.
+     * 
+     * @param sqlStatement
+     * @throws SQLException
+     */
+    public void sqlExecute(String sqlStatement) throws SQLException {
+        Connection con = null;
+        Statement stmt = null;
+        try {
+            sqlLog(sqlStatement);
+            con = getConnection();
+            stmt = con.createStatement();
+            if (statementTimeout != null)
+                stmt.setQueryTimeout(statementTimeout);
+            stmt.execute(sqlStatement);
+        }
+        catch (Exception x) {
+            if (x instanceof SQLException)
+                sqlLogError((SQLException) x);
+            if (stmt != null) stmt.close();
+            if (con != null) releaseConnection(con);
+            processSevereButSQLException(x);
+        }
+    }
+    
     protected String where(String where) {
         return ((where != null) && where.trim().length() > 0) ?
             " where " + where : "";
+    }
+    
+    public void setStatementTimeout(Integer timeout) {
+        this.statementTimeout = timeout;
     }
     
     /** Fetch a record from the database and store the results in a JAVA object

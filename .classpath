@@ -15,5 +15,5 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/ant.jar"/>
 	<classpathentry kind="lib" path="lib/j2ee.jar"/>
-	<classpathentry kind="output" path="eclipseClasses"/>
+	<classpathentry kind="output" path="classes"/>
 </classpath>

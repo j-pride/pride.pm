@@ -13,6 +13,9 @@ package de.mathema.pride;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A RecordDescriptor defines the mapping of relation database records to JAVA objects
@@ -47,7 +50,7 @@ public class RecordDescriptor
     /** Returns <code>true</code> if the passed array of strings contains <code>element</code>.
      * Parameter <tt>onNull</tt> is returned in case the passed string array is <tt>null</tt>.
      */
-    private static boolean contains(String[] list, String element, boolean onNull) {
+    protected static boolean contains(String[] list, String element, boolean onNull) {
         if (list == null)
             return onNull;
         for (int i = 0; i < list.length; i++) {
@@ -200,7 +203,7 @@ public class RecordDescriptor
      *   extraction by name (see class {@link AttributeDescriptor} for details).
      */
     public int record2object(Object obj, ResultSet results, int position)
-        throws SQLException, IllegalAccessException, InvocationTargetException {
+        throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
             position = baseDescriptor.record2object(obj, results, position);
         for (int i = 0; i < attrDescriptors.length; i++)
@@ -452,6 +455,21 @@ public class RecordDescriptor
      * to force data extraction by name.
      */
     protected String getResultFields() { return getFieldNames(null); }
+
+    /**
+     * This method is of interest for embedding objects in others. In this case the attribute mapping
+     * of a persistent type may also be used for a member of the same type in a composite, having
+     * appropriate delegate setters and getters.
+     */
+    public String[][] getRawAttributeMap() {
+        List<String[]> mappings = new ArrayList<String[]>();
+        if (baseDescriptor != null)
+            mappings.addAll(Arrays.asList(baseDescriptor.getRawAttributeMap()));
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+            mappings.add(attrDesc.getRawAttributeMap());
+        }
+        return mappings.toArray(new String[0][]);
+    }
 
     public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
 }

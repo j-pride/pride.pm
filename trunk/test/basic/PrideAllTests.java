@@ -48,7 +48,7 @@ public class PrideAllTests {
             suite.addTest(new TestSuite(PostgresKeyValueTest.class));
         }
         else {
-            System.out.println("Tests for Postgres NoSQL column types omitted as you are not running a Postgres DB");
+            System.err.println("Tests for Postgres NoSQL column types omitted as you are not running a Postgres DB");
         }
 
         return suite;

@@ -49,8 +49,7 @@ public class ExtensionDescriptor
     }
 
     public void applyResult(Object obj, String attrName, String attrValue)
-        throws SQLException, IllegalAccessException, InvocationTargetException
-    {
+        throws SQLException, ReflectiveOperationException {
         for (int i = 0; i < attrDescriptors.length; i++) {
             if (attrDescriptors[i].getFieldName().equals(attrName)) {
                 attrDescriptors[i].applyResult(obj, attrValue);

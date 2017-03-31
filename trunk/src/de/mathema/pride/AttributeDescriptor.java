@@ -39,9 +39,6 @@ class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.Ex
     /** Method to store data in a database prepared statement */
     protected Method databaseSetMethod;
 
-    protected Method getMethod;
-    protected Method setMethod;
-    
 	/** Specifies the ResultSet data extraction mode. See class
 	 * {@link RecordDescriptor} for details.
 	 */
@@ -52,6 +49,8 @@ class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.Ex
     
     /** True if the attribute represented by this descriptor is an enumeration type */
     protected Class<Enum> enumType;
+    
+    protected GetterSetterPair fieldAccess;
 
     /** Create a mapping descriptor for a single database field
      * @param objectType JAVA class the database field is mapped to
@@ -71,47 +70,21 @@ class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.Ex
      * @param ResultSet extraction mode, as specified by interface
      *   {@link RecordDescriptor#ExtractionMode}.
      */
-    public AttributeDescriptor(Class objectType, String[] attrInfo, int extractionMode)
+    public AttributeDescriptor(Class<?> objectType, String[] attrInfo, int extractionMode)
 		throws IllegalDescriptorException {
 		this.extractionMode = extractionMode;
 		databaseFieldName = attrInfo[FIELDNAME];
+
+		fieldAccess = new GetterSetterPair(objectType, attrInfo[GETMETHOD], attrInfo[SETMETHOD]);
 	
-		/* Find the getter-method for this attribute */
-		try { getMethod = objectType.getMethod(attrInfo[GETMETHOD], null); }
-		catch(NoSuchMethodException x) {
-		    throw new IllegalDescriptorException
-				("Method " + attrInfo[GETMETHOD] + " not found in " + objectType);
-		}
-	
-		/* Find the setter method for this attribute, which is a little more difficult as we can't be shure about the
-         * parameter type. So we first try to find a setter which matches the getter method's type. If there is no
-         * matching one, we look it up by name and assume the first one being suitable.
-		 */
-        try {
-            setMethod = objectType.getMethod(attrInfo[SETMETHOD], new Class[] { getMethod.getReturnType() });
-        }
-        catch(NoSuchMethodException nsmx) {
-    		Method[] methods = objectType.getMethods();
-    		for (int i = 0; i < methods.length; i++) {
-    		    if (methods[i].getName().equals(attrInfo[SETMETHOD])) {
-        			setMethod = methods[i];
-        			break;
-    		    }
-    		}
-        }
-	
-		if (setMethod == null)
-		    throw new IllegalDescriptorException
-				("Method " + attrInfo[SETMETHOD] + " not found in " + objectType);
-	
-        Class attributeType = null;
+        Class<?> attributeType = null;
         
 		try {
 		    attributeType = (attrInfo.length > FIELDTYPE) ?
-				Class.forName(attrInfo[FIELDTYPE]) : getMethod.getReturnType();
+				Class.forName(attrInfo[FIELDTYPE]) : fieldAccess.type();
 			isPrimitive = attributeType.isPrimitive();
             if (attributeType.isEnum())
-                enumType = attributeType;
+                enumType = (Class<Enum>)attributeType;
 	        databaseGetByIndexMethod =
 	                ResultSetAccess.getIndexAccessMethod(attributeType);
 		    databaseGetByNameMethod = 
@@ -146,8 +119,7 @@ class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.Ex
         databaseGetByNameMethod = ad.databaseGetByNameMethod;
         databaseGetByIndexMethod = ad.databaseGetByIndexMethod;
         databaseSetMethod = ad.databaseSetMethod;
-        getMethod = ad.getMethod;
-        setMethod = ad.setMethod;
+        fieldAccess = ad.fieldAccess;
         extractionMode = ad.extractionMode;
         isPrimitive = ad.isPrimitive;
         enumType = ad.enumType;
@@ -199,7 +171,7 @@ class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.Ex
     /** Returns the object's value for this attribute */
     public Object getValue(Object obj)
 		throws IllegalAccessException, InvocationTargetException {
-        return getMethod.invoke(obj, null);
+        return fieldAccess.get(obj);
     }
 
     /** Returns an update expression of the form "<name> = <value>"
@@ -274,9 +246,9 @@ class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.Ex
             // Following lines work with reflection as they are only valid for Postgres databases
             // and must not cause any trouble when working with different databases
             else if (dbValue.getClass().getName().equals("org.postgresql.jdbc4.Jdbc4Array"))
-                dbValue = PosgresAccess.extractArrayFromResultSet(dbValue, setMethod.getParameterTypes()[0]);
+                dbValue = PosgresAccess.extractArrayFromResultSet(dbValue, fieldAccess.typeFromSetter());
         }
-		setMethod.invoke(obj, new Object[] { dbValue });
+        fieldAccess.set(obj, dbValue);
     }
 
     /** Returns a string representation of the passed object's value for
@@ -327,6 +299,10 @@ class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.Ex
         return attrValue;
     }
 
+    public String[] getRawAttributeMap() {
+        return new String[] { databaseFieldName, fieldAccess.getterName(), fieldAccess.setterName() };
+    }
+    
     public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/AttributeDescriptor.java-arc   1.2   06 Sep 2002 14:54:18   math19  $";
 }
 

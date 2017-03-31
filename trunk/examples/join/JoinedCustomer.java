@@ -41,7 +41,7 @@ public class JoinedCustomer extends Customer {
         }
         
         public int record2object(Object obj, ResultSet results, int position)
-            throws SQLException, IllegalAccessException, InvocationTargetException {
+            throws SQLException, ReflectiveOperationException {
             JoinedCustomer jc = (JoinedCustomer)obj;
             position = super.record2object(obj, results, position);
             results.getObject(position);

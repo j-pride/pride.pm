@@ -13,18 +13,16 @@ package de.mathema.pride;
 import java.util.Map;
 import java.util.HashMap;
 import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public class ExtendedAttributeDescriptor extends AttributeDescriptor
-{
-    private static Map conversionMethods = null;
+public class ExtendedAttributeDescriptor extends AttributeDescriptor {
+    private static Map<String, Method> conversionMethods = null;
 
     protected static void setConversionMethods() throws NoSuchMethodException {
-	conversionMethods = new HashMap();
-	Class[] params = new Class[] { String.class };
+	conversionMethods = new HashMap<String, Method>();
+	Class<?>[] params = new Class[] { String.class };
 	conversionMethods.put
 	    (Integer.class.getName(), Integer.class.getDeclaredMethod("valueOf", params));
 	conversionMethods.put
@@ -43,8 +41,7 @@ public class ExtendedAttributeDescriptor extends AttributeDescriptor
 	    ("boolean", Boolean.class.getDeclaredMethod("valueOf", params));
     }
 
-    protected static Method getConversionMethod(Class destinationType)
-	throws NoSuchMethodException {
+    protected static Method getConversionMethod(Class<?> destinationType) throws NoSuchMethodException {
         if (conversionMethods == null)
             setConversionMethods();
         return (Method)conversionMethods.get(destinationType.getName());
@@ -52,11 +49,11 @@ public class ExtendedAttributeDescriptor extends AttributeDescriptor
     
     protected Method conversionMethod = null;
     
-    public ExtendedAttributeDescriptor(Class objectType, String[] attrInfo, int extractionMode)
+    public ExtendedAttributeDescriptor(Class<?> objectType, String[] attrInfo, int extractionMode)
 		throws IllegalDescriptorException {
 		super(objectType, attrInfo, extractionMode);
 		try {
-		    Class setMethodParamType = setMethod.getParameterTypes()[0];
+		    Class<?> setMethodParamType = fieldAccess.typeFromSetter();
 		    if (setMethodParamType != String.class) {
 			conversionMethod = getConversionMethod(setMethodParamType);
 			if (conversionMethod == null)
@@ -69,11 +66,10 @@ public class ExtendedAttributeDescriptor extends AttributeDescriptor
 		}
     }
 
-    public void applyResult(Object obj, String stringValue)
-	throws IllegalAccessException, InvocationTargetException {
-	Object value = (conversionMethod != null) ?
-	    conversionMethod.invoke(null, new Object[] { stringValue }) : stringValue;
-	setMethod.invoke(obj, new Object[] { value });
+    public void applyResult(Object obj, String stringValue) throws ReflectiveOperationException {
+		Object value = (conversionMethod != null) ?
+		    conversionMethod.invoke(null, new Object[] { stringValue }) : stringValue;
+		fieldAccess.set(obj, value);
     }
     
     public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/ExtendedAttributeDescriptor.java,v 1.3 2001/06/25 13:31:42 lessner Exp $";

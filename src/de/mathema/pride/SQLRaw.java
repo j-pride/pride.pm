@@ -13,7 +13,7 @@ package de.mathema.pride;
 /**
  * This is just a helper class, preventing a string value
  * from getting formatted when passed to any expression builder
- * function of {@link SQLExpression}. E.g. use this type to
+ * function of {@link WhereCondition}. E.g. use this type to
  * express an equality check between two database fields like
  * this:<p>
  * <tt>exp.and("field1", new SQLRaw("field2"))</tt>

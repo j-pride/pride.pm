@@ -284,18 +284,18 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
     }
 
     /** Formats an operator for usage in SQL statements.
-	 * @param Any of the operators in {@link SQLExpression.Operator}
+	 * @param Any of the operators in {@link WhereCondition.Operator}
 	 * @param value The value to apply the operator to before it is formatted
 	 * @return A valid SQL operator. By default the function just retuns the
 	 *   passed operator as is. If the value is NULL it returns "IS" for
-	 *   operator {@link SQLExpression.Operator#EQUAL} and "IS NOT" for 
-	 *   operator {@link SQLExpression.Operator#UNEQUAL}.
+	 *   operator {@link WhereCondition.Operator#EQUAL} and "IS NOT" for 
+	 *   operator {@link WhereCondition.Operator#UNEQUAL}.
 	 */
 	public static String standardOperator(String operator, Object value) {
 		if (value == null) {
-			if (operator.equals(SQLExpression.Operator.EQUAL))
+			if (operator.equals(WhereCondition.Operator.EQUAL))
 				return "IS";
-			if (operator.equals(SQLExpression.Operator.UNEQUAL))
+			if (operator.equals(WhereCondition.Operator.UNEQUAL))
 				return "IS NOT";
 		}
 		return operator;

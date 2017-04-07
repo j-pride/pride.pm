@@ -12,6 +12,7 @@ package query;
 
 import java.sql.SQLException;
 import de.mathema.pride.*;
+import static de.mathema.pride.WhereCondition.Operator.*;
 
 public class Customer extends MappedObject {
     protected static RecordDescriptor red = new RecordDescriptor
@@ -42,9 +43,9 @@ public class Customer extends MappedObject {
     public void findInRange2() throws SQLException 
     {
         Customer c = new Customer();
-        SQLExpression exp = new SQLExpression(DatabaseFactory.getDatabase());
-        exp = exp.and("id", SQLExpression.Operator.GREATEREQUAL, 1000);
-        exp = exp.and("id", SQLExpression.Operator.LESSEQUAL, 2000);
+        WhereCondition exp = new WhereCondition();
+        exp = exp.and("id", GREATEREQUAL, 1000);
+        exp = exp.and("id", LESSEQUAL, 2000);
         ResultIterator iter = c.query(exp.toString());
         do {
             System.out.println(c.getName());

@@ -20,7 +20,7 @@ import org.postgresql.jdbc4.Jdbc4Array;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-class AttributeDescriptor implements SQLExpression.Operator, RecordDescriptor.ExtractionMode
+class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.ExtractionMode
 {
     private static final int FIELDNAME = 0;
     private static final int GETMETHOD = 1;

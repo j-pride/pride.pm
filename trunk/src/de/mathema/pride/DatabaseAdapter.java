@@ -81,6 +81,12 @@ abstract public class DatabaseAdapter
         return getDatabase(red).query(where, entity, red, true);
     }
 
+    /** Fetch an object by a self-made where clause */
+    protected static ResultIterator query(Object entity, WhereCondition where, RecordDescriptor red)
+        throws SQLException {
+        return getDatabase(red).query(where, entity, red, true);
+    }
+
     /** Same like <code>query()</code> but takes the first record only */
     protected static void find(Object entity, String where, RecordDescriptor red)
         throws SQLException {

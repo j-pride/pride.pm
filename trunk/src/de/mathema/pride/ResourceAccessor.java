@@ -137,7 +137,7 @@ public interface ResourceAccessor extends SQLFormatter
     public String formatValue(Object value);
 
 	/** Performs an SQL formating of the passed operator.
-	 * @param operator Any of the operators defined in {@link SQLExpression.Operator}
+	 * @param operator Any of the operators defined in {@link WhereCondition.Operator}
 	 * @param rawValue The raw value the operator is applied to before it
 	 *   is formated by {@link #formatValue}. May be null.
 	 */

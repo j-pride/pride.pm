@@ -11,6 +11,7 @@
 package de.mathema.pride;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -297,7 +298,7 @@ public class Database implements SQLFormatter
             if (statementTimeout != null)
                 stmt.setQueryTimeout(statementTimeout);
             ResultSet rs = stmt.executeQuery(operation);
-            return new ResultIterator(stmt, rs, obj, red, this, con);
+            return new ResultIterator(stmt, false, rs, obj, red, this, con);
         }
         catch(Exception x) {
         	if (x instanceof SQLException)
@@ -429,6 +430,40 @@ public class Database implements SQLFormatter
         String query = "select " + red.getResultFields() + " from " +
             getTableName(red) + where(where);
         return fetchFirst(query, obj, red, all);
+    }
+
+    public ResultIterator query(WhereCondition where, Object obj, RecordDescriptor red, boolean all)
+        throws SQLException {
+		String whereString = where.toSQL(this);
+    	if (where.requiresBinding()) {
+            String query = "select " + red.getResultFields() + " from " +
+                    getTableName(red) + " where " + whereString;
+            sqlLog(query);
+            Connection con = null;
+            PreparedStatement stmt = null;
+            try {
+                con = getConnection();
+                stmt = con.prepareStatement(query);
+                if (statementTimeout != null)
+                    stmt.setQueryTimeout(statementTimeout);
+                where.bind(this, stmt);
+                ResultSet rs = stmt.executeQuery();
+                ResultIterator ri = new ResultIterator(stmt, false, rs, obj, red, this, con);
+                ri.next();
+                return ri;
+            }
+            catch (Exception x) {
+                if (x instanceof SQLException)
+                    sqlLogError((SQLException) x);
+                if (stmt != null) stmt.close();
+                if (con != null) releaseConnection(con);
+                processSevereButSQLException(x);
+                return null;
+            }
+    	}
+    	else {
+    		return query(whereString, obj, red, all);
+    	}
     }
 
     /** Run a database query, returning all records of the table

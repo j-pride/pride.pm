@@ -101,6 +101,11 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 		return super.query(getEntity(), where, getDescriptor());
 	}
 
+	/** Fetch an object by a self-made where clause */
+	public ResultIterator query(WhereCondition where) throws SQLException {
+		return super.query(getEntity(), where, getDescriptor());
+	}
+
 	/** Same like <code>query()</code> but takes the first record only */
 	public void find(String where) throws SQLException {
 		super.find(getEntity(), where, getDescriptor());

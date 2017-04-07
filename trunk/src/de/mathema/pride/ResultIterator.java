@@ -40,6 +40,7 @@ public class ResultIterator
     public final static int COLUMN_STARTINDEX = 1;
 
     protected Statement statement;
+    protected boolean customStatement;
     protected Connection connection;
     protected ResultSet results;
     protected Object obj;
@@ -47,7 +48,7 @@ public class ResultIterator
     protected Database db;
 
     /** Creates a new ResultIterator from an query. */
-    public ResultIterator(Statement statement, ResultSet rs,
+    public ResultIterator(Statement statement, boolean customStatement, ResultSet rs,
 		Object obj, RecordDescriptor red,
 		Database db, Connection con) {
         results = rs;
@@ -58,8 +59,8 @@ public class ResultIterator
 		this.connection = con;
     }
 
-    public ResultIterator(Statement statement, ResultSet rs, Database db, Connection con) {
-        this(statement, rs, null, null, db, con);
+    public ResultIterator(Statement statement, boolean customStatement, ResultSet rs, Database db, Connection con) {
+        this(statement, customStatement, rs, null, null, db, con);
     }
 
     /** Returns the result set, the iterator is operating on. This may be
@@ -77,7 +78,7 @@ public class ResultIterator
     public void close() throws SQLException {
 		if (results != null) { // Keep from multiply closing operations on database resources
 		    results.close();
-		    if (statement instanceof PreparedStatement) {
+		    if (customStatement) {
 		        ((PreparedStatement)statement).clearParameters();
 		    }
 		    else {

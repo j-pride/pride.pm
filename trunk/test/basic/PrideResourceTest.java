@@ -2,6 +2,8 @@ package basic;
 
 import java.sql.Connection;
 
+import org.junit.Test;
+
 import de.mathema.pride.DatabaseFactory;
 
 /*******************************************************************************
@@ -19,18 +21,15 @@ import de.mathema.pride.DatabaseFactory;
  * JUnit test class performing some basic tests of PriDE's simple
  * resource and transaction management in non-managed environments
  */
-public class PrideResourceTest extends PrideBaseTest {
+public class PrideResourceTest extends AbstractPrideTest {
 
-	public PrideResourceTest(String name)	{
-		super(name);
-	}
-	
+	@Test
 	public void testReconnect() throws Exception {
 		Connection con = DatabaseFactory.getDatabase().getConnection();
 		con.close();
 		// Following (senseless) statement must not fail though this thread's
 		// connection was closed in the line above.
-		DatabaseFactory.getDatabase().sqlUpdate("update " + PrideBaseTest.TEST_TABLE + " set id = 5 where 1=0");
+		DatabaseFactory.getDatabase().sqlUpdate("update " + AbstractPrideTest.TEST_TABLE + " set id = 5 where 1=0");
 	}
 
 }

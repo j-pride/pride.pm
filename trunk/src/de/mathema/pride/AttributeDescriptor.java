@@ -187,6 +187,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      * if the objects's value for this descriptor's attribute defers
      * from null, "<name> IS NULL" otherwise
      */
+    @Deprecated
     public String getWhereValue(Object obj, Database db, boolean byLike)
 		throws IllegalAccessException, InvocationTargetException {
         String strval, operator;
@@ -201,6 +202,13 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         return getFieldName() + " " + operator + " " + strval;
     }
 
+	public WhereFieldCondition assembleWhereValue(Object obj, boolean byLike, boolean withBind)
+		throws ReflectiveOperationException {
+        Object val = getValue(obj);
+        String operator = byLike ? LIKE : EQUAL;
+		return new WhereFieldCondition(null, withBind, getFieldName(), operator, new Object[] { val });
+	}
+	
 	/** Fetch a value from a database result set according to this
 	 * descriptor's extraction mode. If mode is ExtractionMode.AUTO or NAME
 	 * extract the field value by name. If the extraction causes an InvocationTargetExtraction
@@ -272,13 +280,13 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      * @param position index of the parameter in the prepared statement to write
      * @return next parameter index (i.e. passed value + 1)
      */
-    public int getParameter(Object obj, PreparedOperation pop, String table, int position)
+    public int getParameter(Object obj, PreparedOperationI pop, String table, int position)
 		throws IllegalAccessException, InvocationTargetException, SQLException {
 		if (databaseSetMethod == null)
 			throw new IllegalAccessException
 				("No prepared statement writer for " + databaseFieldName);
         Object attrValue = getValue(obj);
-        attrValue = pop.getDB().formatPreparedValue(attrValue);
+        attrValue = pop.getDatabase().formatPreparedValue(attrValue);
         if (attrValue != null) {
             attrValue = wrapArrayTypedValue(pop.getStatement().getConnection(), attrValue);
 			databaseSetMethod.invoke(pop.getStatement(),
@@ -286,7 +294,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         }
 	    else {
 	    	int columnType = getColumnType
-	    		(pop.db.getConnection(), pop.db.getPhysicalTableName(table));
+	    		(pop.getStatement().getConnection(), pop.getDatabase().getPhysicalTableName(table));
 			pop.getStatement().setNull(position, columnType);
 	    }
         return position+1;
@@ -304,6 +312,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     }
     
     public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/AttributeDescriptor.java-arc   1.2   06 Sep 2002 14:54:18   math19  $";
+
 }
 
 /* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/AttributeDescriptor.java-arc  $

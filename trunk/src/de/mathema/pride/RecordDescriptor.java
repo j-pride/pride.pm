@@ -244,6 +244,7 @@ public class RecordDescriptor
     /** Runs getWhereValue on the attribute descriptor, representing the
      * attribute specified by parameter <code>dbfield</code>
      */
+    @Deprecated
     public Object getWhereValue(Object obj, String dbfield, boolean byLike, Database db)
 		throws IllegalAccessException, InvocationTargetException {
         Object value = null;
@@ -263,6 +264,22 @@ public class RecordDescriptor
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
 
+    public WhereFieldCondition assembleWhereValue(Object obj, String dbfield, boolean byLike, boolean withBind)
+		throws ReflectiveOperationException {
+        try {
+        	if (baseDescriptor != null)
+        		return baseDescriptor.assembleWhereValue(obj, dbfield, byLike, withBind);
+        } catch (IllegalAccessException e) {
+            // Nothing to be done here. The field was not found in the base
+            // descriptor but probably occurs in the current one
+        }
+        for (int i = 0; i < attrDescriptors.length; i++) {
+            if (attrDescriptors[i].getFieldName().equals(dbfield))
+                return attrDescriptors[i].assembleWhereValue(obj, byLike, withBind);
+        }
+        throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
+    }
+
     /** Similar to function above but instead writes the value into a passed
      * {@link PreparedOperation}.
      * @param obj the value object from which to take the value from
@@ -273,7 +290,7 @@ public class RecordDescriptor
      * @param position index of the prepared statements next parameter to set
      * @return the next pending position
      */
-    public void getWhereValue(Object obj, String dbfield, PreparedOperation pop, String table, int position)
+    public void getWhereValue(Object obj, String dbfield, PreparedOperationI pop, String table, int position)
 		throws IllegalAccessException, InvocationTargetException, SQLException {
 		if (table == null)
 			table = dbtable;
@@ -303,6 +320,7 @@ public class RecordDescriptor
      * @param byLike if <code>false</code>, builds the constraint from equality
      *  checks, otherwise by using operator <code>like</code>
      */
+    @Deprecated
     public String getConstraint(Object obj, String[] dbfields,
 				boolean byLike, Database db)
 		throws IllegalAccessException, InvocationTargetException {
@@ -317,6 +335,18 @@ public class RecordDescriptor
         return constraint;
     }
 
+	public WhereCondition assembleWhereCondition(Object obj, String[] dbfields, boolean byLike)
+		throws ReflectiveOperationException {
+		WhereCondition condition = new WhereCondition();
+        if (dbfields == null)
+            dbfields = new String[] { getPrimaryKeyField() };
+        for (int i = 0; i < dbfields.length; i++) {
+        	WhereFieldCondition fieldCondition = assembleWhereValue(obj, dbfields[i], byLike, condition.bind);
+        	condition = condition.and(fieldCondition);
+        }
+		return condition;
+	}
+	
     /** Similar to function above but instead writes the values into a passed
      * {@link PreparedOperation}.
      * @param obj the value object from which to take the constraint values
@@ -330,7 +360,7 @@ public class RecordDescriptor
      * @return the next pending position
      */
     public int getConstraint(Object obj, String[] dbfields,
-                             PreparedOperation pop, String table, int position)
+                             PreparedOperationI pop, String table, int position)
 		throws IllegalAccessException, InvocationTargetException, SQLException {
 		if (table == null)
 			table = dbtable;
@@ -381,7 +411,7 @@ public class RecordDescriptor
      * @return the next pending position
      */
     public int getUpdateValues(Object obj, String[] excludeAttrs, String[] includeAttrs,
-                               PreparedOperation pop, String table, int position)
+                               PreparedOperationI pop, String table, int position)
 		throws IllegalAccessException, InvocationTargetException, SQLException {
 		if (table == null)
 			table = dbtable;
@@ -472,4 +502,5 @@ public class RecordDescriptor
     }
 
     public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
+
 }

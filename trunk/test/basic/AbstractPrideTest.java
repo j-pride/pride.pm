@@ -12,6 +12,10 @@ package basic;
 import java.sql.SQLException;
 import java.util.Random;
 
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+
 import junit.framework.TestCase;
 import de.mathema.pride.Database;
 import de.mathema.pride.DatabaseFactory;
@@ -29,7 +33,7 @@ import de.mathema.pride.ResourceAccessorJ2SE;
  * creates a Table for Testdata 
  * and Provides a useful Method to generate Testdata
  */
-public abstract class PrideBaseTest extends TestCase {
+public abstract class AbstractPrideTest extends Assert {
 
 	private Random randi = null;
 	private String[][] names = new String[][] {
@@ -43,10 +47,6 @@ public abstract class PrideBaseTest extends TestCase {
 			{ "Inge", "Heim-Ermission" },
 			{ "Inge", "Knito" }
 	};
-
-	public PrideBaseTest(String name) {
-		super(name);
-	}
 
 	protected static final String TEST_TABLE = "customer_pride_test";
     protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
@@ -91,8 +91,8 @@ public abstract class PrideBaseTest extends TestCase {
 	/**
 	 * @see junit.framework.TestCase#setUp()
 	 */
-	protected void setUp() throws Exception {
-		super.setUp();
+    @Before
+	public void setUp() throws Exception {
 		randi = new Random();
 		initDB();
         createTestTable();
@@ -109,8 +109,8 @@ public abstract class PrideBaseTest extends TestCase {
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 		dropTestTable();
 	}
 	
@@ -131,6 +131,8 @@ public abstract class PrideBaseTest extends TestCase {
 			String[] name = generateName(i);
 			String firstName = name[0];
 			String lastName = name[1];
+			if (lastName.length() > 50)
+				System.out.println("LAST NAME: " + lastName);
 			c = new Customer(i, firstName, lastName);
 		}
 		if (count != 1) {
@@ -141,9 +143,9 @@ public abstract class PrideBaseTest extends TestCase {
 
 	protected String[] generateName(int i) {
 		int index = (i < names.length) ? i : randi.nextInt(names.length);
-		String[] name = names[index];
-		name[0] = name[0];
-		name[1] = name[1] + randi.nextInt(100);
+		String[] name = new String[2];
+		name[0] = names[index][0];
+		name[1] = names[index][1] + randi.nextInt(100);
 		return name;
 
 	}

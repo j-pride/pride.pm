@@ -4,16 +4,14 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Test;
+
 import de.mathema.pride.PreparedInsert;
 
-import basic.PrideBaseTest;
+import basic.AbstractPrideTest;
 
-public class PostgresKeyValueTest extends PrideBaseTest {
+public class PostgresKeyValueTest extends AbstractPrideTest {
     protected static final String KEY_VALUE_TEST_TABLE = "customer_pride_key_value_test";
-
-    public PostgresKeyValueTest(String name) {
-        super(name);
-    }
 
     @Override
     protected void createTestTable() throws SQLException {
@@ -28,6 +26,7 @@ public class PostgresKeyValueTest extends PrideBaseTest {
         dropTestTable(KEY_VALUE_TEST_TABLE);
     }
 
+    @Test
     public void testEmpty() throws Exception {
         CustomerKeyValue customer = new CustomerKeyValue(0);
         customer.create();
@@ -36,6 +35,7 @@ public class PostgresKeyValueTest extends PrideBaseTest {
         assertNull(customer.getContacts());
     }
 
+    @Test
     public void testMultipleValues() throws Exception {
         CustomerKeyValue customer = newCustomer(1);
         customer.create();
@@ -47,6 +47,7 @@ public class PostgresKeyValueTest extends PrideBaseTest {
         assertEquals("12345", customer.getContacts().get("phone"));
     }
 
+    @Test
     public void testNullItemValue() throws Exception {
         CustomerKeyValue customer = newCustomer(2);
         customer.getContacts().put("null", null);
@@ -58,6 +59,7 @@ public class PostgresKeyValueTest extends PrideBaseTest {
         assertNull(customer.getContacts().get("null"));
     }
 
+    @Test
     public void testPreparedInsert() throws Exception {
         CustomerKeyValue customer = newCustomer(3);
         PreparedInsert pi = new PreparedInsert(customer.getDescriptor());

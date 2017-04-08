@@ -56,10 +56,10 @@ abstract public class DatabaseAdapter
     }
 
     /** Same like <code>query()</code> but takes the first record only */
-    protected static void find(Object entity, String[] dbfields, RecordDescriptor red)
+    protected static void find(Object entity, String[] dbkeyfields, RecordDescriptor red)
         throws SQLException {
-        if (dbfields != null)
-            getDatabase(red).query(dbfields, entity, red, false);
+        if (dbkeyfields != null)
+            getDatabase(red).query(dbkeyfields, entity, red, false);
     }
 
     /** Same like <code>query()</code> but takes the first record only */
@@ -108,12 +108,24 @@ abstract public class DatabaseAdapter
 		return getDatabase(red).updateRecord(dbkeyfields, updatefields, entity, red);
 	}
 
+    @Deprecated
     protected static int update(Object entity, String where, RecordDescriptor red)
         throws SQLException {
         return getDatabase(red).updateRecord(where, entity, red);
     }
 
+    @Deprecated
 	protected static int update(Object entity, String where, String[] updatefields, RecordDescriptor red)
+		throws SQLException {
+		return getDatabase(red).updateRecord(where, updatefields, entity, red);
+	}
+
+    protected static int update(Object entity, WhereCondition where, RecordDescriptor red)
+        throws SQLException {
+        return getDatabase(red).updateRecord(where, entity, red);
+    }
+
+	protected static int update(Object entity, WhereCondition where, String[] updatefields, RecordDescriptor red)
 		throws SQLException {
 		return getDatabase(red).updateRecord(where, updatefields, entity, red);
 	}

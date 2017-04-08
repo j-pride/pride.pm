@@ -11,6 +11,8 @@ package basic;
  *******************************************************************************/
 import junit.framework.Assert;
 
+import org.junit.Test;
+
 import de.mathema.pride.*;
 
 
@@ -19,22 +21,17 @@ import de.mathema.pride.*;
  *
  * Test the usage of prepared operations in PriDE
  */
-public class PridePreparedTest extends PrideBaseTest {
+public class PridePreparedTest extends AbstractPrideTest {
 
 	private static final int COUNT = 9;
 
-	public PridePreparedTest(String name) {
-		super(name);
-	}
-
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
+	@Override
+	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(COUNT);
 	}
 	
+	@Test
 	public void testPreparedInsert() throws Exception {
 		Customer c = new Customer();
 		c.setId(COUNT+1);
@@ -47,15 +44,17 @@ public class PridePreparedTest extends PrideBaseTest {
 		c.find();
 	}
 
+	@Test
 	public void testPreparedAutoInsert() throws Exception {
 		AutoCustomer c = new AutoCustomer();
 		c.setId(COUNT+1);
 		PreparedInsert pi = new PreparedInsert(new String[] {"firstName"}, c.getDescriptor());
 		pi.execute(c);
 		c.find();
-		Assert.assertNull(c.getFirstName());
+		assertNull(c.getFirstName());
 	}
 
+	@Test
 	public void testPreparedUpdate() throws Exception {
 		Customer c = new Customer(1);
 		c.setLastName("Updated1");
@@ -68,14 +67,15 @@ public class PridePreparedTest extends PrideBaseTest {
 		c.setLastName("");
 		c.setActive(null);
 		c.find();
-		Assert.assertEquals(c.getLastName(), "Updated2");
-		Assert.assertNotNull(c.getActive());
-		Assert.assertEquals(c.getActive().booleanValue(), true);
+		assertEquals(c.getLastName(), "Updated2");
+		assertNotNull(c.getActive());
+		assertEquals(c.getActive().booleanValue(), true);
 		c.setId(1);
 		c.find();
-		Assert.assertEquals(c.getLastName(), "Updated1");
+		assertEquals(c.getLastName(), "Updated1");
 	}
 
+	@Test
 	public void testPreparedUpdateMultiple() throws Exception {
 		Customer c = new Customer();
 		c.setLastName("Updated");
@@ -86,12 +86,13 @@ public class PridePreparedTest extends PrideBaseTest {
 		pu.close();
 		DatabaseFactory.getDatabase().commit();
 		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
-		Assert.assertEquals(ca.length, 2);
-		Assert.assertTrue(ca[0].getId() != ca[1].getId());
-		Assert.assertTrue(ca[0].getId() == 7 || ca[0].getId() == 8);
-		Assert.assertTrue(ca[1].getId() == 7 || ca[1].getId() == 8);
+		assertEquals(ca.length, 2);
+		assertTrue(ca[0].getId() != ca[1].getId());
+		assertTrue(ca[0].getId() == 7 || ca[0].getId() == 8);
+		assertTrue(ca[1].getId() == 7 || ca[1].getId() == 8);
 	}
 
+	@Test
 	public void testPreparedBatch() throws Exception {
 		Customer c = new Customer();
 		c.setLastName("Updated");
@@ -103,9 +104,10 @@ public class PridePreparedTest extends PrideBaseTest {
 		pu.close();
 		DatabaseFactory.getDatabase().commit();
 		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
-		Assert.assertEquals(ca.length, 3);
+		assertEquals(ca.length, 3);
 	}
 	
+	@Test
 	public void testIllegalPreparedUpdate() throws Exception {
 		Customer c = new Customer();
 		try {
@@ -113,7 +115,7 @@ public class PridePreparedTest extends PrideBaseTest {
 			pu.execute(c);
 		}
 		catch(IllegalAccessException iax) { return; } /* Expected */
-		Assert.fail();
+		fail();
 	}
 
 

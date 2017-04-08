@@ -17,6 +17,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TimeZone;
 
+import org.junit.Test;
+
 import junit.framework.Assert;
 
 import de.mathema.pride.DatabaseFactory;
@@ -29,7 +31,7 @@ import de.mathema.pride.DatabaseFactory;
  * 
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public class PrideThreadTest extends PrideBaseTest {
+public class PrideThreadTest extends AbstractPrideTest {
 
     private static final int NUM_THREADS = 2;
     private static final int OPS_PER_THREAD = 100;
@@ -37,18 +39,13 @@ public class PrideThreadTest extends PrideBaseTest {
     
     private HashSet threads = new HashSet();
     private Exception lastThreadException;
-    
-    public PrideThreadTest(String name)  {
-        super(name);
-    }
 
-    /**
-     * @see junit.framework.TestCase#setUp()
-     */
-    protected void setUp() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         super.setUp();
     }
     
+	@Test
     public void testConcurrentWrite() throws Exception {
         for (int i = 1; i < NUM_THREADS+1; i++) {
             Writer wr = new Writer(i*OPS_PER_THREAD, OPS_PER_THREAD);
@@ -59,6 +56,7 @@ public class PrideThreadTest extends PrideBaseTest {
         new Reader(OPS_PER_THREAD, OPS_PER_THREAD * NUM_THREADS).run();
     }
 
+	@Test
     public void testConcurrentRead() throws Exception {
         // Use a writer thread object for creating data but without actually running as seperate thread
         new Writer(OPS_PER_THREAD, OPS_PER_THREAD * NUM_THREADS).run();
@@ -85,8 +83,8 @@ public class PrideThreadTest extends PrideBaseTest {
             notify(); // Notify main-thread to give feedback!
     }
 
-    
-    protected void tearDown() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         if (!isPostgresDB()) // Posgres blocks on drop table - reason is unclear
             super.tearDown();
     }
@@ -111,7 +109,7 @@ public class PrideThreadTest extends PrideBaseTest {
             }
             catch(Exception x) {
                 lastThreadException = x;
-                Assert.fail(x.getMessage());
+                fail(x.getMessage());
             }
             finally {
                 removeThread(this);
@@ -133,11 +131,11 @@ public class PrideThreadTest extends PrideBaseTest {
                 long time = startId * MILLISECONDS_PER_DAY;
                 for (int i = startId; i < startId + numIds; i++) {
                     Customer c = new Customer(i);
-                    Assert.assertEquals("f#" + i, c.getFirstName());
-                    Assert.assertEquals("l#" + i, c.getLastName());
-                    Assert.assertEquals(new Boolean(i%2 > 0), c.getActive());
+                    assertEquals("f#" + i, c.getFirstName());
+                    assertEquals("l#" + i, c.getLastName());
+                    assertEquals(new Boolean(i%2 > 0), c.getActive());
                     // Comparing string representations of the dates works around time zone problems
-                    Assert.assertEquals(new Date(time).toString(), c.getHireDate().toString());
+                    assertEquals(new Date(time).toString(), c.getHireDate().toString());
                     time += MILLISECONDS_PER_DAY;
                 }
             }

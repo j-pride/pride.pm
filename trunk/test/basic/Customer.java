@@ -55,7 +55,7 @@ public class Customer extends IdentifiedEntity {
 	}
 
 	protected static RecordDescriptor red =
-		new RecordDescriptor(Customer.class, PrideBaseTest.TEST_TABLE, IdentifiedEntity.red, new String[][] {
+		new RecordDescriptor(Customer.class, AbstractPrideTest.TEST_TABLE, IdentifiedEntity.red, new String[][] {
 			{ "firstName", "getFirstName", "setFirstName"},
 			{ "lastName",  "getLastName",  "setLastName"},
 			{ "hireDate",  "getHireDate",  "setHireDate"},

@@ -34,6 +34,12 @@ public class WhereCondition extends WhereConditionPart {
     	public String DESC = "DESC";
     }
 
+    protected static boolean bindDefault;
+    
+    public static void setBindDefault(boolean bind) {
+    	bindDefault = bind;
+    }
+
     protected WhereCondition parent;
     protected List<WhereConditionPart> parts = new ArrayList<WhereConditionPart>();
     protected String orderBy;
@@ -43,18 +49,25 @@ public class WhereCondition extends WhereConditionPart {
      * This may e.g. be a {@link Database} object.
      */
     public WhereCondition() {
-    	this(null);
+    	this(null, null, null);
+    }
+
+    public WhereCondition(String initialExpression) {
+    	this(null, null, initialExpression);
     }
 
     public WhereCondition(WhereCondition parent) {
-    	this(null, null);
+    	this(null, null, null);
     }
     
-    public WhereCondition(WhereCondition parent, String chainOperator) {
+    public WhereCondition(WhereCondition parent, String chainOperator, String initialExpression) {
+    	this.bind = bindDefault;
     	this.chainOperator = chainOperator;
     	this.parent = parent;
     	if (parent != null)
     		this.bind = parent.bind;
+    	if (initialExpression != null)
+    		and(initialExpression);
 	}
 
 	public WhereCondition withBind() { return withBind(true); }
@@ -75,7 +88,7 @@ public class WhereCondition extends WhereConditionPart {
 		return this;
 	}
 
-	public WhereCondition chain(String chainOperator, WhereCondition subcondition) {
+	public WhereCondition chain(String chainOperator, WhereConditionPart subcondition) {
 		subcondition.chainOperator = chainIfNotEmpty(chainOperator);
 		return chain(subcondition);
 	}
@@ -88,7 +101,7 @@ public class WhereCondition extends WhereConditionPart {
 
 	protected WhereCondition chain(String chainOperation) {
 		chainOperator = chainIfNotEmpty(chainOperator);
-		WhereCondition subcondition = new WhereCondition(this, chainOperator);
+		WhereCondition subcondition = new WhereCondition(this, chainOperator, null);
 		return chain(subcondition);
 	}
 	
@@ -104,7 +117,7 @@ public class WhereCondition extends WhereConditionPart {
 		return and(formattedSubcondition, null, (Object[])null);
 	}
 
-	public WhereCondition and(WhereCondition subcondition) {
+	public WhereCondition and(WhereConditionPart subcondition) {
 		return chain(ChainOperator.AND, subcondition);
 	}
 
@@ -124,7 +137,7 @@ public class WhereCondition extends WhereConditionPart {
 		return or(formattedSubcondition, null, (Object[])null);
 	}
 
-	public WhereCondition or(WhereCondition subcondition) {
+	public WhereCondition or(WhereConditionPart subcondition) {
 		return chain(ChainOperator.OR, subcondition);
 	}
 
@@ -197,7 +210,7 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	public static void main(String[] args) {
-		WhereCondition exp = new WhereCondition(null).//withBind().
+		WhereCondition exp = new WhereCondition().//withBind().
 				and("status", "active").
 				and().
 					or("age", Operator.LESS, 18).

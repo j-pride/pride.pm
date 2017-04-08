@@ -10,6 +10,7 @@
  *******************************************************************************/
 package de.mathema.pride;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
@@ -22,14 +23,12 @@ import java.sql.SQLException;
  *
  * @author <a href="mailto:jan.lessner@acoreus.de">Jan Lessner</a>
  */
-abstract public class PreparedOperation implements TransactionListener
+abstract public class PreparedOperation implements PreparedOperationI, TransactionListener
 {
     protected PreparedStatement stmt;
     protected RecordDescriptor red;
     protected String operation;
     protected Database db;
-
-    PreparedStatement getStatement() { return stmt; }
 
     public PreparedOperation(String operation, RecordDescriptor red) throws SQLException {
         db = DatabaseFactory.getDatabase(red.getContext());
@@ -82,7 +81,11 @@ abstract public class PreparedOperation implements TransactionListener
         }
     }
 
-	Database getDB() { return db; }
+	@Override
+	public PreparedStatement getStatement() { return stmt; }
+
+	@Override
+	public Database getDatabase() { return db; }
 	
     public void commit(TransactionEvent e) throws SQLException { rollback(e); }
     

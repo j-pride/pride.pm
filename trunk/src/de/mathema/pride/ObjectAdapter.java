@@ -78,8 +78,8 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
-	public void find(String[] dbfields) throws SQLException {
-		super.find(getEntity(), dbfields, getDescriptor());
+	public void find(String[] dbkeyfields) throws SQLException {
+		super.find(getEntity(), dbkeyfields, getDescriptor());
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
@@ -124,11 +124,21 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 		return super.update(getEntity(), dbkeyfields, updatefields, getDescriptor());
 	}
 
+	@Deprecated
 	public int update(String where) throws SQLException {
 		return super.update(getEntity(), where, getDescriptor());
 	}
 
+	@Deprecated
 	public int update(String where, String[] updatefields) throws SQLException {
+		return super.update(getEntity(), where, updatefields, getDescriptor());
+	}
+
+	public int update(WhereCondition where) throws SQLException {
+		return super.update(getEntity(), where, getDescriptor());
+	}
+
+	public int update(WhereCondition where, String[] updatefields) throws SQLException {
 		return super.update(getEntity(), where, updatefields, getDescriptor());
 	}
 

@@ -65,7 +65,7 @@ class WhereFieldCondition extends WhereConditionPart {
 	@Override
 	protected int bind(SQLFormatter formatter, PreparedStatement stmt, int nextParam)
 		throws ReflectiveOperationException {
-		if (bind) {
+		if (bind && operator != null) {
 			Object preparedValue = formatter.formatPreparedValue(Array.get(value, 0));
 			Method setter = PreparedStatementAccess.getAccessMethod(preparedValue.getClass());
 			setter.invoke(stmt, nextParam, preparedValue);

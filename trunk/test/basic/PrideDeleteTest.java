@@ -11,6 +11,8 @@ package basic;
  *******************************************************************************/
 import junit.framework.Assert;
 
+import org.junit.Test;
+
 import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.NoResultsException;
 import de.mathema.pride.ResultIterator;
@@ -21,22 +23,17 @@ import de.mathema.pride.ResultIterator;
  *
  * Class to Test the Delete-Behaviour of the PriDE-Framework
  */
-public class PrideDeleteTest extends PrideBaseTest {
+public class PrideDeleteTest extends AbstractPrideTest {
 
 	private static final int COUNT = 10;
 
-	public PrideDeleteTest(String name) {
-		super(name);
-	}
-
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
+	@Override
+	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(COUNT);
 	}
 	
+	@Test
 	public void testDelete() throws Exception {
 		Customer c = new Customer();
 		ResultIterator it =	c.queryAll();
@@ -46,14 +43,14 @@ public class PrideDeleteTest extends PrideBaseTest {
 			counter++;
 		} while (it.next());
 		DatabaseFactory.getDatabase().commit();
-		Assert.assertEquals(COUNT, counter);
+		assertEquals(COUNT, counter);
 		it = null;
 		try {
 			it = c.queryAll();
 		} catch (Exception e) {
-			Assert.assertTrue(e instanceof NoResultsException);	
+			assertTrue(e instanceof NoResultsException);	
 		}
-		Assert.assertNull(it);
+		assertNull(it);
 	}
 
 }

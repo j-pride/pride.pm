@@ -15,6 +15,8 @@ import java.sql.Date;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
+import org.junit.Test;
+
 import junit.framework.Assert;
 import de.mathema.pride.Database;
 import de.mathema.pride.DatabaseFactory;
@@ -25,21 +27,11 @@ import de.mathema.pride.DatabaseFactory;
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public class PrideDateTest extends PrideBaseTest 
+public class PrideDateTest extends AbstractPrideTest 
 {
-	/**
-   * PrideDateTest.java
-   * 
-   * @param name
-   */
-  public PrideDateTest(String name)	{
-		super(name);
-	}
 
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
+	@Override
+	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(9);
 	}
@@ -47,6 +39,7 @@ public class PrideDateTest extends PrideBaseTest
 	/**
 	 * Insert a Customer and test with and without generated dates
 	 */	
+	@Test
 	public void testInsert() throws Exception{
 		Date      myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
 		Date      dbTime = new Date(DatabaseFactory.getDatabase().getSystime().getTime());
@@ -55,9 +48,9 @@ public class PrideDateTest extends PrideBaseTest
 		DatabaseFactory.getDatabase().commit();
 		
 		Customer c2 = new Customer(100);
-		Assert.assertEquals("Easy", c2.getFirstName());
-		Assert.assertEquals("Rider", c2.getLastName());
-		Assert.assertTrue(myDate.before(c2.getHireDate()));
+		assertEquals("Easy", c2.getFirstName());
+		assertEquals("Rider", c2.getLastName());
+		assertTrue(myDate.before(c2.getHireDate()));
 		
 
 		Customer c3 = new Customer(200, "two", "two", Boolean.TRUE);
@@ -65,13 +58,14 @@ public class PrideDateTest extends PrideBaseTest
 		DatabaseFactory.getDatabase().commit();
 		
 		Customer c4 = new Customer(200);
-		Assert.assertEquals("two", c3.getLastName());
-		Assert.assertTrue(myDate.equals(c3.getHireDate()));
+		assertEquals("two", c3.getLastName());
+		assertTrue(myDate.equals(c3.getHireDate()));
 	}
 
 	/**
 	 * Update a Customer with hireDate and test the result
 	 */	
+	@Test
 	public void testUpdateNoDBDate() throws Exception {
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
 		Date dbTime = new Date(DatabaseFactory.getDatabase().getSystime().getTime());
@@ -89,6 +83,7 @@ public class PrideDateTest extends PrideBaseTest
 	/**
 	 * Insert a Customer and test the result
 	 */	
+	@Test
 	public void testUpdateWithDBDate() throws Exception {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.add(Calendar.DAY_OF_MONTH, -1);

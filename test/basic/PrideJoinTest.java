@@ -10,6 +10,9 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 import junit.framework.Assert;
+
+import org.junit.Test;
+
 import de.mathema.pride.RecordDescriptor;
 import de.mathema.pride.ResultIterator;
 
@@ -18,17 +21,15 @@ import de.mathema.pride.ResultIterator;
  * 
  * @author Administrator
  */
-public class PrideJoinTest extends PrideBaseTest {
+public class PrideJoinTest extends AbstractPrideTest {
 
-    public PrideJoinTest(String name) {
-        super(name);
-    }
-    
-    protected void setUp() throws Exception {
+	@Override
+	public void setUp() throws Exception {
         super.setUp();
         generateCustomer(9);
     }
 
+	@Test
     public void testOuterJoin() throws Exception {
         int nowife = 0;
         boolean firstFound = false;
@@ -38,21 +39,22 @@ public class PrideJoinTest extends PrideBaseTest {
         do {
             if (jc.getFirstName().equals("First")) {
                 firstFound = true;
-                Assert.assertNotNull(jc.getWife());
-                Assert.assertEquals(jc.getWife().getFirstName(), "Last");
-                Assert.assertEquals(jc.getWife().getLastName(), "Customer");
+                assertNotNull(jc.getWife());
+                assertEquals(jc.getWife().getFirstName(), "Last");
+                assertEquals(jc.getWife().getLastName(), "Customer");
             }
             else {
                 nowife++;
-                Assert.assertTrue(!jc.getFirstName().equals("First"));
-                Assert.assertNull(jc.getWife());
+                assertTrue(!jc.getFirstName().equals("First"));
+                assertNull(jc.getWife());
             }
         } while(iter.next());
         
-        Assert.assertEquals(8, nowife);
-        Assert.assertTrue(firstFound);
+        assertEquals(8, nowife);
+        assertTrue(firstFound);
     }
 
+	@Test
     public void testInnerJoin() throws Exception {
     	RecordDescriptor orig = JoinedCustomer.red;
     	try {
@@ -63,22 +65,17 @@ public class PrideJoinTest extends PrideBaseTest {
 
             do {
             	found++;
-            	Assert.assertEquals("First", jc.getFirstName());
-            	Assert.assertNotNull(jc.getWife());
-            	Assert.assertEquals(jc.getWife().getFirstName(), "Last");
-            	Assert.assertEquals(jc.getWife().getLastName(), "Customer");
+            	assertEquals("First", jc.getFirstName());
+            	assertNotNull(jc.getWife());
+            	assertEquals(jc.getWife().getFirstName(), "Last");
+            	assertEquals(jc.getWife().getLastName(), "Customer");
             } while(iter.next());
             
-            Assert.assertEquals(1, found);
+            assertEquals(1, found);
     	}
     	finally {
     		JoinedCustomer.red = orig;
     	}
     }
 
-    public static void main(String[] args) throws Exception {
-        PrideJoinTest pjt = new PrideJoinTest("join");
-        pjt.setUp();
-        pjt.testOuterJoin();
-    }
 }

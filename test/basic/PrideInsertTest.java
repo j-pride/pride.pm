@@ -1,4 +1,6 @@
 package basic;
+import org.junit.Test;
+
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
  * All rights reserved. This toolkit and the accompanying materials 
@@ -14,21 +16,13 @@ import de.mathema.pride.ResourceAccessor;
 import de.mathema.pride.ResourceAccessorJ2SE;
 import de.mathema.pride.ResultIterator;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-
 /**
  * @author bart57
  *
  * Class to Test the Insert-Behaviour of the PriDE-Framework
  */
-public class PrideInsertTest extends PrideBaseTest {
+public class PrideInsertTest extends AbstractPrideTest {
 
-
-	public PrideInsertTest(String name) {
-		super(name);
-	}
-    
     public String getAutoIncClassifier() {
         String dbType = DatabaseFactory.getResourceAccessor().getDBType();
         if (ResourceAccessor.DBType.MYSQL.equals(dbType))
@@ -44,19 +38,21 @@ public class PrideInsertTest extends PrideBaseTest {
 
 	/**
 	 * Insert a Customer and test the result
-	 */	
+	 */
+    @Test
 	public void testInsert() throws Exception{
-		Customer c = new Customer(1,"Hajo\\'","Klick",Boolean.TRUE);
+		new Customer(1,"Hajo\\'","Klick",Boolean.TRUE);
 		DatabaseFactory.getDatabase().commit();
 		Customer c2 = new Customer(1);
-		Assert.assertEquals("Hajo\\'", c2.getFirstName());
-		Assert.assertEquals("Klick", c2.getLastName());
+		assertEquals("Hajo\\'", c2.getFirstName());
+		assertEquals("Klick", c2.getLastName());
 	}
 
     /**
      * Insert customers with auto-generated primary keys
      * and fetch the key values from the database insertion operation
      */
+    @Test
 	public void testAutoInsert() throws Exception {
         String autoIncClassifier = getAutoIncClassifier();
         if (autoIncClassifier == null) {
@@ -67,12 +63,12 @@ public class PrideInsertTest extends PrideBaseTest {
         createTestTable(getAutoIncClassifier());
 		AutoCustomer c = new AutoCustomer("Firstname","Customer");
 		DatabaseFactory.getDatabase().commit();
-        Assert.assertTrue(c.getId() != -1);
+        assertTrue(c.getId() != -1);
 		Customer c2 = new Customer(c.getId());
         AutoCustomer c3 = new AutoCustomer("Firstname","Customer");
         DatabaseFactory.getDatabase().commit();
-        Assert.assertTrue(c3.getId() != -1);
-        Assert.assertEquals(c.getId() + 1, c3.getId());
+        assertTrue(c3.getId() != -1);
+        assertEquals(c.getId() + 1, c3.getId());
 	}
 
 }

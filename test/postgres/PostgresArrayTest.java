@@ -5,18 +5,16 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.junit.Test;
+
 import de.mathema.pride.PreparedInsert;
 
 import basic.CustomerType;
-import basic.PrideBaseTest;
+import basic.AbstractPrideTest;
 
-public class PostgresArrayTest extends PrideBaseTest {
+public class PostgresArrayTest extends AbstractPrideTest {
     protected static final String ARRAY_TEST_TABLE = "customer_pride_array_test";
     protected static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
-
-    public PostgresArrayTest(String name) {
-        super(name);
-    }
 
     @Override
     protected void createTestTable() throws SQLException {
@@ -35,7 +33,8 @@ public class PostgresArrayTest extends PrideBaseTest {
         dropTestTable(ARRAY_TEST_TABLE);
     }
 
-    public void testEmpty() throws Exception {
+    @Test
+	public void testEmpty() throws Exception {
         CustomerArray customer = new CustomerArray(0);
         customer.create();
         customer = new CustomerArray(0);
@@ -43,6 +42,7 @@ public class PostgresArrayTest extends PrideBaseTest {
         assertNull(customer.getPermissions());
     }
 
+    @Test
     public void testMultipleStringValues() throws Exception {
         CustomerArray customer = newCustomer(1);
         customer.create();
@@ -55,6 +55,7 @@ public class PostgresArrayTest extends PrideBaseTest {
         assertEquals("Supervisor", customer.getPermissions()[1]);
     }
 
+    @Test
     public void testNullArrayStringItem() throws Exception {
         CustomerArray customer = newCustomer(2);
         customer.getPermissions()[1] = null;
@@ -66,6 +67,7 @@ public class PostgresArrayTest extends PrideBaseTest {
         assertNull(customer.getPermissions()[1]);
     }
 
+    @Test
     public void testPreparedStringInsert() throws Exception {
         CustomerArray customer = newCustomer(3);
         PreparedInsert pi = new PreparedInsert(customer.getDescriptor());
@@ -78,6 +80,7 @@ public class PostgresArrayTest extends PrideBaseTest {
         assertEquals("Supervisor", customer.getPermissions()[1]);
     }
     
+    @Test
     public void testMultiplePrimitiveIntValues() throws Exception {
         CustomerArray customer = newCustomer(4);
         customer.setLogintimes(new int[] { 1, 2, 3 });
@@ -92,6 +95,7 @@ public class PostgresArrayTest extends PrideBaseTest {
         assertEquals(3, customer.getLogintimes()[2]);
     }
 
+    @Test
     public void testMultipleDateValues() throws Exception {
         CustomerArray customer = newCustomer(5);
         customer.setLogindates(new Date[] {
@@ -108,6 +112,7 @@ public class PostgresArrayTest extends PrideBaseTest {
         assertEquals(dateFormat.parse("04.05.2006"), customer.getLogindates()[1]);
     }
 
+    @Test
     public void testMultipleBigDecimalValues() throws Exception {
         CustomerArray customer = newCustomer(6);
         customer.setTurnovers(new BigDecimal[] {
@@ -124,6 +129,7 @@ public class PostgresArrayTest extends PrideBaseTest {
         assertEquals(new BigDecimal("4567.89"), customer.getTurnovers()[1]);
     }
 
+    @Test
     public void testMultipleEnumValues() throws Exception {
         CustomerArray customer = newCustomer(7);
         customer.setTypes(new CustomerType[] {

@@ -199,6 +199,10 @@ public class Database implements SQLFormatter
                                         boolean keepRest)
         throws SQLException {
         ResultIterator ri = sqlQuery(query, obj, red);
+        return returnIteratorIfNotEmpty(ri, query, keepRest);
+    }
+    
+    protected ResultIterator returnIteratorIfNotEmpty(ResultIterator ri, String query, boolean keepRest) throws SQLException {
         if (!ri.next()) {
             ri.close();
             throw new NoResultsException(query);
@@ -238,37 +242,29 @@ public class Database implements SQLFormatter
      * @param red Descriptor providing the field mappings
      */
     public int sqlUpdate(String operation, String[] autoFields, Object obj, RecordDescriptor red) throws SQLException {
-		Connection con = null;
-        Statement stmt = null;
+    	ConnectionAndStatement cns = null;
         ResultSet autoResults = null;
         int numRows = -1;
         try {
-            sqlLog(operation);
-            con = getConnection();
-            stmt = con.createStatement();
-            if (statementTimeout != null)
-                stmt.setQueryTimeout(statementTimeout);
-            String[] autoFieldsForExec = accessor.getAutoFields(stmt, autoFields);
+        	cns = new ConnectionAndStatement(operation, false);
+            String[] autoFieldsForExec = accessor.getAutoFields(cns.stmt, autoFields);
             if (autoFieldsForExec != null && autoFieldsForExec.length > 0)
-                numRows = stmt.executeUpdate(operation, autoFieldsForExec);
+                numRows = cns.stmt.executeUpdate(operation, autoFieldsForExec);
             else
-                numRows = stmt.executeUpdate(operation);
+                numRows = cns.stmt.executeUpdate(operation);
             if (autoFields != null && autoFields.length > 0) {
-                autoResults = accessor.getAutoFieldVals(stmt, autoFields);
+                autoResults = accessor.getAutoFieldVals(cns.stmt, autoFields);
                 if (autoResults != null && autoResults.next())
                     red.record2object(obj, autoResults, ResultIterator.COLUMN_STARTINDEX, autoFields);
             }
-
+            cns.close();
         }
-        catch(SQLException sqlx) {
-        	sqlLogError(sqlx);
-        	throw sqlx;
+        catch(Exception x) {
+        	if (cns != null)
+        		cns.closeAfterException(x);
         }
-        catch(Exception x) { processSevereException(x); }
         finally {
             if (autoResults != null) autoResults.close();
-            if (stmt != null) stmt.close();
-            if (con != null) releaseConnection(con);
         }
         return numRows;
     }
@@ -289,23 +285,15 @@ public class Database implements SQLFormatter
      */
     public ResultIterator sqlQuery(String operation, Object obj, RecordDescriptor red)
         throws SQLException {
-		Connection con = null;
-        Statement stmt = null;
+    	ConnectionAndStatement cns = null;
         try {
-            sqlLog(operation);
-            con = getConnection();
-            stmt = con.createStatement();
-            if (statementTimeout != null)
-                stmt.setQueryTimeout(statementTimeout);
-            ResultSet rs = stmt.executeQuery(operation);
-            return new ResultIterator(stmt, false, rs, obj, red, this, con);
+        	cns = new ConnectionAndStatement(operation, false);
+            ResultSet rs = cns.stmt.executeQuery(operation);
+            return new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
         }
         catch(Exception x) {
-        	if (x instanceof SQLException)
-        		sqlLogError((SQLException)x);
-            if (stmt != null) stmt.close();
-            if (con != null) releaseConnection(con);
-            processSevereButSQLException(x);
+        	if (cns != null)
+        		cns.closeAfterException(x);
             return null;
         }
     }
@@ -317,22 +305,15 @@ public class Database implements SQLFormatter
      * @throws SQLException
      */
     public void sqlExecute(String sqlStatement) throws SQLException {
-        Connection con = null;
-        Statement stmt = null;
+        ConnectionAndStatement cns = null;
         try {
-            sqlLog(sqlStatement);
-            con = getConnection();
-            stmt = con.createStatement();
-            if (statementTimeout != null)
-                stmt.setQueryTimeout(statementTimeout);
-            stmt.execute(sqlStatement);
+        	cns = new ConnectionAndStatement(sqlStatement, false);
+            cns.stmt.execute(sqlStatement);
+            cns.close();
         }
         catch (Exception x) {
-            if (x instanceof SQLException)
-                sqlLogError((SQLException) x);
-            if (stmt != null) stmt.close();
-            if (con != null) releaseConnection(con);
-            processSevereButSQLException(x);
+        	if (cns != null)
+        		cns.closeAfterException(x);
         }
     }
     
@@ -353,7 +334,8 @@ public class Database implements SQLFormatter
      */
     public void fetchRecord(Object primaryKey, Object obj, RecordDescriptor red)
         throws SQLException {
-        query(red.getPrimaryKeyField(), primaryKey, obj, red, false);
+    	WhereCondition primaryKeyCondition = new WhereCondition().and(red.getPrimaryKeyField(), primaryKey);
+        query(primaryKeyCondition, obj, red, false);
     }
 
     /** Fetch a record from the database and store the results in a JAVA object
@@ -401,7 +383,7 @@ public class Database implements SQLFormatter
      */
     public ResultIterator query(String[] dbfields, Object obj, RecordDescriptor red, boolean all)
         throws SQLException {
-		try { return query(red.getConstraint(obj, dbfields, false, this), obj, red, all); }
+		try { return query(red.assembleWhereCondition(obj, dbfields, false), obj, red, all); }
 		catch(Exception x) { processSevereButSQLException(x); return null; }
     }
 
@@ -410,7 +392,7 @@ public class Database implements SQLFormatter
      */
     public ResultIterator wildcardSearch(String[] dbfields, Object obj, RecordDescriptor red, boolean all)
         throws SQLException {
-        try { return query(red.getConstraint(obj, dbfields, true, this), obj, red, all); }
+        try { return query(red.assembleWhereCondition(obj, dbfields, true), obj, red, all); }
 		catch(Exception x) { processSevereButSQLException(x); return null; }
     }
 
@@ -438,26 +420,17 @@ public class Database implements SQLFormatter
     	if (where.requiresBinding()) {
             String query = "select " + red.getResultFields() + " from " +
                     getTableName(red) + " where " + whereString;
-            sqlLog(query);
-            Connection con = null;
-            PreparedStatement stmt = null;
+            ConnectionAndStatement cns = null;
             try {
-                con = getConnection();
-                stmt = con.prepareStatement(query);
-                if (statementTimeout != null)
-                    stmt.setQueryTimeout(statementTimeout);
-                where.bind(this, stmt);
-                ResultSet rs = stmt.executeQuery();
-                ResultIterator ri = new ResultIterator(stmt, false, rs, obj, red, this, con);
-                ri.next();
-                return ri;
+            	cns = new ConnectionAndStatement(query, true);
+                where.bind(this, cns.getStatement());
+                ResultSet rs = cns.getStatement().executeQuery();
+                ResultIterator ri = new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
+                return returnIteratorIfNotEmpty(ri, query, true);
             }
             catch (Exception x) {
-                if (x instanceof SQLException)
-                    sqlLogError((SQLException) x);
-                if (stmt != null) stmt.close();
-                if (con != null) releaseConnection(con);
-                processSevereButSQLException(x);
+            	if (cns != null)
+            		cns.closeAfterException(x);
                 return null;
             }
     	}
@@ -490,11 +463,7 @@ public class Database implements SQLFormatter
      */
     public int updateRecord(Object obj, RecordDescriptor red)
         throws SQLException {
-		try {
-		    return updateRecord(red.getPrimaryKeyField() + " = " +
-	                            formatValue(red.getPrimaryKey(obj)), obj, red);
-		}
-		catch(Exception x) { return processSevereButSQLException(x); }
+    	return updateRecord(new String[] { red.getPrimaryKeyField() }, obj, red);
     }
 
     /** Update a database record.
@@ -519,6 +488,9 @@ public class Database implements SQLFormatter
 	public int updateRecord(String[] dbkeyfields, String[] updatefields, Object obj, RecordDescriptor red)
 		throws SQLException {
 		try {
+			if (WhereCondition.bindDefault) {
+				return new PreparedUpdate(dbkeyfields, updatefields, red).execute(obj);
+			}
             String where = red.getConstraint(obj, dbkeyfields, false, this);
 			String update = "update " + getTableName(red) + " set " +
 				red.getUpdateValues(obj, dbkeyfields, updatefields, this) +
@@ -533,9 +505,15 @@ public class Database implements SQLFormatter
      * @param obj source object to extract the data from
      * @param red descriptor providing the field mappings and the table name to access
      */
+	@Deprecated
     public int updateRecord(String where, Object obj, RecordDescriptor red)
         throws SQLException {
         return updateRecord(where, null, obj, red);
+    }
+
+    public int updateRecord(WhereCondition where, Object obj, RecordDescriptor red)
+    	throws SQLException {
+    	return updateRecord(where, null, obj, red);
     }
 
 	/** Update a database record.
@@ -543,12 +521,42 @@ public class Database implements SQLFormatter
 	 * @param obj source object to extract the data from
 	 * @param red descriptor providing the field mappings and the table name to access
 	 */
+    @Deprecated
 	public int updateRecord(String where, String[] updatefields, Object obj, RecordDescriptor red)
 		throws SQLException {
 		try {
 			String update = "update " + getTableName(red) + " set " +
 				red.getUpdateValues(obj, null, updatefields, this) + where(where);
 			return sqlUpdate(update);
+		}
+		catch(Exception x) { return processSevereButSQLException(x); }
+	}
+
+	public int updateRecord(WhereCondition where, String[] updatefields, Object obj, RecordDescriptor red)
+		throws SQLException {
+		try {
+			String whereString = where.toSQL(this);
+	    	if (where.requiresBinding()) {
+				String update = "update " + getTableName(red) + " set " +
+						red.getUpdateValues(null, null, updatefields, this) + " where " + whereString;
+	            ConnectionAndStatement cns = null;
+	            try {
+	            	cns = new ConnectionAndStatement(update, true);
+	            	int nextParam = red.getConstraint(obj, updatefields, cns, null, 1);
+	                where.bind(this, cns.getStatement(), nextParam);
+	                int result = cns.getStatement().executeUpdate();
+	                cns.close();
+	                return result;
+	            }
+	            catch (Exception x) {
+	            	if (cns != null)
+	            		cns.closeAfterException(x);
+	                return -1;
+	            }
+	    	}
+	    	else {
+	    		return updateRecord(whereString, updatefields, obj, red);
+	    	}
 		}
 		catch(Exception x) { return processSevereButSQLException(x); }
 	}
@@ -602,7 +610,7 @@ public class Database implements SQLFormatter
         return sqlUpdate(delete);
     }
 
-    /** Delete a record from the database.
+    /** Delete record(s) from the database.
      * @param dbkeyfields database fields which are supposed to determine the records of
      *  interest. Typically the primary key, identifying a single object.
      * @param obj source object to extract the key data from.
@@ -756,7 +764,38 @@ public class Database implements SQLFormatter
     /** Remove a transaction listener from this database object */
     public synchronized void removeListener(TransactionListener l) { txlisteners.remove(l); }
 
-    public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/Database.java-arc   1.1   06 Sep 2002 14:54:18   math19  $";
+    protected class ConnectionAndStatement implements PreparedOperationI {
+    	final Connection con;
+    	final Statement stmt;
+    	
+    	ConnectionAndStatement(String statementContent, boolean prepared) throws SQLException {
+            sqlLog(statementContent);
+            con = getConnection();
+            stmt = prepared ? con.prepareStatement(statementContent) : con.createStatement();
+            if (statementTimeout != null)
+                stmt.setQueryTimeout(statementTimeout);
+    		
+    	}
+
+		public void close() throws SQLException {
+            if (stmt != null) stmt.close();
+            if (con != null) releaseConnection(con);
+		}
+
+		public void closeAfterException(Exception x) throws SQLException {
+        	if (x instanceof SQLException)
+        		sqlLogError((SQLException)x);
+        	close();
+            processSevereButSQLException(x);
+		}
+		
+		@Override
+		public Database getDatabase() { return Database.this; }
+
+		@Override
+		public PreparedStatement getStatement() { return (PreparedStatement)stmt; }
+    }
+
 }
 
 /* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/Database.java-arc  $

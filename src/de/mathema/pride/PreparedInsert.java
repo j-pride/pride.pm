@@ -22,12 +22,12 @@ public class PreparedInsert extends PreparedOperation
 	protected String[] autoFields;
 	
     public PreparedInsert(RecordDescriptor red)
-        throws SQLException, IllegalAccessException, InvocationTargetException {
+        throws SQLException, ReflectiveOperationException {
         this(null, red);
     }
 
 	public PreparedInsert(String[] autoFields, RecordDescriptor red)
-		throws SQLException, IllegalAccessException, InvocationTargetException {
+		throws SQLException, ReflectiveOperationException {
 		super("insert into " + red.getTableName() +
 			  " (" + red.getFieldNames(autoFields) + ") values" +
 			  " (" + red.getCreationValues(null, autoFields, DatabaseFactory.getDatabase(red.getContext())) + ")", red);

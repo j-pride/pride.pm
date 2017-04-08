@@ -1,4 +1,7 @@
 package basic;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
  * All rights reserved. This toolkit and the accompanying materials 
@@ -10,6 +13,7 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.Random;
 
 import org.junit.After;
@@ -99,13 +103,30 @@ public abstract class AbstractPrideTest extends Assert {
 	}
 
 	public static void initDB() throws Exception {
+		Properties testConfig = determineDatabaseTestConfiguration();
         ResourceAccessor ra =
-                new ResourceAccessorJ2SE(System.getProperties());
+                new ResourceAccessorJ2SE(testConfig);
             DatabaseFactory.setResourceAccessor(ra);
             DatabaseFactory.setExceptionListener(exlistener);
-            DatabaseFactory.setDatabaseName(System.getProperties().getProperty("pride.db"));
+            DatabaseFactory.setDatabaseName(testConfig.getProperty("pride.db"));
 	}
 	
+	private static Properties determineDatabaseTestConfiguration() throws IOException {
+		String configFileName = System.getProperty("pride.test.config.file");
+		if (configFileName == null) {
+			String currentUser = System.getProperty("user.name");
+			configFileName = "config/" + currentUser + ".test.config.properties";
+		}
+		if (!new File(configFileName).exists()) {
+			throw new IllegalArgumentException("Can't determine database configuration - tried to read from file: " + configFileName);
+		}
+		Properties testConfig = new Properties();
+		FileInputStream fis = new FileInputStream(configFileName);
+		testConfig.load(fis);
+		fis.close();
+		return testConfig;
+	}
+
 	/**
 	 * @see junit.framework.TestCase#tearDown()
 	 */

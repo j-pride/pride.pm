@@ -16,5 +16,7 @@
 	<classpathentry kind="lib" path="lib/ant.jar"/>
 	<classpathentry kind="lib" path="lib/j2ee.jar"/>
 	<classpathentry kind="lib" path="lib/java-hamcrest-2.0.0.0.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/javatools/hsqldb-2.3.4/lib/hsqldb.jar"/>
+	<classpathentry kind="lib" path="C:/Program Files/javatools/PostgreSQL/pgJDBC/postgresql-42.0.0.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

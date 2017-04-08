@@ -22,10 +22,10 @@
 	<property name="j2ee.home"  location="." />
 	<property name="junit.home" location="${pride.home}" />
 	<property name="mysql.home" location="D:/programme/javatools" />
+	<property name="hsql.home"  location="C:/programme/javatools/hsqldb-2.3.4" />
 
 <!--
 	<property name="db2.home"   location="D:/P/IBM/SQLLIB" />
-	<property name="hsql.home"  location="D:/p/hsqldb1.7.3.3" />
 	<property name="pointbase.home" location="C:/Sun/AppServer/pointbase" />
 -->
 	<property name="pointbase.home" location="." />
@@ -42,12 +42,14 @@
 
 	<path id="project.class.path">
 		<pathelement path="${j2ee.home}/lib/j2ee.jar"/>
-		<pathelement path="${junit.home}/lib/junit.jar"/>
+		<pathelement path="${junit.home}/lib/junit-4.12.jar"/>
+		<pathelement path="${junit.home}/lib/java-hamcrest-2.0.0.0.jar"/>
 		<pathelement path="${pride.home}/classes"/>
 		<pathelement path="${pointbase.home}/lib/pbclient.jar" />
 		<pathelement path="${pride.home}/lib/ojdbc14.jar"/>
 		<pathelement path="${mysql.home}/mysql-connector-java-5.1.22/mysql-connector-java-5.1.22-bin.jar" />
 		<pathelement path="${pride.home}/lib/postgresql-9.3-1100.jdbc4.jar" />
+		<pathelement path="${hsql.home}/lib/hsqldb.jar" />
 <!--
 		<fileset dir="${db2.home}/lib">
 			<include name="*.jar"/>
@@ -149,79 +151,45 @@
 		<copy todir="release/workshop"> <fileset dir="workshop" includes="**/*.*" /> </copy>
   	</target>
 
-	<target name="run.mysql" description="run PriDE's JUnit tests on a MySQL database">
-	    <java classname="junit.awtui.TestRunner" fork="true">
-	    	<arg value="PrideAllTests"/>
-	    	<jvmarg value="-Dpride.dbtype=mysql" />
-	    	<jvmarg value="-Dpride.driver=com.mysql.jdbc.Driver" />
-	    	<jvmarg value="-Dpride.db=jdbc:mysql://localhost/test" />
-	    	<jvmarg value="-Dpride.user=root" />
-	    	<jvmarg value="-Dpride.password=root" />
-	    	<jvmarg value="-Dpride.logfile=sql.log" />
+	<target name="test.mysql" description="run PriDE's JUnit tests on a MySQL database" depends="compile">
+	    <java classname="junit.textui.TestRunner" fork="true">
+	    	<arg value="basic.PrideAllTests"/>
+	    	<jvmarg value="-Dpride.test.config.file=config/mysql.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
 	</target>
 	
-	<target name="run.hsql" description="run PriDE's JUnit tests on a HSQL database">
-	    <java classname="junit.awtui.TestRunner" fork="true">
-	    	<arg value="PrideAllTests"/>
-	    	<jvmarg value="-Dpride.dbtype=hsql" />
-	    	<jvmarg value="-Dpride.driver=org.hsqldb.jdbcDriver" />
-	    	<jvmarg value="-Dpride.db=jdbc:hsqldb:test" />
-	    	<jvmarg value="-Dpride.user=sa" />
-	    	<jvmarg value="-Dpride.password=root" />
-	    	<jvmarg value="-Dpride.logfile=sql.log" />
+	<target name="test.hsql" description="run PriDE's JUnit tests on a HSQL database" depends="compile">
+	    <java classname="junit.textui.TestRunner" fork="true">
+	    	<arg value="basic.PrideAllTests"/>
+	    	<jvmarg value="-Dpride.test.config.file=config/hsql.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
 	</target>
 	
-	<target name="run.oracle" description="run PriDE's JUnit tests on an Oracle database">
-	    <java classname="junit.awtui.TestRunner" fork="true">
-	    	<arg value="PrideAllTests"/>
-	    	<jvmarg value="-Dpride.dbtype=oracle" />
-	    	<jvmarg value="-Dpride.driver=oracle.jdbc.driver.OracleDriver" />
-	    	<jvmarg value="-Dpride.db=jdbc:oracle:thin:@localhost:1521:xe" />
-	    	<jvmarg value="-Dpride.user=less02" />
-	    	<jvmarg value="-Dpride.password=rklfront" />
-	    	<jvmarg value="-Dpride.logfile=sql.log" />
+	<target name="test.oracle" description="run PriDE's JUnit tests on an Oracle database" depends="compile">
+	    <java classname="junit.textui.TestRunner" fork="true">
+	    	<arg value="basic.PrideAllTests"/>
+	    	<jvmarg value="-Dpride.test.config.file=config/oracle.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
 	</target>
 	
-	<target name="run.db2" description="run PriDE's JUnit tests on a DB2 database">
-	    <java classname="junit.awtui.TestRunner" fork="true">
-	    	<arg value="PrideAllTests"/>
-	    	<jvmarg value="-Dpride.dbtype=db2" />
-	    	<jvmarg value="-Dpride.driver=COM.ibm.db2.jdbc.net.DB2Driver" />
-	    	<jvmarg value="-Dpride.db=jdbc:db2//localhost:6789/test" />
-	    	<jvmarg value="-Dpride.user=db2admin" />
-	    	<jvmarg value="-Dpride.password=db2admin" />
-	    	<jvmarg value="-Dpride.logfile=sql.log" />
+	<target name="test.db2" description="run PriDE's JUnit tests on a DB2 database" depends="compile">
+	    <java classname="junit.textui.TestRunner" fork="true">
+	    	<arg value="basic.PrideAllTests"/>
+	    	<jvmarg value="-Dpride.test.config.file=config/db2.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
 	</target>
 	
-	<target name="run.pointbase" description="run PriDE's JUnit tests on a Pointbase database">
-	    <java classname="junit.awtui.TestRunner" fork="true">
-	    	<arg value="PrideAllTests"/>
-	    	<jvmarg value="-Dpride.dbtype=pointbase" />
-	    	<jvmarg value="-Dpride.driver=com.pointbase.jdbc.jdbcUniversalDriver" />
-	    	<jvmarg value="-Dpride.db=jdbc:pointbase:server://localhost:9092/sun-appserv-samples" />
-	    	<jvmarg value="-Dpride.user=pbPublic" />
-	    	<jvmarg value="-Dpride.password=pbPublic" />
-	    	<jvmarg value="-Dpride.logfile=sql.log" />
+	<target name="test.postgres" description="run PriDE's JUnit tests on a PostgreSQL database" depends="compile">
+	    <java classname="junit.textui.TestRunner" fork="true">
+	    	<arg value="basic.PrideAllTests"/>
+	    	<jvmarg value="-Dpride.test.config.file=config/postgres.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
 	</target>
 	
-	<target name="run.cloudscape" description="run PriDE's JUnit tests on a Cloudscape database">
-	    <java classname="junit.awtui.TestRunner" fork="true">
-	    	<arg value="PrideAllTests"/>
-	    	<jvmarg value="-Dpride.driver=COM.cloudscape.core.RmiJdbcDriver" />
-	    	<jvmarg value="-Dpride.db=jdbc:cloudscape:rmi:CloudscapeDB;create=true" />
-	    	<jvmarg value="-Dpride.logfile=sql.log" />
-	    	<classpath refid="project.class.path"/>
-	    </java>
-	</target>
 	
 </project>

@@ -8,8 +8,7 @@ public class PreparedSelect extends PreparedOperation {
 
     protected String[] dbkeyfields;
 
-    public PreparedSelect(String[] dbkeyfields, RecordDescriptor red) throws SQLException, IllegalAccessException,
-            InvocationTargetException {
+    public PreparedSelect(String[] dbkeyfields, RecordDescriptor red) throws SQLException, ReflectiveOperationException {
         super(String.format("select %s from %s where %s",
                 red.getResultFields(),
                 red.getTableName(),

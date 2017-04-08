@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.PreparedInsert;
 
 import basic.AbstractPrideTest;
@@ -13,8 +14,13 @@ import basic.AbstractPrideTest;
 public class PostgresKeyValueTest extends AbstractPrideTest {
     protected static final String KEY_VALUE_TEST_TABLE = "customer_pride_key_value_test";
 
-    @Override
+    
+	@Override
     protected void createTestTable() throws SQLException {
+		// ATTENTION:
+		// Since version 9 the column type hstore is not supported by default.
+		// You probably have to run the following command from a PostgreSQL shell before:
+		// CREATE EXTENSION hstore;
         String columns =
                 "id " + DEFAULT_ID_CLASSIFIER + "," +
                 "contacts hstore";

@@ -246,7 +246,7 @@ public class RecordDescriptor
      */
     @Deprecated
     public Object getWhereValue(Object obj, String dbfield, boolean byLike, Database db)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException, SQLException {
         Object value = null;
         try {
             value = (baseDescriptor != null) ?
@@ -323,7 +323,7 @@ public class RecordDescriptor
     @Deprecated
     public String getConstraint(Object obj, String[] dbfields,
 				boolean byLike, Database db)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException, SQLException {
         String constraint = "";
         if (dbfields == null)
             dbfields = new String[] { getPrimaryKeyField() };
@@ -379,7 +379,7 @@ public class RecordDescriptor
      * attribute is assumed to make up the primary key and is therefore left off
      */
     public String getUpdateValues(Object obj, Database db)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException, SQLException {
 		return getUpdateValues(obj, null, null, db);
     }
 
@@ -387,7 +387,7 @@ public class RecordDescriptor
      * are left off instead of the first one.
      */
     public String getUpdateValues(Object obj, String[] excludeAttrs, String[] includeAttrs, Database db)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException, SQLException {
         String values = (baseDescriptor != null) ?
             baseDescriptor.getUpdateValues(obj, excludeAttrs, includeAttrs, db) : "";
         int startIndex = (baseDescriptor == null && excludeAttrs == null) ? 1 : 0;
@@ -429,7 +429,7 @@ public class RecordDescriptor
      * passed object as required for an SQL insert operation
      */
     public String getCreationValues(Object obj, String[] excludeAttrs, Database db)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException, SQLException {
         String values = (baseDescriptor != null) ? baseDescriptor.getCreationValues(obj, excludeAttrs, db) : "";
         for (int i = 0; i < attrDescriptors.length; i++) {
 			if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false))

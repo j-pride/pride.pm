@@ -194,9 +194,9 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	{
 		if (dbSystime != null && value instanceof java.util.Date) {
 			if (dbSystime.getTime() == ((java.util.Date) value).getTime()) {
-			  value = getSystimeConstant();
-			  if (!(value instanceof java.util.Date))
-			  	return value;
+			  Object systimeValue = getSystimeConstant();
+			  if (!(systimeValue instanceof java.util.Date))
+			  	return systimeValue;
 			}
 		}
 		
@@ -220,6 +220,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			return "CURRENT_TIMESTAMP";
 		else if (ResourceAccessor.DBType.ORACLE.equals(dbType))
 			return "SYSDATE";
+		else if (ResourceAccessor.DBType.HSQL.equals(dbType))
+			return "CURRENT_DATE";
 		else
 			return new java.util.Date();
 	}

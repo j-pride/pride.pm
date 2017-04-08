@@ -22,7 +22,7 @@ public class PreparedUpdate extends PreparedOperation
     protected String[] updatefields;
 
 	public PreparedUpdate(String[] dbkeyfields, String[] updatefields, RecordDescriptor red)
-		throws SQLException, IllegalAccessException, InvocationTargetException {
+		throws SQLException, ReflectiveOperationException {
 		super("update " + red.getTableName() + " set " +
 			  red.getUpdateValues(null, dbkeyfields, updatefields, DatabaseFactory.getDatabase(red.getContext())) + " where " +
 			  red.getConstraint(null, dbkeyfields, false, DatabaseFactory.getDatabase(red.getContext())), red);
@@ -31,12 +31,12 @@ public class PreparedUpdate extends PreparedOperation
 	}
 
 	public PreparedUpdate(String[] dbkeyfields, RecordDescriptor red)
-		throws SQLException, IllegalAccessException, InvocationTargetException {
+		throws SQLException, ReflectiveOperationException {
 		this(dbkeyfields, null, red);
 	}
 
     public PreparedUpdate(RecordDescriptor red)
-    	throws SQLException, IllegalAccessException, InvocationTargetException {
+    	throws SQLException, ReflectiveOperationException {
     	this(new String[] { red.getPrimaryKeyField() }, red);
     }
 

@@ -44,10 +44,10 @@ public class PrideAllTests {
 		add(suite, PridePreparedTest.class);
 		add(suite, PrideJoinTest.class);
 		add(suite, PrideResourceTest.class);
-		add(suite, PrideThreadTest.class);
+		//add(suite, PrideThreadTest.class);
 	
+		AbstractPrideTest.initDB(); // Required to make the following DB type check work
 		if (DBType.POSTGRES.equals(DatabaseFactory.getDatabase().getDBType())) {
-			AbstractPrideTest.initDB();
 			add(suite, PostgresArrayTest.class);
 			add(suite, PostgresKeyValueTest.class);
 		}

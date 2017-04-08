@@ -33,7 +33,7 @@ class OptimisticLockClone extends OptimisticLock {
 
         // Always build constraints from the 'source' object above
         public String getConstraint(Object obj, String[] dbfields, boolean byLike)
-            throws IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException, SQLException {
             return source.getDescriptor().getConstraint
                 (source, dbfields, byLike, DatabaseFactory.getDatabase());
         }

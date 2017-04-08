@@ -179,7 +179,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      * attribute.
      */
     public String getUpdateValue(Object obj, Database db)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException, SQLException {
         return getFieldName() + " = " + getCreationValue(obj, db);
     }
 
@@ -189,7 +189,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      */
     @Deprecated
     public String getWhereValue(Object obj, Database db, boolean byLike)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException {
         String strval, operator;
         Object val;
         if (obj != null) {
@@ -264,7 +264,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      * for prepared statements.
      */
     public String getCreationValue(Object obj, Database db)
-		throws IllegalAccessException, InvocationTargetException {
+		throws ReflectiveOperationException {
         return (obj != null) ? db.formatValue(getValue(obj)) : "?";
     }
 

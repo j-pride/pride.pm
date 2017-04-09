@@ -54,12 +54,11 @@ public class CustomerOrder extends MappedObject
 
         // Get all orders of customer 570336
         CustomerOrder co = new CustomerOrder();
-        try {
-            ResultIterator iter = co.query(570336);
+        ResultIterator iter = co.query(570336);
+        if (iter != null) {
             do { System.out.println(co.toString()); }
             while(iter.next());
         }
-        catch(NoResultsException nrx) {}
     }
 }
 

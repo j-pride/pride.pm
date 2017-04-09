@@ -52,8 +52,8 @@ abstract public class ObjectAdapter extends DatabaseAdapter
     }
     
 	/** Fetch an object by key. */
-	public void fetch(Object key) throws SQLException {
-		super.fetch(getEntity(), key, getDescriptor());
+	public boolean fetch(Object key) throws SQLException {
+		return super.fetch(getEntity(), key, getDescriptor());
 	}
 
 	/** Fetch an object by fields. The values are taken from the fields' accociated get-methods */
@@ -67,17 +67,17 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
-	public void find(String[] dbkeyfields) throws SQLException {
-		super.find(getEntity(), dbkeyfields, getDescriptor());
+	public boolean find(String[] dbkeyfields) throws SQLException {
+		return super.find(getEntity(), dbkeyfields, getDescriptor());
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
-	public void find() throws SQLException {
+	public boolean find() throws SQLException {
 		String[] pk = getKeyFields();
 		if (pk != null)
-			find(pk);
+			return find(pk);
 		else
-			super.find(getEntity(), getDescriptor());
+			return super.find(getEntity(), getDescriptor());
 	}
 
 	/** Fetch all objects */
@@ -96,8 +96,8 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
-	public void find(String where) throws SQLException {
-		super.find(getEntity(), where, getDescriptor());
+	public boolean find(String where) throws SQLException {
+		return super.find(getEntity(), where, getDescriptor());
 	}
 
 	public int update() throws SQLException {

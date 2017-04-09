@@ -36,12 +36,9 @@ public class PreparedSelect extends PreparedOperation {
             ResultIterator ri = new ResultIterator(stmt, true, rs, obj, red, db, db.getConnection());
             if (!ri.next()) {
                 ri.close();
-                throw new NoResultsException(operation + " using " + obj.toString());
+                return null;
             }
             return ri;
-        }
-        catch(NoResultsException nrx) {
-            throw nrx;
         }
         catch(SQLException sqlx) {
             db.sqlLogError(sqlx);

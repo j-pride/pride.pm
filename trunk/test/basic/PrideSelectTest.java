@@ -113,13 +113,8 @@ public class PrideSelectTest extends AbstractPrideTest {
 	@Test
 	public void testIllegalSelect() throws Exception {
 		Customer c = new Customer();
-		try { c.find(new String[] { "unknown" }); }
-		catch(RuntimeException rx) { /* expected */
-			assertNotNull(rx.getCause());
-			assertEquals(rx.getCause().getClass(), IllegalAccessException.class);
-			return;
-		}
-		fail();
+		boolean found = c.find(new String[] { "unknown" });
+		assertFalse(found);
 	}
 	
 }

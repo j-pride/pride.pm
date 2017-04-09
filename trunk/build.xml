@@ -153,7 +153,7 @@
 
 	<target name="test.mysql" description="run PriDE's JUnit tests on a MySQL database" depends="compile">
 	    <java classname="junit.textui.TestRunner" fork="true">
-	    	<arg value="basic.PrideAllTests"/>
+	    	<arg value="basic.AllPrideTests"/>
 	    	<jvmarg value="-Dpride.test.config.file=config/mysql.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
@@ -161,7 +161,7 @@
 	
 	<target name="test.hsql" description="run PriDE's JUnit tests on a HSQL database" depends="compile">
 	    <java classname="junit.textui.TestRunner" fork="true">
-	    	<arg value="basic.PrideAllTests"/>
+	    	<arg value="basic.AllPrideTests"/>
 	    	<jvmarg value="-Dpride.test.config.file=config/hsql.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
@@ -169,7 +169,7 @@
 	
 	<target name="test.oracle" description="run PriDE's JUnit tests on an Oracle database" depends="compile">
 	    <java classname="junit.textui.TestRunner" fork="true">
-	    	<arg value="basic.PrideAllTests"/>
+	    	<arg value="basic.AllPrideTests"/>
 	    	<jvmarg value="-Dpride.test.config.file=config/oracle.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
@@ -177,7 +177,7 @@
 	
 	<target name="test.db2" description="run PriDE's JUnit tests on a DB2 database" depends="compile">
 	    <java classname="junit.textui.TestRunner" fork="true">
-	    	<arg value="basic.PrideAllTests"/>
+	    	<arg value="basic.AllPrideTests"/>
 	    	<jvmarg value="-Dpride.test.config.file=config/db2.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>
@@ -185,7 +185,7 @@
 	
 	<target name="test.postgres" description="run PriDE's JUnit tests on a PostgreSQL database" depends="compile">
 	    <java classname="junit.textui.TestRunner" fork="true">
-	    	<arg value="basic.PrideAllTests"/>
+	    	<arg value="basic.AllPrideTests"/>
 	    	<jvmarg value="-Dpride.test.config.file=config/postgres.test.config.properties" />
 	    	<classpath refid="project.class.path"/>
 	    </java>

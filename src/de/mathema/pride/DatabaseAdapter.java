@@ -35,10 +35,11 @@ abstract public class DatabaseAdapter
     }
     
     /** Fetch an object by key. */
-    protected static void fetch(Object entity, Object key, RecordDescriptor red)
+    protected boolean fetch(Object entity, Object key, RecordDescriptor red)
         throws SQLException {
         if (key != null) // null key indicates fetching is performed in derived type
-            getDatabase(red).fetchRecord(key, entity, red);
+            return getDatabase(red).fetchRecord(key, entity, red);
+        return false;
     }
 
     /** Fetch an object by fields. The values are taken from the fields' accociated get-methods */
@@ -55,17 +56,17 @@ abstract public class DatabaseAdapter
             getDatabase(red).wildcardSearch(dbfields, entity, red, true) : null;
     }
 
-    /** Same like <code>query()</code> but takes the first record only */
-    protected static void find(Object entity, String[] dbkeyfields, RecordDescriptor red)
+    /** Same like <code>query()</code> but takes the first record only. Returns false if no matching record could be found */
+    protected static boolean find(Object entity, String[] dbkeyfields, RecordDescriptor red)
         throws SQLException {
-        if (dbkeyfields != null)
-            getDatabase(red).query(dbkeyfields, entity, red, false);
+    	return (dbkeyfields != null) ? false :
+            getDatabase(red).query(dbkeyfields, entity, red, false) != null;
     }
 
     /** Same like <code>query()</code> but takes the first record only */
-    protected static void find(Object entity, RecordDescriptor red)
+    protected static boolean find(Object entity, RecordDescriptor red)
         throws SQLException {
-        getDatabase(red).fetchRecord(entity, red);
+        return getDatabase(red).fetchRecord(entity, red);
     }
 
     /** Fetch all objects */
@@ -88,9 +89,9 @@ abstract public class DatabaseAdapter
     }
 
     /** Same like <code>query()</code> but takes the first record only */
-    protected static void find(Object entity, String where, RecordDescriptor red)
+    protected static boolean find(Object entity, String where, RecordDescriptor red)
         throws SQLException {
-        getDatabase(red).query(where, entity, red, false);
+        return (getDatabase(red).query(where, entity, red, false) != null);
     }
 
     protected static int update(Object entity, RecordDescriptor red)

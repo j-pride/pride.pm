@@ -97,11 +97,11 @@ public class ResultIterator
      * no further data available, the iterator is closed.
      * @return false, if there is no more data available.
      * @throws java.sql.SQLException if accessing the query results fails
-     * @throws {@link NoResultsException} if the iterator is already closed
+     * or if the iterator is already closed
      */
     public boolean next() throws SQLException {
         if (isClosed())
-            throw new NoResultsException("Result iterator closed");
+            throw new SQLException("Result iterator closed");
         boolean b = results.next();
         if (b) {
             if (red != null) {

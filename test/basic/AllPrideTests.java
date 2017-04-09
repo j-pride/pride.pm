@@ -27,32 +27,40 @@ import junit.framework.TestSuite;
  *
  * TestSuite for PriDE Unit-Testing
  */
-public class PrideAllTests {
+public class AllPrideTests {
 
     public static Test suite() throws Exception {
 		TestSuite suite = new TestSuite();
 		add(suite, PrideInsertTest.class);
+		add(suite, PrideInsertTestWithBindVariables.class);
 		add(suite, PrideSelectTest.class);
 		add(suite, PrideSelectTestWithBindVariables.class);
 		add(suite, PrideUpdateTest.class);
 		add(suite, PrideUpdateTestWithBindVariables.class);
 		add(suite, PrideDeleteTest.class);
-		//add(suite, PrideExtensionTest.class);
 		add(suite, PrideDateTest.class);
 		add(suite, PrideWhereConditionTest.class);
 		add(suite, PrideWhereConditionTestWithBindVariables.class);
 		add(suite, PridePreparedTest.class);
 		add(suite, PrideJoinTest.class);
 		add(suite, PrideResourceTest.class);
-		//add(suite, PrideThreadTest.class);
+		add(suite, DerivedRecordDescriptorTest.class);
 	
-		AbstractPrideTest.initDB(); // Required to make the following DB type check work
+		AbstractPrideTest.initDB(); // Required to make the following DB type checks work
+		
 		if (DBType.POSTGRES.equals(DatabaseFactory.getDatabase().getDBType())) {
 			add(suite, PostgresArrayTest.class);
 			add(suite, PostgresKeyValueTest.class);
 		}
 		else {
 			System.err.println("Tests for Postgres NoSQL column types omitted as you are not running a Postgres DB");
+		}
+		
+		if (!DBType.HSQL.equals(DatabaseFactory.getDatabase().getDBType())) {
+			add(suite, PrideThreadTest.class);
+		}
+		else {
+			System.err.println("Multithreading tests omitted for HSQL. They don't work with an embedded database");
 		}
 		return suite;
     }

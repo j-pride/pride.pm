@@ -14,7 +14,6 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.NoResultsException;
 import de.mathema.pride.ResultIterator;
 
 
@@ -44,12 +43,7 @@ public class PrideDeleteTest extends AbstractPrideTest {
 		} while (it.next());
 		DatabaseFactory.getDatabase().commit();
 		assertEquals(COUNT, counter);
-		it = null;
-		try {
-			it = c.queryAll();
-		} catch (Exception e) {
-			assertTrue(e instanceof NoResultsException);	
-		}
+		it = c.queryAll();
 		assertNull(it);
 	}
 

@@ -189,10 +189,11 @@ public class Database implements SQLFormatter
     /** Fetches the first record from a result set returned for <code>query</code>.
      * The result is stored in the passed <code>obj</code> the mapping scheme of
      * which is described by parameter <code>red</code>.
-     * @return <code>null</code> if parameter <code>keepRest</code> is true, i.e.
-     * only the very first matching record is of interest. A {@link ResultIterator}
-     * object otherwise, which allows to walk through the following records by storing
-     * them step by step into <code>obj</code>.
+     * @return A {@link ResultIterator} which allows to walk through the following records by storing
+     * them step by step into <code>obj</code>. If parameter keepRest is false, the ResultIterator is
+     * immediately closed after fetching the first record into the passed object. The caller can only
+     * use the returned Iterator to check if the query was successful. Further iterating is omitted.
+     * A return value of <code>null</code> indicates that there was no matching record found. 
      */
     protected ResultIterator fetchFirst(String query, Object obj,
                                         RecordDescriptor red,
@@ -205,14 +206,12 @@ public class Database implements SQLFormatter
     protected ResultIterator returnIteratorIfNotEmpty(ResultIterator ri, String query, boolean keepRest) throws SQLException {
         if (!ri.next()) {
             ri.close();
-            throw new NoResultsException(query);
-        }
-        if (keepRest)
-            return ri;
-        else {
-            ri.close();
             return null;
         }
+        if (!keepRest) {
+            ri.close();
+        }
+        return ri;
     }
 
     /** Writes the passed SQL string to the SQL log file. The log file is wrapped
@@ -332,10 +331,10 @@ public class Database implements SQLFormatter
      * @param obj Destination object to store the data in
      * @param red Descriptor providing the field mappings and the table name to access
      */
-    public void fetchRecord(Object primaryKey, Object obj, RecordDescriptor red)
+    public boolean fetchRecord(Object primaryKey, Object obj, RecordDescriptor red)
         throws SQLException {
     	WhereCondition primaryKeyCondition = new WhereCondition().and(red.getPrimaryKeyField(), primaryKey);
-        query(primaryKeyCondition, obj, red, false);
+        return query(primaryKeyCondition, obj, red, false) != null;
     }
 
     /** Fetch a record from the database and store the results in a JAVA object
@@ -343,10 +342,15 @@ public class Database implements SQLFormatter
      * @param obj Destination object to store the data in and to take the primary key from
      * @param red Descriptor providing the field mappings and the table name to access
      */
-    public void fetchRecord(Object obj, RecordDescriptor red)
+    public boolean fetchRecord(Object obj, RecordDescriptor red)
         throws SQLException {
-        try { fetchRecord(red.getPrimaryKey(obj), obj, red); }
-        catch(Exception x) { processSevereButSQLException(x); }
+        try {
+        	return fetchRecord(red.getPrimaryKey(obj), obj, red);
+        }
+        catch(Exception x) {
+        	processSevereButSQLException(x);
+        	return false;
+        }
     }
 
     /** Run a database query.

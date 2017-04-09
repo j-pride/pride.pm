@@ -487,9 +487,11 @@ public class Database implements SQLFormatter
 	 */
 	public int updateRecord(String[] dbkeyfields, String[] updatefields, Object obj, RecordDescriptor red)
 		throws SQLException {
+		PreparedUpdate preparedUpdate = null;
 		try {
 			if (WhereCondition.bindDefault) {
-				return new PreparedUpdate(dbkeyfields, updatefields, red).execute(obj);
+				preparedUpdate = new PreparedUpdate(dbkeyfields, updatefields, red);
+				return preparedUpdate.execute(obj);
 			}
             String where = red.getConstraint(obj, dbkeyfields, false, this);
 			String update = "update " + getTableName(red) + " set " +
@@ -497,7 +499,13 @@ public class Database implements SQLFormatter
                 where(where);
 			return sqlUpdate(update);
 		}
-		catch(Exception x) { return processSevereButSQLException(x); }
+		catch(Exception x) {
+			return processSevereButSQLException(x);
+		}
+		finally {
+			if (preparedUpdate != null)
+				preparedUpdate.close();
+		}
 	}
 
     /** Update a database record.
@@ -579,12 +587,23 @@ public class Database implements SQLFormatter
      */
     public int createRecord(String[] autoFields, Object obj, RecordDescriptor red)
         throws SQLException {
+    	PreparedInsert preparedInsert = null;
 		try {
+			if (WhereCondition.bindDefault) {
+				preparedInsert = new PreparedInsert(autoFields, red);
+				return preparedInsert.execute(obj);
+			}
             String operation = getInsertionHeader(red, autoFields) + " (" +
                 red.getCreationValues(obj, autoFields, this) + ")";
 	    	return sqlUpdate(operation, autoFields, obj, red);
 	    }
-		catch(Exception x) { return processSevereButSQLException(x); }
+		catch(Exception x) {
+			return processSevereButSQLException(x);
+		}
+		finally {
+			if (preparedInsert != null)
+				preparedInsert.close();
+		}
     }
 
     /** Delete a record from the database.
@@ -626,94 +645,6 @@ public class Database implements SQLFormatter
 		catch(Exception x) { return processSevereButSQLException(x); }
     }
 
-    // Access methods for generic extended object attributes
-
-    /** Store an object's generic extension attributes
-     * @param obj source object to extract the data from.
-     * @param xd descriptor providing the field mappings and the table name to access
-     * @param update updates existing generic attributes if <code>true</code>, creates
-     *  new generic attributes otherwise.
-     */
-    protected void storeExtensions(Object obj, ExtensionDescriptor xd, boolean update)
-        throws SQLException {
-		try {
-		    Attribute attr = new Attribute(getPhysicalTableName(xd), xd.getPrimaryKey(obj).toString(), null, null);
-		    AttributeDescriptor[] adesc = xd.getAttributeDescriptors();
-		    for (int i = 0; i < adesc.length; i++) {
-			attr.setName(adesc[i].getFieldName());
-			attr.setValue(adesc[i].getValue(obj).toString());
-			if (update)
-			    attr.update();
-			else
-			    attr.create();
-		    }
-		}
-		catch(Exception x) { processSevereButSQLException(x); }
-    }
-
-    /** Update an object's generic extension attributes
-     * @param obj source object to extract the data from.
-     * @param xd descriptor providing the field mappings and the table name to access
-     */
-    public void updateExtensions(Object obj, ExtensionDescriptor xd)
-        throws SQLException {
-        storeExtensions(obj, xd, true);
-    }
-
-    /** Update a subset of an object's generic extension attributes
-     * @param obj source object to extract the data from.
-     * @param xd descriptor providing the field mappings and the table name to access
-     * @param attrNames names of attributes to update
-     */
-    public void updateExtensions(Object obj, ExtensionDescriptor xd, String[] attrNames)
-        throws SQLException {
-		try {
-		    Attribute attr = new Attribute(getPhysicalTableName(xd), xd.getPrimaryKey(obj).toString(), null, null);
-		    AttributeDescriptor adesc;
-		    for (int i = 0; i < attrNames.length; i++) {
-			adesc = xd.getAttributeDescriptor(attrNames[i]);
-			attr.setName(adesc.getFieldName());
-			attr.setValue(adesc.getValue(obj).toString());
-			attr.update();
-		    }
-		}
-		catch(Exception x) { processSevereButSQLException(x); }
-    }
-
-    /** Create an object's generic extension attributes
-     * @param obj source object to extract the data from.
-     * @param xd descriptor providing the field mappings and the table name to access
-     */
-    public void createExtensions(Object obj, ExtensionDescriptor xd)
-        throws SQLException {
-        storeExtensions(obj, xd, false);
-    }
-
-    /** Read an object's generic extension attributes
-     * @param obj destination object to the data in
-     * @param xd descriptor providing the field mappings and the table name to access
-     */
-    public void fetchExtensions(Object obj, ExtensionDescriptor xd)
-        throws SQLException {
-		try {
-		    Attribute attr = new Attribute(getPhysicalTableName(xd), xd.getPrimaryKey(obj).toString(), null, null);
-		    ResultIterator ri = attr.query(new String[] { "object_type", "object" });
-		    do {
-			xd.applyResult(obj, attr.getName(), attr.getValue());
-		    } while (ri.next());
-		}
-		catch(Exception x) { processSevereButSQLException(x); }
-    }
-
-    /** Read a subset of an object's generic extension attributes. NOT YET IMPLEMENTED!!
-     * @param obj destination object to the data in
-     * @param xd descriptor providing the field mappings and the table name to access
-     * @param attrNames names of the attributes to read
-     */
-    public void fetchExtensions(Object obj, ExtensionDescriptor xd, String[] attrNames)
-        throws SQLException {
-        System.out.println("not yet implemented: fetchExtensions");
-    }
 
 	/** Terminate the current transaction. Runs all registered
 	 * transaction listeners' commit resp. rollback functions first

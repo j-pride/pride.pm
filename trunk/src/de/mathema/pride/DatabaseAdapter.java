@@ -184,36 +184,6 @@ abstract public class DatabaseAdapter
     }
 
 
-    // Methods for access to extended attributes
-
-    protected static void update(Object entity, ExtensionDescriptor xd) throws SQLException {
-        getDatabase(xd).updateExtensions(entity, xd);
-    }
-
-    protected static void update(Object entity, ExtensionDescriptor xd, String attrName) throws SQLException {
-        getDatabase(xd).updateExtensions(entity, xd, new String[] { attrName });
-    }
-
-    protected static void update(Object entity, ExtensionDescriptor xd, String[] attrNames) throws SQLException {
-        getDatabase(xd).updateExtensions(entity, xd, attrNames);
-    }
-
-    protected static void fetch(Object entity, ExtensionDescriptor xd) throws SQLException {
-        getDatabase(xd).fetchExtensions(entity, xd);
-    }
-
-    protected static void fetch(Object entity, ExtensionDescriptor xd, String attrName) throws SQLException {
-        getDatabase(xd).fetchExtensions(entity, xd, new String[] { attrName });
-    }
-
-    protected static void fetch(Object entity, ExtensionDescriptor xd, String[] attrNames) throws SQLException {
-        getDatabase(xd).fetchExtensions(entity, xd, attrNames);
-    }
-
-    protected static void create(Object entity, ExtensionDescriptor xd) throws SQLException {
-        getDatabase(xd).createExtensions(entity, xd);
-    }
-
     public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/DatabaseAdapter.java-arc   1.0   Jun 05 2002 16:18:40   math19  $";
 }
 

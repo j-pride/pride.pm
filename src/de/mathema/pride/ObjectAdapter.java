@@ -44,22 +44,11 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 	 */
 	public String[] getAutoFields() { return null; }
 
-	/** Returns the attribute extension descriptor for this entity. The
-	 * function returns <code>null</code> by default, causing the
-	 * extension access functions to fail. So be shure to override this
-	 * function if you're using extended attributes.
-	 */
-	protected ExtensionDescriptor getXDescriptor() { return null; }
-	
 	/** Returns the value object the adapter is operating on */
 	protected abstract Object getEntity();
     
     protected static Database getDatabase(RecordDescriptor red) {
         return DatabaseFactory.getDatabase(red.getContext());
-    }
-    
-    protected static Database getDatabase(ExtensionDescriptor xd) {
-        return DatabaseFactory.getDatabase(xd.getContext());
     }
     
 	/** Fetch an object by key. */
@@ -175,30 +164,6 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 	public void process(Exception x) throws SQLException {
 		super.process(x, getDescriptor());
 	}
-
-	// Methods for access to extended attributes
-
-	public void updatex() throws SQLException { super.update(getEntity(), getXDescriptor()); }
-
-	public void updatex(String attrName) throws SQLException {
-		super.update(getEntity(), getXDescriptor(), attrName);
-	}
-
-	public void updatex(String[] attrNames) throws SQLException {
-		super.update(getEntity(), getXDescriptor(), attrNames);
-	}
-
-	public void fetchx() throws SQLException { super.fetch(getEntity(), getXDescriptor()); }
-
-	public void fetchx(String attrName) throws SQLException {
-		super.fetch(getEntity(), getXDescriptor(), attrName);
-	}
-
-	public void fetchx(String[] attrNames) throws SQLException {
-		super.fetch(getEntity(), getXDescriptor(), attrNames);
-	}
-
-	public void createx() throws SQLException { super.create(getEntity(), getXDescriptor()); }
 
 	public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/DatabaseRecord.java,v 1.7 2001/07/24 11:47:05 lessner Exp $";
 }

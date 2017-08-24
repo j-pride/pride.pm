@@ -100,9 +100,10 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	protected WhereCondition chain(String chainOperation) {
-		chainOperator = chainIfNotEmpty(chainOperator);
-		WhereCondition subcondition = new WhereCondition(this, chainOperator, null);
-		return chain(subcondition);
+		chainOperation = chainIfNotEmpty(chainOperation);
+		WhereCondition subcondition = new WhereCondition(this, chainOperation, null);
+		chain(subcondition);
+		return subcondition;
 	}
 	
 	public WhereCondition and(String field, String operator, Object... values) {

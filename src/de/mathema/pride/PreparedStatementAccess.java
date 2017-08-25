@@ -24,9 +24,9 @@ import java.math.BigDecimal;
  */
 public class PreparedStatementAccess
 {
-    private static Map preparedStatementAccessMethods = null;
+    private static Map<String, Method> preparedStatementAccessMethods = null;
 
-    public static void putMethod(String methodName, Class paramType)
+    public static void putMethod(String methodName, Class<?> paramType)
         throws NoSuchMethodException {
         putMethod(methodName, paramType, paramType);
     }
@@ -43,11 +43,11 @@ public class PreparedStatementAccess
      * @throws NoSuchMethodException if the specified method is not
      *   available for class java.sql.ResultSet
      */
-    public static void putMethod(String methodName, Class functionParamType, Class valueType)
+    public static void putMethod(String methodName, Class<?> functionParamType, Class<?> valueType)
         throws NoSuchMethodException {
         if (preparedStatementAccessMethods == null)
-            preparedStatementAccessMethods = new HashMap();
-        Class[] params = new Class[] { int.class, functionParamType };
+            preparedStatementAccessMethods = new HashMap<String, Method>();
+        Class<?>[] params = new Class[] { int.class, functionParamType };
         Method method = PreparedStatement.class.getMethod(methodName, params);
         preparedStatementAccessMethods.put(valueType.getName(), method);
     }
@@ -110,7 +110,7 @@ public class PreparedStatementAccess
     /** Returns the ResultSet by-name access method to be used for extracting fields
      * of the type referred to by parameter <code>attributeTypeName</code>.
      */
-    static Method getAccessMethod(Class attributeType) throws NoSuchMethodException {
+    static Method getAccessMethod(Class<?> attributeType) throws NoSuchMethodException {
 		if (preparedStatementAccessMethods == null)
 	    	init();
 		if (attributeType.isArray()) {

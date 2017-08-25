@@ -172,7 +172,7 @@ public class ResultIterator
 	public Object[] toArray(long maxResults) throws SQLException {
 		if (obj == null)
 			throw new UnsupportedOperationException("Target object missing");
-		ArrayList list = toArrayList(maxResults);
+		ArrayList<?> list = toArrayList(maxResults);
 		Object[] result = (Object[])Array.newInstance(obj.getClass(), list.size());
 		return list.toArray(result);
 	}
@@ -183,6 +183,10 @@ public class ResultIterator
 	 * be very large.
 	 */
 	public Object[] toArray() throws SQLException { return toArray(-1); }
+	
+	public <T> T[] toArray(Class<T> t, long maxResults) throws SQLException { return (T[])toArray(maxResults); }
+	
+	public <T> T[] toArray(Class<T> t) throws SQLException { return (T[])toArray(); }
 	
 	/** Returns the current fetch size for the underlying ResultSet */
 	public int getFetchSize() throws SQLException { return results.getFetchSize(); }

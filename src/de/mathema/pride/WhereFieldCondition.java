@@ -7,13 +7,13 @@ import java.sql.PreparedStatement;
 class WhereFieldCondition extends WhereConditionPart {
 	final String field;
 	final String operator;
-	final Object value;
+	final Object[] values;
 	
-	public WhereFieldCondition(String chainOperator, boolean bind, String field, String operator, Object value) {
+	public WhereFieldCondition(String chainOperator, boolean bind, String field, String operator, Object... values) {
 		this.chainOperator = chainOperator;
 		this.field = field;
 		this.operator = operator;
-		this.value = value;
+		this.values = values;
 		this.bind = bind;
 	}
 	
@@ -29,45 +29,61 @@ class WhereFieldCondition extends WhereConditionPart {
 				field + " " + formatOperator(formatter) + " " + formatValue(formatter) + " ";
 	}
 
+	private Object value0() {
+		return values[0];
+	}
+	
+	private Object value(int index) {
+		return values[index];
+	}
+	
+	private int numValues() {
+		return values.length;
+	}
+	
 	private String formatValue(SQLFormatter formatter) {
 		if (operator == null)
 			return "";
         if (operator.equals(WhereCondition.Operator.BETWEEN)) {
-            return formatSingleValue(Array.get(value, 0), formatter) + " AND " + formatSingleValue(Array.get(value, 1), formatter);
+            return formatSingleValue(value0(), formatter) + " AND " + formatSingleValue(value(1), formatter);
         }
         else if (operator.equals(WhereCondition.Operator.IN) || operator.equals(WhereCondition.Operator.NOTIN)) {
         	String result = "( ";
-            for (int i = 0; i < Array.getLength(value); i++) {
-                result += formatSingleValue(Array.get(value, i), formatter);
-                if (i < Array.getLength(value)-1)
+            for (int i = 0; i < numValues(); i++) {
+                result += formatSingleValue(value(i), formatter);
+                if (i < numValues()-1)
                     result += ", ";
             }
             return result + " )";
         }
         else
-            return formatSingleValue(Array.get(value, 0), formatter);
+            return formatSingleValue(value0(), formatter);
 	}
 
 	private String formatSingleValue(Object value, SQLFormatter formatter) {
-		if (bind)
+		if (bind && value != null)
 			return "?";
-		return (formatter == null || (value instanceof SQLRaw)) ? value.toString() : formatter.formatValue(value);
+		if (formatter == null || (value instanceof SQLRaw)) {
+			return (value == null) ? "null" : value.toString();
+		}
+		return formatter.formatValue(value);
 	}
 
 	private String formatOperator(SQLFormatter formatter) {
 		if (operator == null)
 			return "";
         if (formatter != null)
-            return formatter.formatOperator(operator, value);
-        return AbstractResourceAccessor.standardOperator(operator, Array.get(value, 0));
+            return formatter.formatOperator(operator, value0());
+        return AbstractResourceAccessor.standardOperator(operator, value0());
 	}
 
 	@Override
 	protected int bind(SQLFormatter formatter, PreparedStatement stmt, int nextParam)
 		throws ReflectiveOperationException {
-		if (bind && operator != null) {
-			Object preparedValue = formatter.formatPreparedValue(Array.get(value, 0));
-			Method setter = PreparedStatementAccess.getAccessMethod(preparedValue.getClass());
+		if (bind && operator != null && value0() != null) {
+			Object preparedValue = formatter.formatPreparedValue(value0());
+			Method setter = PreparedStatementAccess.getAccessMethod
+					(preparedValue != null ? preparedValue.getClass() : null);
 			setter.invoke(stmt, nextParam, preparedValue);
 			nextParam++;
 		}

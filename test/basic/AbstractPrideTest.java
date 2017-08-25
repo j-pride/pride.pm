@@ -132,7 +132,7 @@ public abstract class AbstractPrideTest extends Assert {
 	 */
 	@After
 	public void tearDown() throws Exception {
-		dropTestTable();
+		//dropTestTable();
 	}
 	
 	protected void dropTestTable() throws SQLException { dropTestTable(TEST_TABLE); }

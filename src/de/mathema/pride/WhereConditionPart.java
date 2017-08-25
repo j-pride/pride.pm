@@ -2,6 +2,8 @@ package de.mathema.pride;
 
 import java.sql.PreparedStatement;
 
+import de.mathema.pride.Database.ConnectionAndStatement;
+
 abstract class WhereConditionPart {
 	String chainOperator;
 	boolean bind;
@@ -19,6 +21,6 @@ abstract class WhereConditionPart {
 		return bind;
 	}
 	
-	abstract protected int bind(SQLFormatter formatter, PreparedStatement stmt, int nextParam) throws ReflectiveOperationException;
+	abstract protected int bind(SQLFormatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException;
 
 }

@@ -4,6 +4,8 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.mathema.pride.Database.ConnectionAndStatement;
+
 /**
  * where (age < 18 or age > 64) and status = '5' and blubb in (1, 17, 99)
  * 
@@ -187,14 +189,14 @@ public class WhereCondition extends WhereConditionPart {
 		return s;
 	}
 
-	protected void bind(SQLFormatter formatter, PreparedStatement stmt) throws ReflectiveOperationException {
-		bind(formatter, stmt, 1);
+	protected void bind(SQLFormatter formatter, ConnectionAndStatement cns) throws ReflectiveOperationException {
+		bind(formatter, cns, 1);
 	}
 	
 	@Override
-	protected int bind(SQLFormatter formatter, PreparedStatement stmt, int nextParam) throws ReflectiveOperationException {
+	protected int bind(SQLFormatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException {
 		for (WhereConditionPart part: parts) {
-			nextParam = part.bind(formatter, stmt, nextParam);
+			nextParam = part.bind(formatter, cns, nextParam);
 		}
 		return nextParam;
 	}

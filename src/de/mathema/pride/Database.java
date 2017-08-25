@@ -10,6 +10,7 @@
  *******************************************************************************/
 package de.mathema.pride;
 
+import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -427,7 +428,7 @@ public class Database implements SQLFormatter
             ConnectionAndStatement cns = null;
             try {
             	cns = new ConnectionAndStatement(query, true);
-                where.bind(this, cns.getStatement());
+                where.bind(this, cns);
                 ResultSet rs = cns.getStatement().executeQuery();
                 ResultIterator ri = new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
                 return returnIteratorIfNotEmpty(ri, query, true);
@@ -555,7 +556,7 @@ public class Database implements SQLFormatter
 	            try {
 	            	cns = new ConnectionAndStatement(update, true);
 	            	int nextParam = red.getConstraint(obj, updatefields, cns, null, 1);
-	                where.bind(this, cns.getStatement(), nextParam);
+	                where.bind(this, cns, nextParam);
 	                int result = cns.getStatement().executeUpdate();
 	                cns.close();
 	                return result;
@@ -702,14 +703,25 @@ public class Database implements SQLFormatter
     protected class ConnectionAndStatement implements PreparedOperationI {
     	final Connection con;
     	final Statement stmt;
+    	final String statementContent;
+    	final StringBuffer logBuffer;
+    	private int logPointer = 0;
     	
     	ConnectionAndStatement(String statementContent, boolean prepared) throws SQLException {
-            sqlLog(statementContent);
             con = getConnection();
-            stmt = prepared ? con.prepareStatement(statementContent) : con.createStatement();
+            this.statementContent = statementContent;
+            if (prepared) {
+            	stmt = con.prepareStatement(statementContent);
+            	logBuffer = new StringBuffer();
+            	scrollLogToNextBinding();
+            }
+            else {
+                stmt = con.createStatement();
+            	logBuffer = null;
+                sqlLog(statementContent);
+            }
             if (statementTimeout != null)
                 stmt.setQueryTimeout(statementTimeout);
-    		
     	}
 
 		public void close() throws SQLException {
@@ -729,6 +741,29 @@ public class Database implements SQLFormatter
 
 		@Override
 		public PreparedStatement getStatement() { return (PreparedStatement)stmt; }
+
+		public void setBindParameter(Method setter, int parameterIndex, Object preparedValue)
+			throws ReflectiveOperationException {
+			logBindingAndScroll(preparedValue);
+			setter.invoke(getStatement(), parameterIndex, preparedValue);
+		}
+
+		private void logBindingAndScroll(Object boundValue) {
+			logBuffer.append(formatValue(boundValue));
+			scrollLogToNextBinding();
+		}
+
+		private void scrollLogToNextBinding() {
+			int nextBinding = statementContent.indexOf("?", logPointer);
+			if (nextBinding == -1) {
+				logBuffer.append(statementContent.substring(logPointer));
+				sqlLog(logBuffer.toString());
+			}
+			else {
+				logBuffer.append(statementContent.substring(logPointer, nextBinding+1));
+				logPointer = nextBinding+1;
+			}
+		}
     }
 
 }

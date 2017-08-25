@@ -146,8 +146,7 @@ public abstract class AbstractPrideTest extends Assert {
 	}
 	
 	protected void generateCustomer(int count) throws Exception {
-		Customer c = null;
-		c = new Customer(1, "First", "Customer");
+		Customer c = new Customer(1, "First", "Customer");
 		for (int i = 2; i < count; i++) {
 			String[] name = generateName(i);
 			String firstName = name[0];
@@ -171,4 +170,7 @@ public abstract class AbstractPrideTest extends Assert {
 
 	}
 
+	protected int countCustomers() throws SQLException {
+		return new Customer().queryAll().toArray().length;
+	}
 }

@@ -84,8 +84,7 @@ class WhereFieldCondition extends WhereConditionPart {
 		throws ReflectiveOperationException {
 		if (bind && operator != null && value0() != null) {
 			Object preparedValue = formatter.formatPreparedValue(value0());
-			Method setter = PreparedStatementAccess.getAccessMethod
-					(preparedValue != null ? preparedValue.getClass() : null);
+			Method setter = PreparedStatementAccess.getAccessMethod(preparedValue.getClass());
 			cns.setBindParameter(setter, nextParam, preparedValue);
 			nextParam++;
 		}

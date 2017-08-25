@@ -240,18 +240,20 @@ public class Database implements SQLFormatter
      *   an insertion or if there are no auto-fields existing
      * @param obj The object to store auto-field values in
      * @param red Descriptor providing the field mappings
+     * @param params Optional parameters in case this is a plain prepared SQL statement,
+     *   i.e. function was called from {@link #sqlUpdate(String, Object...)
      */
-    public int sqlUpdate(String operation, String[] autoFields, Object obj, RecordDescriptor red) throws SQLException {
+    public int sqlUpdate(String operation, String[] autoFields, Object obj, RecordDescriptor red, Object... params) throws SQLException {
     	ConnectionAndStatement cns = null;
         ResultSet autoResults = null;
         int numRows = -1;
         try {
-        	cns = new ConnectionAndStatement(operation, false);
+        	cns = new ConnectionAndStatement(this, operation, params);
             String[] autoFieldsForExec = accessor.getAutoFields(cns.stmt, autoFields);
             if (autoFieldsForExec != null && autoFieldsForExec.length > 0)
-                numRows = cns.stmt.executeUpdate(operation, autoFieldsForExec);
+                numRows = cns.executeUpdate(autoFieldsForExec);
             else
-                numRows = cns.stmt.executeUpdate(operation);
+                numRows = cns.executeUpdate();
             if (autoFields != null && autoFields.length > 0) {
                 autoResults = accessor.getAutoFieldVals(cns.stmt, autoFields);
                 if (autoResults != null && autoResults.next())
@@ -270,25 +272,28 @@ public class Database implements SQLFormatter
     }
 
     /** Like function above but without any auto-field expectations */
-    public int sqlUpdate(String operation) throws SQLException {
-        return sqlUpdate(operation, null, null, null);
+    public int sqlUpdate(String operation, Object... params) throws SQLException {
+        return sqlUpdate(operation, null, null, null, params);
     }
 
-    /** Runs an SQL query according to the passed operation */
-    public ResultIterator sqlQuery(String operation) throws SQLException {
-        return sqlQuery(operation, null, null);
+    /** Runs an SQL query according to the passed operation
+     * @param sqlStatement The statement to execute
+     * @param params Optional parameters if the statement contains bind variables and therefore needs to be executed as a {@link PreparedStatement}
+     */
+    public ResultIterator sqlQuery(String sqlStatement, Object... params) throws SQLException {
+        return sqlQuery(sqlStatement, null, null, params);
     }
 
     /** Runs an SQL query and returns a {@link ResultIterator}, initialized
      * with parameters <code>obj</code> and <code>red</code> and the
      * {@link java.sql.ResultSet} returned by the query.
      */
-    public ResultIterator sqlQuery(String operation, Object obj, RecordDescriptor red)
+    public ResultIterator sqlQuery(String operation, Object obj, RecordDescriptor red, Object... params)
         throws SQLException {
     	ConnectionAndStatement cns = null;
         try {
-        	cns = new ConnectionAndStatement(operation, false);
-            ResultSet rs = cns.stmt.executeQuery(operation);
+        	cns = new ConnectionAndStatement(this, operation, params);
+            ResultSet rs = cns.executeQuery();
             return new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
         }
         catch(Exception x) {
@@ -302,29 +307,21 @@ public class Database implements SQLFormatter
      * Executes an SQL Statement that is neither a query nor an update and does not return anything.
      * 
      * @param sqlStatement The statement to execute
-     * @param optional parameters if the statement contains bind variables and therefore needs to be executed as a {@link PreparedStatement}
+     * @param params Optional parameters if the statement contains bind variables and therefore needs to be executed as a {@link PreparedStatement}
      * @throws SQLException
      */
-    public void sqlExecute(String sqlStatement, Object... params) throws SQLException {
+    public boolean sqlExecute(String sqlStatement, Object... params) throws SQLException {
         ConnectionAndStatement cns = null;
         try {
-        	if (params.length == 0) {
-            	cns = new ConnectionAndStatement(sqlStatement, false);
-                cns.stmt.execute(sqlStatement);
-        	}
-        	else {
-            	cns = new ConnectionAndStatement(sqlStatement, true);
-            	for (int i = 0; i < params.length; i++) {
-        			Method setter = PreparedStatementAccess.getAccessMethod(params[i].getClass());
-        			cns.setBindParameter(setter, i+1, params[i]);
-            	}
-        		cns.getStatement().execute();
-        	}
+        	cns = new ConnectionAndStatement(this, sqlStatement, params);
+        	boolean result = cns.execute();
             cns.close();
+            return result;
         }
         catch (Exception x) {
         	if (cns != null)
         		cns.closeAfterException(x);
+        	return false;
         }
     }
     
@@ -335,6 +332,10 @@ public class Database implements SQLFormatter
     
     public void setStatementTimeout(Integer timeout) {
         this.statementTimeout = timeout;
+    }
+    
+    public Integer getStatementTimeout() {
+    	return this.statementTimeout;
     }
     
     /** Fetch a record from the database and store the results in a JAVA object
@@ -438,7 +439,7 @@ public class Database implements SQLFormatter
                     getTableName(red) + " where " + whereString;
             ConnectionAndStatement cns = null;
             try {
-            	cns = new ConnectionAndStatement(query, true);
+            	cns = new ConnectionAndStatement(this, query, true);
                 where.bind(this, cns);
                 ResultSet rs = cns.getStatement().executeQuery();
                 ResultIterator ri = new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
@@ -565,7 +566,7 @@ public class Database implements SQLFormatter
 						red.getUpdateValues(null, null, updatefields, this) + " where " + whereString;
 	            ConnectionAndStatement cns = null;
 	            try {
-	            	cns = new ConnectionAndStatement(update, true);
+	            	cns = new ConnectionAndStatement(this, update, true);
 	            	int nextParam = red.getConstraint(obj, updatefields, cns, null, 1);
 	                where.bind(this, cns, nextParam);
 	                int result = cns.getStatement().executeUpdate();
@@ -710,72 +711,6 @@ public class Database implements SQLFormatter
 
     /** Remove a transaction listener from this database object */
     public synchronized void removeListener(TransactionListener l) { txlisteners.remove(l); }
-
-    protected class ConnectionAndStatement implements PreparedOperationI {
-    	final Connection con;
-    	final Statement stmt;
-    	final String statementContent;
-    	final StringBuffer logBuffer;
-    	private int logPointer = 0;
-    	
-    	ConnectionAndStatement(String statementContent, boolean prepared) throws SQLException {
-            con = getConnection();
-            this.statementContent = statementContent;
-            if (prepared) {
-            	stmt = con.prepareStatement(statementContent);
-            	logBuffer = new StringBuffer();
-            	scrollLogToNextBinding();
-            }
-            else {
-                stmt = con.createStatement();
-            	logBuffer = null;
-                sqlLog(statementContent);
-            }
-            if (statementTimeout != null)
-                stmt.setQueryTimeout(statementTimeout);
-    	}
-
-		public void close() throws SQLException {
-            if (stmt != null) stmt.close();
-            if (con != null) releaseConnection(con);
-		}
-
-		public void closeAfterException(Exception x) throws SQLException {
-        	if (x instanceof SQLException)
-        		sqlLogError((SQLException)x);
-        	close();
-            processSevereButSQLException(x);
-		}
-		
-		@Override
-		public Database getDatabase() { return Database.this; }
-
-		@Override
-		public PreparedStatement getStatement() { return (PreparedStatement)stmt; }
-
-		public void setBindParameter(Method setter, int parameterIndex, Object preparedValue)
-			throws ReflectiveOperationException {
-			logBindingAndScroll(preparedValue);
-			setter.invoke(getStatement(), parameterIndex, preparedValue);
-		}
-
-		private void logBindingAndScroll(Object boundValue) {
-			logBuffer.append(formatValue(boundValue));
-			scrollLogToNextBinding();
-		}
-
-		private void scrollLogToNextBinding() {
-			int nextBinding = statementContent.indexOf("?", logPointer);
-			if (nextBinding == -1) {
-				logBuffer.append(statementContent.substring(logPointer));
-				sqlLog(logBuffer.toString());
-			}
-			else {
-				logBuffer.append(statementContent.substring(logPointer, nextBinding+1));
-				logPointer = nextBinding+1;
-			}
-		}
-    }
 
 }
 

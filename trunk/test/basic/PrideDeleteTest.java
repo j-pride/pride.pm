@@ -9,8 +9,6 @@ package basic;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import junit.framework.Assert;
-
 import org.junit.Test;
 
 import de.mathema.pride.DatabaseFactory;
@@ -51,15 +49,17 @@ public class PrideDeleteTest extends AbstractPrideTest {
     public void testDeletePlain() throws Exception {
     	int customerCount = countCustomers();
     	String delete = "delete from " + TEST_TABLE + " where firstName='First'";
-    	DatabaseFactory.getDatabase().sqlExecute(delete);
+    	boolean result = DatabaseFactory.getDatabase().sqlExecute(delete);
+    	assertFalse(result);
     	assertEquals(customerCount-1, countCustomers());
     }
 
     @Test
     public void testDeletePlainWithBind() throws Exception {
     	int customerCount = countCustomers();
-    	String delete = "delete from " + TEST_TABLE + " where firstName=?";
-    	DatabaseFactory.getDatabase().sqlExecute(delete, "First");
+    	String delete = "delete from " + TEST_TABLE + " where firstName=? and lastName=?";
+    	boolean result = DatabaseFactory.getDatabase().sqlExecute(delete, "First", "Customer");
+    	assertFalse(result);
     	assertEquals(customerCount-1, countCustomers());
     }
 

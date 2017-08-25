@@ -1,10 +1,6 @@
 package de.mathema.pride;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.sql.PreparedStatement;
-
-import de.mathema.pride.Database.ConnectionAndStatement;
 
 class WhereFieldCondition extends WhereConditionPart {
 	final String field;

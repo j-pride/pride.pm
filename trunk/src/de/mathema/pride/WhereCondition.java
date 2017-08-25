@@ -4,8 +4,6 @@ import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.mathema.pride.Database.ConnectionAndStatement;
-
 /**
  * where (age < 18 or age > 64) and status = '5' and blubb in (1, 17, 99)
  * 

@@ -2,8 +2,6 @@ package de.mathema.pride;
 
 import java.sql.PreparedStatement;
 
-import de.mathema.pride.Database.ConnectionAndStatement;
-
 abstract class WhereConditionPart {
 	String chainOperator;
 	boolean bind;

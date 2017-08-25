@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 
+import de.mathema.pride.Database.ConnectionAndStatement;
+
 class WhereFieldCondition extends WhereConditionPart {
 	final String field;
 	final String operator;
@@ -78,13 +80,13 @@ class WhereFieldCondition extends WhereConditionPart {
 	}
 
 	@Override
-	protected int bind(SQLFormatter formatter, PreparedStatement stmt, int nextParam)
+	protected int bind(SQLFormatter formatter, ConnectionAndStatement cns, int nextParam)
 		throws ReflectiveOperationException {
 		if (bind && operator != null && value0() != null) {
 			Object preparedValue = formatter.formatPreparedValue(value0());
 			Method setter = PreparedStatementAccess.getAccessMethod
 					(preparedValue != null ? preparedValue.getClass() : null);
-			setter.invoke(stmt, nextParam, preparedValue);
+			cns.setBindParameter(setter, nextParam, preparedValue);
 			nextParam++;
 		}
 		return nextParam;

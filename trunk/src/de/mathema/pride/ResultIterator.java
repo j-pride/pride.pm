@@ -18,19 +18,20 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 
 /**
- * Helper class to iterate thru a list of results from a query.
- * ResultIterators are initialized be the {@link Database} class
- * and provide their results step-by-step in the same Entity
- * object. A typical usage may look like this:
+ * Helper class to iterate through a list of results from a query.
+ * ResultIterators are initialized by the {@link Database} class
+ * and provide their results step-by-step in the same entity
+ * object. The first query result is initially put into entity.
+ * If a query does not find any results at all, it returns null.
+ * A typical usage looks like this:
  * <pre>
- *    try {
  *       Person p = new Person();
  *       ResultIterator iter = p.queryAll();
- *       do {
- *          System.println(p.getName());
- *       } while(iter.next());
- *    }
- *    catch(NoResultsException nrx) {}
+ *       if (iter != null) {
+ *         do {
+ *           System.println(p.getName());
+ *         } while(iter.next());
+ *       }
  * </pre>
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>

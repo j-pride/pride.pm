@@ -206,7 +206,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 		throws ReflectiveOperationException {
         Object val = getValue(obj);
         String operator = byLike ? LIKE : EQUAL;
-		return new WhereFieldCondition(null, withBind, getFieldName(), operator, new Object[] { val });
+		return new WhereFieldCondition(null, withBind, getFieldName(), operator, val);
 	}
 	
 	/** Fetch a value from a database result set according to this

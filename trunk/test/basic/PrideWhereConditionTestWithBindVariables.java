@@ -9,19 +9,16 @@ package basic;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import java.sql.SQLException;
-
 import org.junit.Test;
 
-import de.mathema.pride.ResultIterator;
 import de.mathema.pride.WhereCondition;
 
-import static de.mathema.pride.WhereCondition.Direction.*;
-
 /**
- * @author bart57
+ * @author less02
  *
- * Class to Test the Select-Behaviour of the PriDE-Framework
+ * Class to test select behavior using {@link WhereCondition} with bind variables. The test
+ * simply performs exactly the same queries as {@link PrideWhereConditionTest} but forces
+ * PriDE to use bind variables by default.
  */
 public class PrideWhereConditionTestWithBindVariables extends AbstractPrideTest {
 
@@ -66,6 +63,11 @@ public class PrideWhereConditionTestWithBindVariables extends AbstractPrideTest 
 	@Test
 	public void testMultipleOrderByDesc() throws Exception {
 		prideWhereConditionTest.testMultipleOrderByDesc();
+	}
+	
+	@Test
+	public void testSubcondition() throws Exception {
+		prideWhereConditionTest.testSubcondition();
 	}
 	
 }

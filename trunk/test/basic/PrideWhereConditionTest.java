@@ -19,9 +19,9 @@ import de.mathema.pride.WhereCondition;
 import static de.mathema.pride.WhereCondition.Direction.*;
 
 /**
- * @author bart57
+ * @author less02
  *
- * Class to Test the Select-Behaviour of the PriDE-Framework
+ * Class to test select behavior using {@link WhereCondition}
  */
 public class PrideWhereConditionTest extends AbstractPrideTest {
 
@@ -89,7 +89,20 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		    } while(ri.next());
 		}
 	}
-	
+
+	@Test
+	public void testSubcondition() throws Exception {
+		WhereCondition expression = new WhereCondition().
+				and("lastName", "Customer").and().
+					or("firstName", "First").
+					or("firstName", "Last").
+					_().
+				and("active", null);
+		System.out.println(expression.toString());
+		Customer[] result = new Customer().query(expression).toArray(Customer.class);
+		assertEquals(2, result.length);
+	}
+
 	private void checkOrderByResult(WhereCondition expression, int firstId, int lastId) throws SQLException {
 		Customer c = new Customer();
 		ResultIterator ri = c.query(expression);

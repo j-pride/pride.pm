@@ -206,8 +206,10 @@ public class ResultIterator
     public Date getDate(int index) throws SQLException {
         return results.getDate(index);
     }
+	public String getString(int index) throws SQLException {
+        return results.getString(index);
+	}
 
-    public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/ResultIterator.java-arc   1.1   02 Oct 2002 11:16:56   math19  $";
 }
 
 /* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/ResultIterator.java-arc  $

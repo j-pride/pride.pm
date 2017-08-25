@@ -1,6 +1,7 @@
 package basic;
 import org.junit.Test;
 
+import de.mathema.pride.DatabaseFactory;
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
  * All rights reserved. This toolkit and the accompanying materials 
@@ -12,9 +13,6 @@ import org.junit.Test;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 import de.mathema.pride.ResultIterator;
-import de.mathema.pride.WhereCondition;
-import junit.framework.Assert;
-import junit.framework.TestCase;
 
 /**
  * @author bart57
@@ -117,4 +115,23 @@ public class PrideSelectTest extends AbstractPrideTest {
 		assertFalse(found);
 	}
 	
+	@Test
+	public void testSelectPlain() throws Exception {
+		String select = "select firstName from " + TEST_TABLE + " where firstName='First'";
+		ResultIterator iter = DatabaseFactory.getDatabase().sqlQuery(select);
+		assertNotNull(iter);
+		assertTrue(iter.next());
+		assertEquals("First", iter.getString(1));
+		assertFalse(iter.next());
+	}
+
+	@Test
+	public void testSelectPlainPrepared() throws Exception {
+		String select = "select firstName from " + TEST_TABLE + " where firstName=?";
+		ResultIterator iter = DatabaseFactory.getDatabase().sqlQuery(select, "First");
+		assertNotNull(iter);
+		assertTrue(iter.next());
+		assertEquals("First", iter.getString(1));
+		assertFalse(iter.next());
+	}
 }

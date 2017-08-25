@@ -98,4 +98,18 @@ public class PrideUpdateTest extends AbstractPrideTest {
 		assertTrue(ca[1].getId() == 2 || ca[1].getId() == 5);
 	}
 
+	@Test
+	public void testUpdatePlain() throws Exception {
+		String update = "update " + TEST_TABLE + " set firstName='Updated' where lastName='Customer'";
+		int numUpdates = DatabaseFactory.getDatabase().sqlUpdate(update);
+		assertEquals(2, numUpdates);
+	}
+	
+	@Test
+	public void testUpdatePlainPrepared() throws Exception {
+		String update = "update " + TEST_TABLE + " set firstName=? where lastName=?";
+		int numUpdates = DatabaseFactory.getDatabase().sqlUpdate(update, "Updated", "Customer");
+		assertEquals(2, numUpdates);
+	}
+	
 }

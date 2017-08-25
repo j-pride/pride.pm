@@ -301,14 +301,25 @@ public class Database implements SQLFormatter
     /**
      * Executes an SQL Statement that is neither a query nor an update and does not return anything.
      * 
-     * @param sqlStatement
+     * @param sqlStatement The statement to execute
+     * @param optional parameters if the statement contains bind variables and therefore needs to be executed as a {@link PreparedStatement}
      * @throws SQLException
      */
-    public void sqlExecute(String sqlStatement) throws SQLException {
+    public void sqlExecute(String sqlStatement, Object... params) throws SQLException {
         ConnectionAndStatement cns = null;
         try {
-        	cns = new ConnectionAndStatement(sqlStatement, false);
-            cns.stmt.execute(sqlStatement);
+        	if (params.length == 0) {
+            	cns = new ConnectionAndStatement(sqlStatement, false);
+                cns.stmt.execute(sqlStatement);
+        	}
+        	else {
+            	cns = new ConnectionAndStatement(sqlStatement, true);
+            	for (int i = 0; i < params.length; i++) {
+        			Method setter = PreparedStatementAccess.getAccessMethod(params[i].getClass());
+        			cns.setBindParameter(setter, i+1, params[i]);
+            	}
+        		cns.getStatement().execute();
+        	}
             cns.close();
         }
         catch (Exception x) {

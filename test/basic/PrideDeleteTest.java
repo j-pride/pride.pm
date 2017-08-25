@@ -47,4 +47,20 @@ public class PrideDeleteTest extends AbstractPrideTest {
 		assertNull(it);
 	}
 
+    @Test
+    public void testDeletePlain() throws Exception {
+    	int customerCount = countCustomers();
+    	String delete = "delete from " + TEST_TABLE + " where firstName='First'";
+    	DatabaseFactory.getDatabase().sqlExecute(delete);
+    	assertEquals(customerCount-1, countCustomers());
+    }
+
+    @Test
+    public void testDeletePlainWithBind() throws Exception {
+    	int customerCount = countCustomers();
+    	String delete = "delete from " + TEST_TABLE + " where firstName=?";
+    	DatabaseFactory.getDatabase().sqlExecute(delete, "First");
+    	assertEquals(customerCount-1, countCustomers());
+    }
+
 }

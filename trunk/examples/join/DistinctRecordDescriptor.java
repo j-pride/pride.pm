@@ -36,6 +36,6 @@ public class DistinctRecordDescriptor extends RecordDescriptor {
   /** Return the comma-separated list of result fields, preceeded
    * by the keyword DISTINCT
    */
-  protected String getResultFields() { return "DISTINCT " + super.getResultFields(); }
+  public String getResultFields() { return "DISTINCT " + super.getResultFields(); }
 
 }

@@ -31,7 +31,7 @@ public class MaxDescriptor extends RecordDescriptor {
     // As a difference to an ordinary record descriptor, MaxDescriptor
     // does not ask the database for '*' (i.e. all fields) but for the
     // maximum of a particular field
-    protected String getResultFields() { return "max(" + maxfield + ")"; }
+    public String getResultFields() { return "max(" + maxfield + ")"; }
     
     public static int getMax(String field, String where, RecordDescriptor red)
         throws SQLException {

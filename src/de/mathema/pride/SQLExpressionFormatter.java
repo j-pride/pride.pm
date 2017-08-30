@@ -8,22 +8,28 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Diese Klasse ist ein kleiner Helfer für einen Kompromiss zwischen Anschaulichkeit
- * und Verwendung von Konstanten beim Aufbau komplizierter SQL-Ausdrücke. Die
- * Funktion {@link #format(String, Object...)} funktioniert im Prinzip wie String.format(),
- * allerdings kann man die Parameter auch zusätzlich über einen <i>Namen</i> statt nur über
- * ihren Index ansprechen. Die Namen werden über § eingeleitet, d.h. man kann auch
- * %-Ausdrücke von String.format und §-Ausdrücke von SQLExpressionFormatter
- * kombiniert verwenden. Die Namen werden aus dem Format-String gelesen und in der
- * Reihenfolge ihrer Ausftretens durch Indizes ersetzt. Z.B. wird
- * "where $PROMOTION_TABELLE.$ID = $KAMPAGNEN_TABELLE.$ID" übersetzt zu
- * "where %s.%s = %s.%2$s".
- * <p>
- * An dem übersetzten Formatstring sieht man, was der Vorteil ist: der String mit Variablennamen
- * ist noch ziemlich gut als SQL lesbar und auf Sinnhaftigkeit prüfbar. Wenn sich immer nur
- * ein %s an das nächste reiht, sieht man das nicht mehr.
- * <p>
- * Eine beispiel füe die Anwendung sieht man in {@link KampagneRepositoryImpl#kampagneKannFreigegebenWerden}
+/**
+ * This class helps to assemble SQL expressions in a way that is a compromise
+ * between SQL redability on the one hand and the usage of constants an the other hand
+ * to follow the DRY principle. For example database column and table names are often
+ * available as (generated) constants and should of course be used even when the SQL
+ * becomes rough. The function {@link #format(String, Object...)} in principle works like
+ * String.format(), but additionally allows to address the Parameters <i>by name</i> rather
+ * than by index. Names are indicated by a leading § character, i.e. you may as well combine
+ * % expressions vom String.format with § expressions from SQLExpressionFormatter. The names
+ * are read from the format string and are replaced by their indices according to there
+ * accurence. E.g. the string
+ * <pre>
+ * "where $PROMOTION_TABLE.$ID = $DCAMPAIGN_TABLE.$ID"
+ * </pre>
+ * will be translated to
+ * <pre>
+ * "where %s.%s = %s.%2$s"
+ * </pre>
+ * 
+ * The translated format string shows the intention of the formatter: the string with
+ * variable names is pretty well-readable SQL which can easily be verified for syntactical
+ * and semantical correctness. The translated string definitely not!
  * 
  * @author less02
  */

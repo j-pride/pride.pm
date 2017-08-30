@@ -210,16 +210,4 @@ public class WhereCondition extends WhereConditionPart {
 		return false;
 	}
 
-	public static void main(String[] args) {
-		WhereCondition exp = new WhereCondition().//withBind().
-				and("status", "active").
-				and().
-					or("age", Operator.LESS, 18).
-					or("age", Operator.GREATER, 64).
-				_().
-				and("blubb", Operator.IN, 1, 17, 99);
-
-		System.out.println(exp.toString());
-	}
-
 }

@@ -484,7 +484,7 @@ public class RecordDescriptor
      * shure to call {@link AttributeDescriptor#record2object} with index -1
      * to force data extraction by name.
      */
-    protected String getResultFields() { return getFieldNames(null); }
+    public String getResultFields() { return getFieldNames(null); }
 
     /**
      * This method is of interest for embedding objects in others. In this case the attribute mapping

@@ -36,7 +36,7 @@ public class JoinedCustomer extends Customer {
         private RecordDescriptor orderDesc = new RecordDescriptor(Order.red, "o");
         public JoinedDescriptor() { super(Customer.red, "c", JOIN); }
         
-        protected String getResultFields() {
+        public String getResultFields() {
             return super.getResultFields() + ", " + orderDesc.getFieldNames(null);
         }
         

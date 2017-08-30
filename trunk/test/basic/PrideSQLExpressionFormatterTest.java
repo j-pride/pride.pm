@@ -17,5 +17,5 @@ public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
         String result = SQLExpressionFormatter.format("§ONE, §TWO, §THREE, %s, §ONE", "one", 2, 3, "string");
 		assertEquals("one, 2, 3, string, one", result);
 	}
-	
+
 }

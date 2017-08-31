@@ -33,7 +33,8 @@ public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
 
 	@Test
 	public void testRealisticExample() {
-		String fromClause = SQLExpressionFormatter.format("from §DELTA_TABLE delta " +
+		String fromClause = SQLExpressionFormatter.format(
+				"from §DELTA_TABLE delta " +
 	            "  JOIN (SELECT /*+ NO_USE_NL (p) NO_USE_NL (pp))*/ " +
 	            "    p.§HEAD_ID, pp.§PARTNER_ID, pp.§HEAD_ID, pp.§CAMPAIGN_ID, pp.§LAST_TRX_IMPORT_RELEVANCE " +
 	            "    FROM §DMD_PRO_PROMOTION p JOIN §DMD_PRO_PROMOTION pp ON " +

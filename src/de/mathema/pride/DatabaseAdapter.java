@@ -59,8 +59,8 @@ abstract public class DatabaseAdapter
     /** Same like <code>query()</code> but takes the first record only. Returns false if no matching record could be found */
     protected static boolean find(Object entity, String[] dbkeyfields, RecordDescriptor red)
         throws SQLException {
-    	return (dbkeyfields != null) ? false :
-            getDatabase(red).query(dbkeyfields, entity, red, false) != null;
+    	return (dbkeyfields != null) ?
+            getDatabase(red).query(dbkeyfields, entity, red, false) != null : false;
     }
 
     /** Same like <code>query()</code> but takes the first record only */

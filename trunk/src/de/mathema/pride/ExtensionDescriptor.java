@@ -35,10 +35,7 @@ public class ExtensionDescriptor
     public String getTableName() { return master.getTableName(); }
     public Class getObjectType() { return master.getObjectType(); }
     public String getPrimaryKeyField() { return master.getPrimaryKeyField(); }
-    public Object getPrimaryKey(Object obj)
-	throws IllegalAccessException, InvocationTargetException {
-	return master.getPrimaryKey(obj);
-    }
+    public Object getPrimaryKey(Object obj) throws ReflectiveOperationException { return master.getPrimaryKey(obj); }
 
     public AttributeDescriptor[] getAttributeDescriptors() { return attrDescriptors; }
     public AttributeDescriptor getAttributeDescriptor(String attrName) {

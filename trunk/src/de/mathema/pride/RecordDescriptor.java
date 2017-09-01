@@ -181,7 +181,7 @@ public class RecordDescriptor
 
 	public int record2object(Object obj, ResultSet results,
 		int position, AttributeDescriptor attrDesc)
-		throws SQLException, IllegalAccessException, InvocationTargetException {
+		throws SQLException, ReflectiveOperationException {
 		attrDesc.record2object(obj, results, position);
 		return (position >= 0) ? position+1 : position;
 	}
@@ -223,7 +223,7 @@ public class RecordDescriptor
      * @param includeAttrs An array of attribute names to consider
      */
     public int record2object(Object obj, ResultSet results, int position, String[] includeAttrs)
-        throws SQLException, IllegalAccessException, InvocationTargetException {
+        throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
             position = baseDescriptor.record2object(obj, results, position, includeAttrs);
         for (int i = 0; i < attrDescriptors.length; i++)
@@ -235,8 +235,7 @@ public class RecordDescriptor
     /** Get the passed object's primary key value, assuming that this is
      * the value of the very first attribute mapping.
      */
-    public Object getPrimaryKey(Object obj)
-		throws IllegalAccessException, InvocationTargetException {
+    public Object getPrimaryKey(Object obj) throws ReflectiveOperationException {
         return (baseDescriptor != null) ? baseDescriptor.getPrimaryKey(obj) :
             attrDescriptors[0].getValue(obj);
     }
@@ -291,7 +290,7 @@ public class RecordDescriptor
      * @return the next pending position
      */
     public void getWhereValue(Object obj, String dbfield, PreparedOperationI pop, String table, int position)
-		throws IllegalAccessException, InvocationTargetException, SQLException {
+		throws ReflectiveOperationException, SQLException {
 		if (table == null)
 			table = dbtable;
         if (baseDescriptor != null) {
@@ -361,7 +360,7 @@ public class RecordDescriptor
      */
     public int getConstraint(Object obj, String[] dbfields,
                              PreparedOperationI pop, String table, int position)
-		throws IllegalAccessException, InvocationTargetException, SQLException {
+		throws ReflectiveOperationException, SQLException {
 		if (table == null)
 			table = dbtable;
         if (dbfields == null)
@@ -412,7 +411,7 @@ public class RecordDescriptor
      */
     public int getUpdateValues(Object obj, String[] excludeAttrs, String[] includeAttrs,
                                PreparedOperationI pop, String table, int position)
-		throws IllegalAccessException, InvocationTargetException, SQLException {
+		throws ReflectiveOperationException, SQLException {
 		if (table == null)
 			table = dbtable;
         if (baseDescriptor != null)
@@ -449,7 +448,7 @@ public class RecordDescriptor
      */
     public int getCreationValues(Object obj, String[] excludeAttrs, PreparedOperation pop,
     							 String table, int position)
-		throws IllegalAccessException, InvocationTargetException, SQLException {
+		throws ReflectiveOperationException, SQLException {
 		if (table == null)
 			table = dbtable;
         if (baseDescriptor != null)

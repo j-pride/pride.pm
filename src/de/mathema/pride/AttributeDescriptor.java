@@ -169,8 +169,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     }
     
     /** Returns the object's value for this attribute */
-    public Object getValue(Object obj)
-		throws IllegalAccessException, InvocationTargetException {
+    public Object getValue(Object obj) throws ReflectiveOperationException {
         return fieldAccess.get(obj);
     }
 
@@ -240,7 +239,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      * according to this attribute descriptor
      */
     protected void record2object(Object obj, ResultSet results, int position)
-        throws SQLException, IllegalAccessException, InvocationTargetException {
+        throws SQLException, ReflectiveOperationException {
 		Object dbValue = record2object(results, position);
         if (results.wasNull()) {
             dbValue = null;
@@ -281,7 +280,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      * @return next parameter index (i.e. passed value + 1)
      */
     public int getParameter(Object obj, PreparedOperationI pop, String table, int position)
-		throws IllegalAccessException, InvocationTargetException, SQLException {
+		throws ReflectiveOperationException, SQLException {
 		if (databaseSetMethod == null)
 			throw new IllegalAccessException
 				("No prepared statement writer for " + databaseFieldName);

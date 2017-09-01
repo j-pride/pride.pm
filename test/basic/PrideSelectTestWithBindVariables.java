@@ -71,7 +71,7 @@ public class PrideSelectTestWithBindVariables extends AbstractPrideTest {
 		prideSelectTest.testSelectToArray();
 	}
     
-	@Test
+	@Test(expected = RuntimeException.class)
 	public void testIllegalSelect() throws Exception {
 		prideSelectTest.testIllegalSelect();
 	}

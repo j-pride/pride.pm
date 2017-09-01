@@ -108,11 +108,11 @@ public class PrideSelectTest extends AbstractPrideTest {
 			assertEquals(result[i].getId(), i+1);
 	}
     
-	@Test
+	@Test(expected = RuntimeException.class)
 	public void testIllegalSelect() throws Exception {
 		Customer c = new Customer();
-		boolean found = c.find(new String[] { "unknown" });
-		assertFalse(found);
+		c.find(new String[] { "unknown" });
+		fail("Illegal select should have thrown an exception");
 	}
 	
 	@Test

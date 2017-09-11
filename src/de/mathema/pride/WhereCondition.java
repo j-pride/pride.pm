@@ -93,7 +93,9 @@ public class WhereCondition extends WhereConditionPart {
 		return chain(subcondition);
 	}
 
-	protected WhereCondition chain(String chainOperator, String field, String operator, Object... values) {
+	protected WhereCondition chain(String chainOperator, boolean skipOnNullValue, String field, String operator, Object... values) {
+		if (skipOnNullValue && values[0] == null)
+			return this;
 		chainOperator = chainIfNotEmpty(chainOperator);
 		WhereFieldCondition subcondition = new WhereFieldCondition(chainOperator, bind, field, operator, values);
 		return chain(subcondition);
@@ -107,11 +109,19 @@ public class WhereCondition extends WhereConditionPart {
 	}
 	
 	public WhereCondition and(String field, String operator, Object... values) {
-		return chain(ChainOperator.AND, field, operator, values);
+		return chain(ChainOperator.AND, false, field, operator, values);
+	}
+
+	public WhereCondition andNotNull(String field, String operator, Object... values) {
+		return chain(ChainOperator.AND, true, field, operator, values);
 	}
 
 	public WhereCondition and(String field, Object value) {
 		return and(field, Operator.EQUAL, value);
+	}
+
+	public WhereCondition andNotNull(String field, Object value) {
+		return andNotNull(field, Operator.EQUAL, value);
 	}
 
 	public WhereCondition and(String formattedSubcondition) {
@@ -127,11 +137,19 @@ public class WhereCondition extends WhereConditionPart {
 	}
 	
 	public WhereCondition or(String field, String operator, Object... values) {
-		return chain(ChainOperator.OR, field, operator, values);
+		return chain(ChainOperator.OR, false, field, operator, values);
+	}
+
+	public WhereCondition orNotNull(String field, String operator, Object... values) {
+		return chain(ChainOperator.OR, true, field, operator, values);
 	}
 
 	public WhereCondition or(String field, Object value) {
 		return or(field, Operator.EQUAL, value);
+	}
+
+	public WhereCondition orNotNull(String field, Object value) {
+		return orNotNull(field, Operator.EQUAL, value);
 	}
 
 	public WhereCondition or(String formattedSubcondition) {

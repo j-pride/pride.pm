@@ -42,6 +42,22 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	}
 	
 	@Test
+	public void testEqualsWithNull() throws Exception {
+		WhereCondition expression = new WhereCondition().
+				and("firstName", null).
+				and("lastName", "Customer");
+		assertNull(new Customer().query(expression));
+	}
+	
+	@Test
+	public void testEqualsWithNullSkipped() throws Exception {
+		WhereCondition expression = new WhereCondition().
+				andNotNull("firstName", null).
+				and("lastName", "Customer");
+		checkOrderByResult(expression, 1, COUNT);
+	}
+	
+	@Test
 	public void testBind() throws Exception {
 		WhereCondition expression = new WhereCondition().withBind().
 				and("firstName", "First").

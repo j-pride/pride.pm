@@ -43,6 +43,7 @@ public class WhereCondition extends WhereConditionPart {
     protected WhereCondition parent;
     protected List<WhereConditionPart> parts = new ArrayList<WhereConditionPart>();
     protected String orderBy;
+    protected String groupBy;
 
     /** Create a new empty SQL expression
      * @param formatter A formatter object used to format SQL values.
@@ -183,6 +184,23 @@ public class WhereCondition extends WhereConditionPart {
 		return orderBy(field, "");
 	}
 	
+	public WhereCondition groupBy(String field) {
+		if (parent != null)
+			throw new IllegalArgumentException("subexpression must not include an order clause");
+		if (groupBy != null)
+			groupBy += ", ";
+		else
+			groupBy = "";
+		groupBy += field;
+		return this;
+	}
+	
+	public WhereCondition groupBy(String... fields) {
+		for (String field: fields)
+			groupBy(field);
+		return this;
+	}
+	
 	@Override
 	public String toString() {
 		return toSQL(null);
@@ -200,6 +218,8 @@ public class WhereCondition extends WhereConditionPart {
 			}
 		}
 		s += ") ";
+		if (groupBy != null)
+			s += " GROUP BY " + groupBy;
 		if (orderBy != null)
 			s += " ORDER BY " + orderBy;
 		return s;

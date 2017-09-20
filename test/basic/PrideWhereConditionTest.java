@@ -11,12 +11,17 @@ package basic;
  *******************************************************************************/
 import java.sql.SQLException;
 
+import de.mathema.pride.DatabaseFactory;
+import de.mathema.pride.SQLFormatter;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.mathema.pride.ResultIterator;
 import de.mathema.pride.WhereCondition;
 
 import static de.mathema.pride.WhereCondition.Direction.*;
+import static de.mathema.pride.WhereCondition.Operator.EQUAL;
+import static de.mathema.pride.WhereCondition.Operator.IN;
 import static de.mathema.pride.WhereCondition.Operator.UNEQUAL;
 
 /**
@@ -24,7 +29,7 @@ import static de.mathema.pride.WhereCondition.Operator.UNEQUAL;
  *
  * Class to test select behavior using {@link WhereCondition}
  */
-public class PrideWhereConditionTest extends AbstractPrideTest {
+public class PrideWhereConditionTest extends AbstractPrideTest implements SQLFormatter {
 
 	private static int COUNT = 100;
 
@@ -135,11 +140,43 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		assertEquals(1, new Customer().query(expression).toArray(Customer.class).length);
 	}
 
+	//TODO implement fluent interface for nested selects
+	@Test
+	@Ignore
+	public void testWhereWithInnerSelect() throws SQLException {
+		WhereCondition expression = new WhereCondition()
+				.and("firstname", IN, "SELECT FIRSTNAME FROM CUSTOMER WHERE FIRSTNAME='First'" );
+
+		assertEquals("( firstname IN (SELECT FIRSTNAME FROM CUSTOMER WHERE FIRSTNAME='First') ) ", expression.toSQL(this));
+		assertEquals(1, new Customer().query(expression).toArray(Customer.class).length);
+	}
+
 	private void checkOrderByResult(WhereCondition expression, int firstId, int lastId) throws SQLException {
 		Customer c = new Customer();
 		ResultIterator ri = c.query(expression);
 		Customer[] array = (Customer[]) ri.toArray(COUNT);
     	assertEquals(firstId, array[0].getId());
     	assertEquals(lastId, array[array.length - 1].getId());
+	}
+
+	@Override
+	public String formatValue(Object rawValue) {
+		return DatabaseFactory.getDatabase().formatValue(rawValue);
+	}
+
+	@Override
+	public String formatOperator(String operator, Object rawValue) {
+		if (operator.equals(EQUAL)) {
+			return (rawValue == null) ? "IS" : operator;
+		}
+		if (operator.equals(UNEQUAL)) {
+			return (rawValue == null) ? "IS NOT" : operator;
+		}
+		return operator;
+	}
+
+	@Override
+	public Object formatPreparedValue(Object rawValue) {
+		return DatabaseFactory.getDatabase().formatPreparedValue(rawValue);
 	}
 }

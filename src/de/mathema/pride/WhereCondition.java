@@ -126,6 +126,8 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	public WhereCondition and(String formattedSubcondition) {
+    	if(formattedSubcondition == null || formattedSubcondition.isEmpty())
+    		return this;
 		return and(formattedSubcondition, null, (Object[])null);
 	}
 

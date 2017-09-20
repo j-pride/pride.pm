@@ -44,6 +44,7 @@ public class WhereCondition extends WhereConditionPart {
     protected List<WhereConditionPart> parts = new ArrayList<WhereConditionPart>();
     protected String orderBy;
     protected String groupBy;
+    protected boolean forUpdate;
 
     /** Create a new empty SQL expression
      * @param formatter A formatter object used to format SQL values.
@@ -196,7 +197,12 @@ public class WhereCondition extends WhereConditionPart {
 		groupBy += field;
 		return this;
 	}
-	
+
+	public WhereCondition forUpdate() {
+		forUpdate = true;
+		return this;
+	}
+
 	public WhereCondition groupBy(String... fields) {
 		for (String field: fields)
 			groupBy(field);
@@ -224,6 +230,8 @@ public class WhereCondition extends WhereConditionPart {
 			s += " GROUP BY " + groupBy;
 		if (orderBy != null)
 			s += " ORDER BY " + orderBy;
+		if(forUpdate)
+			s += "FOR UPDATE";
 		return s;
 	}
 

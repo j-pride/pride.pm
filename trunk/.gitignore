@@ -3,3 +3,4 @@
 /classes/caching
 classes/
 *.iml
+config/matth.test.config.properties

@@ -28,6 +28,9 @@ class WhereFieldCondition extends WhereConditionPart {
 	}
 
 	private Object value0() {
+		if(values == null)
+			return null;
+
 		return values[0];
 	}
 	

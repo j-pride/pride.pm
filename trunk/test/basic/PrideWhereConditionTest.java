@@ -127,6 +127,14 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		assertEquals(2, result.length);
 	}
 
+	@Test
+	public void testCompleteStatementIsNull() throws SQLException {
+		WhereCondition expression = new WhereCondition()
+				.and("firstname", "First")
+				.and((String)null);
+		assertEquals(1, new Customer().query(expression).toArray(Customer.class).length);
+	}
+
 	private void checkOrderByResult(WhereCondition expression, int firstId, int lastId) throws SQLException {
 		Customer c = new Customer();
 		ResultIterator ri = c.query(expression);

@@ -17,6 +17,7 @@ import de.mathema.pride.ResultIterator;
 import de.mathema.pride.WhereCondition;
 
 import static de.mathema.pride.WhereCondition.Direction.*;
+import static de.mathema.pride.WhereCondition.Operator.UNEQUAL;
 
 /**
  * @author less02
@@ -47,6 +48,13 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				and("firstName", null).
 				and("lastName", "Customer");
 		assertNull(new Customer().query(expression));
+	}
+
+	@Test
+	public void testUnequalsWithNull() throws Exception {
+		WhereCondition expression = new WhereCondition()
+				.and("firstName", UNEQUAL, null);
+		assertNotNull(new Customer().query(expression));
 	}
 	
 	@Test

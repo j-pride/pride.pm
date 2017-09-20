@@ -431,10 +431,12 @@ public class Database implements SQLFormatter
         return fetchFirst(query, obj, red, all);
     }
 
-    public ResultIterator query(WhereCondition where, Object obj, RecordDescriptor red, boolean all)
-        throws SQLException {
-		String whereString = where.toSQL(this);
-    	if (where.requiresBinding()) {
+    public ResultIterator query(WhereCondition where, Object obj, RecordDescriptor red, boolean all) throws SQLException {
+		String whereString = null;
+		if (where != null)
+		    whereString = where.toSQL(this);
+
+    	if (where != null && where.requiresBinding()) {
             String query = "select " + red.getResultFields() + " from " +
                     getTableName(red) + " where " + whereString;
             ConnectionAndStatement cns = null;

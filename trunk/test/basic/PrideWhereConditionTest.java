@@ -140,6 +140,32 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		assertEquals(1, new Customer().query(expression).toArray(Customer.class).length);
 	}
 
+	@Test
+	public void testIndividualFormatter() throws SQLException {
+		SQLFormatter autowildcard = new SQLFormatter() {
+			@Override public String formatValue(Object rawValue) {
+				String value = DatabaseFactory.getDatabase().formatValue(rawValue);
+				return value.toString().replace('*', '%');
+			}
+			
+			@Override public Object formatPreparedValue(Object rawValue) {
+				return null;
+			}
+			
+			@Override public String formatOperator(String operator, Object rawValue) {
+				if (operator.equals(WhereCondition.Operator.EQUAL) &&
+						rawValue.toString().contains("*"))
+					return WhereCondition.Operator.LIKE;
+				return operator;
+			}
+		};
+		
+		WhereCondition expression = new WhereCondition(autowildcard).and("lastname", "C*").and()
+				.and("firstname", "*")._(); // Ensure delegation of formatter to sub conditions
+		assertEquals("( lastname LIKE 'C%' AND ( firstname LIKE '%' ) ) ", expression.toString());
+		assertEquals(2, new Customer().query(expression).toArray(Customer.class).length);
+	}
+
 	//TODO implement fluent interface for nested selects
 	@Test
 	@Ignore

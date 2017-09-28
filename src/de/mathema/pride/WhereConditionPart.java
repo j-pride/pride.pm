@@ -1,7 +1,5 @@
 package de.mathema.pride;
 
-import java.sql.PreparedStatement;
-
 abstract class WhereConditionPart {
 	String chainOperator;
 	boolean bind;

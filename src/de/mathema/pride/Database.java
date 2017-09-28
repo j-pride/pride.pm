@@ -325,6 +325,13 @@ public class Database implements SQLFormatter
         }
     }
     
+    protected String where2string(WhereCondition where) {
+        if (where == null)
+            return null;
+        SQLFormatter formatter = where.formatter != null ? where.formatter : this;
+        return where.toSQL(formatter);
+    }
+
     protected String where(String where) {
         return ((where != null) && where.trim().length() > 0) ?
             " where " + where : "";
@@ -432,9 +439,7 @@ public class Database implements SQLFormatter
     }
 
     public ResultIterator query(WhereCondition where, Object obj, RecordDescriptor red, boolean all) throws SQLException {
-		String whereString = null;
-		if (where != null)
-		    whereString = where.toSQL(this);
+		String whereString = where2string(where);
 
     	if (where != null && where.requiresBinding()) {
             String query = "select " + red.getResultFields() + " from " +
@@ -458,7 +463,7 @@ public class Database implements SQLFormatter
     	}
     }
 
-    /** Run a database query, returning all records of the table
+	/** Run a database query, returning all records of the table
      * denoted by parameter <code>red</code>.
      * @param obj Destination object to store the data in
      * @param red Descriptor providing the field mappings and the table name to access
@@ -562,8 +567,8 @@ public class Database implements SQLFormatter
 	public int updateRecord(WhereCondition where, String[] updatefields, Object obj, RecordDescriptor red)
 		throws SQLException {
 		try {
-			String whereString = where.toSQL(this);
-	    	if (where.requiresBinding()) {
+			String whereString = where2string(where);
+	    	if (where != null && where.requiresBinding()) {
 				String update = "update " + getTableName(red) + " set " +
 						red.getUpdateValues(null, null, updatefields, this) + " where " + whereString;
 	            ConnectionAndStatement cns = null;

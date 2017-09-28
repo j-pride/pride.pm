@@ -41,31 +41,44 @@ public class WhereCondition extends WhereConditionPart {
     }
 
     protected WhereCondition parent;
+    protected SQLFormatter formatter;
     protected List<WhereConditionPart> parts = new ArrayList<WhereConditionPart>();
     protected String orderBy;
     protected String groupBy;
     protected boolean forUpdate;
 
-    /** Create a new empty SQL expression
-     * @param formatter A formatter object used to format SQL values.
-     * This may e.g. be a {@link Database} object.
-     */
+    /** Create a new empty WhereCondition */
     public WhereCondition() {
-    	this(null, null, null);
+    	this(null, null, null, null);
+    }
+
+    /** Create a new empty WhereCondition including an individual SQLFormatter
+     * @param formatter A formatter object used to format SQL values and operators. This is only of interest
+     *   if the conditions needs an individual formatting which is not already covered by the {@link ResourceAccessor}
+     *   in use which is responsible for things like SQL syntax dialects. The formatter passed in here is only
+     *   reasonable for application-level aspects of SQL interpretation.
+     */
+    public WhereCondition(SQLFormatter formatter) {
+    	this(null, formatter, null, null);
     }
 
     public WhereCondition(String initialExpression) {
-    	this(null, null, initialExpression);
+    	this(null, null, null, initialExpression);
+    }
+
+    public WhereCondition(SQLFormatter formatter, String initialExpression) {
+    	this(null, formatter, null, initialExpression);
     }
 
     public WhereCondition(WhereCondition parent) {
-    	this(null, null, null);
+    	this(null, null, null, null);
     }
     
-    public WhereCondition(WhereCondition parent, String chainOperator, String initialExpression) {
+    public WhereCondition(WhereCondition parent, SQLFormatter formatter, String chainOperator, String initialExpression) {
     	this.bind = bindDefault;
     	this.chainOperator = chainOperator;
     	this.parent = parent;
+    	this.formatter = formatter;
     	if (parent != null)
     		this.bind = parent.bind;
     	if (initialExpression != null)
@@ -105,7 +118,7 @@ public class WhereCondition extends WhereConditionPart {
 
 	protected WhereCondition chain(String chainOperation) {
 		chainOperation = chainIfNotEmpty(chainOperation);
-		WhereCondition subcondition = new WhereCondition(this, chainOperation, null);
+		WhereCondition subcondition = new WhereCondition(this, formatter, chainOperation, null);
 		chain(subcondition);
 		return subcondition;
 	}
@@ -211,7 +224,7 @@ public class WhereCondition extends WhereConditionPart {
 	
 	@Override
 	public String toString() {
-		return toSQL(null);
+		return toSQL(formatter);
 	}
 
 	@Override

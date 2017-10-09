@@ -21,9 +21,9 @@ class CustomerStore {
     }
 
     // Implementation of an order retrieval with PriDE
-    Collection getCustomerOrders(Customer customer) throws SQLException {
+    Collection<?> getCustomerOrders(Customer customer) throws SQLException {
             Order order = new Order(customer.getId());
-            return order.query(new String[] { "customer_id" }).toArrayList();
+            return order.query(new String[] { "customer_id" }).toList();
     }
 
     // to be continued

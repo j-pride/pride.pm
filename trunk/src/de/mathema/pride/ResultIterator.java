@@ -12,6 +12,7 @@ package de.mathema.pride;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,6 +48,8 @@ public class ResultIterator
     protected Object obj;
     protected RecordDescriptor red;
     protected Database db;
+    protected Method cloneMethod;
+    protected SpoolState spoolState;
 
     /** Creates a new ResultIterator from an query. */
     public ResultIterator(Statement statement, boolean customStatement, ResultSet rs,
@@ -58,6 +61,7 @@ public class ResultIterator
         this.red = red;
 		this.db = db;
 		this.connection = con;
+		this.spoolState = SpoolState.ReadyToSpool;
     }
 
     public ResultIterator(Statement statement, boolean customStatement, ResultSet rs, Database db, Connection con) {
@@ -118,6 +122,9 @@ public class ResultIterator
     /** Returns the object, the ResultIterator writes its data to */
     public Object getObject() { return obj; }
     
+    /** Returns the object, the ResultIterator writes its data to */
+    public <T> T getObject(Class<T> t) { return (T)obj; }
+    
     /**
      * Iterates through the complete result set and returns the data in an ArrayList.
      * The list contains clones of the iterator's operation object for each iteration
@@ -129,30 +136,16 @@ public class ResultIterator
      *   method available
      * @throws SQLException if there occurs a databaes error during iteration
      */
-	public ArrayList toArrayList(long maxResults) throws SQLException {
-		if (obj == null)
-			throw new UnsupportedOperationException("Target object missing");
-		ArrayList list = new ArrayList(100);
-		if (maxResults < 0)
-			maxResults = Long.MAX_VALUE;
+	public List<?> toList(long maxResults) throws SQLException {
 		try {
-			Method clone = obj.getClass().getMethod("clone", null);
-			do {
-				if (maxResults == 0)
-					return list;
-				list.add(clone.invoke(obj, null));
-				maxResults--;
-			}
-			while(next());
-			return list;
-		}
-		catch(InvocationTargetException itx) {
-			db.processSevereButSQLException((Exception)itx.getTargetException());
-			return list;
-		}
-		catch(Exception x) {
-			db.processSevereButSQLException(x);
-			return list;
+			SpoolCondition<Object> counter = new SpoolCondition<Object>() {
+				int count = 0;
+				@Override
+				public boolean spool(Object entity) throws SQLException {
+					return maxResults == -1 || ++count <= maxResults;
+				}
+			};
+			return spoolToList(Object.class, counter);
 		}
 		finally {
 			close();
@@ -164,16 +157,80 @@ public class ResultIterator
 	 * must be used with great care since the number of elements in a result set can
 	 * be very large.
 	 */
-	public ArrayList toArrayList() throws SQLException { return toArrayList(-1); }
+	public List<?> toList() throws SQLException { return toList(-1); }
+	
+	public <T> List<T> toList(Class<T> t, long maxResults) throws SQLException {
+		return (List<T>)toList(maxResults);
+	}
+
+	public <T> List<T> toList(Class<T> t) throws SQLException {
+		return (List<T>)toList();
+	}
+
+	public <T> List<T> spoolToList(Class<T> t, SpoolCondition<T> spoolCondition) throws SQLException {
+		if (obj == null)
+			throw new UnsupportedOperationException("Target object missing");
+		try {
+			ArrayList<Object> list = new ArrayList<Object>();
+			if (cloneMethod == null)
+				cloneMethod = obj.getClass().getMethod("clone", null);
+			switch(spoolState) {
+			case Finished:
+				return null;
+			case PendingLastResultAfterClose:
+				if (spoolCondition.spool((T)obj)) {
+					list.add(obj);
+					spoolState = SpoolState.Finished;
+				}
+				break;
+			default:
+				boolean lastResultSpooled = false;
+				do {
+					lastResultSpooled = spoolCondition.spool((T)obj);
+					if (lastResultSpooled)
+						list.add(cloneMethod.invoke(obj, null));
+					else
+						break;
+				}
+				while(next());
+				if (isClosed())
+					spoolState = lastResultSpooled ? SpoolState.Finished : SpoolState.PendingLastResultAfterClose;
+				if (spoolState == SpoolState.Finished && list.size() == 0)
+					return null;
+			}
+			return (List<T>)list;
+		}
+		catch(InvocationTargetException itx) {
+			throw db.processSevereButSQLException((Exception)itx.getTargetException());
+		}
+		catch(Exception x) {
+			throw db.processSevereButSQLException(x);
+		}
+	}
+
+	/**
+	 * Like {@link #spoolToList} but returns the data as an array.
+	 */
+	public <T> T[] spoolToArray(Class<T> t, SpoolCondition<T> spoolCondition) throws SQLException {
+		List<T> list = spoolToList(t, spoolCondition);
+		T[] result = (T[])Array.newInstance(obj.getClass(), list.size());
+		return list.toArray(result);
+	}
+
+	public static interface SpoolCondition<T> {
+		boolean spool(T entity) throws SQLException;
+	}
+	
+	private enum SpoolState { ReadyToSpool, PendingLastResultAfterClose, Finished }
 	
 	/**
-	 * Like {@link #toArrayList} but returns the data as an array. The runtime type
+	 * Like {@link #toList} but returns the data as an array. The runtime type
 	 * of the array's elements is the one of the iterator's operation object.
 	 */
 	public Object[] toArray(long maxResults) throws SQLException {
 		if (obj == null)
 			throw new UnsupportedOperationException("Target object missing");
-		ArrayList<?> list = toArrayList(maxResults);
+		List<?> list = toList(maxResults);
 		Object[] result = (Object[])Array.newInstance(obj.getClass(), list.size());
 		return list.toArray(result);
 	}
@@ -188,7 +245,7 @@ public class ResultIterator
 	public <T> T[] toArray(Class<T> t, long maxResults) throws SQLException { return (T[])toArray(maxResults); }
 	
 	public <T> T[] toArray(Class<T> t) throws SQLException { return (T[])toArray(); }
-	
+
 	/** Returns the current fetch size for the underlying ResultSet */
 	public int getFetchSize() throws SQLException { return results.getFetchSize(); }
 

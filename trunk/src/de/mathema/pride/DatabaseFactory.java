@@ -56,7 +56,7 @@ public class DatabaseFactory
                 @Override
                 public void process(Database db, Exception x) throws Exception { throw x; }
                 @Override
-                public void processSevere(Database db, Exception x) {
+                public RuntimeException processSevere(Database db, Exception x) {
                     x.printStackTrace();
                     throw new RuntimeException("Severe error in database operation detected by PriDE. " +
                             "The application state may be inconsistent. Immediate shut down is recommended!" + 

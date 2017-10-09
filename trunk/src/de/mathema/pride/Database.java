@@ -43,15 +43,14 @@ public class Database implements SQLFormatter
 		throw x;
     }
 
-    void processSevereException(Exception x) throws RuntimeException {
-		exceptionListener.processSevere(this, x);
+    RuntimeException processSevereException(Exception x) throws RuntimeException {
+		throw exceptionListener.processSevere(this, x);
     }
 
-    int processSevereButSQLException(Exception x) throws SQLException {
+    RuntimeException processSevereButSQLException(Exception x) throws SQLException {
 		if (x instanceof SQLException)
 		    throw (SQLException)x;
-		processSevereException(x);
-        return -1;
+		throw processSevereException(x);
     }
 
     // ------------ R e s o u r c e   a c c e s s o r   s t u f f ---------------
@@ -524,7 +523,7 @@ public class Database implements SQLFormatter
 			return sqlUpdate(update);
 		}
 		catch(Exception x) {
-			return processSevereButSQLException(x);
+			throw processSevereButSQLException(x);
 		}
 		finally {
 			if (preparedUpdate != null)
@@ -561,7 +560,7 @@ public class Database implements SQLFormatter
 				red.getUpdateValues(obj, null, updatefields, this) + where(where);
 			return sqlUpdate(update);
 		}
-		catch(Exception x) { return processSevereButSQLException(x); }
+		catch(Exception x) { throw processSevereButSQLException(x); }
 	}
 
 	public int updateRecord(WhereCondition where, String[] updatefields, Object obj, RecordDescriptor red)
@@ -590,7 +589,7 @@ public class Database implements SQLFormatter
 	    		return updateRecord(whereString, updatefields, obj, red);
 	    	}
 		}
-		catch(Exception x) { return processSevereButSQLException(x); }
+		catch(Exception x) { throw processSevereButSQLException(x); }
 	}
 
     /** Returns a header for a record inserting of the form
@@ -622,7 +621,7 @@ public class Database implements SQLFormatter
 	    	return sqlUpdate(operation, autoFields, obj, red);
 	    }
 		catch(Exception x) {
-			return processSevereButSQLException(x);
+			throw processSevereButSQLException(x);
 		}
 		finally {
 			if (preparedInsert != null)
@@ -640,7 +639,7 @@ public class Database implements SQLFormatter
 		    return deleteRecord(red.getPrimaryKeyField() + " = " +
 	                            formatValue(red.getPrimaryKey(obj)), obj, red);
 		}
-		catch(Exception x) { return processSevereButSQLException(x); }
+		catch(Exception x) { throw processSevereButSQLException(x); }
     }
 
     /** Delete a record from the database.
@@ -666,7 +665,7 @@ public class Database implements SQLFormatter
 			    where(red.getConstraint(obj, dbkeyfields, false, this));
 		    return sqlUpdate(delete);
 		}
-		catch(Exception x) { return processSevereButSQLException(x); }
+		catch(Exception x) { throw processSevereButSQLException(x); }
     }
 
 

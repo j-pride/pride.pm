@@ -45,7 +45,7 @@ public interface ExceptionListener
      *    function is supposed not to return at all but to shut down
      *    the application savely.
      */
-    public void processSevere(Database db, Exception x) throws RuntimeException;
+    public RuntimeException processSevere(Database db, Exception x) throws RuntimeException;
     
     public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/TransactionListener.java,v 1.1 2001/07/24 12:31:26 lessner Exp $";
 }

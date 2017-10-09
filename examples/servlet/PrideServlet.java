@@ -38,7 +38,7 @@ public abstract class PrideServlet extends HttpServlet {
 	 */
 	protected static class ServletExceptionListener implements ExceptionListener {
 		public void process(Database db, Exception x) throws Exception { throw x; }
-		public void processSevere(Database db, Exception x) {
+		public RuntimeException processSevere(Database db, Exception x) {
 			x.printStackTrace();
 			throw new RuntimeException(x.getMessage());
 		};

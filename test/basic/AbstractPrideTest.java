@@ -87,7 +87,7 @@ public abstract class AbstractPrideTest extends Assert {
      */
     private static ExceptionListener exlistener = new ExceptionListener() {
         public void process(Database db, Exception x) throws Exception { throw x; }
-        public void processSevere(Database db, Exception x) {
+        public RuntimeException processSevere(Database db, Exception x) {
             throw new RuntimeException(x.getMessage(), x);
         }
     };

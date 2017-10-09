@@ -1,6 +1,9 @@
 package basic;
+import java.util.List;
+
 import org.junit.Test;
 
+import COM.cloudscape.tools.sysinfo;
 import de.mathema.pride.DatabaseFactory;
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
@@ -13,6 +16,8 @@ import de.mathema.pride.DatabaseFactory;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 import de.mathema.pride.ResultIterator;
+import de.mathema.pride.WhereCondition;
+import de.mathema.pride.ResultIterator.SpoolCondition;
 
 /**
  * @author bart57
@@ -103,9 +108,18 @@ public class PrideSelectTest extends AbstractPrideTest {
 	public void testSelectToArray() throws Exception {
 		Customer c = new Customer();
 		Customer[] result = (Customer[])c.queryAll().toArray();
-		assertEquals(result.length, COUNT);
+		assertEquals(COUNT, result.length);
 		for (int i = 0; i < result.length; i++)
 			assertEquals(result[i].getId(), i+1);
+	}
+    
+	@Test
+	public void testSelectToBoundedArray() throws Exception {
+		Customer c = new Customer();
+		ResultIterator iter = c.queryAll();
+		Customer[] result = (Customer[])iter.toArray(COUNT-2);
+		assertEquals(COUNT-2, result.length);
+		assertTrue(iter.isClosed());
 	}
     
 	@Test(expected = RuntimeException.class)
@@ -134,4 +148,5 @@ public class PrideSelectTest extends AbstractPrideTest {
 		assertEquals("First", iter.getString(1));
 		assertFalse(iter.next());
 	}
+	
 }

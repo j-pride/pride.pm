@@ -296,9 +296,10 @@ public class Database implements SQLFormatter
             return new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
         }
         catch(Exception x) {
-        	if (cns != null)
+        	if (cns != null) {
         		cns.closeAfterException(x);
-            return null;
+        	}
+        	throw processSevereButSQLException(x);
         }
     }
 
@@ -318,9 +319,10 @@ public class Database implements SQLFormatter
             return result;
         }
         catch (Exception x) {
-        	if (cns != null)
+        	if (cns != null) {
         		cns.closeAfterException(x);
-        	return false;
+        	}
+        	throw processSevereButSQLException(x);
         }
     }
     

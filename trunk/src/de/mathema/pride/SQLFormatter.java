@@ -15,13 +15,13 @@ package de.mathema.pride;
  */
 public interface SQLFormatter
 {
-    public String formatValue(Object rawValue);
+    String formatValue(Object rawValue);
 
-    public String formatOperator(String operator, Object rawValue);
+    String formatOperator(String operator, Object rawValue);
     
-    public Object formatPreparedValue(Object rawValue);
+    Object formatPreparedValue(Object rawValue);
 
-    public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/SQLFormatter.java-arc   1.0   06 Sep 2002 14:52:52   math19  $";
+    String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/SQLFormatter.java-arc   1.0   06 Sep 2002 14:52:52   math19  $";
 }
 
 /* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/SQLFormatter.java-arc  $

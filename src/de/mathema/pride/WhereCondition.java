@@ -248,6 +248,27 @@ public class WhereCondition extends WhereConditionPart {
 		return s;
 	}
 
+	@Override
+	public String toSqlWithoutBindVariables(SQLFormatter formatter) {
+		String s = super.toSQL(formatter) + "( ";
+		if (parts.size() == 0) {
+			s += "1=1 ";
+		}
+		else {
+			for (WhereConditionPart part: parts) {
+				s += part.toSqlWithoutBindVariables(formatter);
+			}
+		}
+		s += ") ";
+		if (groupBy != null)
+			s += " GROUP BY " + groupBy;
+		if (orderBy != null)
+			s += " ORDER BY " + orderBy;
+		if(forUpdate)
+			s += "FOR UPDATE";
+		return s;
+	}
+
 	protected void bind(SQLFormatter formatter, ConnectionAndStatement cns) throws ReflectiveOperationException {
 		bind(formatter, cns, 1);
 	}

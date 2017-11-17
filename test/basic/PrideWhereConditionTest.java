@@ -20,9 +20,7 @@ import de.mathema.pride.ResultIterator;
 import de.mathema.pride.WhereCondition;
 
 import static de.mathema.pride.WhereCondition.Direction.*;
-import static de.mathema.pride.WhereCondition.Operator.EQUAL;
-import static de.mathema.pride.WhereCondition.Operator.IN;
-import static de.mathema.pride.WhereCondition.Operator.UNEQUAL;
+import static de.mathema.pride.WhereCondition.Operator.*;
 
 /**
  * @author less02
@@ -76,6 +74,15 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				and("firstName", "First").
 				and("lastName", "Customer");
 		checkOrderByResult(expression, 1, 1);
+	}
+
+	@Test
+	public void testBindPlainSqlOutput() {
+		WhereCondition expression = new WhereCondition().withBind().
+				and("firstName", "First").
+				and("lastName", "Customer");
+
+		assertEquals("( firstName = First AND lastName = Customer ) ", expression.toSqlWithoutBindVariables(null));
 	}
 	
 	@Test
@@ -183,5 +190,37 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		Customer[] array = (Customer[]) ri.toArray(COUNT);
     	assertEquals(firstId, array[0].getId());
     	assertEquals(lastId, array[array.length - 1].getId());
+	}
+
+	@Test
+	public void testOrAsFirstStatement() {
+		WhereCondition expression = new WhereCondition()
+				.or("X", 1)
+				.or("X", 2)
+				.or("X", 3);
+
+		assertEquals("( X = 1 OR X = 2 OR X = 3 ) ", expression.toString());
+	}
+
+	@Test
+	public void testInOperatorsWithBindVariables() throws SQLException {
+		WhereCondition expression = new WhereCondition()
+				.withBind()
+				.and("firstname", IN, "First", "SECOND", "THIRD")
+				.and("lastname", LIKE, "C%");
+
+		assertEquals("( firstname IN ( ?, ?, ? ) AND lastname LIKE ? ) ", expression.toString());
+		assertEquals(1, new Customer().query(expression).toArray(Customer.class).length);
+	}
+
+	@Test
+	public void testPlainSqlStringFromBindingWhereCondition() {
+		WhereCondition expression = new WhereCondition()
+				.withBind()
+				.and("firstname", IN, "First", "SECOND", "THIRD")
+				.and("lastname", LIKE, "C%")
+				.and("active", true);
+
+		assertEquals("( firstname IN ( First, SECOND, THIRD ) AND lastname LIKE C% AND active = true ) ", expression.toSqlWithoutBindVariables(null));
 	}
 }

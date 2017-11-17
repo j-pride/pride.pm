@@ -1,23 +1,20 @@
 package basic;
-import java.util.List;
-
+import de.mathema.pride.ResultIterator;
+import de.mathema.pride.ResultIterator.SpoolCondition;
 import org.junit.Test;
 
-import COM.cloudscape.tools.sysinfo;
-import de.mathema.pride.DatabaseFactory;
+import java.util.List;
+
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
+ * All rights reserved. This toolkit and the accompanying materials
  * are made available under the terms of the GNU Lesser General Public
  * License (LGPL) which accompanies this distribution, and is available
  * at http://pride.sourceforge.net/LGPL.html
- * 
+ *
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import de.mathema.pride.ResultIterator;
-import de.mathema.pride.WhereCondition;
-import de.mathema.pride.ResultIterator.SpoolCondition;
 
 /**
  * @author bart57

@@ -23,46 +23,56 @@ class WhereFieldCondition extends WhereConditionPart {
 	
 	@Override
 	public String toSQL(SQLFormatter formatter) {
-		return super.toSQL(formatter) +
-				field + " " + formatOperator(formatter) + " " + formatValue(formatter) + " ";
+		return innerToSql(bind, formatter);
 	}
 
-	private Object value0() {
-		if(values == null)
-			return null;
+	@Override
+	public String toSqlWithoutBindVariables(SQLFormatter formatter) {
+		return innerToSql(false, formatter);
+	}
 
-		return values[0];
+	private String innerToSql(boolean withBining, SQLFormatter formatter) {
+		return super.toSQL(formatter) +
+				field + " " + formatOperator(operator, values, formatter) + " " + formatValue(values, operator, withBining, formatter) + " ";
+	}
+
+	private static Object value0(Object[] values) {
+		return value(0, values);
 	}
 	
-	private Object value(int index) {
+	private static Object value(int index, Object[] values ) {
+		if (values == null)
+			return null;
+
 		return values[index];
 	}
 	
-	private int numValues() {
+	private static int numValues(Object[] values) {
 		return values.length;
 	}
 	
-	private String formatValue(SQLFormatter formatter) {
+	private static String formatValue(Object[] values, String operator, boolean withBinding, SQLFormatter formatter) {
 		if (operator == null)
 			return "";
-        if (operator.equals(WhereCondition.Operator.BETWEEN)) {
-            return formatSingleValue(value0(), formatter) + " AND " + formatSingleValue(value(1), formatter);
-        }
-        else if (operator.equals(WhereCondition.Operator.IN) || operator.equals(WhereCondition.Operator.NOTIN)) {
-        	String result = "( ";
-            for (int i = 0; i < numValues(); i++) {
-                result += formatSingleValue(value(i), formatter);
-                if (i < numValues()-1)
-                    result += ", ";
-            }
-            return result + " )";
-        }
-        else
-            return formatSingleValue(value0(), formatter);
+		switch (operator) {
+			case WhereCondition.Operator.BETWEEN:
+				return formatSingleValue(value0(values), withBinding, formatter) + " AND " + formatSingleValue(value(1, values), withBinding, formatter);
+			case WhereCondition.Operator.IN:
+			case WhereCondition.Operator.NOTIN:
+				StringBuilder result = new StringBuilder("( ");
+				for (int i = 0; i < numValues(values); i++) {
+					result.append(formatSingleValue(value(i, values), withBinding, formatter));
+					if (i < numValues(values) - 1)
+						result.append(", ");
+				}
+				return result + " )";
+			default:
+				return formatSingleValue(value0(values), withBinding, formatter);
+		}
 	}
 
-	private String formatSingleValue(Object value, SQLFormatter formatter) {
-		if (bind && value != null)
+	private static String formatSingleValue(Object value, boolean withBinding, SQLFormatter formatter) {
+		if (withBinding && value != null)
 			return "?";
 		if (formatter == null || (value instanceof SQLRaw)) {
 			return (value == null) ? "null" : value.toString();
@@ -70,25 +80,36 @@ class WhereFieldCondition extends WhereConditionPart {
 		return formatter.formatValue(value);
 	}
 
-	private String formatOperator(SQLFormatter formatter) {
+	private static String formatOperator(String operator, Object[] values, SQLFormatter formatter) {
 		if (operator == null)
 			return "";
         if (formatter != null)
-            return formatter.formatOperator(operator, value0());
-        return AbstractResourceAccessor.standardOperator(operator, value0());
+            return formatter.formatOperator(operator, value0(values));
+        return AbstractResourceAccessor.standardOperator(operator, value0(values));
 	}
 
 	@Override
 	protected int bind(SQLFormatter formatter, ConnectionAndStatement cns, int nextParam)
 		throws ReflectiveOperationException {
-		if (bind && operator != null && value0() != null) {
-			Object preparedValue = formatter.formatPreparedValue(value0());
-			Method setter = PreparedStatementAccess.getAccessMethod(preparedValue.getClass());
-			cns.setBindParameter(setter, nextParam, preparedValue);
-			nextParam++;
+		if (bind && operator != null && values != null) {
+			for(Object aValue : values) {
+				nextParam = bindSingleValue(aValue, formatter, cns, nextParam);
+			}
 		}
 		return nextParam;
 	}
-	
+
+	private static int bindSingleValue(Object value, SQLFormatter formatter, ConnectionAndStatement cns, int nextParam)
+		throws ReflectiveOperationException {
+
+		if(value == null) return nextParam;
+
+		Object preparedValue = formatter.formatPreparedValue(value);
+		Method setter = PreparedStatementAccess.getAccessMethod(preparedValue.getClass());
+		cns.setBindParameter(setter, nextParam, preparedValue);
+		nextParam++;
+
+		return nextParam;
+	}
 }
 

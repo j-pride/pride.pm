@@ -213,13 +213,9 @@ public class ResultIterator
 	 */
 	public <T> T[] spoolToArray(Class<T> t, SpoolCondition<T> spoolCondition) throws SQLException {
 		List<T> list = spoolToList(t, spoolCondition);
-		if (list != null) {
-			T[] result = (T[])Array.newInstance(obj.getClass(), list.size());
-			return list.toArray(result);
-		}
-		else {
-			return null;
-		}
+		if(list == null) return null;
+		T[] result = (T[])Array.newInstance(obj.getClass(), list.size());
+		return list.toArray(result);
 	}
 
 	public static interface SpoolCondition<T> {

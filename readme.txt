@@ -17,8 +17,6 @@ shell.
 
 If you like to compile PriDE from within your favourite IDE,
 just create your own project and add the sub-directories 'src',
-'test', and 'examples' as source folders. The folder 'plugin'
-contains the source code of the PriDE Eclipse Plugin and can
-only be loaded by Eclipse 2.0 or higher in a plugin project.
-The folder 'ant' containes the source code for PriDE's Ant task
-and requires ant.jar from an Ant distribution 1.6.x or higher.
+'test', and 'examples' as source folders. The folder 'ant'
+containes the source code for PriDE's Ant task and requires
+ant.jar from an Ant distribution 1.6.x or higher.

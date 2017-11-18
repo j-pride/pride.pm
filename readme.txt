@@ -1,6 +1,6 @@
 =============================================================
-            PriDE 2.5.0, 2014-09-07
-            (c) The PriDE team and arvato IT services
+            PriDE 3.0.0, 2017-11-17
+            (c) The PriDE Open Source Team
 =============================================================
 
 See license.txt for license conditions!

@@ -4,4 +4,4 @@ Created-By: arvato services, Germany
 Name: PriDE
 Implementation-Title: PriDE
 Implementation-Version: ?.?.?, DMD4000 ?.?.?
-Implementation-Vendor: arvato services, Germany
+Implementation-Vendor: Bertelsmann Direct Services, Germany

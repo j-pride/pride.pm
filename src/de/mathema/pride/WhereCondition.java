@@ -5,10 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * where (age < 18 or age > 64) and status = '5' and blubb in (1, 17, 99)
+ * Convenience class for simplified assembly of where conditions. The values can
+ * individually by bound to variables, causing PriDE to execute queries based
+ * in this where condition as a prepared statement.
+ * <p>
+ * (age < 18 or age > 64) and status = '5' and foo in (1, 17, 99)
  * 
  * @author LESS02
- *
  */
 public class WhereCondition extends WhereConditionPart {
     public static interface Operator {
@@ -35,7 +38,10 @@ public class WhereCondition extends WhereConditionPart {
     }
 
     protected static boolean bindDefault;
-    
+
+    /** Specifies of PriDE should <i>by default<i> use bind variables in SQL statements.
+     * Traditionally PriDE does <i>not</i> so but talks plain SQL.
+     */
     public static void setBindDefault(boolean bind) {
     	bindDefault = bind;
     }
@@ -122,23 +128,48 @@ public class WhereCondition extends WhereConditionPart {
 		chain(subcondition);
 		return subcondition;
 	}
-	
+
+	/**
+	 * Adds a field sub condition which is AND-concatenated with what is already present in this WhereCondition. If the WhereCondition
+	 *   is empty, the method has nothing to concatenate. It therefore doesn't matter if you start the condition assembly with and... methods
+	 *   or or... methods.
+	 * @param field The field to operate on
+	 * @param operator The operator to apply. Supported values are listed in sub-interface {@link Operator}. Operator {@link Operator#EQUAL}
+	 *    combines with a null value will assemble to "IS NULL", operator {@link Operator#UNEQUAL} to "IS NOT NULL".
+	 * @param values The value to apply. In case of operator {@link Operator#BETWEEN}, the method expects exactly two values. In case of operator
+	 *    {@link Operator#IN}, the values have an unlimited length. All other operators expect a simgle value.
+	 * @return  This WhereCondition itself to allow condition assembly in a fluent way.
+	 */
 	public WhereCondition and(String field, String operator, Object... values) {
 		return chain(ChainOperator.AND, false, field, operator, values);
 	}
 
+	/**
+	 * Like {@link #and(String, String, Object...)} but only adds the sub condition if the first value is different from null.
+	 */
 	public WhereCondition andNotNull(String field, String operator, Object... values) {
 		return chain(ChainOperator.AND, true, field, operator, values);
 	}
 
+	/**
+	 * Like {@link #and(String, String, Object...)} with {@link Operator#EQUAL}
+	 */
 	public WhereCondition and(String field, Object value) {
 		return and(field, Operator.EQUAL, value);
 	}
 
+	/**
+	 * Like {@link #andNotNull(String, String, Object...)} with {@link Operator#EQUAL}
+	 */
 	public WhereCondition andNotNull(String field, Object value) {
 		return andNotNull(field, Operator.EQUAL, value);
 	}
 
+	/**
+	 * Adds the passed pre-formatted sub condition to this WhereCondition. This is a kind of 'last resort' for complicated situations.
+	 * Keep in mind that the sub condition is plain SQL text which therefore cannot support bind variables.
+	 * @return This WhereCondition itself to allow condition assembly in a fluent way.
+	 */
 	public WhereCondition and(String formattedSubcondition) {
     	if(formattedSubcondition == null || formattedSubcondition.isEmpty())
     		return this;
@@ -149,26 +180,46 @@ public class WhereCondition extends WhereConditionPart {
 		return chain(ChainOperator.AND, subcondition);
 	}
 
+	/**
+	 * Initiates a sub condition which is AND-concatenated with what is already present in this WhereCondition.
+	 * @return The sub condition. You can switch back to the parent condition by closing the sub condition using
+	 *    method {@link #_}.
+	 */
 	public WhereCondition and() {
 		return chain(ChainOperator.AND);
 	}
 	
+	/**
+	 * Like {@link #and(String, String, Object...)} but performs an OR-concatenation.
+	 */
 	public WhereCondition or(String field, String operator, Object... values) {
 		return chain(ChainOperator.OR, false, field, operator, values);
 	}
 
+	/**
+	 * Like {@link #andNotNull(String, String, Object...)} but performs an OR-concatenation.
+	 */
 	public WhereCondition orNotNull(String field, String operator, Object... values) {
 		return chain(ChainOperator.OR, true, field, operator, values);
 	}
 
+	/**
+	 * Like {@link #and(String, Object...)} but performs an OR-concatenation.
+	 */
 	public WhereCondition or(String field, Object value) {
 		return or(field, Operator.EQUAL, value);
 	}
 
+	/**
+	 * Like {@link #andNotNull(String, Object...)} but performs an OR-concatenation.
+	 */
 	public WhereCondition orNotNull(String field, Object value) {
 		return orNotNull(field, Operator.EQUAL, value);
 	}
 
+	/**
+	 * Like {@link #and(String)} but performs an OR-concatenation.
+	 */
 	public WhereCondition or(String formattedSubcondition) {
 		return or(formattedSubcondition, null, (Object[])null);
 	}
@@ -177,17 +228,38 @@ public class WhereCondition extends WhereConditionPart {
 		return chain(ChainOperator.OR, subcondition);
 	}
 
+	/**
+	 * Like {@link #and()} but performs an OR-concatenation for the sub condition.
+	 */
 	public WhereCondition or() {
 		return chain(ChainOperator.OR);
 	}
-	
+
+	/**
+	 * Closes the assembly of a sub condition
+	 * @return The sub conditions parent condition
+	 */
 	public WhereCondition _() {
 		return parent;
 	}
 
+	/**
+	 * Adds an order by clause to this WhereCondition. You may call this method several times, producing a comma-separated concatenation of
+	 * all ordering constraints. E.g.
+	 * <p>
+	 * <pre>where.orderBy("last_name", ASC).orderBy("first_name", ASC);</pre>
+	 * <p>
+	 * Causes an SQL ordering clause like
+	 * <p>
+	 * <pre>order by last_name ASC, first_name DESC<pre>
+	 * <p>
+	 * @param field The field to order the output by
+	 * @param direction The direction, usually either {@link Direction#ASC} or {@link Direction#DESC}
+	 * @return This WhereCondition itself to allow condition assembly in a fluent way
+	 */
 	public WhereCondition orderBy(String field, String direction) {
 		if (parent != null)
-			throw new IllegalArgumentException("subexpression must not include an order clause");
+			throw new IllegalArgumentException("sub expression must not include an order clause");
 		if (orderBy != null)
 			orderBy += ", ";
 		else
@@ -195,7 +267,10 @@ public class WhereCondition extends WhereConditionPart {
 		orderBy += field + " " + direction;
 		return this;
 	}
-	
+
+	/**
+	 * Like {@link #orderBy(String, String)} without explicitly specifying an order direction which in standard SQL databases means ascending order
+	 */
 	public WhereCondition orderBy(String field) {
 		return orderBy(field, "");
 	}

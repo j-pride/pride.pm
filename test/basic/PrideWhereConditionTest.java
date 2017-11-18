@@ -77,7 +77,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	}
 
 	@Test
-	public void testBindPlainSqlOutput() {
+	public void testBindPlainSQLOutput() {
 		WhereCondition expression = new WhereCondition().withBind().
 				and("firstName", "First").
 				and("lastName", "Customer");
@@ -214,7 +214,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	}
 
 	@Test
-	public void testPlainSqlStringFromBindingWhereCondition() {
+	public void testPlainSQLStringFromBindingWhereCondition() {
 		WhereCondition expression = new WhereCondition()
 				.withBind()
 				.and("firstname", IN, "First", "SECOND", "THIRD")

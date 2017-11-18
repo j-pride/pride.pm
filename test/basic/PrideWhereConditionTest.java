@@ -82,7 +82,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				and("firstName", "First").
 				and("lastName", "Customer");
 
-		assertEquals("( firstName = First AND lastName = Customer ) ", expression.toSqlWithoutBindVariables(null));
+		assertEquals("( firstName = First AND lastName = Customer ) ", expression.toSQLIgnoreBindings(null));
 	}
 	
 	@Test
@@ -221,6 +221,6 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				.and("lastname", LIKE, "C%")
 				.and("active", true);
 
-		assertEquals("( firstname IN ( First, SECOND, THIRD ) AND lastname LIKE C% AND active = true ) ", expression.toSqlWithoutBindVariables(null));
+		assertEquals("( firstname IN ( First, SECOND, THIRD ) AND lastname LIKE C% AND active = true ) ", expression.toSQLIgnoreBindings(null));
 	}
 }

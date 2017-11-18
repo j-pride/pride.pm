@@ -9,12 +9,20 @@ abstract class WhereConditionPart {
 		return toSQL(null);
 	}
 
-	public String toSQL(SQLFormatter formatter) {
+	public String toSQLChainer(SQLFormatter formatter) {
 		return chainOperator != null ? (chainOperator + " ") : "";
 	}
 
-	public abstract String toSqlWithoutBindVariables(SQLFormatter formatter);
-	
+	public String toSQLIgnoreBindings(SQLFormatter formatter) {
+		return toSQL(formatter, true);
+	}
+
+	public String toSQL(SQLFormatter formatter) {
+		return toSQL(formatter, false);
+	}
+
+	protected abstract String toSQL(SQLFormatter formatter, boolean withBinding);
+
 	protected boolean requiresBinding() {
 		return bind;
 	}

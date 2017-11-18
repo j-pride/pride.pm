@@ -15,25 +15,12 @@ class WhereFieldCondition extends WhereConditionPart {
 		this.bind = bind;
 	}
 	
-	@Override
-	public String toString() {
-		return toSQL(null);
-	}
-
-	
-	@Override
-	public String toSQL(SQLFormatter formatter) {
-		return innerToSql(bind, formatter);
-	}
-
-	@Override
-	public String toSqlWithoutBindVariables(SQLFormatter formatter) {
-		return innerToSql(false, formatter);
-	}
-
-	private String innerToSql(boolean withBining, SQLFormatter formatter) {
-		return super.toSQL(formatter) +
-				field + " " + formatOperator(operator, values, formatter) + " " + formatValue(values, operator, withBining, formatter) + " ";
+	protected String toSQL(SQLFormatter formatter, boolean ignoreBindings) {
+		boolean withBinding = ignoreBindings ? false : bind;
+		return toSQLChainer(formatter) +
+				field + " " +
+				formatOperator(operator, values, formatter) + " " +
+				formatValue(values, operator, withBinding, formatter) + " ";
 	}
 
 	private static Object value0(Object[] values) {

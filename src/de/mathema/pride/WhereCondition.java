@@ -303,35 +303,14 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	@Override
-	public String toSQL(SQLFormatter formatter) {
-		String s = super.toSQL(formatter) + "( ";
+	protected String toSQL(SQLFormatter formatter, boolean ignoreBindings) {
+		String s = toSQLChainer(formatter) + "( ";
 		if (parts.size() == 0) {
 			s += "1=1 ";
 		}
 		else {
 			for (WhereConditionPart part: parts) {
-				s += part.toSQL(formatter);
-			}
-		}
-		s += ") ";
-		if (groupBy != null)
-			s += " GROUP BY " + groupBy;
-		if (orderBy != null)
-			s += " ORDER BY " + orderBy;
-		if(forUpdate)
-			s += "FOR UPDATE";
-		return s;
-	}
-
-	@Override
-	public String toSqlWithoutBindVariables(SQLFormatter formatter) {
-		String s = super.toSQL(formatter) + "( ";
-		if (parts.size() == 0) {
-			s += "1=1 ";
-		}
-		else {
-			for (WhereConditionPart part: parts) {
-				s += part.toSqlWithoutBindVariables(formatter);
+				s += part.toSQL(formatter, ignoreBindings);
 			}
 		}
 		s += ") ";

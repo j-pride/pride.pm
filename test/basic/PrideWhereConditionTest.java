@@ -10,6 +10,9 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.SQLFormatter;
@@ -222,5 +225,20 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				.and("active", true);
 
 		assertEquals("( firstname IN ( First, SECOND, THIRD ) AND lastname LIKE C% AND active = true ) ", expression.toSQLIgnoreBindings(null));
+	}
+
+	@Test
+	public void testNestedWhereConditionWithBindings() throws SQLException {
+		List<String> names = Arrays.asList("Customer", "Test", "Other");
+
+		WhereCondition whereCondition = new WhereCondition().withBind().and("firstname", "First");
+		WhereCondition secondCondition = new WhereCondition().withBind();
+		for (String name : names) {
+			secondCondition.or("lastname", name);
+		}
+		whereCondition.and(secondCondition);
+
+		assertEquals("( firstname = ? AND ( lastname = ? OR lastname = ? OR lastname = ? ) ) ", whereCondition.toString());
+		assertEquals(1, new Customer().query(whereCondition).toArray(Customer.class).length);
 	}
 }

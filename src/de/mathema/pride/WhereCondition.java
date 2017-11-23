@@ -323,8 +323,8 @@ public class WhereCondition extends WhereConditionPart {
 		return s;
 	}
 
-	protected void bind(SQLFormatter formatter, ConnectionAndStatement cns) throws ReflectiveOperationException {
-		bind(formatter, cns, 1);
+	protected void bind(SQLFormatter inheritedFormatter, ConnectionAndStatement cns) throws ReflectiveOperationException {
+		bind(formatter != null ? formatter : inheritedFormatter, cns, 1);
 	}
 	
 	@Override

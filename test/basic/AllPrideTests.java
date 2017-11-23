@@ -42,6 +42,7 @@ public class AllPrideTests {
 		add(suite, PrideDateTest.class);
 		add(suite, PrideWhereConditionTest.class);
 		add(suite, PrideWhereConditionTestWithBindVariables.class);
+		add(suite, PrideWhereConditionWithFormatterTest.class);
 		add(suite, PridePreparedTest.class);
 		add(suite, PrideJoinTest.class);
 		add(suite, PrideResourceTest.class);

@@ -448,10 +448,10 @@ public class Database implements SQLFormatter
             ConnectionAndStatement cns = null;
             try {
             	cns = new ConnectionAndStatement(this, query, true);
-                where.bind(getSqlFormatterToUse(where), cns);
+                where.bind(this, cns);
                 ResultSet rs = cns.getStatement().executeQuery();
                 ResultIterator ri = new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
-                return returnIteratorIfNotEmpty(ri, query, true);
+                return returnIteratorIfNotEmpty(ri, query, all);
             }
             catch (Exception x) {
             	if (cns != null)
@@ -576,7 +576,7 @@ public class Database implements SQLFormatter
 	            try {
 	            	cns = new ConnectionAndStatement(this, update, true);
 	            	int nextParam = red.getConstraint(obj, updatefields, cns, null, 1);
-	                where.bind(getSqlFormatterToUse(where), cns, nextParam);
+	                where.bind(this, cns, nextParam);
 	                int result = cns.getStatement().executeUpdate();
 	                cns.close();
 	                return result;
@@ -719,11 +719,6 @@ public class Database implements SQLFormatter
 
     /** Remove a transaction listener from this database object */
     public synchronized void removeListener(TransactionListener l) { txlisteners.remove(l); }
-
-    private SQLFormatter getSqlFormatterToUse(WhereCondition whereCondition) {
-        if (whereCondition.formatter != null) return whereCondition.formatter;
-        return this;
-    }
 
 }
 

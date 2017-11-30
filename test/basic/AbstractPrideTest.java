@@ -12,9 +12,13 @@ import java.io.IOException;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
+import java.sql.Date;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Properties;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -146,19 +150,29 @@ public abstract class AbstractPrideTest extends Assert {
 	}
 	
 	protected void generateCustomer(int count) throws Exception {
-		Customer c = new Customer(1, "First", "Customer");
+		Customer c = new Customer(1, "First", "Customer", null, new Date(new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2010").getTime()));
 		for (int i = 2; i < count; i++) {
 			String[] name = generateName(i);
 			String firstName = name[0];
 			String lastName = name[1];
 			if (lastName.length() > 50)
 				System.out.println("LAST NAME: " + lastName);
-			c = new Customer(i, firstName, lastName);
+			c = new Customer(i, firstName, lastName, null, getRandomDate());
 		}
 		if (count != 1) {
 			c = new Customer(count, "Last", "Customer");
 		}
 		DatabaseFactory.getDatabase().commit();
+	}
+
+	private Date getRandomDate() {
+		Calendar startDate = Calendar.getInstance();
+		startDate.set(2010, Calendar.JANUARY, 1);
+
+		Calendar endDate = Calendar.getInstance();
+		endDate.set(2017, Calendar.DECEMBER, 31);
+
+		return new Date(ThreadLocalRandom.current().longs(startDate.getTimeInMillis(), endDate.getTimeInMillis()).findAny().getAsLong());
 	}
 
 	protected String[] generateName(int i) {

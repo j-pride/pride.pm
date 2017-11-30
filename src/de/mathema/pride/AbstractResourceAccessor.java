@@ -12,19 +12,13 @@ package de.mathema.pride;
 
 import java.io.FileWriter;
 import java.lang.reflect.Array;
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Properties;
-
-import org.apache.tools.ant.taskdefs.PathConvert.MapEntry;
 
 public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
@@ -181,12 +175,12 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
     }
     
 	/**
-	 * This function maps java.util.Date to java.sql.Timestamp, assuming
+	 * This function maps java.util.Date to java.sql.Date, assuming
 	 * that java.util.Date members are supposed to provide highest possible
 	 * precision. This mapping should match the specifications in
 	 * ResultSetAccess and PreparedStatementAccess.
 	 * 
-	 * @return A java.sql.Timestamp if the passed value was of type
+	 * @return A java.sql.Date if the passed value was of type
 	 *   java.util.Date or a derivation other than java.sql.Date or
 	 *   java.sql.Timestamp. Otherwise the passed value itself.
 	 */
@@ -203,7 +197,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 		if (value instanceof java.util.Date &&
 			!(value instanceof java.sql.Date) &&
 			!(value instanceof java.sql.Timestamp))
-			return new java.sql.Timestamp( ((java.util.Date) value).getTime());
+			return new java.sql.Date( ((java.util.Date) value).getTime());
 		return value;
 	}
 	

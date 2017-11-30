@@ -12,6 +12,7 @@ package basic;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 import de.mathema.pride.DatabaseFactory;
@@ -240,5 +241,17 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 
 		assertEquals("( firstname = ? AND ( lastname = ? OR lastname = ? OR lastname = ? ) ) ", whereCondition.toString());
 		assertEquals(1, new Customer().query(whereCondition).toArray(Customer.class).length);
+	}
+
+	@Test
+	public void testWherConditionWithDateBinding() throws SQLException {
+		Calendar date = Calendar.getInstance();
+		date.set(2010, Calendar.JANUARY, 1);
+
+		WhereCondition whereCondition = new WhereCondition()
+				.withBind()
+				.and("hiredate", date.getTime());
+
+		assertNotNull(new Customer().query(whereCondition).toArray(Customer.class));
 	}
 }

@@ -65,6 +65,11 @@ public class PrideWhereConditionTestWithBindVariables extends AbstractPrideTest 
 	}
 	
 	@Test
+	public void testEqualDatesMillisecondsCorrectlyIgnored() throws SQLException {
+		prideWhereConditionTest.testEqualDatesMillisecondsCorrectlyIgnored();
+	}
+	
+	@Test
 	public void testBind() throws Exception {
 		prideWhereConditionTest.testBind();
 	}

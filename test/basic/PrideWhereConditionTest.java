@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import de.mathema.pride.DatabaseFactory;
@@ -76,8 +77,15 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	public void testEqualDates() throws SQLException {
 		WhereCondition whereCondition = new WhereCondition()
 				.and("hiredate", firstCustomersHiredate);
-
-		assertNotNull(new Customer().query(whereCondition).toArray(Customer.class));
+		checkOrderByResult(whereCondition, 1, 1);
+	}
+	
+	@Test
+	public void testEqualDatesMillisecondsCorrectlyIgnored() throws SQLException {
+		Date firstCustomersHiredatePlus1Millisecond = new Date(firstCustomersHiredate.getTime() + 1);
+		WhereCondition whereCondition = new WhereCondition()
+				.and("hiredate", firstCustomersHiredatePlus1Millisecond);
+		checkOrderByResult(whereCondition, 1, 1);
 	}
 	
 	@Test

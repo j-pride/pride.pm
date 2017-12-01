@@ -1,4 +1,8 @@
 package basic;
+import static de.mathema.pride.WhereCondition.Operator.UNEQUAL;
+
+import java.sql.SQLException;
+
 /*******************************************************************************
  * Copyright (c) 2001-2005 The PriDE team and MATHEMA Software GmbH
  * All rights reserved. This toolkit and the accompanying materials 
@@ -38,6 +42,26 @@ public class PrideWhereConditionTestWithBindVariables extends AbstractPrideTest 
 	@Test
 	public void testEqualsExpression() throws Exception {
 		prideWhereConditionTest.testEqualsExpression();
+	}
+	
+	@Test
+	public void testEqualsWithNull() throws Exception {
+		prideWhereConditionTest.testEqualsWithNull();
+	}
+
+	@Test
+	public void testUnequalsWithNull() throws Exception {
+		prideWhereConditionTest.testUnequalsWithNull();
+	}
+	
+	@Test
+	public void testEqualsWithNullSkipped() throws Exception {
+		prideWhereConditionTest.testEqualsWithNullSkipped();
+	}
+	
+	@Test
+	public void testEqualDates() throws SQLException {
+		prideWhereConditionTest.testEqualDates();
 	}
 	
 	@Test

@@ -135,7 +135,7 @@ public class PrideThreadTest extends AbstractPrideTest {
                     assertEquals("l#" + i, c.getLastName());
                     assertEquals(new Boolean(i%2 > 0), c.getActive());
                     // Comparing string representations of the dates works around time zone problems
-                    assertEquals(new Date(time).toString(), c.getHireDate().toString());
+                    assertEquals(time, c.getHireDate().getTime());
                     time += MILLISECONDS_PER_DAY;
                 }
             }

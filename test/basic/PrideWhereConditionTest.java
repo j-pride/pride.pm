@@ -73,6 +73,14 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	}
 	
 	@Test
+	public void testEqualDates() throws SQLException {
+		WhereCondition whereCondition = new WhereCondition()
+				.and("hiredate", firstCustomersHiredate);
+
+		assertNotNull(new Customer().query(whereCondition).toArray(Customer.class));
+	}
+	
+	@Test
 	public void testBind() throws Exception {
 		WhereCondition expression = new WhereCondition().withBind().
 				and("firstName", "First").
@@ -243,15 +251,4 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		assertEquals(1, new Customer().query(whereCondition).toArray(Customer.class).length);
 	}
 
-	@Test
-	public void testWherConditionWithDateBinding() throws SQLException {
-		Calendar date = Calendar.getInstance();
-		date.set(2010, Calendar.JANUARY, 1);
-
-		WhereCondition whereCondition = new WhereCondition()
-				.withBind()
-				.and("hiredate", date.getTime());
-
-		assertNotNull(new Customer().query(whereCondition).toArray(Customer.class));
-	}
 }

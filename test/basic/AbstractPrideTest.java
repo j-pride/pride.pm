@@ -1,7 +1,3 @@
-package basic;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
  * All rights reserved. This toolkit and the accompanying materials 
@@ -12,10 +8,14 @@ import java.io.IOException;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import java.sql.Date;
+package basic;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
@@ -24,7 +24,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import junit.framework.TestCase;
 import de.mathema.pride.Database;
 import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.ExceptionListener;
@@ -55,6 +54,7 @@ public abstract class AbstractPrideTest extends Assert {
 			{ "Inge", "Heim-Ermission" },
 			{ "Inge", "Knito" }
 	};
+	protected Date firstCustomersHiredate;
 
 	protected static final String TEST_TABLE = "customer_pride_test";
     protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
@@ -150,7 +150,9 @@ public abstract class AbstractPrideTest extends Assert {
 	}
 	
 	protected void generateCustomer(int count) throws Exception {
-		Customer c = new Customer(1, "First", "Customer", null, new Date(new SimpleDateFormat("dd.MM.yyyy").parse("01.01.2010").getTime()));
+		firstCustomersHiredate = new Date(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse("01.01.2010 13:05:45").getTime());
+
+		Customer c = new Customer(1, "First", "Customer", null, firstCustomersHiredate);
 		for (int i = 2; i < count; i++) {
 			String[] name = generateName(i);
 			String firstName = name[0];

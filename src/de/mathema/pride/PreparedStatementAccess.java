@@ -82,9 +82,9 @@ public class PreparedStatementAccess
     public static void init() throws NoSuchMethodException {
         putMethod("setString", String.class);
         putMethod("setString", String.class, Enum.class);
-        putMethod("setTimestamp", Timestamp.class);
+        putMethod("setTimestamp", Timestamp.class, java.util.Date.class);
         putMethod("setDate", java.sql.Date.class);
-        putMethod("setDate", java.sql.Date.class, java.util.Date.class);
+        putMethod("setTimestamp", Timestamp.class);
         putMethod("setInt", int.class, Integer.class);
         putMethod("setInt", int.class);
         putMethod("setFloat", float.class, Float.class);

@@ -514,7 +514,7 @@ public class Database implements SQLFormatter
 		throws SQLException {
 		PreparedUpdate preparedUpdate = null;
 		try {
-			if (WhereCondition.bindDefault) {
+			if (WhereCondition.bindDefault || red.withBind) {
 				preparedUpdate = new PreparedUpdate(dbkeyfields, updatefields, red);
 				return preparedUpdate.execute(obj);
 			}

@@ -1,4 +1,6 @@
 package basic;
+import java.sql.SQLException;
+
 import org.junit.Test;
 
 /*******************************************************************************
@@ -13,7 +15,6 @@ import org.junit.Test;
  *******************************************************************************/
 import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.WhereCondition;
-import junit.framework.Assert;
 
 /**
  * @author bart57
@@ -31,7 +32,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 
 	@Test
 	public void testUpdatePK() throws Exception{
-		Customer c = new Customer(1);
+		Customer c = createCustomer(1);
 		assertEquals("First", c.getFirstName());
 		assertEquals("Customer", c.getLastName());
 		c.setFirstName("Casper");
@@ -45,7 +46,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 
 	@Test
 	public void testUpdateByExample() throws Exception{
-		Customer c = new Customer(1);
+		Customer c = createCustomer(1);
 		assertEquals("First", c.getFirstName());
 		assertEquals("Customer", c.getLastName());
 		c.setFirstName("Inge");
@@ -60,7 +61,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 
 	@Test
 	public void testUpdateFields() throws Exception{
-		Customer c = new Customer(1);
+		Customer c = createCustomer(1);
 		assertEquals("First", c.getFirstName());
 		assertEquals("Customer", c.getLastName());
 		c.setFirstName("Casper");
@@ -73,7 +74,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 
 	@Test
 	public void testUpdateMultiple() throws Exception{
-		Customer c = new Customer();
+		Customer c = createCustomer();
 		c.setFirstName("Inge");
 		c.setLastName("Updated");
 		c.update(new String[] { "firstName"}, new String[] { "lastName" });
@@ -87,7 +88,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 
 	@Test
 	public void testUpdateWhere() throws Exception{
-		Customer c = new Customer();
+		Customer c = createCustomer();
 		c.setLastName("Updated");
 		c.update(new WhereCondition().and("firstName", WhereCondition.Operator.LIKE, "Pe%"), new String[] { "lastName" });
 		DatabaseFactory.getDatabase().commit();
@@ -112,4 +113,12 @@ public class PrideUpdateTest extends AbstractPrideTest {
 		assertEquals(2, numUpdates);
 	}
 	
+	protected Customer createCustomer() {
+		return new Customer();
+	}
+
+	protected Customer createCustomer(int id) throws SQLException {
+		return new Customer(id);
+	}
+
 }

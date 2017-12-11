@@ -46,6 +46,7 @@ public class RecordDescriptor
     protected String dbtable;
     protected AttributeDescriptor[] attrDescriptors;
     protected RecordDescriptor baseDescriptor;
+    protected boolean withBind;
 
     /** Returns <code>true</code> if the passed array of strings contains <code>element</code>.
      * Parameter <tt>onNull</tt> is returned in case the passed string array is <tt>null</tt>.
@@ -499,7 +500,17 @@ public class RecordDescriptor
         }
         return mappings.toArray(new String[0][]);
     }
+    
+    
 
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
+    public boolean isWithBind() {
+		return withBind;
+	}
+
+	public void setWithBind(boolean withBind) {
+		this.withBind = withBind;
+	}
+
+	public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
 
 }

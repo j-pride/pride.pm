@@ -38,6 +38,7 @@ public class AllPrideTests {
 		add(suite, PrideSelectSpooledTest.class);
 		add(suite, PrideUpdateTest.class);
 		add(suite, PrideUpdateTestWithBindVariables.class);
+		add(suite, PrideUpdateTestWithLocalBinding.class);
 		add(suite, PrideDeleteTest.class);
 		add(suite, PrideDateTest.class);
 		add(suite, PrideWhereConditionTest.class);

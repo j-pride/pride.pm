@@ -2,6 +2,7 @@ package basic;
 import java.sql.SQLException;
 
 import de.mathema.pride.RecordDescriptor;
+import de.mathema.pride.WhereCondition;
 
 /**
  * @author Jeismann
@@ -9,30 +10,17 @@ import de.mathema.pride.RecordDescriptor;
  * Class to Test the Update-Behaviour of the PriDE-Framework
  */
 public class PrideUpdateTestWithLocalBinding extends PrideUpdateTest {
+	@Override
+	public void setUp() throws Exception {
+		super.setUp();
+		new Customer().getDescriptor().setWithBind(true);
+	}
+
+	@Override
+	public void tearDown() throws Exception {
+		super.tearDown();
+		new Customer().getDescriptor().setWithBind(false);
+	}
 	
-	protected CustomerWithLocalBinding createCustomer() {
-		return new CustomerWithLocalBinding();
-	}
-
-	protected CustomerWithLocalBinding createCustomer(int id) throws SQLException {
-		return new CustomerWithLocalBinding(id);
-	}
-
-	private class CustomerWithLocalBinding extends Customer {
-		public CustomerWithLocalBinding() {
-		}
-
-		public CustomerWithLocalBinding(int id) throws SQLException {
-			super(id);
-		}
-
-		@Override
-		protected RecordDescriptor getDescriptor() {
-			RecordDescriptor descriptor = super.getDescriptor();
-			// activate the binding just for this class
-			descriptor.setWithBind(true);
-			return descriptor;
-		}
-	}
-
+	// test cases are the same as in PrideUpdateTest
 }

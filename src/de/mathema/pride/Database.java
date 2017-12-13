@@ -351,11 +351,17 @@ public class Database implements SQLFormatter
      * @param primaryKey Primary key used for unique selection from the database
      * @param obj Destination object to store the data in
      * @param red Descriptor providing the field mappings and the table name to access
+     * @deprecated use fetchRecord(WhereCondition, Object, RecordDescriptor) insted
      */
+    @Deprecated
     public boolean fetchRecord(Object primaryKey, Object obj, RecordDescriptor red)
         throws SQLException {
     	WhereCondition primaryKeyCondition = new WhereCondition().and(red.getPrimaryKeyField(), primaryKey);
         return query(primaryKeyCondition, obj, red, false) != null;
+    }
+
+    public boolean fetchRecord(WhereCondition primaryKeyCondition, Object obj, RecordDescriptor red) throws SQLException {
+    	return query(primaryKeyCondition, obj, red, false) != null;
     }
 
     /** Fetch a record from the database and store the results in a JAVA object
@@ -366,7 +372,7 @@ public class Database implements SQLFormatter
     public boolean fetchRecord(Object obj, RecordDescriptor red)
         throws SQLException {
         try {
-        	return fetchRecord(red.getPrimaryKey(obj), obj, red);
+        	return fetchRecord(red.assembleWhereCondition(obj, red.getPrimaryKeyFields(), false), obj, red);
         }
         catch(Exception x) {
         	processSevereButSQLException(x);
@@ -488,7 +494,7 @@ public class Database implements SQLFormatter
      */
     public int updateRecord(Object obj, RecordDescriptor red)
         throws SQLException {
-    	return updateRecord(new String[] { red.getPrimaryKeyField() }, obj, red);
+    	return updateRecord(red.getPrimaryKeyFields(), obj, red);
     }
 
     /** Update a database record.
@@ -638,8 +644,7 @@ public class Database implements SQLFormatter
      */
     public int deleteRecord(Object obj, RecordDescriptor red) throws SQLException {
 		try {
-		    return deleteRecord(red.getPrimaryKeyField() + " = " +
-	                            formatValue(red.getPrimaryKey(obj)), obj, red);
+		    return deleteRecord(red.getPrimaryKeyFields(), obj, red);
 		}
 		catch(Exception x) { throw processSevereButSQLException(x); }
     }

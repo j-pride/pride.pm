@@ -175,9 +175,15 @@ public class RecordDescriptor
      * shure to always put the description of the primary key field at the
      * very beginning of the mappings passed in the constructor.
      */
+    @Deprecated
     public String getPrimaryKeyField() {
         return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyField() :
             attrDescriptors[0].getFieldName();
+    }
+
+    public String[] getPrimaryKeyFields() {
+        return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyFields() :
+            new String[]{attrDescriptors[0].getFieldName()};
     }
 
 	public int record2object(Object obj, ResultSet results,
@@ -326,7 +332,7 @@ public class RecordDescriptor
 		throws ReflectiveOperationException, SQLException {
         String constraint = "";
         if (dbfields == null)
-            dbfields = new String[] { getPrimaryKeyField() };
+            dbfields = getPrimaryKeyFields();
         for (int i = 0; i < dbfields.length; i++) {
             if (i > 0)
                 constraint += " and ";
@@ -339,7 +345,7 @@ public class RecordDescriptor
 		throws ReflectiveOperationException {
 		WhereCondition condition = new WhereCondition();
         if (dbfields == null)
-            dbfields = new String[] { getPrimaryKeyField() };
+            dbfields = getPrimaryKeyFields();
         for (int i = 0; i < dbfields.length; i++) {
         	WhereFieldCondition fieldCondition = assembleWhereValue(obj, dbfields[i], byLike, condition.bind);
         	condition = condition.and(fieldCondition);

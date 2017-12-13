@@ -147,7 +147,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     private int record2child(Join join, Object obj, ResultSet results, int position) throws ReflectiveOperationException, SQLException {
         GetterSetterPair childAccess = join.getFieldAccess(obj);
         
-        if (results.getObject(join.getPrimaryKeyFiled()) != null) {
+        if (!isPrimaryKeyNull(join, results)) {
             Object child = childAccess.get(obj);
             if (child == null) {
                 Object parent = childAccess.getDirectOwner(obj);
@@ -167,6 +167,22 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         return position;
     }
     
+    private boolean isPrimaryKeyNull(Join join, ResultSet results) throws SQLException {
+        for (String field: join.getPrimaryKeyFields()) {
+            if (results.getObject(field) != null) {
+                return false;
+            }
+		}
+		return true;
+	}
+
+	private String[] getColumnAlias(String tableAlias, String[] columns) {
+        String[] names = new String[columns.length];
+        for (int i = 0; i < columns.length; i++) {
+            names[i] = getColumnAlias(tableAlias, columns[i]);
+		}
+        return names;
+    }
     private String getColumnAlias(String tableAlias, String column) {
         String alias = tableAlias + "_" + column;
         String result = columnNames.get(alias);
@@ -190,7 +206,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         private String propertyName;
         private GetterSetterPair propertyAccess;
         private Class objectType;
-        private String primaryKeyField;
+        private String[] primaryKeyFields;
         protected RecordDescriptor joinDescriptor;
         private Constructor<?> childConstructor;
         protected Object lastParent, lastChild;
@@ -206,7 +222,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
 
             this.attributeDescriptors = elements.toArray(new AttributeDescriptor[0]);
             this.objectType = joinDescriptor.getObjectType();
-            this.primaryKeyField = getColumnAlias(alias, joinDescriptor.getPrimaryKeyField());;
+            this.primaryKeyFields = getColumnAlias(alias, joinDescriptor.getPrimaryKeyFields());;
         }
         
         public GetterSetterPair getFieldAccess(Object obj) {
@@ -228,8 +244,8 @@ public class JoinRecordDescriptor extends RecordDescriptor {
             return " join " + joinDescriptor.getTableName() + " " +  alias + " on " + joinOnExpression;
         }
         
-        public String getPrimaryKeyFiled(){
-            return primaryKeyField;
+        public String[] getPrimaryKeyFields(){
+            return primaryKeyFields;
         }
         
         public Object provideChild(Object parent) throws ReflectiveOperationException {

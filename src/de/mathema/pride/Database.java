@@ -565,7 +565,7 @@ public class Database implements SQLFormatter
 		throws SQLException {
 		try {
 			String update = "update " + getTableName(red) + " set " +
-				red.getUpdateValues(obj, null, updatefields, this) + where(where);
+				red.getUpdateValues(obj, red.getPrimaryKeyFields(), updatefields, this) + where(where);
 			return sqlUpdate(update);
 		}
 		catch(Exception x) { throw processSevereButSQLException(x); }
@@ -576,12 +576,13 @@ public class Database implements SQLFormatter
 		try {
 			String whereString = where2string(where);
 	    	if (where != null && where.requiresBinding()) {
+	    		String[] excludeFields = red.getPrimaryKeyFields();
 				String update = "update " + getTableName(red) + " set " +
-						red.getUpdateValues(null, null, updatefields, this) + " where " + whereString;
+						red.getUpdateValues(null, excludeFields, updatefields, this) + " where " + whereString;
 	            ConnectionAndStatement cns = null;
 	            try {
 	            	cns = new ConnectionAndStatement(this, update, true);
-	            	int nextParam = red.getConstraint(obj, updatefields, cns, null, 1);
+	            	int nextParam = red.getUpdateValues(obj, excludeFields, updatefields, cns, null, 1);
 	                where.bind(this, cns, nextParam);
 	                int result = cns.getStatement().executeUpdate();
 	                cns.close();

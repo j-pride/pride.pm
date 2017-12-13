@@ -396,8 +396,7 @@ public class RecordDescriptor
 		throws ReflectiveOperationException, SQLException {
         String values = (baseDescriptor != null) ?
             baseDescriptor.getUpdateValues(obj, excludeAttrs, includeAttrs, db) : "";
-        int startIndex = (baseDescriptor == null && excludeAttrs == null) ? 1 : 0;
-        for (int i = startIndex; i < attrDescriptors.length; i++) {
+        for (int i = 0; i < attrDescriptors.length; i++) {
             if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false)
                 && contains(includeAttrs, attrDescriptors[i].getFieldName(), true))
                 values += "," + attrDescriptors[i].getUpdateValue(obj, db);

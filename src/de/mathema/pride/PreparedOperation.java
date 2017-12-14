@@ -53,25 +53,30 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
 		}
 		finally {
 			stmt.clearParameters();
+			logger.reset();
 		}
 	}
 
 	public void addBatch(Object obj) throws SQLException {
 		try {
 			setParameters(obj);
-			if (db.isLogging()) // Optimization to avoid string assembly if not required
-				db.sqlLog(operation + " using " + obj.toString());
 			stmt.addBatch();
 		}
 		catch(SQLException sqlx) {
 			db.sqlLogError(sqlx);
 			throw sqlx;
 		}
+		finally {
+			logger.reset();
+		}
 	}
 
 	public int[] executeBatch() throws SQLException {
 		try { return stmt.executeBatch(); }
-		finally { stmt.clearBatch(); }
+		finally { 
+		    stmt.clearBatch(); 
+	        logger.reset();
+		}
 	}
 
     public abstract void setParameters(Object obj) throws SQLException;
@@ -107,8 +112,10 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
 	@Override
 	public Database getDatabase() { return db; }
 	
+    @Override
     public void commit(TransactionEvent e) throws SQLException { rollback(e); }
     
+    @Override
     public void rollback(TransactionEvent e) throws SQLException { close(); }
     
     public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/PreparedOperation.java,v 1.1 2001/08/08 14:11:35 lessner Exp $";

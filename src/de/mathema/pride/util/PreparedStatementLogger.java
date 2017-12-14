@@ -3,10 +3,10 @@ package de.mathema.pride.util;
 import de.mathema.pride.Database;
 
 public class PreparedStatementLogger {
-	private final StringBuffer logBuffer;
+	private final String statementContent;
+	private final Database database;
+	private StringBuffer logBuffer;
 	private int logPointer = 0;
-	private String statementContent;
-	private Database database;
 	
 	public PreparedStatementLogger(Database database, String statementContent) {
     	this.database = database;
@@ -15,6 +15,12 @@ public class PreparedStatementLogger {
     	scrollLogToNextBinding();
 	}
 
+	public void reset() {
+		logPointer = 0;
+		logBuffer = new StringBuffer();
+		scrollLogToNextBinding();
+	}
+	
 	public void logBindingAndScroll(Object boundValue, int parameterIndex) {
 		logBuffer.append(database.formatValue(boundValue));
 		scrollLogToNextBinding();

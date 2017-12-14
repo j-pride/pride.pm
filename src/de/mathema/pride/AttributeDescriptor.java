@@ -288,13 +288,12 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         attrValue = pop.getDatabase().formatPreparedValue(attrValue);
         if (attrValue != null) {
             attrValue = wrapArrayTypedValue(pop.getStatement().getConnection(), attrValue);
-			databaseSetMethod.invoke(pop.getStatement(),
-	                                 new Object[] { new Integer(position), attrValue });
+            pop.setBindParameter(databaseSetMethod, position, attrValue);
         }
 	    else {
 	    	int columnType = getColumnType
 	    		(pop.getStatement().getConnection(), pop.getDatabase().getPhysicalTableName(table));
-			pop.getStatement().setNull(position, columnType);
+	    	pop.setBindParameterNull(position, columnType);
 	    }
         return position+1;
     }

@@ -10,9 +10,11 @@
  *******************************************************************************/
 package de.mathema.pride;
 
-import java.sql.Connection;
+import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
+import de.mathema.pride.util.PreparedStatementLogger;
 
 /**
  * Abstract base class for convenient usage of prepared statements.
@@ -29,6 +31,7 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
     protected RecordDescriptor red;
     protected String operation;
     protected Database db;
+    protected PreparedStatementLogger logger;
 
     public PreparedOperation(String operation, RecordDescriptor red) throws SQLException {
         db = DatabaseFactory.getDatabase(red.getContext());
@@ -36,13 +39,12 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
         this.red = red;
         stmt = db.getConnection().prepareStatement(operation);
         db.addListener(this);
+        logger = new PreparedStatementLogger(db, operation);
     }
 
 	public int execute(Object obj) throws SQLException {
 		try {
 			setParameters(obj);
-			if (db.isLogging()) // Optimization to avoid string assembly if not required
-				db.sqlLog(operation + " using " + obj.toString());
 			return stmt.executeUpdate();
 		}
 		catch(SQLException sqlx) {
@@ -73,7 +75,25 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
 	}
 
     public abstract void setParameters(Object obj) throws SQLException;
-
+    
+    @Override
+    public void setBindParameter(Method setter, int parameterIndex, Object preparedValue)
+    		throws ReflectiveOperationException {
+    	if (preparedValue != null) {
+    		logger.logBindingAndScroll(preparedValue, parameterIndex);
+    		setter.invoke(getStatement(),
+                    new Object[] { new Integer(parameterIndex), preparedValue });
+    	} else {
+    		throw new IllegalArgumentException("preparedValue must not be null");
+    	}
+    }
+    
+    @Override
+    public void setBindParameterNull(int parameterIndex, int columnType) throws SQLException {
+		logger.logBindingAndScroll("NULL", parameterIndex);
+		getStatement().setNull(parameterIndex, columnType);
+    }
+    
     public void close() throws SQLException {
         if (stmt != null) {
             stmt.close();

@@ -11,7 +11,7 @@
 package de.mathema.util;
 
 /**
- * Klasse für Implementierung des Singleton-Patterns.
+ * Klasse fuer Implementierung des Singleton-Patterns.
  * <br>Benutzung z.B. mit einer anonymen Klasse:<br>
  * <code>
  * class MyClass {
@@ -36,14 +36,14 @@ public abstract class Singleton
     private boolean creating = false;
     
 /**
- * Eine Klasse die einen Singleton benutzen will, überlädt diese Methode
+ * Eine Klasse die einen Singleton benutzen will, ueberlaedt diese Methode
  * @return description
  */
     protected abstract Object createInstance() throws Exception;
 
 /**
  * implementiert threadsafe, aber effizient den Zugriff auf die
- * Singleton-Instanz und bei Bedarf deren Erzeugung über
+ * Singleton-Instanz und bei Bedarf deren Erzeugung ueber
  * <code>createInstance()</code><br>
  * Synchronisationsmechanismen werden nur benutzt, wenn der Singleton noch
  * nicht erzeugt ist
@@ -53,7 +53,7 @@ public abstract class Singleton
 
 /*
  * benutzt das Pattern double checked locking (D.Schmidt), um den overhead
- * durch Synchronisation auf den benötigten Fall zu reduzieren
+ * durch Synchronisation auf den benoetigten Fall zu reduzieren
  */
         if ( _singleInstance == null )
             synchronized (this) {

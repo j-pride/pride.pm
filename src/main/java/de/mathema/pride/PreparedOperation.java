@@ -13,6 +13,7 @@ package de.mathema.pride;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  * Abstract base class for convenient usage of prepared statements.
@@ -34,7 +35,7 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
         db = DatabaseFactory.getDatabase(red.getContext());
         this.operation = operation;
         this.red = red;
-        stmt = db.getConnection().prepareStatement(operation);
+        stmt = db.getConnection().prepareStatement(operation, Statement.RETURN_GENERATED_KEYS);
         db.addListener(this);
     }
 

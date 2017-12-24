@@ -34,7 +34,33 @@ public class PreparedInsert extends PreparedOperation
 		this.table = red.dbtable;
 		this.autoFields = autoFields;
 	}
-	
+
+    @Override
+    public int execute(Object obj) throws SQLException {
+        int numRows = -1;
+        try {
+            numRows = super.execute(obj);
+            if (numRows == 1 && autoFields != null && autoFields.length > 0) {
+                ResultSet generatedKeys = stmt.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    red.record2object(obj, generatedKeys, ResultIterator.COLUMN_STARTINDEX, autoFields);
+                }
+            }
+        } catch (Exception x) {
+            if (stmt != null) {
+                closeAfterException(x);
+            }
+        }
+        return numRows;
+    }
+
+    public void closeAfterException(Exception x) throws SQLException {
+        if (x instanceof SQLException)
+            db.sqlLogError((SQLException)x);
+        close();
+        db.processSevereButSQLException(x);
+    }
+
     public void setParameters(Object obj) throws SQLException {
 		try { red.getCreationValues(obj, autoFields, this, table, 1); }
 		catch(Exception x) { db.processSevereButSQLException(x); }

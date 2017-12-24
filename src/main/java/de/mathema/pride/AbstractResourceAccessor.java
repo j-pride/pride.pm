@@ -135,6 +135,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 		if (dbType != null) {
 			if(dbType.equalsIgnoreCase(DBType.ORACLE))
 				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
+			if(dbType.equalsIgnoreCase(DBType.HSQL))
+			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
 			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))
 				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.SSS''");
 		}
@@ -144,7 +146,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	/**
 	 * Like {@link #formatTime} but for date values. This function is
      * synchronized due to the fact that DateFormat.format is not!!
-	 * @param time The value to format
+	 * @param date The value to format
 	 * @return The SQL-formatted value
 	 */
     synchronized protected String formatDate(java.sql.Date date) {
@@ -284,7 +286,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
     }
 
     /** Formats an operator for usage in SQL statements.
-	 * @param Any of the operators in {@link WhereCondition.Operator}
+	 * @param operator Any of the operators in {@link WhereCondition.Operator}
 	 * @param value The value to apply the operator to before it is formatted
 	 * @return A valid SQL operator. By default the function just retuns the
 	 *   passed operator as is. If the value is NULL it returns "IS" for

@@ -20,16 +20,12 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import de.mathema.pride.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import de.mathema.pride.Database;
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.ExceptionListener;
-import de.mathema.pride.ResourceAccessor;
 import de.mathema.pride.ResourceAccessor.DBType;
-import de.mathema.pride.ResourceAccessorJ2SE;
 
 /**
  * @author bart57
@@ -64,8 +60,8 @@ public abstract class AbstractPrideTest extends Assert {
                 + "id " + idFieldClassifier + ","
                 + "firstName varchar(50),"
                 + "lastName varchar(50),"
-                + "hireDate date,"
-                + "active " + (isPostgresDB() ? "boolean" : "int") + ","
+                + "hireDate " + (isDBType(DBType.HSQL) ? "timestamp" : "date") + ","
+                + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
                 + "type varchar(10)";
         dropAndCreateTable(TEST_TABLE, columns);
     }
@@ -76,11 +72,11 @@ public abstract class AbstractPrideTest extends Assert {
         DatabaseFactory.getDatabase().commit();
     }
     
-    protected boolean isPostgresDB() {
+    protected boolean isDBType(String type) {
         String dbType = DatabaseFactory.getDatabase().getDBType();
-        return (dbType != null && dbType.equalsIgnoreCase(DBType.POSTGRES));
+        return (dbType != null && dbType.equalsIgnoreCase(type));
     }
-    
+
     protected void createTestTable() throws SQLException {
         createTestTable(DEFAULT_ID_CLASSIFIER);
     }
@@ -153,6 +149,7 @@ public abstract class AbstractPrideTest extends Assert {
 		firstCustomersHiredate = new Date(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse("01.01.2010 13:05:45").getTime());
 
 		Customer c = new Customer(1, "First", "Customer", null, firstCustomersHiredate);
+		Customer[] cArray = (Customer[]) new Customer().queryAll().toArray(100);
 		for (int i = 2; i < count; i++) {
 			String[] name = generateName(i);
 			String firstName = name[0];

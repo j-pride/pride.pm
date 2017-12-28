@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.TimeZone;
 
+import de.mathema.pride.ResourceAccessor;
 import org.junit.Test;
 
 import junit.framework.Assert;
@@ -85,7 +86,7 @@ public class PrideThreadTest extends AbstractPrideTest {
 
     @Override
     public void tearDown() throws Exception {
-        if (!isPostgresDB()) // Posgres blocks on drop table - reason is unclear
+        if (!isDBType(ResourceAccessor.DBType.POSTGRES)) // Posgres blocks on drop table - reason is unclear
             super.tearDown();
     }
 

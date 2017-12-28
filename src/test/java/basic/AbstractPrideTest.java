@@ -149,7 +149,6 @@ public abstract class AbstractPrideTest extends Assert {
 		firstCustomersHiredate = new Date(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse("01.01.2010 13:05:45").getTime());
 
 		Customer c = new Customer(1, "First", "Customer", null, firstCustomersHiredate);
-		Customer[] cArray = (Customer[]) new Customer().queryAll().toArray(100);
 		for (int i = 2; i < count; i++) {
 			String[] name = generateName(i);
 			String firstName = name[0];

@@ -137,9 +137,9 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         for (int i = 0; i < attrDescriptors.length; i++)
             position = record2object(obj, results, position, attrDescriptors[i]);
         
-            for (Join join : joins) {
-                position = record2child(join, obj, results, position);
-            }
+        for (Join join : joins) {
+            position = record2child(join, obj, results, position);
+        }
         
         return position;
     }

@@ -5,31 +5,27 @@ package basic;
  * are made available under the terms of the GNU Lesser General Public
  * License (LGPL) which accompanies this distribution, and is available
  * at http://pride.sourceforge.net/LGPL.html
- * 
+ *
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import junit.framework.Assert;
-
-import org.junit.Test;
 
 import de.mathema.pride.RecordDescriptor;
 import de.mathema.pride.ResultIterator;
+import org.junit.Test;
 
 /**
  * Test of table join functionality
- * 
- * @author Administrator
  */
 public class PrideJoinTest extends AbstractPrideTest {
 
-	@Override
-	public void setUp() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         super.setUp();
         generateCustomer(9);
     }
 
-	@Test
+    @Test
     public void testOuterJoin() throws Exception {
         int nowife = 0;
         boolean firstFound = false;
@@ -40,42 +36,40 @@ public class PrideJoinTest extends AbstractPrideTest {
             if (jc.getFirstName().equals("First")) {
                 firstFound = true;
                 assertNotNull(jc.getWife());
-                assertEquals(jc.getWife().getFirstName(), "Last");
-                assertEquals(jc.getWife().getLastName(), "Customer");
-            }
-            else {
+                assertEquals("Last", jc.getWife().getFirstName());
+                assertEquals("Customer", jc.getWife().getLastName());
+            } else {
                 nowife++;
                 assertTrue(!jc.getFirstName().equals("First"));
                 assertNull(jc.getWife());
             }
-        } while(iter.next());
-        
+        } while (iter.next());
+
         assertEquals(8, nowife);
         assertTrue(firstFound);
     }
 
-	@Test
+    @Test
     public void testInnerJoin() throws Exception {
-    	RecordDescriptor orig = JoinedCustomer.red;
-    	try {
-    		JoinedCustomer.red = JoinedCustomer.innerJoinRed;
-    		int found = 0;
+        RecordDescriptor orig = JoinedCustomer.red;
+        try {
+            JoinedCustomer.red = JoinedCustomer.innerJoinRed;
+            int found = 0;
             JoinedCustomer jc = new JoinedCustomer();
             ResultIterator iter = jc.queryAll();
 
             do {
-            	found++;
-            	assertEquals("First", jc.getFirstName());
-            	assertNotNull(jc.getWife());
-            	assertEquals(jc.getWife().getFirstName(), "Last");
-            	assertEquals(jc.getWife().getLastName(), "Customer");
-            } while(iter.next());
-            
+                found++;
+                assertEquals("First", jc.getFirstName());
+                assertNotNull(jc.getWife());
+                assertEquals("Last", jc.getWife().getFirstName());
+                assertEquals("Customer", jc.getWife().getLastName());
+            } while (iter.next());
+
             assertEquals(1, found);
-    	}
-    	finally {
-    		JoinedCustomer.red = orig;
-    	}
+        } finally {
+            JoinedCustomer.red = orig;
+        }
     }
 
 }

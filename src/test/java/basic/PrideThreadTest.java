@@ -9,20 +9,16 @@ package basic;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import java.sql.Date;
-import java.sql.SQLException;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.TimeZone;
 
+import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.ResourceAccessor;
 import org.junit.Test;
 
-import junit.framework.Assert;
+import java.sql.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 
-import de.mathema.pride.DatabaseFactory;
+import static org.junit.Assume.assumeFalse;
 
 /**
  * Test class for testing concurrent database access from multiple threads
@@ -48,6 +44,8 @@ public class PrideThreadTest extends AbstractPrideTest {
     
 	@Test
     public void testConcurrentWrite() throws Exception {
+        String dbType = DatabaseFactory.getDatabase().getDBType();
+        assumeFalse("Concurrent Write test does not work for MySQL", dbType.equalsIgnoreCase(ResourceAccessor.DBType.MYSQL));
         for (int i = 1; i < NUM_THREADS+1; i++) {
             Writer wr = new Writer(i*OPS_PER_THREAD, OPS_PER_THREAD);
             threads.add(wr);

@@ -10,6 +10,11 @@ matrix:
     - env: DATABASE=mysql
       services: mysql
       before_install: mysql -e 'CREATE DATABASE test;'
-    #- env: DATABASE=oracle
+    - env: DATABASE=oracle
+      services: docker
+      before_install:
+      - docker run --name oracle -d -p 1521:1521 sath89/oracle-xe-11g
+      - docker ps -a
+
 
 script: "mvn -B test -Duser.name=$DATABASE"

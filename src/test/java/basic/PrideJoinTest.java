@@ -25,8 +25,6 @@ public class PrideJoinTest extends AbstractPrideTest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        // FIXME Next line is only to temporarily get Travis CI build fixed.
-        assumeFalse("HSQL join is broken", DatabaseFactory.getDatabase().getDBType().equalsIgnoreCase(ResourceAccessor.DBType.HSQL));
         generateCustomer(9);
     }
 

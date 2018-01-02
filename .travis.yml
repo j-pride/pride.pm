@@ -14,7 +14,7 @@ matrix:
       services: postgresql
       before_install:
       - psql -c 'create database test;' -U postgres
-      - psql -c 'create extension hstore;' -U postgres
+      - psql test -c 'create extension hstore;' -U postgres
     - env: DATABASE=oracle
       services: docker
       before_install:

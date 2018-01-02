@@ -1,3 +1,8 @@
 language: java
+
 env:
-  - user.name=hsql
+  - DATABASE=hsql
+  - DATABASE=mysql
+  - DATABASE=oracle
+
+script: "mvn test -Dpride.test.config.file=$DATABASE.test.config.properties"

@@ -1,8 +1,11 @@
 language: java
 
-env:
-  - DATABASE=hsql
-  - DATABASE=mysql
-  - DATABASE=oracle
+matrix:
+  include:
+    - env: DATABASE=hsql
+    - env: DATABASE=mysql
+      services: myql
+      before_install: mysql -e 'CREATE DATABASE myapp_test;'
+    - env: DATABASE=oracle
 
 script: "mvn test -Duser.name=$DATABASE"

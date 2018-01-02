@@ -26,9 +26,9 @@ public class DerivedRecordDescriptorTest extends AbstractPrideTest {
 	@Override
     public void setUp() throws Exception {
         super.setUp();
-        DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE CUSTOMER_PRIDE_TEST");
+        DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE customer_pride_test");
 		DatabaseFactory.getDatabase().sqlUpdate(
-			"CREATE TABLE CUSTOMER_PRIDE_TEST "
+			"CREATE TABLE customer_pride_test "
 				+ "(id int not null primary key,"
 				+ "firstName varchar(50),"
 				+ "lastName varchar(50),"

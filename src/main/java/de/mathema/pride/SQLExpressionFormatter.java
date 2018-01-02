@@ -15,8 +15,8 @@ import java.util.regex.Pattern;
  * available as (generated) constants and should of course be used even when the SQL
  * becomes rough. The function {@link #format(String, Object...)} in principle works like
  * String.format(), but additionally allows to address the Parameters <i>by name</i> rather
- * than by index. Names are indicated by a leading § character, i.e. you may as well combine
- * % expressions vom String.format with § expressions from SQLExpressionFormatter. The names
+ * than by index. Names are indicated by a leading Â§ character, i.e. you may as well combine
+ * % expressions vom String.format with Â§ expressions from SQLExpressionFormatter. The names
  * are read from the format string and are replaced by their indices according to there
  * accurence. E.g. the string
  * <pre>
@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @author less02
  */
 public class SQLExpressionFormatter {
-    public static char VARIABLE_HEAD = '§';
+    public static char VARIABLE_HEAD = 'Â§';
     public static String VARIABLE_REFERENCE_REGEXP = VARIABLE_HEAD + "[A-Za-z_]+";
 
     public static String format(String formatString, Object... args) {
@@ -44,8 +44,8 @@ public class SQLExpressionFormatter {
     }
 
     private static String replaceVariables(String formatString, List<VariableReference> variables) {
-        //Liste nach Länge der Variablennamen absteigend sortieren, damit z.B. §PROMOTIONS_PARTNER
-        //wegen einer Variable §PROMOTION nicht durch dmd_promotionS_PARTNER ersetzt wird
+        //Liste nach LÃ¤nge der Variablennamen absteigend sortieren, damit z.B. Â§PROMOTIONS_PARTNER
+        //wegen einer Variable Â§PROMOTION nicht durch dmd_promotionS_PARTNER ersetzt wird
         Collections.sort(variables);
         for (VariableReference variable: variables) {
             formatString = formatString.replaceFirst(variable.getVariableName(), "%s");

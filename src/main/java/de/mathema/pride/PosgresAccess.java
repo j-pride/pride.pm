@@ -20,13 +20,16 @@ public class PosgresAccess {
         throws SQLException {
         Object rawArray = ((java.sql.Array)dbValue).getArray();
         Class<?> targetComponentType = targetArrayType.getComponentType();
-        if (targetComponentType.isPrimitive() || targetComponentType.isEnum()) {
+        if (targetComponentType.isPrimitive() || targetComponentType.isEnum() || targetComponentType.isAssignableFrom(String.class)) {
             int arrayLength = Array.getLength(rawArray);
             Object unboxedArray = Array.newInstance(targetComponentType, arrayLength);
             for (int i = 0; i < arrayLength; i++) {
                 Object rawItemValue = Array.get(rawArray, i);
                 if (targetComponentType.isPrimitive()) {
                     Array.set(unboxedArray, i, rawItemValue);
+                }
+                else if (targetComponentType.isAssignableFrom(String.class)) {
+                    Array.set(unboxedArray, i, ("NULL".equals(rawItemValue)) ? null : rawItemValue);
                 }
                 else {
                     Object enumarizedItemValue = Enum.valueOf((Class<Enum>)targetComponentType, rawItemValue.toString());

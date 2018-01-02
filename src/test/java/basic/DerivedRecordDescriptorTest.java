@@ -36,7 +36,7 @@ public class DerivedRecordDescriptorTest extends AbstractPrideTest {
 				+ "hireDate date,"
 				+ "street varchar(50),"
 				+ "city varchar(50),"
-				+ "active int)");
+				+ "active " + (isDBType(ResourceAccessor.DBType.POSTGRES) ? "boolean" : "int") + ");");
 		DatabaseFactory.getDatabase().commit();        
 		DerivedCustomer c = new DerivedCustomer(1,"Hajo","Klick", "Hinter den 7 Bergen", "Maerchenwald", Boolean.TRUE);
 		DatabaseFactory.getDatabase().commit();

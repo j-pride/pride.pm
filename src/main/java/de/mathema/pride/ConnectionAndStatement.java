@@ -7,13 +7,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import de.mathema.pride.util.PreparedStatementLogger;
+
 class ConnectionAndStatement implements PreparedOperationI {
 	final Database database;
 	final Connection con;
 	final Statement stmt;
 	final String statementContent;
-	final StringBuffer logBuffer;
-	private int logPointer = 0;
+	private PreparedStatementLogger logger;
 	
 	ConnectionAndStatement(Database database, String statementContent, boolean prepared) throws SQLException {
 		this.database = database;
@@ -21,12 +22,10 @@ class ConnectionAndStatement implements PreparedOperationI {
         con = database.getConnection();
         if (prepared) {
         	stmt = con.prepareStatement(statementContent);
-        	logBuffer = new StringBuffer();
-        	scrollLogToNextBinding();
+            this.logger = new PreparedStatementLogger(database, statementContent);
         }
         else {
             stmt = con.createStatement();
-        	logBuffer = null;
         	database.sqlLog(statementContent);
         }
         if (database.getStatementTimeout() != null)
@@ -101,24 +100,13 @@ class ConnectionAndStatement implements PreparedOperationI {
 
 	public void setBindParameter(Method setter, int parameterIndex, Object preparedValue)
 		throws ReflectiveOperationException {
-		logBindingAndScroll(preparedValue);
+		logger.logBindingAndScroll(preparedValue, parameterIndex);
 		setter.invoke(getStatement(), parameterIndex, preparedValue);
 	}
 
-	private void logBindingAndScroll(Object boundValue) {
-		logBuffer.append(database.formatValue(boundValue));
-		scrollLogToNextBinding();
-	}
-
-	private void scrollLogToNextBinding() {
-		int nextBinding = statementContent.indexOf("?", logPointer);
-		if (nextBinding == -1) {
-			logBuffer.append(statementContent.substring(logPointer));
-			database.sqlLog(logBuffer.toString());
-		}
-		else {
-			logBuffer.append(statementContent.substring(logPointer, nextBinding+1));
-			logPointer = nextBinding+1;
-		}
+	@Override
+	public void setBindParameterNull(int parameterIndex, int columnType) throws SQLException {
+		logger.logBindingAndScroll("NULL", parameterIndex);
+		getStatement().setNull(parameterIndex, columnType);
 	}
 }

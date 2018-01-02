@@ -46,6 +46,7 @@ public class RecordDescriptor
     protected String dbtable;
     protected AttributeDescriptor[] attrDescriptors;
     protected RecordDescriptor baseDescriptor;
+    protected boolean withBind;
 
     /** Returns <code>true</code> if the passed array of strings contains <code>element</code>.
      * Parameter <tt>onNull</tt> is returned in case the passed string array is <tt>null</tt>.
@@ -174,9 +175,15 @@ public class RecordDescriptor
      * shure to always put the description of the primary key field at the
      * very beginning of the mappings passed in the constructor.
      */
+    @Deprecated
     public String getPrimaryKeyField() {
         return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyField() :
             attrDescriptors[0].getFieldName();
+    }
+
+    public String[] getPrimaryKeyFields() {
+        return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyFields() :
+            new String[]{attrDescriptors[0].getFieldName()};
     }
 
 	public int record2object(Object obj, ResultSet results,
@@ -325,7 +332,7 @@ public class RecordDescriptor
 		throws ReflectiveOperationException, SQLException {
         String constraint = "";
         if (dbfields == null)
-            dbfields = new String[] { getPrimaryKeyField() };
+            dbfields = getPrimaryKeyFields();
         for (int i = 0; i < dbfields.length; i++) {
             if (i > 0)
                 constraint += " and ";
@@ -338,7 +345,7 @@ public class RecordDescriptor
 		throws ReflectiveOperationException {
 		WhereCondition condition = new WhereCondition();
         if (dbfields == null)
-            dbfields = new String[] { getPrimaryKeyField() };
+            dbfields = getPrimaryKeyFields();
         for (int i = 0; i < dbfields.length; i++) {
         	WhereFieldCondition fieldCondition = assembleWhereValue(obj, dbfields[i], byLike, condition.bind);
         	condition = condition.and(fieldCondition);
@@ -389,8 +396,7 @@ public class RecordDescriptor
 		throws ReflectiveOperationException, SQLException {
         String values = (baseDescriptor != null) ?
             baseDescriptor.getUpdateValues(obj, excludeAttrs, includeAttrs, db) : "";
-        int startIndex = (baseDescriptor == null && excludeAttrs == null) ? 1 : 0;
-        for (int i = startIndex; i < attrDescriptors.length; i++) {
+        for (int i = 0; i < attrDescriptors.length; i++) {
             if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false)
                 && contains(includeAttrs, attrDescriptors[i].getFieldName(), true))
                 values += "," + attrDescriptors[i].getUpdateValue(obj, db);
@@ -499,7 +505,17 @@ public class RecordDescriptor
         }
         return mappings.toArray(new String[0][]);
     }
+    
+    
 
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
+    public boolean isWithBind() {
+		return withBind;
+	}
+
+	public void setWithBind(boolean withBind) {
+		this.withBind = withBind;
+	}
+
+	public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
 
 }

@@ -13,7 +13,6 @@ import org.junit.Test;
  *******************************************************************************/
 import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.WhereCondition;
-import junit.framework.Assert;
 
 /**
  * @author bart57
@@ -111,5 +110,5 @@ public class PrideUpdateTest extends AbstractPrideTest {
 		int numUpdates = DatabaseFactory.getDatabase().sqlUpdate(update, "Updated", "Customer");
 		assertEquals(2, numUpdates);
 	}
-	
+
 }

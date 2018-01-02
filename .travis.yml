@@ -5,7 +5,7 @@ matrix:
     - env: DATABASE=hsql
     - env: DATABASE=mysql
       services: mysql
-      before_install: mysql -e 'CREATE DATABASE myapp_test;'
-    - env: DATABASE=oracle
+      before_install: mysql -e 'CREATE DATABASE test;'
+    #- env: DATABASE=oracle
 
-script: "mvn test -Duser.name=$DATABASE"
+script: "mvn -B test -Duser.name=$DATABASE"

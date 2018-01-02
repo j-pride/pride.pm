@@ -49,5 +49,12 @@
         <artifactId>postgresql</artifactId>
         <version>9.1-901-1.jdbc4</version>
     </dependency>
+    <dependency>
+        <groupId>com.oracle</groupId>
+        <artifactId>ojdbc14</artifactId>
+        <version>9.0.2.0.0</version>
+        <scope>system</scope>
+        <systemPath>${basedir}/lib/ojdbc14.jar</systemPath>
+    </dependency>
   </dependencies>
 </project>

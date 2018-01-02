@@ -5,4 +5,4 @@ env:
   - DATABASE=mysql
   - DATABASE=oracle
 
-script: "mvn test -Dpride.test.config.file=$DATABASE.test.config.properties"
+script: "mvn test -Duser.name=$DATABASE"

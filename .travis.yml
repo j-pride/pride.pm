@@ -10,6 +10,9 @@ matrix:
     - env: DATABASE=mysql
       services: mysql
       before_install: mysql -e 'CREATE DATABASE test;'
+    - env: DATABASE=postgres
+      services: postgresql
+      before_install: psql -c 'create database test;' -U postgres
     - env: DATABASE=oracle
       services: docker
       before_install:

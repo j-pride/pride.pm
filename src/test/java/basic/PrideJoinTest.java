@@ -10,12 +10,9 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 
-import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.RecordDescriptor;
-import de.mathema.pride.ResourceAccessor;
 import de.mathema.pride.ResultIterator;
 import org.junit.Test;
-import static org.junit.Assume.assumeFalse;
 
 /**
  * Test of table join functionality

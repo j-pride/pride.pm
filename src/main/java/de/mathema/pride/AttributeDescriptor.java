@@ -10,11 +10,9 @@
  *******************************************************************************/
 package de.mathema.pride;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.*;
-import java.sql.Array;
-
-import org.postgresql.jdbc4.Jdbc4Array;
 
 /** Description of a mapping between a database record field and a JAVA class member.
  *

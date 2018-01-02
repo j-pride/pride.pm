@@ -3,8 +3,6 @@ package de.mathema.pride;
 import java.lang.reflect.Array;
 import java.sql.SQLException;
 
-import org.postgresql.jdbc4.Jdbc4Array;
-
 /**
  * This class encapsulates Postgres access functions which are only available when
  * working with a Postgres database and having the appropriate drivers installed.
@@ -20,7 +18,7 @@ public class PosgresAccess {
 
     public static Object extractArrayFromResultSet(Object dbValue, Class<?> targetArrayType)
         throws SQLException {
-        Object rawArray = ((Jdbc4Array)dbValue).getArray();
+        Object rawArray = ((java.sql.Array)dbValue).getArray();
         Class<?> targetComponentType = targetArrayType.getComponentType();
         if (targetComponentType.isPrimitive() || targetComponentType.isEnum()) {
             int arrayLength = Array.getLength(rawArray);

@@ -60,11 +60,20 @@ public abstract class AbstractPrideTest extends Assert {
                 + "id " + idFieldClassifier + ","
                 + "firstName varchar(50),"
                 + "lastName varchar(50),"
-                + "hireDate " + (isDBType(DBType.HSQL) ? "timestamp" : "date") + ","
+                + "hireDate " + getHireDateColumnTypeBasedOnDBType() + ","
                 + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
                 + "type varchar(10)";
         dropAndCreateTable(TEST_TABLE, columns);
     }
+
+    private String getHireDateColumnTypeBasedOnDBType() {
+		if (isDBType(DBType.HSQL))
+			return "timestamp";
+		else if (isDBType(DBType.MYSQL))
+			return "datetime";
+		else
+			return "date";
+	}
     
     protected void dropAndCreateTable(String table, String columns) throws SQLException {
         dropTestTable(table);

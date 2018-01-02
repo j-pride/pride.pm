@@ -5,6 +5,9 @@
 See license.txt for license conditions!
 See doc/PriDE-History.html for release notes!
 
+## Travis CI Status
+[![Build Status](https://travis-ci.org/j-pride/pride.pm.svg?branch=maven)](https://travis-ci.org/j-pride/pride.pm)
+
 
 ## Building PriDE
 ### Maven Branch (Work in progress!)

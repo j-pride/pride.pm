@@ -14,3 +14,5 @@ workshop
 /target
 test.properties
 test.script
+test.lck
+

@@ -10,6 +10,7 @@
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <scm>
         <connection>scm:git:git://github.com/j-pride/pride.pm.git</connection>
@@ -85,12 +86,11 @@
             <version>9.1-901-1.jdbc4</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc14</artifactId>
-            <version>9.0.2.0.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/lib/ojdbc14.jar</systemPath>
-        </dependency>
+		<dependency>
+			<groupId>com.oracle</groupId>
+			<artifactId>ojdbc14</artifactId>
+			<version>10.2.0.5</version>
+			<scope>test</scope>
+		</dependency>
     </dependencies>
 </project>

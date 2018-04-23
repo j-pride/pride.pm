@@ -20,16 +20,12 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
+import de.mathema.pride.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
-import de.mathema.pride.Database;
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.ExceptionListener;
-import de.mathema.pride.ResourceAccessor;
 import de.mathema.pride.ResourceAccessor.DBType;
-import de.mathema.pride.ResourceAccessorJ2SE;
 
 /**
  * @author bart57
@@ -57,18 +53,33 @@ public abstract class AbstractPrideTest extends Assert {
 	protected Date firstCustomersHiredate;
 
 	protected static final String TEST_TABLE = "customer_pride_test";
+	protected static final String REVISIONING_TEST_TABLE = "R_" + TEST_TABLE;
     protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
-    
+	protected static final String REVISIONED_ID_CLASSIFIER = "int ";
+
+	protected void createTestTable() throws SQLException {
+		createTestTable(DEFAULT_ID_CLASSIFIER);
+	}
+
     protected void createTestTable(String idFieldClassifier) throws SQLException {
-        String columns = ""
-                + "id " + idFieldClassifier + ","
-                + "firstName varchar(50),"
-                + "lastName varchar(50),"
-                + "hireDate date,"
-                + "active " + (isPostgresDB() ? "boolean" : "int") + ","
-                + "type varchar(10)";
-        dropAndCreateTable(TEST_TABLE, columns);
+		dropAndCreateTable(TEST_TABLE, getTestTableColumns(idFieldClassifier));
     }
+
+	protected void createRevisioningTestTable() throws SQLException {
+		String columns = getTestTableColumns(REVISIONED_ID_CLASSIFIER) + ","
+				+ RevisionedRecordDescriptor.COLUMN_REVISION_TIMESTAMP + " timestamp";
+		dropAndCreateTable(REVISIONING_TEST_TABLE, columns);
+	}
+
+	private String getTestTableColumns(String idFieldClassifier) {
+		return ""
+				+ "id " + idFieldClassifier + ","
+				+ "firstName varchar(50),"
+				+ "lastName varchar(50),"
+				+ "hireDate date,"
+				+ "active " + (isPostgresDB() ? "boolean" : "int") + ","
+				+ "type varchar(10)";
+	}
     
     protected void dropAndCreateTable(String table, String columns) throws SQLException {
         dropTestTable(table);
@@ -79,10 +90,6 @@ public abstract class AbstractPrideTest extends Assert {
     protected boolean isPostgresDB() {
         String dbType = DatabaseFactory.getDatabase().getDBType();
         return (dbType != null && dbType.equalsIgnoreCase(DBType.POSTGRES));
-    }
-    
-    protected void createTestTable() throws SQLException {
-        createTestTable(DEFAULT_ID_CLASSIFIER);
     }
 
     /**
@@ -104,6 +111,7 @@ public abstract class AbstractPrideTest extends Assert {
 		randi = new Random();
 		initDB();
         createTestTable();
+        createRevisioningTestTable();
 	}
 
 	public static void initDB() throws Exception {

@@ -57,7 +57,7 @@ public class PrideInsertTest extends AbstractPrideTest {
 	public void testAutoInsert() throws Exception {
         String autoIncClassifier = getAutoIncClassifier();
         if (autoIncClassifier == null) {
-            System.err.println("Don't no how to auto-increment for database of type " +
+            System.err.println("Don't know how to auto-increment for database of type " +
                 DatabaseFactory.getResourceAccessor().getDBType() + ", skipping testAutoInsert");
             return;
         }

@@ -28,6 +28,13 @@ public class PreparedUpdate extends PreparedOperation
 			  red.getConstraint(null, dbkeyfields, false, DatabaseFactory.getDatabase(red.getContext())), red);
 		this.dbkeyfields = dbkeyfields;
 		this.updatefields = updatefields;
+		if (red.isRevisioned()) {
+		    if (this.updatefields != null) {
+		        throw new BatchUpdateRevisioningEnabledException("Usage of RevisionedRecordDescriptor with updateFields will not work." +
+                        " Turn off revisioning in the RecordDescriptor and do revisioning manually.");
+            }
+			revisioningPreparedInsert = new PreparedInsert(((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor());
+		}
 	}
 
 	public PreparedUpdate(String[] dbkeyfields, RecordDescriptor red)
@@ -47,7 +54,7 @@ public class PreparedUpdate extends PreparedOperation
 		}
 		catch(Exception x) { db.processSevereButSQLException(x); }
 	}
-	
+
     public final static String REVISION_ID = "$Header$";
 }
 

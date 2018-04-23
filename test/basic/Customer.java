@@ -9,10 +9,12 @@ package basic;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import java.sql.SQLException;
-import java.util.Date;
 
 import de.mathema.pride.RecordDescriptor;
+import de.mathema.pride.RevisionedRecordDescriptor;
+
+import java.sql.SQLException;
+import java.util.Date;
 
 /**
  * @author bart57

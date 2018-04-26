@@ -50,6 +50,9 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
 	public int execute(Object obj) throws SQLException {
 		try {
 			setParameters(obj);
+			if (red.isRevisioned()) {
+				revisioningPreparedInsert.execute(obj);
+			}
 			return stmt.executeUpdate();
 		}
 		catch(SQLException sqlx) {

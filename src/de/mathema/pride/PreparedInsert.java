@@ -43,8 +43,4 @@ public class PreparedInsert extends PreparedOperation
 		catch(Exception x) { db.processSevereButSQLException(x); }
     }
 
-    public final static String REVISION_ID = "$Header$";
 }
-
-/* $Log: $
- */

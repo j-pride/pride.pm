@@ -12,7 +12,6 @@ public class RevisionedRecordDescriptor extends RecordDescriptor {
 
     public static final String COLUMN_REVISION_TIMESTAMP = "REVISION_TIMESTAMP";
 
-    private boolean revisioning = true;
     private final String revisionTableName;
     private RecordDescriptor recordDescriptorForRevisioning;
 
@@ -54,12 +53,12 @@ public class RevisionedRecordDescriptor extends RecordDescriptor {
     }
 
     protected String[][] buildRevisioningAttributeMap() {
-        List<String[]> filteredAttributes = filterRawAttributeMapForRevisioning();
+        List<String[]> filteredAttributes = extractRawAttributeMapForRevisioning();
         filteredAttributes.add(new String[]{ COLUMN_REVISION_TIMESTAMP, "systimestamp", null, FLAG_IS_REVISIONED, Timestamp.class.getName()});
         return filteredAttributes.toArray(new String[0][]);
     }
 
-    private List<String[]> filterRawAttributeMapForRevisioning() {
+    public List<String[]> extractRawAttributeMapForRevisioning() {
         List<String[]> filteredAttributeMap = new ArrayList<>();
         for (String[] attribute : getRawAttributeMap()) {
             if (revisioningEnabled(attribute)) {
@@ -84,10 +83,7 @@ public class RevisionedRecordDescriptor extends RecordDescriptor {
 
     @Override
     public boolean isRevisioned() {
-        return revisioning;
+        return true;
     }
 
-    public void setRevisioning(boolean revisioning) {
-        this.revisioning = revisioning;
-    }
 }

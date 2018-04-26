@@ -21,21 +21,14 @@ public class PrideRevisioningTest extends AbstractPrideTest {
         RevisionedCustomer c2 = new RevisionedCustomer(11);
         c2.setLastName("Mueller");
         c2.update();
-        Thread.sleep(10);
+        waitForRevisionTimestampChange();
         c2.setLastName("Schmidt");
         c2.update();
         DatabaseFactory.getDatabase().commit();
         assertRevisioned(11, "Meyer", "Mueller", "Schmidt");
     }
 
-    @Test(expected = BatchUpdateRevisioningEnabledException.class)
-    public void testExpectErrorForBatchUpdate() throws Exception {
-        RevisionedCustomer rc = new RevisionedCustomer();
-        rc.setLastName("Updated");
-        PreparedUpdate pu = new PreparedUpdate(new String[] { "id" }, new String[] { "lastName" }, rc.getDescriptor());
-    }
-
-    protected void assertRevisioned(long id, String... changedLastNames) throws Exception {
+    static void assertRevisioned(long id, String... changedLastNames) throws Exception {
         WhereCondition where = new WhereCondition()
                 .and("id", id)
                 .orderBy(RevisionedRecordDescriptor.COLUMN_REVISION_TIMESTAMP, WhereCondition.Direction.ASC);
@@ -47,4 +40,9 @@ public class PrideRevisioningTest extends AbstractPrideTest {
             assertEquals(id, customerRevisions[i].getId());
         }
     }
+
+    static void waitForRevisionTimestampChange() throws InterruptedException {
+        Thread.sleep(1);
+    }
+
 }

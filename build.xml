@@ -13,7 +13,7 @@
 
 	<property file="${basedir}/../env/dmd4000.properties" />
 
-	<property name="pride.version" value="3.0.0" />
+	<property name="pride.version" value="3.0.1" />
 
 	<property name="pride.home" location="." /> 
 <!--

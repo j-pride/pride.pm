@@ -1,4 +1,4 @@
-# PriDE 3.0.0, 2017-11-17
+# PriDE 3.0.1, 2018-04-27
 
 (c) The PriDE Open Source Team
 

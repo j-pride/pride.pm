@@ -35,6 +35,7 @@ public class PreparedUpdate extends PreparedOperation
             RevisionedRecordDescriptor revisionedRed = (RevisionedRecordDescriptor) red;
             revisioningChecks(dbkeyfields, updatefields, checkRevisioningIntegrity, revisionedRed);
             revisioningPreparedInsert = new PreparedInsert(revisionedRed.getRevisioningRecordDescriptor());
+            db.addListener(revisioningPreparedInsert);
 		}
 	}
 

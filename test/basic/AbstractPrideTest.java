@@ -62,23 +62,23 @@ public abstract class AbstractPrideTest extends Assert {
 	}
 
     protected void createTestTable(String idFieldClassifier) throws SQLException {
-		dropAndCreateTable(TEST_TABLE, getTestTableColumns(idFieldClassifier));
+		dropAndCreateTable(TEST_TABLE, getTestTableColumns(idFieldClassifier, false));
     }
 
 	protected void createRevisioningTestTable() throws SQLException {
-		String columns = getTestTableColumns(REVISIONED_ID_CLASSIFIER) + ","
+		String columns = getTestTableColumns(REVISIONED_ID_CLASSIFIER, true) + ","
 				+ RevisionedRecordDescriptor.COLUMN_REVISION_TIMESTAMP + " timestamp";
 		dropAndCreateTable(REVISIONING_TEST_TABLE, columns);
 	}
 
-	private String getTestTableColumns(String idFieldClassifier) {
+	private String getTestTableColumns(String idFieldClassifier, boolean revisioningTable) {
 		return ""
 				+ "id " + idFieldClassifier + ","
 				+ "firstName varchar(50),"
 				+ "lastName varchar(50),"
 				+ "hireDate date,"
-				+ "active " + (isPostgresDB() ? "boolean" : "int") + ","
-				+ "type varchar(10)";
+				+ "active " + (isPostgresDB() ? "boolean" : "int")
+				+ (revisioningTable ? "" : (", type varchar(10)"));
 	}
     
     protected void dropAndCreateTable(String table, String columns) throws SQLException {

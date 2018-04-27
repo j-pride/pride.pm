@@ -15,7 +15,6 @@ public class CustomerRevision extends Customer {
                     {"lastName", "getLastName", "setLastName"},
                     {"hireDate", "getHireDate", "setHireDate"},
                     {"active", "getActive", "setActive"},
-                    {"type", "getType", "setType"},
                     {RevisionedRecordDescriptor.COLUMN_REVISION_TIMESTAMP, "getRevisionedTimestamp", "setRevisionedTimestamp"}
             }
             );

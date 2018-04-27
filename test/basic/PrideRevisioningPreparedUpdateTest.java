@@ -31,7 +31,7 @@ public class PrideRevisioningPreparedUpdateTest extends AbstractPrideTest {
 
     @Test
     public void testRevisioningIntegrityComplied() throws Exception {
-        new PreparedUpdate(new String[]{"id"}, new String[]{"firstName", "hireDate", "lastName", "active", "type"}, RevisionedCustomer.red);
+        new PreparedUpdate(new String[]{"id"}, new String[]{"firstName", "hireDate", "lastName", "active"}, RevisionedCustomer.red);
     }
 
     @Test

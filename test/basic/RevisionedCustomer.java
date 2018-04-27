@@ -14,7 +14,7 @@ public class RevisionedCustomer extends Customer {
                     {"lastName", "getLastName", "setLastName"},
                     {"hireDate", "getHireDate", "setHireDate"},
                     {"active", "getActive", "setActive"},
-                    {"type", "getType", "setType"}
+                    {"type", "getType", "setType", RevisionedRecordDescriptor.FLAG_IS_NOT_REVISIONED}
             }
             );
 

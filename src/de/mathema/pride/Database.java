@@ -270,6 +270,13 @@ public class Database implements SQLFormatter
         return numRows;
     }
 
+    protected void revisionEntity(RecordDescriptor red, Object entity) throws SQLException {
+        if (red.isRevisioned()) {
+            RecordDescriptor recordDescriptorForRevisioning = ((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor();
+            createRecord(null, entity, recordDescriptorForRevisioning);
+        }
+    }
+
     /** Like function above but without any auto-field expectations */
     public int sqlUpdate(String operation, Object... params) throws SQLException {
         return sqlUpdate(operation, null, null, null, params);
@@ -528,7 +535,9 @@ public class Database implements SQLFormatter
 			String update = "update " + getTableName(red) + " set " +
 				red.getUpdateValues(obj, dbkeyfields, updatefields, this) +
                 where(where);
-			return sqlUpdate(update);
+			final int result = sqlUpdate(update);
+			revisionEntity(red, obj);
+			return result;
 		}
 		catch(Exception x) {
 			throw processSevereButSQLException(x);
@@ -566,7 +575,9 @@ public class Database implements SQLFormatter
 		try {
 			String update = "update " + getTableName(red) + " set " +
 				red.getUpdateValues(obj, red.getPrimaryKeyFields(), updatefields, this) + where(where);
-			return sqlUpdate(update);
+			final int result = sqlUpdate(update);
+			revisionEntity(red, obj);
+			return result;
 		}
 		catch(Exception x) { throw processSevereButSQLException(x); }
 	}
@@ -627,7 +638,9 @@ public class Database implements SQLFormatter
 			}
             String operation = getInsertionHeader(red, autoFields) + " (" +
                 red.getCreationValues(obj, autoFields, this) + ")";
-	    	return sqlUpdate(operation, autoFields, obj, red);
+			final int result = sqlUpdate(operation, autoFields, obj, red);
+			revisionEntity(red, obj);
+	    	return result;
 	    }
 		catch(Exception x) {
 			throw processSevereButSQLException(x);

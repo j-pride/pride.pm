@@ -33,6 +33,9 @@ public class PreparedInsert extends PreparedOperation
 			  " (" + red.getCreationValues(null, autoFields, DatabaseFactory.getDatabase(red.getContext())) + ")", red);
 		this.table = red.dbtable;
 		this.autoFields = autoFields;
+        if (red.isRevisioned()) {
+            revisioningPreparedInsert = new PreparedInsert(((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor());
+        }
 	}
 	
     public void setParameters(Object obj) throws SQLException {
@@ -40,8 +43,4 @@ public class PreparedInsert extends PreparedOperation
 		catch(Exception x) { db.processSevereButSQLException(x); }
     }
 
-    public final static String REVISION_ID = "$Header$";
 }
-
-/* $Log: $
- */

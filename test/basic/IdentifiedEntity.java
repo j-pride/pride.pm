@@ -11,6 +11,7 @@ package basic;
  *******************************************************************************/
 import de.mathema.pride.MappedObject;
 import de.mathema.pride.RecordDescriptor;
+import de.mathema.pride.RevisionedRecordDescriptor;
 
 /**
  * Base class for all entities being identified by an integer ID field.
@@ -34,7 +35,7 @@ public abstract class IdentifiedEntity extends MappedObject implements Cloneable
 
 	protected static RecordDescriptor red =
 		new RecordDescriptor(IdentifiedEntity.class, null, null, new String[][] {
-			{ "id", "getId", "setId"},
+			{ "id", "getId", "setId" },
 		}
 	);
 

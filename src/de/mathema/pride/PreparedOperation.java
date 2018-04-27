@@ -32,19 +32,27 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
     protected String operation;
     protected Database db;
     protected PreparedStatementLogger logger;
+    protected PreparedInsert revisioningPreparedInsert;
 
     public PreparedOperation(String operation, RecordDescriptor red) throws SQLException {
-        db = DatabaseFactory.getDatabase(red.getContext());
-        this.operation = operation;
-        this.red = red;
-        stmt = db.getConnection().prepareStatement(operation);
-        db.addListener(this);
-        logger = new PreparedStatementLogger(db, operation);
+    	try {
+			db = DatabaseFactory.getDatabase(red.getContext());
+			this.operation = operation;
+			this.red = red;
+			stmt = db.getConnection().prepareStatement(operation);
+			db.addListener(this);
+			logger = new PreparedStatementLogger(db, operation);
+		} catch (Exception e) {
+    		db.processSevereButSQLException(e);
+		}
     }
 
 	public int execute(Object obj) throws SQLException {
 		try {
 			setParameters(obj);
+			if (red.isRevisioned()) {
+				revisioningPreparedInsert.execute(obj);
+			}
 			return stmt.executeUpdate();
 		}
 		catch(SQLException sqlx) {
@@ -61,6 +69,9 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
 		try {
 			setParameters(obj);
 			stmt.addBatch();
+			if (red.isRevisioned()) {
+				revisioningPreparedInsert.addBatch(obj);
+			}
 		}
 		catch(SQLException sqlx) {
 			db.sqlLogError(sqlx);
@@ -72,7 +83,12 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
 	}
 
 	public int[] executeBatch() throws SQLException {
-		try { return stmt.executeBatch(); }
+		try {
+			if (red.isRevisioned()) {
+				revisioningPreparedInsert.executeBatch();
+			}
+			return stmt.executeBatch();
+		}
 		finally { 
 		    stmt.clearBatch(); 
 	        logger.reset();
@@ -104,6 +120,10 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
             stmt.close();
             stmt = null;
         }
+        if (revisioningPreparedInsert != null) {
+        	revisioningPreparedInsert.close();
+        	revisioningPreparedInsert = null;
+		}
     }
 
 	@Override

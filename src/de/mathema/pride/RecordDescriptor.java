@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class RecordDescriptor
 {
-	/** Defined constants for the ResultSet extraction mode of this descriptor
+    /** Defined constants for the ResultSet extraction mode of this descriptor
 	 * and its depending {@link AttributeDescriptor}s.
 	 */
 	public static interface ExtractionMode {
@@ -505,12 +505,17 @@ public class RecordDescriptor
         }
         return mappings.toArray(new String[0][]);
     }
-    
-    
+
+    public void calculateUpdateChecksum(Object obj) {
+    }
 
     public boolean isWithBind() {
 		return withBind;
 	}
+
+	public boolean isRevisioned() {
+        return false;
+    }
 
 	public void setWithBind(boolean withBind) {
 		this.withBind = withBind;

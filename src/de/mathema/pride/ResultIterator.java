@@ -110,7 +110,10 @@ public class ResultIterator
         boolean b = results.next();
         if (b) {
             if (red != null) {
-				try { red.record2object(obj, results, COLUMN_STARTINDEX); }
+				try {
+					red.record2object(obj, results, COLUMN_STARTINDEX);
+					red.calculateUpdateChecksum(obj);
+				}
 				catch(Exception x) { db.processSevereButSQLException(x); }
 	    	}
         }

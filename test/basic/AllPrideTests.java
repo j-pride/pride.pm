@@ -50,6 +50,8 @@ public class AllPrideTests {
 		add(suite, PrideResourceTest.class);
 		add(suite, DerivedRecordDescriptorTest.class);
 		add(suite, PrideSQLExpressionFormatterTest.class);
+		add(suite, PrideRevisioningTest.class);
+		add(suite, PrideRevisioningPreparedUpdateTest.class);
 	
 		AbstractPrideTest.initDB(); // Required to make the following DB type checks work
 		

@@ -10,11 +10,13 @@
  *******************************************************************************/
 package de.mathema.pride;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.*;
-import java.sql.Array;
 
-import org.postgresql.jdbc4.Jdbc4Array;
+import static de.mathema.pride.RevisionedRecordDescriptor.FLAG_IS_NOT_REVISIONED;
+import static de.mathema.pride.RevisionedRecordDescriptor.FLAG_IS_REVISIONED;
+
 
 /** Description of a mapping between a database record field and a JAVA class member.
  *
@@ -25,7 +27,8 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     private static final int FIELDNAME = 0;
     private static final int GETMETHOD = 1;
     private static final int SETMETHOD = 2;
-    private static final int FIELDTYPE = 3;
+    public static final int REVISIONINGFLAG = 3;
+    private static final int FIELDTYPE = 4;
 
     protected String databaseFieldName;
     protected int databaseColumnType;
@@ -43,6 +46,11 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 	 * {@link RecordDescriptor} for details.
 	 */
 	protected int extractionMode;
+
+    /**
+     * Specifies if the column is used for revisioning
+     */
+	protected boolean revisioning;
 
     /** True if the attribute represented by this descriptor is of a primitive type */
     protected boolean isPrimitive;
@@ -74,6 +82,8 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 		throws IllegalDescriptorException {
 		this.extractionMode = extractionMode;
 		databaseFieldName = attrInfo[FIELDNAME];
+		revisioning = (attrInfo.length > REVISIONINGFLAG) ?
+                ! FLAG_IS_NOT_REVISIONED.equals(attrInfo[REVISIONINGFLAG]) : true;
 
 		fieldAccess = new GetterSetterPair(objectType, attrInfo[GETMETHOD], attrInfo[SETMETHOD]);
 	
@@ -123,6 +133,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         extractionMode = ad.extractionMode;
         isPrimitive = ad.isPrimitive;
         enumType = ad.enumType;
+        revisioning = ad.revisioning;
     }
 
     /** Returns the database field name */
@@ -264,7 +275,15 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      */
     public String getCreationValue(Object obj, Database db)
 		throws ReflectiveOperationException {
-        return (obj != null) ? db.formatValue(getValue(obj)) : "?";
+        if (fieldAccess.isConstantGetValue()) {
+            return (String) getValue(obj);
+        }
+        else if (obj != null) {
+            return db.formatValue(getValue(obj));
+        }
+        else {
+            return "?";
+        }
     }
 
     /** Writes an attribute of the passed value object to a {@link PreparedOperation}
@@ -286,7 +305,10 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 				("No prepared statement writer for " + databaseFieldName);
         Object attrValue = getValue(obj);
         attrValue = pop.getDatabase().formatPreparedValue(attrValue);
-        if (attrValue != null) {
+        if (fieldAccess.isConstantGetValue()) {
+            return position + 1;
+        }
+        else if (attrValue != null) {
             attrValue = wrapArrayTypedValue(pop.getStatement().getConnection(), attrValue);
             pop.setBindParameter(databaseSetMethod, position, attrValue);
         }
@@ -306,7 +328,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     }
 
     public String[] getRawAttributeMap() {
-        return new String[] { databaseFieldName, fieldAccess.getterName(), fieldAccess.setterName() };
+        return new String[] { databaseFieldName, fieldAccess.getterName(), fieldAccess.setterName(), revisioning ? FLAG_IS_REVISIONED : FLAG_IS_NOT_REVISIONED};
     }
     
     public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/AttributeDescriptor.java-arc   1.2   06 Sep 2002 14:54:18   math19  $";

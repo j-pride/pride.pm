@@ -3,9 +3,23 @@ package de.mathema.pride;
 import java.lang.reflect.Method;
 
 public class GetterSetterPair {
+    public static final String GET_METHOD_PREFIX = "get";
+    public static final String SET_METHOD_PREFIX = "set";
+
     protected Method[] getMethod;
     protected Method setMethod;
-    
+    private String constantGetValue;
+
+    public GetterSetterPair(Class<?> objectType, String getterName, String setterName) {
+        if (getterName.startsWith(GET_METHOD_PREFIX)) {
+            getMethod = new Method[1];
+        }
+        else {
+            constantGetValue = getterName;
+        }
+        initSetterAndLastGetter(objectType, getterName, setterName);
+    }
+
     public GetterSetterPair(Class<?> objectType, String propertyNameChain) {
         String[] propertyNames = propertyNameChain.split("\\.");
         getMethod = new Method[propertyNames.length];
@@ -18,11 +32,11 @@ public class GetterSetterPair {
     }
     
     protected static String toGetterName(String propertyName) {
-        return "get" + propertyNameFirstLetterUp(propertyName);
+        return GET_METHOD_PREFIX + propertyNameFirstLetterUp(propertyName);
     }
     
     protected static String toSetterName(String propertyName) {
-        return "set" + propertyNameFirstLetterUp(propertyName);
+        return SET_METHOD_PREFIX + propertyNameFirstLetterUp(propertyName);
     }
     
     protected static String propertyNameFirstLetterUp(String propertyName) {
@@ -30,14 +44,14 @@ public class GetterSetterPair {
         return firstLetterUpper + propertyName.substring(1);
     }
 
-    public GetterSetterPair(Class<?> objectType, String getterName, String setterName) {
-        getMethod = new Method[1];
-        initSetterAndLastGetter(objectType, getterName, setterName);
-    }
-    
     public void initSetterAndLastGetter(Class<?> objectType, String getterName, String setterName) {
-        getMethod[getMethod.length-1] = findGetter(objectType, getterName);
-    
+        if (!isConstantGetValue()) {
+            getMethod[getMethod.length - 1] = findGetter(objectType, getterName);
+        }
+        if (setterName == null) {
+            return;
+        }
+
         /* Find the setter method for this attribute, which is a little more difficult as we can't be shure about the
          * parameter type. So we first try to find a setter which matches the getter method's type. If there is no
          * matching one, we look it up by name and assume the first one being suitable.
@@ -91,6 +105,8 @@ public class GetterSetterPair {
     }
 
     public Object get(Object obj) throws ReflectiveOperationException {
+        if (isConstantGetValue())
+            return constantGetValue;
         return get(obj, getMethod.length);
     }
 
@@ -108,10 +124,12 @@ public class GetterSetterPair {
     }
 
     public void set(Object obj, Object value) throws ReflectiveOperationException {
+        if (setMethod == null) return;
         set(obj, value, getMethod.length-1);
     }
 
     public void set(Object obj, Object value, int depth) throws ReflectiveOperationException {
+        if (setMethod == null) return;
         for (int i = 0; i < depth; i++) {
             obj = getMethod[i].invoke(obj);
             if (obj == null)
@@ -121,5 +139,8 @@ public class GetterSetterPair {
             throw new IllegalArgumentException("Target (sub) object is null");
         setMethod.invoke(obj, value);
     }
-    
+
+    public boolean isConstantGetValue() {
+        return this.constantGetValue != null;
+    }
 }

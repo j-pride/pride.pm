@@ -34,8 +34,7 @@ public class PreparedInsert extends PreparedOperation
 		this.table = red.dbtable;
 		this.autoFields = autoFields;
         if (red.isRevisioned()) {
-            revisioningPreparedInsert = new PreparedInsert(((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor());
-            db.addListener(revisioningPreparedInsert);
+			revisioningPreparedInsert = new PreparedInsert(((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor());
         }
 	}
 	

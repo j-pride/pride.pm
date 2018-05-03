@@ -15,4 +15,4 @@ workshop
 test.properties
 test.script
 test.lck
-
+*.eml

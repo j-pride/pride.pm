@@ -40,12 +40,7 @@ public class PreparedInsert extends PreparedOperation
         int numRows = -1;
         try {
             numRows = super.execute(obj);
-            if (numRows == 1 && autoFields != null && autoFields.length > 0) {
-                ResultSet generatedKeys = stmt.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    red.record2object(obj, generatedKeys, ResultIterator.COLUMN_STARTINDEX, autoFields);
-                }
-            }
+            db.extractAutofieldValuesForObject(numRows, autoFields, obj, stmt, red);
         } catch (Exception x) {
             if (stmt != null) {
                 closeAfterException(x);

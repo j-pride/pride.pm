@@ -249,15 +249,13 @@ public class Database implements SQLFormatter
         try {
         	cns = new ConnectionAndStatement(this, operation, params);
             String[] autoFieldsForExec = accessor.getAutoFields(cns.stmt, autoFields);
-            if (autoFieldsForExec != null && autoFieldsForExec.length > 0)
+            if (autoFieldsForExec != null && autoFieldsForExec.length > 0) {
                 numRows = cns.executeUpdate(autoFieldsForExec);
-            else
-                numRows = cns.executeUpdate();
-            if (autoFields != null && autoFields.length > 0) {
-                autoResults = accessor.getAutoFieldVals(cns.stmt, autoFields);
-                if (autoResults != null && autoResults.next())
-                    red.record2object(obj, autoResults, ResultIterator.COLUMN_STARTINDEX, autoFields);
             }
+            else {
+                numRows = cns.executeUpdate();
+            }
+            extractAutofieldValuesForObject(numRows, autoFields, obj, cns.stmt, red);
             cns.close();
         }
         catch(Exception x) {
@@ -268,6 +266,15 @@ public class Database implements SQLFormatter
             if (autoResults != null) autoResults.close();
         }
         return numRows;
+    }
+
+    protected void extractAutofieldValuesForObject(int numRows, String[] autoFields, Object obj, Statement stmt, RecordDescriptor red) throws SQLException, ReflectiveOperationException {
+        ResultSet autoResults = null;
+        if (numRows == 1 && autoFields != null && autoFields.length > 0) {
+            autoResults = accessor.getAutoFieldVals(stmt, autoFields);
+            if (autoResults != null && autoResults.next())
+                red.record2object(obj, autoResults, ResultIterator.COLUMN_STARTINDEX, autoFields);
+        }
     }
 
     /** Like function above but without any auto-field expectations */

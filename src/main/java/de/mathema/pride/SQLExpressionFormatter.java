@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @author less02
  */
 public class SQLExpressionFormatter {
-    public static char VARIABLE_HEAD = '§';
+    public static String VARIABLE_HEAD = "§";
     public static String VARIABLE_REFERENCE_REGEXP = VARIABLE_HEAD + "[A-Za-z_]+";
 
     public static String format(String formatString, Object... args) {

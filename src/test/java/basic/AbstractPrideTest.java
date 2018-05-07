@@ -54,15 +54,18 @@ public abstract class AbstractPrideTest extends Assert {
 
 	protected static final String TEST_TABLE = "customer_pride_test";
 	protected static final String REVISIONING_TEST_TABLE = "R_" + TEST_TABLE;
-    protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
+	protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
 	protected static final String REVISIONED_ID_CLASSIFIER = "int ";
-
-	protected void createTestTable() throws SQLException {
-		createTestTable(DEFAULT_ID_CLASSIFIER);
-	}
-
+    
     protected void createTestTable(String idFieldClassifier) throws SQLException {
-		dropAndCreateTable(TEST_TABLE, getTestTableColumns(idFieldClassifier, false));
+        String columns = ""
+                + "id " + idFieldClassifier + ","
+                + "firstName varchar(50),"
+                + "lastName varchar(50),"
+                + "hireDate " + getHireDateColumnTypeBasedOnDBType() + ","
+                + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
+                + "type varchar(10)";
+        dropAndCreateTable(TEST_TABLE, columns);
     }
 
 	protected void createRevisioningTestTable() throws SQLException {
@@ -77,8 +80,17 @@ public abstract class AbstractPrideTest extends Assert {
 				+ "firstName varchar(50),"
 				+ "lastName varchar(50),"
 				+ "hireDate date,"
-				+ "active " + (isPostgresDB() ? "boolean" : "int")
+				+ "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int")
 				+ (revisioningTable ? "" : (", type varchar(10)"));
+	}
+
+    private String getHireDateColumnTypeBasedOnDBType() {
+		if (isDBType(DBType.HSQL))
+			return "timestamp";
+		else if (isDBType(DBType.MYSQL))
+			return "datetime";
+		else
+			return "date";
 	}
     
     protected void dropAndCreateTable(String table, String columns) throws SQLException {
@@ -87,9 +99,13 @@ public abstract class AbstractPrideTest extends Assert {
         DatabaseFactory.getDatabase().commit();
     }
     
-    protected boolean isPostgresDB() {
+    protected boolean isDBType(String type) {
         String dbType = DatabaseFactory.getDatabase().getDBType();
-        return (dbType != null && dbType.equalsIgnoreCase(DBType.POSTGRES));
+        return (dbType != null && dbType.equalsIgnoreCase(type));
+    }
+
+    protected void createTestTable() throws SQLException {
+        createTestTable(DEFAULT_ID_CLASSIFIER);
     }
 
     /**

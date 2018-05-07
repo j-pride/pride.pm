@@ -10,7 +10,6 @@
  *******************************************************************************/
 package de.mathema.pride;
 
-import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -520,6 +519,10 @@ public class RecordDescriptor
 	public void setWithBind(boolean withBind) {
 		this.withBind = withBind;
 	}
+
+	protected static String constantValue(String value) {
+        return GetterSetterPair.CONSTANT_VALUE_PREFIX + value;
+    }
 
 	public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
 

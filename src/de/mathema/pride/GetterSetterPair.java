@@ -5,17 +5,18 @@ import java.lang.reflect.Method;
 public class GetterSetterPair {
     public static final String GET_METHOD_PREFIX = "get";
     public static final String SET_METHOD_PREFIX = "set";
+    public static final String CONSTANT_VALUE_PREFIX = "#";
 
     protected Method[] getMethod;
     protected Method setMethod;
     private String constantGetValue;
 
     public GetterSetterPair(Class<?> objectType, String getterName, String setterName) {
-        if (getterName.startsWith(GET_METHOD_PREFIX)) {
-            getMethod = new Method[1];
+        if (getterName.startsWith(CONSTANT_VALUE_PREFIX)) {
+            constantGetValue = getterName.substring(1);
         }
         else {
-            constantGetValue = getterName;
+            getMethod = new Method[1];
         }
         initSetterAndLastGetter(objectType, getterName, setterName);
     }

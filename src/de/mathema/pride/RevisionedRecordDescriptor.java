@@ -3,6 +3,7 @@ package de.mathema.pride;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
+
 import static de.mathema.pride.AttributeDescriptor.REVISIONINGFLAG;
 
 public class RevisionedRecordDescriptor extends RecordDescriptor {
@@ -54,7 +55,7 @@ public class RevisionedRecordDescriptor extends RecordDescriptor {
 
     protected String[][] buildRevisioningAttributeMap() {
         List<String[]> filteredAttributes = extractRawAttributeMapForRevisioning();
-        filteredAttributes.add(new String[]{ COLUMN_REVISION_TIMESTAMP, "systimestamp", null, FLAG_IS_REVISIONED, Timestamp.class.getName()});
+        filteredAttributes.add(new String[]{ COLUMN_REVISION_TIMESTAMP, constantValue("systimestamp"), null, FLAG_IS_REVISIONED, Timestamp.class.getName()});
         return filteredAttributes.toArray(new String[0][]);
     }
 

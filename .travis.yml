@@ -1,0 +1,31 @@
+language: java
+
+cache:
+  directories:
+    - "$HOME/.m2/repository"
+
+matrix:
+  include:
+    - env: DATABASE=hsql
+    - env: DATABASE=mysql
+      services: mysql
+      before_install: mysql -e 'CREATE DATABASE test;'
+    - env: DATABASE=postgres
+      services: postgresql
+      before_install:
+      - psql -c 'create database test;' -U postgres
+      - psql test -c 'create extension hstore;' -U postgres
+    - env: DATABASE=oracle
+      services: docker
+      before_install:
+      - docker run --name oracle -d -p 1521:1521 sath89/oracle-xe-11g
+      - docker ps -a
+      - docker exec -i oracle bash -c 'until echo -e "WHENEVER SQLERROR EXIT SQL.SQLCODE \n select 1 from dual;" | sqlplus -s system/oracle > /dev/null; do echo "Waiting for Oracle XE to start...($(date))"; sleep 15; done'
+      - echo "Give oracle more time to come up..." ; sleep 15
+    - env: DATABASE=db2
+      services: docker
+      before_install:
+      - docker run -d -p 50000:50000 -e DB2INST1_PASSWORD=db2inst1-pwd -e LICENSE=accept  ibmcom/db2express-c:latest db2start
+      - docker ps -a
+
+script: "mvn -B test -Duser.name=$DATABASE"

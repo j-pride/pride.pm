@@ -11,8 +11,8 @@ lib/pride.jar
 /release
 workshop
 *.log
-*.eml
 /target
 test.properties
 test.script
 test.lck
+*.eml

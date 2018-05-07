@@ -1,10 +1,7 @@
 package basic;
 
-import java.util.Date;
-
-import org.junit.Test;
-
 import de.mathema.pride.SQLExpressionFormatter;
+import org.junit.Test;
 
 public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
 

@@ -10,8 +10,7 @@
  *******************************************************************************/
 package de.mathema.pride;
 
-import java.sql.*;
-import java.lang.reflect.InvocationTargetException;
+import java.sql.SQLException;
 
 /**
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>

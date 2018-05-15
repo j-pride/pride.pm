@@ -28,4 +28,4 @@ matrix:
       - docker run -d -p 50000:50000 -e DB2INST1_PASSWORD=db2inst1-pwd -e LICENSE=accept  ibmcom/db2express-c:latest db2start
       - docker ps -a
 
-script: "mvn -B test -Duser.name=$DATABASE"
+script: "mvn -B test -Duser.name=$DATABASE --settings config/mvnsettings.xml"

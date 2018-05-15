@@ -17,6 +17,13 @@
     </scm>
 	
 	<repositories>
+	    <repository>
+          <id>central</id>
+          <url>https://repo1.maven.org/maven2</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+        </repository>
 		<repository>
 			<id>maven.oracle.com</id>
 			<releases>
@@ -31,6 +38,13 @@
 	</repositories>
 
 	<pluginRepositories>
+	    <pluginRepository>
+          <id>central</id>
+          <url>https://repo1.maven.org/maven2</url>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+        </pluginRepository>
 		<pluginRepository>
 			<id>maven.oracle.com</id>
 			<url>https://maven.oracle.com</url>

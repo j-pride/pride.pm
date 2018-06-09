@@ -10,13 +10,13 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 
-import de.mathema.pride.RecordDescriptor;
-import de.mathema.pride.ResultIterator;
+import de.mathema.pride.*;
+import org.junit.Assume;
 import org.junit.Test;
-
 /**
  * Test of table join functionality
  */
+@SkipForDBType(ResourceAccessor.DBType.HSQL)
 public class PrideJoinTest extends AbstractPrideTest {
 
     @Override

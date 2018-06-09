@@ -4,7 +4,7 @@ import de.mathema.pride.*;
 import org.junit.Test;
 
 import java.util.Date;
-
+@NeedsDBType(ResourceAccessor.DBType.ORACLE)
 public class PrideRevisioningTest extends AbstractPrideTest {
 
     @Test

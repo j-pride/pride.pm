@@ -3,6 +3,7 @@ package basic;
 import de.mathema.pride.BatchUpdateRevisioningException;
 import de.mathema.pride.DatabaseFactory;
 import de.mathema.pride.PreparedUpdate;
+import de.mathema.pride.ResourceAccessor;
 import org.junit.Test;
 
 import java.util.Date;
@@ -10,6 +11,7 @@ import java.util.Date;
 import static basic.PrideRevisioningTest.assertRevisioned;
 import static basic.PrideRevisioningTest.waitForRevisionTimestampChange;
 
+@NeedsDBType(ResourceAccessor.DBType.ORACLE)
 public class PrideRevisioningPreparedUpdateTest extends AbstractPrideTest {
 
     PrideRevisioningTest revisioningTest = new PrideRevisioningTest();

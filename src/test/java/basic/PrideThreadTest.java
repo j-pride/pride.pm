@@ -28,6 +28,7 @@ import static org.junit.Assume.assumeFalse;
  * 
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
+@SkipForDBType(ResourceAccessor.DBType.HSQL)
 public class PrideThreadTest extends AbstractPrideTest {
 
     private static final int NUM_THREADS = 2;
@@ -36,11 +37,6 @@ public class PrideThreadTest extends AbstractPrideTest {
     
     private HashSet threads = new HashSet();
     private Exception lastThreadException;
-
-    @Override
-    public void setUp() throws Exception {
-        super.setUp();
-    }
     
 	@Test
     public void testConcurrentWrite() throws Exception {

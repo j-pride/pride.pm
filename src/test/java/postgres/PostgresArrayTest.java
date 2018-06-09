@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import basic.NeedsDBType;
+import de.mathema.pride.ResourceAccessor;
 import org.junit.Test;
 
 import de.mathema.pride.PreparedInsert;
@@ -12,6 +14,7 @@ import de.mathema.pride.PreparedInsert;
 import basic.CustomerType;
 import basic.AbstractPrideTest;
 
+@NeedsDBType(ResourceAccessor.DBType.POSTGRES)
 public class PostgresArrayTest extends AbstractPrideTest {
     protected static final String ARRAY_TEST_TABLE = "customer_pride_array_test";
     protected static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");

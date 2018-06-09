@@ -14,15 +14,13 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Properties;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 import de.mathema.pride.*;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Assume;
 import org.junit.Before;
 
 import de.mathema.pride.ResourceAccessor.DBType;
@@ -37,6 +35,7 @@ import de.mathema.pride.ResourceAccessor.DBType;
  * and Provides a useful Method to generate Testdata
  */
 public abstract class AbstractPrideTest extends Assert {
+	private static final String DEFAULT_CONFIG = "config/hsql.test.config.properties";
 
 	private Random randi = null;
 	private String[][] names = new String[][] {
@@ -126,6 +125,7 @@ public abstract class AbstractPrideTest extends Assert {
 	public void setUp() throws Exception {
 		randi = new Random();
 		initDB();
+		checkIfTestShouldBeSkipped();
         createTestTable();
         createRevisioningTestTable();
 	}
@@ -138,6 +138,20 @@ public abstract class AbstractPrideTest extends Assert {
             DatabaseFactory.setExceptionListener(exlistener);
             DatabaseFactory.setDatabaseName(testConfig.getProperty("pride.db"));
 	}
+
+	private void checkIfTestShouldBeSkipped() {
+        final String currentDbType = DatabaseFactory.getDatabase().getDBType();
+        if (this.getClass().isAnnotationPresent(NeedsDBType.class)) {
+			NeedsDBType annotation = this.getClass().getAnnotation(NeedsDBType.class);
+            String[] supportedDBTypes = annotation.value();
+            Assume.assumeTrue(annotation.message(), Arrays.asList(supportedDBTypes).contains(currentDbType));
+        }
+        if (this.getClass().isAnnotationPresent(SkipForDBType.class)) {
+			SkipForDBType annotation = this.getClass().getAnnotation(SkipForDBType.class);
+            String[] skippedDBTypes = annotation.value();
+            Assume.assumeFalse(annotation.message(), Arrays.asList(skippedDBTypes).contains(currentDbType));
+        }
+    }
 	
 	private static Properties determineDatabaseTestConfiguration() throws IOException {
 		String configFileName = System.getProperty("pride.test.config.file");
@@ -146,7 +160,9 @@ public abstract class AbstractPrideTest extends Assert {
 			configFileName = "config/" + currentUser + ".test.config.properties";
 		}
 		if (!new File(configFileName).exists()) {
-			throw new IllegalArgumentException("Can't determine database configuration - tried to read from file: " + configFileName);
+			System.err.println("Can't determine database configuration - tried to read from file: " + configFileName);
+			System.err.println("Loading default in memory configuration: " + DEFAULT_CONFIG);
+			configFileName = DEFAULT_CONFIG;
 		}
 		Properties testConfig = new Properties();
 		FileInputStream fis = new FileInputStream(configFileName);

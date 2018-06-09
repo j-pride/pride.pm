@@ -6,9 +6,9 @@ install: true
 jdk:
 - oraclejdk8
 
-cache:
-  directories:
-    - "$HOME/.m2/repository"
+#cache:
+# directories:
+#    - "$HOME/.m2/repository"
 
 matrix:
   include:

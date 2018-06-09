@@ -28,7 +28,7 @@ import static org.junit.Assume.assumeFalse;
  * 
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-@SkipForDBType(ResourceAccessor.DBType.HSQL)
+@NeedsDBType(ResourceAccessor.DBType.ORACLE)
 public class PrideThreadTest extends AbstractPrideTest {
 
     private static final int NUM_THREADS = 2;

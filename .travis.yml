@@ -28,10 +28,5 @@ matrix:
       - docker ps -a
       - docker exec -i oracle bash -c 'until echo -e "WHENEVER SQLERROR EXIT SQL.SQLCODE \n select 1 from dual;" | sqlplus -s system/oracle > /dev/null; do echo "Waiting for Oracle XE to start...($(date))"; sleep 15; done'
       - echo "Give oracle more time to come up..." ; sleep 15
-    - env: DATABASE=db2
-      services: docker
-      before_install:
-      - docker run -d -p 50000:50000 -e DB2INST1_PASSWORD=db2inst1-pwd -e LICENSE=accept  ibmcom/db2express-c:latest db2start
-      - docker ps -a
 
 script: "mvn clean install -B -Duser.name=$DATABASE --settings config/mvnsettings.xml"

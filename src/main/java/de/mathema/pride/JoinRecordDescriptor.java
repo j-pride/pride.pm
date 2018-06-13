@@ -187,14 +187,19 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         String alias = tableAlias + "_" + column;
         String result = columnNames.get(alias);
         if (result == null) {
-            result = (alias.length() > MAX_ALIAS_NAME_LENGTH) ? alias.substring(0, MAX_ALIAS_NAME_LENGTH) : alias;
-            if (columnNames.containsValue(result)) {
-                String suffix = Integer.toString(columnCounter++);
-                if (result.length() + suffix.length() > MAX_ALIAS_NAME_LENGTH)
-                    result = result.substring(0, MAX_ALIAS_NAME_LENGTH - suffix.length());
-                result += suffix;    
+            synchronized (columnNames) {
+                result = columnNames.get(alias);
+                if (result == null) {
+                    result = (alias.length() > MAX_ALIAS_NAME_LENGTH) ? alias.substring(0, MAX_ALIAS_NAME_LENGTH) : alias;
+                    if (columnNames.containsValue(result)) {
+                        String suffix = Integer.toString(columnCounter++);
+                        if (result.length() + suffix.length() > MAX_ALIAS_NAME_LENGTH)
+                            result = result.substring(0, MAX_ALIAS_NAME_LENGTH - suffix.length());
+                        result += suffix;    
+                    }
+                    columnNames.put(alias, result);
+                }
             }
-            columnNames.put(alias, result);
         }
         return result;
     }

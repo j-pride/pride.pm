@@ -65,7 +65,7 @@ public class CreateTableTemplate {
 
 	public RecordDescriptor extractRecordDescriptor(String className) throws SQLException {
 		try {
-			Class c = Class.forName(className);
+			Class<?> c = Class.forName(className);
 			Field f = c.getDeclaredField("red");
 			f.setAccessible(true);
 			return (RecordDescriptor)f.get(null);
@@ -96,8 +96,8 @@ public class CreateTableTemplate {
 	 * @param className The name of the class to retrieve the mapped fields from
 	 * @return The mapped fields
 	 */
-	public Set extractMappedFields(String className) throws SQLException {
-		HashSet fields = new HashSet();
+	public Set<String> extractMappedFields(String className) throws SQLException {
+		HashSet<String> fields = new HashSet<>();
 		if (className != null) {
 			RecordDescriptor desc = extractRecordDescriptor(className);
 			String fieldsStr = desc.getFieldNames(null);
@@ -132,6 +132,7 @@ public class CreateTableTemplate {
 			TableDescription[] tableDesc = getTableDescription(con);
 			writePackage(tableDesc, className, baseClassName, generationType, buffer);
 			writeHeader(tableDesc, className, baseClassName, generationType, buffer);
+			writeConstants(tableDesc, className, baseClassName, generationType, buffer);
 			writeRecordDescriptor(tableDesc, className, baseClassName, generationType, buffer);
 			writePrimaryKey(tableDesc, className, baseClassName, generationType, buffer);
 			writeEntityReference(tableDesc, className, baseClassName, generationType, buffer);
@@ -249,6 +250,20 @@ public class CreateTableTemplate {
 			buffer.append("{\n");
         }
 
+        public void writeConstants (TableDescription[] desc, String className,
+				   String baseClassName, String generationType, StringBuffer buffer)
+			throws SQLException {
+			if (generationType.equals(BEAN))
+				return;
+            HashMap<TableDescription, HashMap<String, TableColumns>> tableDescs = getAllTableColums(desc);
+            for (TableDescription currentTD: tableDescs.keySet()) {
+                HashMap<String, TableColumns> tableColumns = tableDescs.get(currentTD);
+                for (String uniqueName: tableColumns.keySet()) {
+                	
+                }
+            }
+        }
+        
         /** Prints the record descriptor and its access function to standard out */
         public void writeRecordDescriptor (TableDescription[] desc, String className,
         								   String baseClassName, String generationType, StringBuffer buffer)
@@ -256,21 +271,17 @@ public class CreateTableTemplate {
 			if (generationType.equals(BEAN))
 				return;
 
-			Set baseClassFields = extractMappedFields(baseClassName);
-            HashMap tableDescs = getAllTableColums(desc);
-            Iterator tds = tableDescs.keySet().iterator();
+			Set<String> baseClassFields = extractMappedFields(baseClassName);
 			buffer.append("    protected static final RecordDescriptor red = new RecordDescriptor" + "\n");
 			buffer.append("        (");
 			buffer.append(getClassName(generationType.equals(HYBRID) ? className : generationType));
 			buffer.append(".class, \"" + getTableName(tableNames) + "\", ");
 			buffer.append(baseClassName != null ? baseClassName + ".red" : "null");
 			buffer.append(", new String[][] {" + "\n");
-            while (tds.hasNext()) {
-                TableDescription currentTD = (TableDescription)tds.next();
-                HashMap tableColumns = (HashMap)tableDescs.get(currentTD);
-                Iterator columnsIt = tableColumns.keySet().iterator();
-                while (columnsIt.hasNext()) {
-                    String uniqueName = (String)columnsIt.next();
+			HashMap<TableDescription, HashMap<String, TableColumns>> tableDescs = getAllTableColums(desc);
+            for (TableDescription currentTD: tableDescs.keySet()) {
+                HashMap<String, TableColumns> tableColumns = tableDescs.get(currentTD);
+                for (String uniqueName: tableColumns.keySet()) {
                     TableColumns current = (TableColumns)tableColumns.get(uniqueName);
                     if (baseClassFields.remove(current.getName()))
                     	continue;
@@ -281,7 +292,7 @@ public class CreateTableTemplate {
                         name = current.getName();
                     String name2 = null;
                     if (uniqueName.indexOf(currentTD.getTableName()) != -1 && desc.length != 1)
-                        name2 = currentTD.getTableName2() + current.getName2();
+                        name2 = currentTD.getTableNameFirstUpper() + current.getName2();
                     else
                         name2 = current.getName2();
                     StringBuffer sb = new StringBuffer();
@@ -323,9 +334,7 @@ public class CreateTableTemplate {
 		}
 
 		private boolean hasPrimaryKey(TableDescription tdesc) {	
-			Enumeration columnList = tdesc.getList();
-			while(columnList.hasMoreElements()) {
-				TableColumns current = (TableColumns)columnList.nextElement();
+			for(TableColumns current: tdesc.getList()) {
 				if (current.isPrimaryKeyField())
 					return true;
 			}
@@ -340,10 +349,8 @@ public class CreateTableTemplate {
 
             if (desc.length == 1) {
                 if (hasPrimaryKey(desc[0])) {
-					Enumeration tableList = desc[0].getList();
                     buffer.append("    private static String[] keyFields = new String[] {");
-                    while(tableList.hasMoreElements()) {
-						TableColumns current = (TableColumns)tableList.nextElement();
+                    for(TableColumns current: desc[0].getList()) {
 						if (current.isPrimaryKeyField())
 	                    	buffer.append(" \"" + current.getName() + "\",");
                 	}
@@ -362,17 +369,13 @@ public class CreateTableTemplate {
 			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
 				return;
 
-			Set baseClassFields = extractMappedFields(baseClassName);
-            HashMap tableDescs = getAllTableColums(desc);
-            Iterator tds = tableDescs.keySet().iterator();
+			Set<String> baseClassFields = extractMappedFields(baseClassName);
+			HashMap<TableDescription, HashMap<String, TableColumns>> tableDescs = getAllTableColums(desc);
 			buffer.append("    // Data members" + "\n");
-            while (tds.hasNext()) {
-                TableDescription currentTD = (TableDescription)tds.next();
-                HashMap tableColumns = (HashMap)tableDescs.get(currentTD);
-                Iterator columnsIt = tableColumns.keySet().iterator();
-                while (columnsIt.hasNext()) {
-                    String uniqueName = (String)columnsIt.next();
-                    TableColumns current = (TableColumns)tableColumns.get(uniqueName);
+            for (TableDescription currentTD: tableDescs.keySet()) {
+                HashMap<String, TableColumns> tableColumns = tableDescs.get(currentTD);
+                for (String uniqueName: tableColumns.keySet()) {
+                    TableColumns current = tableColumns.get(uniqueName);
                     String name = null;
 					if (baseClassFields.contains(current.getName()))
 						continue;
@@ -396,24 +399,20 @@ public class CreateTableTemplate {
 			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
 				return;
 
-			Set baseClassFields = extractMappedFields(baseClassName);
-            HashMap tableDescs = getAllTableColums(desc);
-            Iterator tds = tableDescs.keySet().iterator();
+			Set<String> baseClassFields = extractMappedFields(baseClassName);
+			HashMap<TableDescription, HashMap<String, TableColumns>> tableDescs = getAllTableColums(desc);
 			buffer.append("    // Read access functions" + "\n");
-            while (tds.hasNext()) {
-                TableDescription currentTD = (TableDescription)tds.next();
-                HashMap tableColumns = (HashMap)tableDescs.get(currentTD);
-                Iterator columnsIt = tableColumns.keySet().iterator();
-                while (columnsIt.hasNext()) {
-                    String uniqueName = (String)columnsIt.next();
-                    TableColumns current = (TableColumns)tableColumns.get(uniqueName);
+            for (TableDescription currentTD: tableDescs.keySet()) {
+                HashMap<String, TableColumns> tableColumns = tableDescs.get(currentTD);
+                for (String uniqueName: tableColumns.keySet()) {
+                    TableColumns current = tableColumns.get(uniqueName);
                     String name = null;
                     String name2 = null;
 					if (baseClassFields.contains(current.getName()))
 						continue;
                     if (uniqueName.indexOf(currentTD.getTableName()) != -1 && desc.length != 1) {
                         name = currentTD.getTableName().toLowerCase() + current.getName2();
-                        name2 = currentTD.getTableName2() + current.getName2();
+                        name2 = currentTD.getTableNameFirstUpper() + current.getName2();
                     }
                     else {
                         name = current.getName3();
@@ -433,16 +432,12 @@ public class CreateTableTemplate {
 			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
 				return;
 
-			Set baseClassFields = extractMappedFields(baseClassName);
-            HashMap tableDescs = getAllTableColums(desc);
-            Iterator tds = tableDescs.keySet().iterator();
+			Set<String> baseClassFields = extractMappedFields(baseClassName);
+			HashMap<TableDescription, HashMap<String, TableColumns>> tableDescs = getAllTableColums(desc);
 			buffer.append("    // Write access functions" + "\n");
-            while (tds.hasNext()) {
-                TableDescription currentTD = (TableDescription)tds.next();
-                HashMap tableColumns = (HashMap)tableDescs.get(currentTD);
-                Iterator columnsIt = tableColumns.keySet().iterator();
-                while (columnsIt.hasNext()) {
-                    String uniqueName = (String)columnsIt.next();
+            for (TableDescription currentTD: tableDescs.keySet()) {
+                HashMap<String, TableColumns> tableColumns = tableDescs.get(currentTD);
+                for (String uniqueName: tableColumns.keySet()) {
                     TableColumns current = (TableColumns)tableColumns.get(uniqueName);
                     String name = null;
                     String name2 = null;
@@ -450,7 +445,7 @@ public class CreateTableTemplate {
 						continue;
                     if (uniqueName.indexOf(currentTD.getTableName()) != -1 && desc.length != 1) {
                         name = currentTD.getTableName().toLowerCase() + current.getName2();
-                        name2 = currentTD.getTableName2() + current.getName2();
+                        name2 = currentTD.getTableNameFirstUpper() + current.getName2();
                     }
                     else {
                         name = current.getName3();
@@ -490,21 +485,17 @@ public class CreateTableTemplate {
 									   String baseClassName, StringBuffer buffer) {
             if (!desc.hasPrimaryKey())
                 return;
-			Enumeration tableList = desc.getList();
 			buffer.append("\n    // Reconstructor\n");
 			buffer.append("    public " + getClassName(className) + "(");
-			while (tableList.hasMoreElements()) {
-				TableColumns current = (TableColumns)tableList.nextElement();
+			for (TableColumns current: desc.getList()) {
 				if (current.isPrimaryKeyField())
                     buffer.append((current.getType() != null? current.getType(): "Object") + " " + current.getName() + ", ");
 			}
             buffer.delete(buffer.lastIndexOf(","), buffer.length());	
 			buffer.append(") throws SQLException {\n");
-			tableList = desc.getList();
 			if (baseClassName != null)
 				buffer.append("        super(");
-			while (tableList.hasMoreElements()) {
-				TableColumns current = (TableColumns)tableList.nextElement();
+			for (TableColumns current: desc.getList()) {
 				if (current.isPrimaryKeyField()) {
 					if (baseClassName == null)
 						buffer.append("        set" + current.getName2() + "(" + current.getName() + ");\n");
@@ -525,7 +516,7 @@ public class CreateTableTemplate {
 		public void writeFooter(TableDescription[] desc, String className, String baseClassName,
 								String generationType, StringBuffer buffer) {
 			if (desc.length == 1 && generationType.equals(HYBRID)) {
-				if (desc[0].getList().hasMoreElements())
+				if (desc[0].getList().size() > 0)
 					writeReconstructor(desc[0], className, baseClassName, buffer);
 				buffer.append("\n");
 				buffer.append("    public " + getClassName(className) + "() {}\n\n");
@@ -545,9 +536,9 @@ public class CreateTableTemplate {
 	protected String getTableIdType(final TableDescription tabCols) {
 		String idType;
 
-		Enumeration tableList = tabCols.getList();
-		if (tableList.hasMoreElements()) {
-			TableColumns current = (TableColumns) tableList.nextElement();
+		Vector<TableColumns> tableList = tabCols.getList();
+		if (tableList.size() > 0) {
+			TableColumns current = (TableColumns) tableList.get(0);
 			idType = current.getType();
 		}
 		else
@@ -587,15 +578,13 @@ public class CreateTableTemplate {
 	 *      Key: java.lang.String attributName Value: de.mathema.pride.util.TableColumns tableColumn
 	 *
 	 */
-	protected HashMap getAllTableColums(TableDescription[] desc) {
-		HashMap tds = new HashMap();
-		LinkedList usedNames = new LinkedList();
-		LinkedList criticalNames = new LinkedList();
+	protected HashMap<TableDescription, HashMap<String, TableColumns>> getAllTableColums(TableDescription[] desc) {
+		HashMap<TableDescription, HashMap<String, TableColumns>> tds = new HashMap<>();
+		LinkedList<String> usedNames = new LinkedList<>();
+		LinkedList<String> criticalNames = new LinkedList<>();
 		for (int i = 0; i < desc.length; i++) {
 			TableDescription td = (TableDescription) desc[i];
-			Enumeration atts = td.getList();
-			while (atts.hasMoreElements()) {
-				TableColumns current = (TableColumns) atts.nextElement();
+			for (TableColumns current: td.getList()) {
 				if (usedNames.contains(current.getName())) {
 					String name = td.getTableName() + current.getName();
 					criticalNames.add(current.getName());
@@ -607,10 +596,8 @@ public class CreateTableTemplate {
 		}
 		for (int i = 0; i < desc.length; i++) {
 			TableDescription td = (TableDescription) desc[i];
-			HashMap tableColumns = new HashMap();
-			Enumeration atts = td.getList();
-			while (atts.hasMoreElements()) {
-				TableColumns current = (TableColumns) atts.nextElement();
+			HashMap<String, TableColumns> tableColumns = new HashMap<>();
+			for (TableColumns current: td.getList()) {
 				if (criticalNames.contains(current.getName())) {
 					String name = td.getTableName() + current.getName();
 					tableColumns.put(name, current);

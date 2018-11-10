@@ -22,14 +22,14 @@ import java.util.*;
 
 public class TableDescription {
 
-    protected Vector tableList;
+    protected Vector<TableColumns> tableList;
     protected String tableName;
 
-	protected Vector getColumns(DatabaseMetaData db_meta, String tableName) throws SQLException {
+	protected Vector<TableColumns> getColumns(DatabaseMetaData db_meta, String tableName) throws SQLException {
 		ResultSet rset2 = db_meta.getColumns (null, //con.getCatalog (),
 											  null, //"*",
 											  tableName, "%");
-		Vector result = new Vector(0);
+		Vector<TableColumns> result = new Vector<>(0);
 		while (rset2.next ()) {
 		  TableColumns tabColumn =
 			  new TableColumns(rset2.getString ("COLUMN_NAME"),
@@ -43,14 +43,14 @@ public class TableDescription {
 		return result;
 	}
 
-	protected void markKeyColumns(DatabaseMetaData db_meta, String tableName, Vector columns) throws SQLException {
+	protected void markKeyColumns(DatabaseMetaData db_meta, String tableName, Vector<TableColumns> columns) throws SQLException {
 		ResultSet rset2 = db_meta.getPrimaryKeys(null, //con.getCatalog (),
 								                 null, //"*",
 								                 tableName);
 		while (rset2.next ()) {
 			String column_name = rset2.getString ("COLUMN_NAME");
 	
-			Iterator iter = columns.iterator();
+			Iterator<TableColumns> iter = columns.iterator();
 			while(iter.hasNext()) {
 			  TableColumns tabColumn = (TableColumns)iter.next();
 			  if (tabColumn.columnName.equals(column_name)) {
@@ -91,9 +91,7 @@ public class TableDescription {
     }
 
     public boolean hasPrimaryKey() {
-        Enumeration list = getList();
-        while (list.hasMoreElements()) {
-            TableColumns current = (TableColumns)list.nextElement();
+        for (TableColumns current: getList()) {
             if (current.isPrimaryKeyField())
                 return true;
         }
@@ -101,13 +99,13 @@ public class TableDescription {
     }
     
     /** Returns an enumerator for the table's columns in form of TableColumns objects */
-    public Enumeration getList() { return tableList.elements(); }
+    public Vector<TableColumns> getList() { return tableList; }
 
     /** Returns the plain table name */
     public String getTableName() { return tableName; }
 
     /** Returns the table name with its first letter capitalized */
-    public String getTableName2() {
+    public String getTableNameFirstUpper() {
         return tableName.substring(0,1).toUpperCase() + tableName.substring(1);
     }
 }

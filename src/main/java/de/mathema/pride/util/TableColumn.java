@@ -17,7 +17,7 @@ import java.sql.*;
  *
  * @author <a href="mailto:jan.lessner@acoreus.de">Jan Lessner</a>
  */
-public class TableColumns {
+public class TableColumn {
 
     protected  String columnName;
     protected     int columnType;
@@ -25,11 +25,11 @@ public class TableColumns {
     protected boolean nullsForbidden;
     protected boolean primaryKeyField;
     
-    public TableColumns(String name, int type) {
+    public TableColumn(String name, int type) {
         this(name, type, 0, false);
     }
     
-    public TableColumns(String name, int type, int decimalDigits, boolean nullsForbidden) {
+    public TableColumn(String name, int type, int decimalDigits, boolean nullsForbidden) {
         this.columnName     = name;
         this.columnType     = type;
         this.decimalDigits  = decimalDigits;

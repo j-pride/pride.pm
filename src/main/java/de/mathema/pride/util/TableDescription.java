@@ -22,17 +22,17 @@ import java.util.*;
 
 public class TableDescription {
 
-    protected Vector<TableColumns> tableList;
+    protected Vector<TableColumn> tableList;
     protected String tableName;
 
-	protected Vector<TableColumns> getColumns(DatabaseMetaData db_meta, String tableName) throws SQLException {
+	protected Vector<TableColumn> getColumns(DatabaseMetaData db_meta, String tableName) throws SQLException {
 		ResultSet rset2 = db_meta.getColumns (null, //con.getCatalog (),
 											  null, //"*",
 											  tableName, "%");
-		Vector<TableColumns> result = new Vector<>(0);
+		Vector<TableColumn> result = new Vector<>(0);
 		while (rset2.next ()) {
-		  TableColumns tabColumn =
-			  new TableColumns(rset2.getString ("COLUMN_NAME"),
+		  TableColumn tabColumn =
+			  new TableColumn(rset2.getString ("COLUMN_NAME"),
 							   rset2.getInt ("DATA_TYPE"),
                                rset2.getInt ("DECIMAL_DIGITS"),
 							   (rset2.getInt ("NULLABLE")== ResultSetMetaData.columnNoNulls));
@@ -43,16 +43,16 @@ public class TableDescription {
 		return result;
 	}
 
-	protected void markKeyColumns(DatabaseMetaData db_meta, String tableName, Vector<TableColumns> columns) throws SQLException {
+	protected void markKeyColumns(DatabaseMetaData db_meta, String tableName, Vector<TableColumn> columns) throws SQLException {
 		ResultSet rset2 = db_meta.getPrimaryKeys(null, //con.getCatalog (),
 								                 null, //"*",
 								                 tableName);
 		while (rset2.next ()) {
 			String column_name = rset2.getString ("COLUMN_NAME");
 	
-			Iterator<TableColumns> iter = columns.iterator();
+			Iterator<TableColumn> iter = columns.iterator();
 			while(iter.hasNext()) {
-			  TableColumns tabColumn = (TableColumns)iter.next();
+			  TableColumn tabColumn = (TableColumn)iter.next();
 			  if (tabColumn.columnName.equals(column_name)) {
 				  tabColumn.setPrimaryKeyField();
 				  break;
@@ -91,7 +91,7 @@ public class TableDescription {
     }
 
     public boolean hasPrimaryKey() {
-        for (TableColumns current: getList()) {
+        for (TableColumn current: getList()) {
             if (current.isPrimaryKeyField())
                 return true;
         }
@@ -99,7 +99,7 @@ public class TableDescription {
     }
     
     /** Returns an enumerator for the table's columns in form of TableColumns objects */
-    public Vector<TableColumns> getList() { return tableList; }
+    public Vector<TableColumn> getList() { return tableList; }
 
     /** Returns the plain table name */
     public String getTableName() { return tableName; }

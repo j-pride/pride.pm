@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 import pm.pride.DatabaseFactory;
-import pm.pride.SQLFormatter;
+import pm.pride.SQL;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -54,6 +54,12 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				and("firstName", null).
 				and("lastName", "Customer");
 		assertNull(new Customer().query(expression));
+	}
+
+	@Test
+	public void testEqualsWithRaw() throws Exception {
+		WhereCondition expression = new WhereCondition().and("firstName", SQL.raw("'First'"));
+		checkOrderByResult(expression, 1, 1);
 	}
 
 	@Test
@@ -167,7 +173,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 
 	@Test
 	public void testIndividualFormatter() throws SQLException {
-		SQLFormatter autowildcard = new SQLFormatter() {
+		SQL.Formatter autowildcard = new SQL.Formatter() {
 			@Override public String formatValue(Object rawValue) {
 				String value = DatabaseFactory.getDatabase().formatValue(rawValue);
 				return value.toString().replace('*', '%');

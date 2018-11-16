@@ -20,7 +20,7 @@ import java.util.GregorianCalendar;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public interface ResourceAccessor extends SQLFormatter
+public interface ResourceAccessor extends SQL.Formatter
 {
 	public static interface DBType {
 		public static final String ORACLE     = "oracle";

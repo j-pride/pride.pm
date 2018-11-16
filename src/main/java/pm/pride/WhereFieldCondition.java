@@ -15,7 +15,7 @@ class WhereFieldCondition extends WhereConditionPart {
 		this.bind = bind;
 	}
 	
-	protected String toSQL(SQLFormatter formatter, boolean ignoreBindings) {
+	protected String toSQL(SQL.Formatter formatter, boolean ignoreBindings) {
 		boolean withBinding = ignoreBindings ? false : bind;
 		return toSQLChainer(formatter) +
 				field + " " +
@@ -38,7 +38,7 @@ class WhereFieldCondition extends WhereConditionPart {
 		return values.length;
 	}
 	
-	private static String formatValue(Object[] values, String operator, boolean withBinding, SQLFormatter formatter) {
+	private static String formatValue(Object[] values, String operator, boolean withBinding, SQL.Formatter formatter) {
 		if (operator == null)
 			return "";
 		switch (operator) {
@@ -58,16 +58,16 @@ class WhereFieldCondition extends WhereConditionPart {
 		}
 	}
 
-	private static String formatSingleValue(Object value, boolean withBinding, SQLFormatter formatter) {
+	private static String formatSingleValue(Object value, boolean withBinding, SQL.Formatter formatter) {
 		if (withBinding && value != null)
 			return "?";
-		if (formatter == null || (value instanceof SQLRaw)) {
+		if (formatter == null || (value instanceof SQL.Raw)) {
 			return (value == null) ? "null" : value.toString();
 		}
 		return formatter.formatValue(value);
 	}
 
-	private static String formatOperator(String operator, Object[] values, SQLFormatter formatter) {
+	private static String formatOperator(String operator, Object[] values, SQL.Formatter formatter) {
 		if (operator == null)
 			return "";
         if (formatter != null)
@@ -76,7 +76,7 @@ class WhereFieldCondition extends WhereConditionPart {
 	}
 
 	@Override
-	protected int bind(SQLFormatter formatter, ConnectionAndStatement cns, int nextParam)
+	protected int bind(SQL.Formatter formatter, ConnectionAndStatement cns, int nextParam)
 		throws ReflectiveOperationException {
 		if (bind && operator != null && values != null) {
 			for(Object aValue : values) {
@@ -86,7 +86,7 @@ class WhereFieldCondition extends WhereConditionPart {
 		return nextParam;
 	}
 
-	private static int bindSingleValue(Object value, SQLFormatter formatter, ConnectionAndStatement cns, int nextParam)
+	private static int bindSingleValue(Object value, SQL.Formatter formatter, ConnectionAndStatement cns, int nextParam)
 		throws ReflectiveOperationException {
 
 		if(value == null) return nextParam;

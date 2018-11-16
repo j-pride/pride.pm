@@ -47,7 +47,7 @@ public class WhereCondition extends WhereConditionPart {
     }
 
     protected WhereCondition parent;
-    protected SQLFormatter formatter;
+    protected SQL.Formatter formatter;
     protected List<WhereConditionPart> parts = new ArrayList<WhereConditionPart>();
     protected String orderBy;
     protected String groupBy;
@@ -58,13 +58,13 @@ public class WhereCondition extends WhereConditionPart {
     	this(null, null, null, null);
     }
 
-    /** Create a new empty WhereCondition including an individual SQLFormatter
+    /** Create a new empty WhereCondition including an individual SQL.Formatter
      * @param formatter A formatter object used to format SQL values and operators. This is only of interest
      *   if the conditions needs an individual formatting which is not already covered by the {@link ResourceAccessor}
      *   in use which is responsible for things like SQL syntax dialects. The formatter passed in here is only
      *   reasonable for application-level aspects of SQL interpretation.
      */
-    public WhereCondition(SQLFormatter formatter) {
+    public WhereCondition(SQL.Formatter formatter) {
     	this(null, formatter, null, null);
     }
 
@@ -72,7 +72,7 @@ public class WhereCondition extends WhereConditionPart {
     	this(null, null, null, initialExpression);
     }
 
-    public WhereCondition(SQLFormatter formatter, String initialExpression) {
+    public WhereCondition(SQL.Formatter formatter, String initialExpression) {
     	this(null, formatter, null, initialExpression);
     }
 
@@ -80,7 +80,7 @@ public class WhereCondition extends WhereConditionPart {
     	this(null, null, null, null);
     }
     
-    public WhereCondition(WhereCondition parent, SQLFormatter formatter, String chainOperator, String initialExpression) {
+    public WhereCondition(WhereCondition parent, SQL.Formatter formatter, String chainOperator, String initialExpression) {
     	this.bind = bindDefault;
     	this.chainOperator = chainOperator;
     	this.parent = parent;
@@ -303,7 +303,7 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	@Override
-	protected String toSQL(SQLFormatter formatter, boolean ignoreBindings) {
+	protected String toSQL(SQL.Formatter formatter, boolean ignoreBindings) {
 		String s = toSQLChainer(formatter) + "( ";
 		if (parts.size() == 0) {
 			s += "1=1 ";
@@ -323,12 +323,12 @@ public class WhereCondition extends WhereConditionPart {
 		return s;
 	}
 
-	protected void bind(SQLFormatter inheritedFormatter, ConnectionAndStatement cns) throws ReflectiveOperationException {
+	protected void bind(SQL.Formatter inheritedFormatter, ConnectionAndStatement cns) throws ReflectiveOperationException {
 		bind(formatter != null ? formatter : inheritedFormatter, cns, 1);
 	}
 	
 	@Override
-	protected int bind(SQLFormatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException {
+	protected int bind(SQL.Formatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException {
 		for (WhereConditionPart part: parts) {
 			nextParam = part.bind(formatter, cns, nextParam);
 		}

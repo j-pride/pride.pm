@@ -8,7 +8,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
-/**
  * This class helps to assemble SQL expressions in a way that is a compromise
  * between SQL redability on the one hand and the usage of constants an the other hand
  * to follow the DRY principle. For example database column and table names are often
@@ -18,9 +17,9 @@ import java.util.regex.Pattern;
  * than by index. Names are indicated by a leading § character, i.e. you may as well combine
  * % expressions vom String.format with § expressions from SQLExpressionFormatter. The names
  * are read from the format string and are replaced by their indices according to there
- * accurence. E.g. the string
+ * occurence. E.g. the string
  * <pre>
- * "where $PROMOTION_TABLE.$ID = $DCAMPAIGN_TABLE.$ID"
+ * "where @PROMOTION_TABLE.@ID = @DCAMPAIGN_TABLE.@ID"
  * </pre>
  * will be translated to
  * <pre>
@@ -30,14 +29,16 @@ import java.util.regex.Pattern;
  * The translated format string shows the intention of the formatter: the string with
  * variable names is pretty well-readable SQL which can easily be verified for syntactical
  * and semantical correctness. The translated string definitely not!
+ * <p>
+ * The class is supposed to be used indirectly through {@link SQL#format(String, Object...)}
  * 
  * @author less02
  */
 public class SQLExpressionFormatter {
-    public static String VARIABLE_HEAD = "§";
+    public static String VARIABLE_HEAD = "@";
     public static String VARIABLE_REFERENCE_REGEXP = VARIABLE_HEAD + "[A-Za-z_]+";
 
-    public static String format(String formatString, Object... args) {
+    static String format(String formatString, Object... args) {
         List<VariableReference> variables = extractVariables(formatString);
         formatString = replaceVariables(formatString, variables);
         return String.format(formatString, args);

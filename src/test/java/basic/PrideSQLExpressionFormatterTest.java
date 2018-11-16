@@ -2,7 +2,7 @@ package basic;
 
 import org.junit.Test;
 
-import pm.pride.SQLExpressionFormatter;
+import pm.pride.SQL;
 
 public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
 
@@ -19,27 +19,27 @@ public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
 
 	@Test
 	public void testSimpleExpression() {
-        String result = SQLExpressionFormatter.format("§ONE, §TWO, §THREE, §ONE", "one", 2, 3);
+        String result = SQL.format("@ONE, @TWO, @THREE, @ONE", "one", 2, 3);
 		assertEquals("one, 2, 3, one", result);
 	}
 	
 	@Test
 	public void testMixedExpression() {
-        String result = SQLExpressionFormatter.format("§ONE, §TWO, §THREE, %s, §ONE", "one", 2, 3, "string");
+        String result = SQL.format("@ONE, @TWO, @THREE, %s, @ONE", "one", 2, 3, "string");
 		assertEquals("one, 2, 3, string, one", result);
 	}
 
 	@Test
 	public void testRealisticExample() {
-		String fromClause = SQLExpressionFormatter.format(
-				"from §DELTA_TABLE delta " +
+		String fromClause = SQL.format(
+				"from @DELTA_TABLE delta " +
 	            "  JOIN (SELECT /*+ NO_USE_NL (p) NO_USE_NL (pp))*/ " +
-	            "    p.§HEAD_ID, pp.§PARTNER_ID, pp.§HEAD_ID, pp.§CAMPAIGN_ID, pp.§LAST_TRX_IMPORT_RELEVANCE " +
-	            "    FROM §DMD_PRO_PROMOTION p JOIN §DMD_PRO_PROMOTION pp ON " +
-	            "      pp.§CURRENT_FLAG = 1 AND pp.§PUBLIC_PROMOTION_ID = p.§PUBLIC_PROMOTION_ID AND pp.§ACTIVATION_CHANNEL = p.§ACTIVATION_CHANNEL " +
-	            "    WHERE p.§CURRENT_FLAG = 1) pro " +
-	            "  ON (pro.§HEAD_ID = delta.§PROMOTION_HEAD_ID AND delta.§PARTNER_ID = pro.§PARTNER_ID) OR " +
-	            "     (pro.§HEAD_ID = delta.§PROMOTION_HEAD_ID AND delta.§PARTNER_ID IS NULL) ",
+	            "    p.@HEAD_ID, pp.@PARTNER_ID, pp.@HEAD_ID, pp.@CAMPAIGN_ID, pp.@LAST_TRX_IMPORT_RELEVANCE " +
+	            "    FROM @DMD_PRO_PROMOTION p JOIN @DMD_PRO_PROMOTION pp ON " +
+	            "      pp.@CURRENT_FLAG = 1 AND pp.@PUBLIC_PROMOTION_ID = p.@PUBLIC_PROMOTION_ID AND pp.@ACTIVATION_CHANNEL = p.@ACTIVATION_CHANNEL " +
+	            "    WHERE p.@CURRENT_FLAG = 1) pro " +
+	            "  ON (pro.@HEAD_ID = delta.@PROMOTION_HEAD_ID AND delta.@PARTNER_ID = pro.@PARTNER_ID) OR " +
+	            "     (pro.@HEAD_ID = delta.@PROMOTION_HEAD_ID AND delta.@PARTNER_ID IS NULL) ",
 	            TABLE_DELTA,
 	            COLUMN_HEADID, COLUMN_PARTNERID, COLUMN_CAMPAIGN_ID, COLUMN_LAST_TRX_IMPORT_RELEVANCE, 
 	            TABLE_PROMOTION, 

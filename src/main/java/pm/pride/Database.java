@@ -26,7 +26,7 @@ import java.util.Vector;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public class Database implements SQLFormatter
+public class Database implements SQL.Formatter
 {
     private final ExceptionListener exceptionListener;
     private final ResourceAccessor accessor;
@@ -343,7 +343,7 @@ public class Database implements SQLFormatter
     protected String where2string(WhereCondition where) {
         if (where == null)
             return null;
-        SQLFormatter formatter = where.formatter != null ? where.formatter : this;
+        SQL.Formatter formatter = where.formatter != null ? where.formatter : this;
         return where.toSQL(formatter);
     }
 

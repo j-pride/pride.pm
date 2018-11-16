@@ -3,14 +3,14 @@ package basic;
 import org.junit.Test;
 
 import pm.pride.DatabaseFactory;
-import pm.pride.SQLFormatter;
+import pm.pride.SQL;
 import pm.pride.WhereCondition;
 
 import static pm.pride.WhereCondition.Operator.LIKE;
 
 import java.sql.SQLException;
 
-public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest implements SQLFormatter {
+public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest implements SQL.Formatter {
     @Override
     public String formatValue(Object rawValue) {
         if(rawValue instanceof String)

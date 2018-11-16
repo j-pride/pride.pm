@@ -9,23 +9,23 @@ abstract class WhereConditionPart {
 		return toSQL(null);
 	}
 
-	public String toSQLChainer(SQLFormatter formatter) {
+	public String toSQLChainer(SQL.Formatter formatter) {
 		return chainOperator != null ? (chainOperator + " ") : "";
 	}
 
-	public String toSQLIgnoreBindings(SQLFormatter formatter) {
+	public String toSQLIgnoreBindings(SQL.Formatter formatter) {
 		return toSQL(formatter, true);
 	}
 
-	public String toSQL(SQLFormatter formatter) {
+	public String toSQL(SQL.Formatter formatter) {
 		return toSQL(formatter, false);
 	}
 
-	protected abstract String toSQL(SQLFormatter formatter, boolean withBinding);
+	protected abstract String toSQL(SQL.Formatter formatter, boolean withBinding);
 
 	protected boolean requiresBinding() {
 		return bind;
 	}
 
-	abstract protected int bind(SQLFormatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException;
+	abstract protected int bind(SQL.Formatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException;
 }

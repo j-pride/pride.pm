@@ -1,7 +1,8 @@
 package basic;
 
-import de.mathema.pride.SQLExpressionFormatter;
 import org.junit.Test;
+
+import pm.pride.SQLExpressionFormatter;
 
 public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
 

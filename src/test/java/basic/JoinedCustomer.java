@@ -1,16 +1,6 @@
 package basic;
-/*******************************************************************************
- * Copyright (c) 2001-20017 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
- *******************************************************************************/
-import de.mathema.pride.JoinRecordDescriptor;
-import de.mathema.pride.RecordDescriptor;
+import pm.pride.JoinRecordDescriptor;
+import pm.pride.RecordDescriptor;
 
 /**
  * Extension of {@link Customer} representing a customer and its

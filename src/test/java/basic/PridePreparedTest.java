@@ -10,12 +10,11 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 import junit.framework.Assert;
+import pm.pride.*;
 
 import org.junit.Test;
 
 import static org.junit.Assume.assumeTrue;
-
-import de.mathema.pride.*;
 
 
 /**

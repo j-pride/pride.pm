@@ -1,7 +1,8 @@
 package basic;
-import de.mathema.pride.ResultIterator;
-import de.mathema.pride.ResultIterator.SpoolCondition;
 import org.junit.Test;
+
+import pm.pride.ResultIterator;
+import pm.pride.ResultIterator.SpoolCondition;
 
 import java.util.List;
 

@@ -5,11 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import basic.NeedsDBType;
-import de.mathema.pride.ResourceAccessor;
-import org.junit.Test;
+import pm.pride.DatabaseFactory;
+import pm.pride.PreparedInsert;
+import pm.pride.ResourceAccessor;
 
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.PreparedInsert;
+import org.junit.Test;
 
 import basic.AbstractPrideTest;
 

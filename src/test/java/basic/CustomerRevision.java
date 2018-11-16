@@ -1,11 +1,11 @@
 package basic;
 
-import de.mathema.pride.RecordDescriptor;
-import de.mathema.pride.RevisionedRecordDescriptor;
-
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+
+import pm.pride.RecordDescriptor;
+import pm.pride.RevisionedRecordDescriptor;
 
 public class CustomerRevision extends Customer {
 

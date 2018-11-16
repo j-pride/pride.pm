@@ -1,8 +1,8 @@
 package basic;
 import java.sql.SQLException;
 
-import de.mathema.pride.RecordDescriptor;
-import de.mathema.pride.WhereCondition;
+import pm.pride.RecordDescriptor;
+import pm.pride.WhereCondition;
 
 /**
  * @author Jeismann

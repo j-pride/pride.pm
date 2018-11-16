@@ -6,10 +6,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import basic.NeedsDBType;
-import de.mathema.pride.ResourceAccessor;
-import org.junit.Test;
+import pm.pride.PreparedInsert;
+import pm.pride.ResourceAccessor;
 
-import de.mathema.pride.PreparedInsert;
+import org.junit.Test;
 
 import basic.CustomerType;
 import basic.AbstractPrideTest;

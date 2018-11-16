@@ -1,7 +1,8 @@
 package basic;
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.ResultIterator;
 import org.junit.Test;
+
+import pm.pride.DatabaseFactory;
+import pm.pride.ResultIterator;
 
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH

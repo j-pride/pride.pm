@@ -10,11 +10,11 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 
-import de.mathema.pride.RecordDescriptor;
-import de.mathema.pride.RevisionedRecordDescriptor;
-
 import java.sql.SQLException;
 import java.util.Date;
+
+import pm.pride.RecordDescriptor;
+import pm.pride.RevisionedRecordDescriptor;
 
 /**
  * @author bart57
@@ -65,7 +65,7 @@ public class Customer extends IdentifiedEntity {
 	);
 
 	/**
-	 * @see de.mathema.pride.MappedObject#getDesc()
+	 * @see pm.pride.MappedObject#getDesc()
 	 */
 	protected RecordDescriptor getDescriptor() { return red; }
 

@@ -1,13 +1,14 @@
 package basic;
 
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.SQLFormatter;
-import de.mathema.pride.WhereCondition;
 import org.junit.Test;
 
-import java.sql.SQLException;
+import pm.pride.DatabaseFactory;
+import pm.pride.SQLFormatter;
+import pm.pride.WhereCondition;
 
-import static de.mathema.pride.WhereCondition.Operator.LIKE;
+import static pm.pride.WhereCondition.Operator.LIKE;
+
+import java.sql.SQLException;
 
 public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest implements SQLFormatter {
     @Override

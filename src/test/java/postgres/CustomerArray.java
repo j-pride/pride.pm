@@ -3,10 +3,9 @@ package postgres;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import de.mathema.pride.RecordDescriptor;
-
 import basic.CustomerType;
 import basic.IdentifiedEntity;
+import pm.pride.RecordDescriptor;
 
 public class CustomerArray extends IdentifiedEntity {
     String[] permissions;

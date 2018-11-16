@@ -10,9 +10,10 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 
-import de.mathema.pride.*;
 import org.junit.Assume;
 import org.junit.Test;
+
+import pm.pride.*;
 /**
  * Test of table join functionality
  */

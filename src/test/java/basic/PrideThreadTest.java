@@ -10,9 +10,10 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.ResourceAccessor;
 import org.junit.Test;
+
+import pm.pride.DatabaseFactory;
+import pm.pride.ResourceAccessor;
 
 import java.sql.Date;
 import java.util.HashSet;

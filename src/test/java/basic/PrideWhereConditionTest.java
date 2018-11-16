@@ -10,22 +10,20 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.SQLFormatter;
+import pm.pride.DatabaseFactory;
+import pm.pride.SQLFormatter;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import de.mathema.pride.ResultIterator;
-import de.mathema.pride.WhereCondition;
+import pm.pride.ResultIterator;
+import pm.pride.WhereCondition;
 
-import static de.mathema.pride.WhereCondition.Direction.*;
-import static de.mathema.pride.WhereCondition.Operator.*;
+import static pm.pride.WhereCondition.Direction.*;
+import static pm.pride.WhereCondition.Operator.*;
 
 /**
  * @author less02

@@ -1,5 +1,5 @@
 package basic;
-import static de.mathema.pride.WhereCondition.Operator.UNEQUAL;
+import static pm.pride.WhereCondition.Operator.UNEQUAL;
 
 import java.sql.SQLException;
 
@@ -15,7 +15,7 @@ import java.sql.SQLException;
  *******************************************************************************/
 import org.junit.Test;
 
-import de.mathema.pride.WhereCondition;
+import pm.pride.WhereCondition;
 
 /**
  * @author less02

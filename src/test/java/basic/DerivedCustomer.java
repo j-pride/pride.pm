@@ -12,7 +12,7 @@ package basic;
  *******************************************************************************/
 import java.sql.SQLException;
 
-import de.mathema.pride.RecordDescriptor;
+import pm.pride.RecordDescriptor;
 
 /**
  * @author Matthias Bartels

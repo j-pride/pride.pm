@@ -1,9 +1,10 @@
 package basic;
 
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.RecordDescriptor;
-import de.mathema.pride.WhereCondition;
 import org.junit.Test;
+
+import pm.pride.DatabaseFactory;
+import pm.pride.RecordDescriptor;
+import pm.pride.WhereCondition;
 
 import java.sql.SQLException;
 

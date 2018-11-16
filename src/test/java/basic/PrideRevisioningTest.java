@@ -1,7 +1,8 @@
 package basic;
 
-import de.mathema.pride.*;
 import org.junit.Test;
+
+import pm.pride.*;
 
 import java.util.Date;
 @NeedsDBType(ResourceAccessor.DBType.ORACLE)

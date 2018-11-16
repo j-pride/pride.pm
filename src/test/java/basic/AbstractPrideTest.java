@@ -17,13 +17,13 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import de.mathema.pride.*;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Before;
 
-import de.mathema.pride.ResourceAccessor.DBType;
+import pm.pride.*;
+import pm.pride.ResourceAccessor.DBType;
 
 /**
  * @author bart57
@@ -44,8 +44,8 @@ public abstract class AbstractPrideTest extends Assert {
 			{ "Peter", "Pan" },
 			{ "Heinz", "Ketchup" },
 			{ "Chris", "K." },
-			{ "Peer", "Sönlich" },
-			{ "Hans", "Imglück" },
+			{ "Peer", "Sï¿½nlich" },
+			{ "Hans", "Imglï¿½ck" },
 			{ "Inge", "Heim-Ermission" },
 			{ "Inge", "Knito" }
 	};

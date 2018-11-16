@@ -1,17 +1,7 @@
 package basic;
-/*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
- *******************************************************************************/
-import de.mathema.pride.MappedObject;
-import de.mathema.pride.RecordDescriptor;
-import de.mathema.pride.RevisionedRecordDescriptor;
+import pm.pride.MappedObject;
+import pm.pride.RecordDescriptor;
+import pm.pride.RevisionedRecordDescriptor;
 
 /**
  * Base class for all entities being identified by an integer ID field.

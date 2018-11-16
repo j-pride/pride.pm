@@ -1,10 +1,11 @@
 package basic;
 
-import de.mathema.pride.BatchUpdateRevisioningException;
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.PreparedUpdate;
-import de.mathema.pride.ResourceAccessor;
 import org.junit.Test;
+
+import pm.pride.BatchUpdateRevisioningException;
+import pm.pride.DatabaseFactory;
+import pm.pride.PreparedUpdate;
+import pm.pride.ResourceAccessor;
 
 import java.util.Date;
 

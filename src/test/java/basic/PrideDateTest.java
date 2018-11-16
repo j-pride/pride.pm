@@ -8,7 +8,7 @@ package basic;
  * 
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
- *     Manfred Kardaß, Beckmann & Partner
+ *     Manfred Kardaï¿½, Beckmann & Partner
  *******************************************************************************/
 import java.sql.Timestamp;
 import java.sql.Date;
@@ -18,8 +18,8 @@ import java.util.GregorianCalendar;
 import org.junit.Test;
 
 import junit.framework.Assert;
-import de.mathema.pride.Database;
-import de.mathema.pride.DatabaseFactory;
+import pm.pride.Database;
+import pm.pride.DatabaseFactory;
 
 /**
  * @author ggdcc04

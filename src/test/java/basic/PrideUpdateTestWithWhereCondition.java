@@ -2,8 +2,8 @@ package basic;
 
 import org.junit.Test;
 
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.WhereCondition;
+import pm.pride.DatabaseFactory;
+import pm.pride.WhereCondition;
 
 public class PrideUpdateTestWithWhereCondition extends AbstractPrideTest {
 	

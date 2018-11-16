@@ -4,7 +4,7 @@ import java.sql.Connection;
 
 import org.junit.Test;
 
-import de.mathema.pride.DatabaseFactory;
+import pm.pride.DatabaseFactory;
 
 /*******************************************************************************
  * Copyright (c) 2001-2005 The PriDE team and MATHEMA Software GmbH

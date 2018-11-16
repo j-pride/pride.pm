@@ -11,8 +11,8 @@ package basic;
  *******************************************************************************/
 import org.junit.Test;
 
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.ResultIterator;
+import pm.pride.DatabaseFactory;
+import pm.pride.ResultIterator;
 
 
 /**

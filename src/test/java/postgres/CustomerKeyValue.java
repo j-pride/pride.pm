@@ -3,10 +3,9 @@ package postgres;
 import java.sql.SQLException;
 import java.util.Map;
 
-import de.mathema.pride.RecordDescriptor;
-
 import basic.Customer;
 import basic.IdentifiedEntity;
+import pm.pride.RecordDescriptor;
 
 public class CustomerKeyValue extends IdentifiedEntity {
     Map<String, String> contacts;

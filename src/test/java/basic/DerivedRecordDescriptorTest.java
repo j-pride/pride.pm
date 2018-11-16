@@ -1,19 +1,8 @@
 package basic;
 import org.junit.Test;
 
-/*******************************************************************************
- * Copyright (c) 2001-2003 The PriDE team and MATHEMA Software Ltd.
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of an extended GNU Public License
- * (GPL) which accompanies this distribution, and is available at
- * http://pride.sourceforge.net/EGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software Ltd. - initial API and implementation
- *     Matthias Bartels, arvato direct services GmbH
- *******************************************************************************/
-import de.mathema.pride.*;
 import junit.framework.TestCase;
+import pm.pride.*;
 import junit.framework.Assert;
 
 /**

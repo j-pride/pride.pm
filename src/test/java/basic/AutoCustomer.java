@@ -12,7 +12,7 @@ package basic;
 import java.sql.Date;
 import java.sql.SQLException;
 
-import de.mathema.pride.RecordDescriptor;
+import pm.pride.RecordDescriptor;
 
 /**
  * Same like {@link Customer} but defines function getAutoFields, which

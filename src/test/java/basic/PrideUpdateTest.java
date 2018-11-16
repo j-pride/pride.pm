@@ -1,18 +1,8 @@
 package basic;
 import org.junit.Test;
 
-/*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
- *******************************************************************************/
-import de.mathema.pride.DatabaseFactory;
-import de.mathema.pride.WhereCondition;
+import pm.pride.DatabaseFactory;
+import pm.pride.WhereCondition;
 
 import java.util.Date;
 

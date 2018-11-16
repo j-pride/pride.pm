@@ -1,11 +1,12 @@
 package basic;
 
-import de.mathema.pride.WhereCondition;
 import org.junit.Test;
 
-import java.sql.SQLException;
+import pm.pride.WhereCondition;
 
-import static de.mathema.pride.WhereCondition.Operator.UNEQUAL;
+import static pm.pride.WhereCondition.Operator.UNEQUAL;
+
+import java.sql.SQLException;
 
 public class PrideForUpdateTest extends AbstractPrideTest{
 

@@ -8,13 +8,12 @@
  * Contributors:
  *     Jan Lessner, MATHEMA Software Ltd. - initial API and implementation
  *******************************************************************************/
-import de.mathema.pride.*;
-
 import java.sql.Connection;
 import java.util.Calendar;
 import java.util.Date;
 
 import basic.Name;
+import pm.pride.*;
 
 public class simple {
 

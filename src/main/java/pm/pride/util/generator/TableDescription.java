@@ -31,12 +31,14 @@ public class TableDescription {
 											  tableName, "%");
 		Vector<TableColumn> result = new Vector<>(0);
 		while (rset2.next ()) {
-		  TableColumn tabColumn =
-			  new TableColumn(rset2.getString ("COLUMN_NAME"),
-							   rset2.getInt ("DATA_TYPE"),
-                               rset2.getInt ("DECIMAL_DIGITS"),
-							   (rset2.getInt ("NULLABLE")== ResultSetMetaData.columnNoNulls));
-		  result.addElement(tabColumn);
+			TableColumn tabColumn =
+					new TableColumn(
+							tableName,
+							rset2.getString ("COLUMN_NAME"),
+							rset2.getInt ("DATA_TYPE"),
+							rset2.getInt ("DECIMAL_DIGITS"),
+							(rset2.getInt ("NULLABLE")== ResultSetMetaData.columnNoNulls));
+			result.addElement(tabColumn);
 		}
 		rset2.close ();
 

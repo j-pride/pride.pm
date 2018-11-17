@@ -19,24 +19,32 @@ import java.sql.*;
  */
 public class TableColumn {
 
-    protected  String columnName;
-    protected     int columnType;
-    protected     int decimalDigits;
+    protected String tableName;
+    protected String columnName;
+    protected String uniqueColumnName;
+    protected int columnType;
+    protected int decimalDigits;
     protected boolean nullsForbidden;
     protected boolean primaryKeyField;
     
-    public TableColumn(String name, int type) {
-        this(name, type, 0, false);
+    public TableColumn(String tableName, String name, int type) {
+        this(tableName, name, type, 0, false);
     }
     
-    public TableColumn(String name, int type, int decimalDigits, boolean nullsForbidden) {
-        this.columnName     = name;
-        this.columnType     = type;
-        this.decimalDigits  = decimalDigits;
+    public TableColumn(String tableName, String columnName, int type, int decimalDigits, boolean nullsForbidden) {
+    	this.tableName = tableName;
+        this.columnName = columnName;
+        this.uniqueColumnName = columnName;
+        this.columnType = type;
+        this.decimalDigits = decimalDigits;
         this.nullsForbidden = nullsForbidden;
     }
 
 	public void setPrimaryKeyField() { primaryKeyField = true; }
+
+	public void makeUnique() {
+		this.uniqueColumnName = this.tableName + "_" + this.columnName;
+	}
 
 	/** @return true if this column is a primary key field */
 	public boolean isPrimaryKeyField() { return primaryKeyField; }
@@ -45,7 +53,9 @@ public class TableColumn {
      * @return column name in lower case and doesnt remove character underscore
      */
     public String getName() { return columnName.toLowerCase(); }
-	    
+
+    public String getUniqueName() { return uniqueColumnName.toLowerCase(); }
+
     /**
      * @return capitalized column name without underscores. Characters following
      * directly after underscores are printed in uppercase.
@@ -53,17 +63,17 @@ public class TableColumn {
     public String getName2() {
         StringBuffer newString = new StringBuffer();
         boolean nextUpper = true;
-        for (int i=0; i < columnName.length(); i++) {
-            if ( columnName.substring(i,i + 1).equals("_") ) {
+        for (int i=0; i < uniqueColumnName.length(); i++) {
+            if ( uniqueColumnName.substring(i,i + 1).equals("_") ) {
                 nextUpper = true;
             }
             else {
                 if ( nextUpper ) {
-                    newString.append(columnName.substring(i,i + 1).toUpperCase());
+                    newString.append(uniqueColumnName.substring(i,i + 1).toUpperCase());
                     nextUpper = false;
                 }
                 else
-                    newString.append(columnName.substring(i,i + 1).toLowerCase());
+                    newString.append(uniqueColumnName.substring(i,i + 1).toLowerCase());
             }
         }
         return newString.toString();
@@ -75,17 +85,17 @@ public class TableColumn {
     public String getName3() {
         StringBuffer newString = new StringBuffer();
         boolean nextUpper = false;
-        for (int i=0; i < columnName.length(); i++) {
-            if ( columnName.substring(i,i + 1).equals("_") ) {
+        for (int i=0; i < uniqueColumnName.length(); i++) {
+            if ( uniqueColumnName.substring(i,i + 1).equals("_") ) {
                 nextUpper = true;
             }
             else {
                 if ( nextUpper ) {
-                    newString.append(columnName.substring(i,i + 1).toUpperCase());
+                    newString.append(uniqueColumnName.substring(i,i + 1).toUpperCase());
                     nextUpper = false;
                 }
                 else
-                    newString.append(columnName.substring(i,i + 1).toLowerCase());
+                    newString.append(uniqueColumnName.substring(i,i + 1).toLowerCase());
             }
         }
         return newString.toString();
@@ -144,8 +154,14 @@ public class TableColumn {
         case Types.TIMESTAMP:
             returnType = "java.sql.Timestamp";
             break;
+        default:
+        	returnType = "Object";
         }
         
         return returnType;
     }
+
+	public String getTableName() {
+		return tableName;
+	}
 }

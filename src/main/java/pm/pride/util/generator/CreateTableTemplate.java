@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
+ * Copyright (c) 2001-2018 The PriDE team
  * All rights reserved. This toolkit and the accompanying materials 
  * are made available under the terms of the GNU Lesser General Public
  * License (LGPL) which accompanies this distribution, and is available
  * at http://pride.sourceforge.net/LGPL.html
  * 
  * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
+ *     Jan Lessner, S&N AG
  *     Matthias Bartels, arvato direct services
  *******************************************************************************/
 package pm.pride.util.generator;
@@ -38,6 +38,9 @@ public class CreateTableTemplate {
 	protected String generationType;
 	protected String[] tableNames;
 	protected ClassLoader classLoader;
+	protected List<TableColumn> flatTableColumns;
+	protected TableDescription[] tableDesc;
+	protected List<TableColumn> flatTableColumnList;
 
 	public CreateTableTemplate(String dbDriver,String dbName,
 							   String user, String passwd,
@@ -129,7 +132,8 @@ public class CreateTableTemplate {
 		Connection con = getDBConnection();
 		StringBuffer buffer = new StringBuffer();
 		if (con != null) {
-			TableDescription[] tableDesc = getTableDescription(con);
+			tableDesc = getTableDescription(con);
+			flatTableColumnList = flattenTableColumns(tableDesc);
 			writePackage(tableDesc, className, baseClassName, generationType, buffer);
 			writeHeader(tableDesc, className, baseClassName, generationType, buffer);
 			writeConstants(tableDesc, className, baseClassName, generationType, buffer);
@@ -186,348 +190,297 @@ public class CreateTableTemplate {
 		return tableDesc;
 	}
 
-        /** Prints the package name to standard out */
-        public void writePackage (TableDescription[] desc, String className, String baseClassName,
-        						  String generationType, StringBuffer buffer) {
-            buffer.append(getPackage(className) + "\n");
-            buffer.append("\n");
-        }
+    /** Prints the package name to standard out */
+    public void writePackage (TableDescription[] desc, String className, String baseClassName,
+    						  String generationType, StringBuffer buffer) {
+        buffer.append(getPackage(className) + "\n");
+        buffer.append("\n");
+    }
 
-        /** Prints the author tag to standard out, using the current
-         * database user and database name as an identificatio
-         */
-        public void writeAuthor (TableDescription[] desc, String className, String baseClassName,
-        						 String generationType, StringBuffer buffer) {
-        	if (System.getProperty("user.name") != null)
-            	buffer.append(" * @author " + System.getProperty("user.name") + "\n");
-            else
-				buffer.append(" * @author " + user + "@" + dbName + "\n");
-        }
+    /** Prints the author tag to standard out, using the current
+     * database user and database name as an identificatio
+     */
+    public void writeAuthor (TableDescription[] desc, String className, String baseClassName,
+    						 String generationType, StringBuffer buffer) {
+    	if (System.getProperty("user.name") != null)
+        	buffer.append(" * @author " + System.getProperty("user.name") + "\n");
+        else
+			buffer.append(" * @author " + user + "@" + dbName + "\n");
+    }
 
-		/** Determine the base class for the class to generate. When generating
-		 * a hybrid type, the base class is {@link pm.pride.MappedObject},
-		 * for adapters it is {@link pm.pride.ObjectAdapter} and for beans
-		 * it is nothing. If a base class is passed, it is takes as is. In case of
-		 * bean generation, the base class is assumed to specify the base adapter
-		 * class and the baes bean class is extracted by reflection.
-		 */
-		protected String getBaseClassName(String baseClassName, String generationType)
-			throws SQLException {
-			if (baseClassName == null) {
-				if (generationType.equals(HYBRID))
-					return "MappedObject";
-				else if (!generationType.equals(BEAN))
-					return "ObjectAdapter";
-				else
-					return null;
-			}
-			else {
-				if (generationType.equals(BEAN))
-					return extractBeanClass(baseClassName);
-				else
-					return baseClassName;
-			}
-		}
-		
-        /** Prints the class header to standard out */
-        public void writeHeader (TableDescription[] desc, String className, String baseClassName,
-        						 String generationType, StringBuffer buffer)
-        	throws SQLException {
-			if (!generationType.equals(BEAN)) {
-	            buffer.append("import java.sql.SQLException;" + "\n");
-	            buffer.append("import de.mathema.pride.*;" + "\n");
-	            buffer.append("\n");
-			}
-            buffer.append("/**" + "\n");
-            writeAuthor(desc, className, baseClassName, generationType, buffer);
-            buffer.append(" */" + "\n");
-            buffer.append("public class " + getClassName(className) + " ");
-            String actualBaseClassName = getBaseClassName(baseClassName, generationType);
-            if (actualBaseClassName != null)
-				buffer.append("extends " + actualBaseClassName + " ");
-			if (baseClassName == null && (generationType.equals(BEAN) || generationType.equals(HYBRID)))
-				buffer.append("implements Cloneable, java.io.Serializable ");
-			buffer.append("{\n");
-        }
-
-        public void writeConstants (TableDescription[] desc, String className,
-				   String baseClassName, String generationType, StringBuffer buffer)
-			throws SQLException {
-			if (generationType.equals(BEAN))
-				return;
-            HashMap<TableDescription, HashMap<String, TableColumn>> tableDescs = getAllTableColums(desc);
-            for (TableDescription currentTD: tableDescs.keySet()) {
-                HashMap<String, TableColumn> tableColumns = tableDescs.get(currentTD);
-                for (String uniqueName: tableColumns.keySet()) {
-                	
-                }
-            }
-        }
-        
-        /** Prints the record descriptor and its access function to standard out */
-        public void writeRecordDescriptor (TableDescription[] desc, String className,
-        								   String baseClassName, String generationType, StringBuffer buffer)
-        	throws SQLException {
-			if (generationType.equals(BEAN))
-				return;
-
-			Set<String> baseClassFields = extractMappedFields(baseClassName);
-			buffer.append("    protected static final RecordDescriptor red = new RecordDescriptor" + "\n");
-			buffer.append("        (");
-			buffer.append(getClassName(generationType.equals(HYBRID) ? className : generationType));
-			buffer.append(".class, \"" + getTableName(tableNames) + "\", ");
-			buffer.append(baseClassName != null ? baseClassName + ".red" : "null");
-			buffer.append(", new String[][] {" + "\n");
-			HashMap<TableDescription, HashMap<String, TableColumn>> tableDescs = getAllTableColums(desc);
-            for (TableDescription currentTD: tableDescs.keySet()) {
-                HashMap<String, TableColumn> tableColumns = tableDescs.get(currentTD);
-                for (String uniqueName: tableColumns.keySet()) {
-                    TableColumn current = (TableColumn)tableColumns.get(uniqueName);
-                    if (baseClassFields.remove(current.getName()))
-                    	continue;
-                    String name = null;
-                    if (desc.length > 1)
-                        name = currentTD.getTableName() + "." + current.getName();
-                    else
-                        name = current.getName();
-                    String name2 = null;
-                    if (uniqueName.indexOf(currentTD.getTableName()) != -1 && desc.length != 1)
-                        name2 = currentTD.getTableNameFirstUpper() + current.getName2();
-                    else
-                        name2 = current.getName2();
-                    StringBuffer sb = new StringBuffer();
-                    sb.append("            { \"");
-                    sb.append(name);
-                    sb.append("\",   \"get");
-                    sb.append(name2);
-                    sb.append("\",   \"set");
-                    sb.append(name2);
-                    sb.append("\" },");
-                    buffer.append(sb.toString() + "\n");
-                }
-            }
-            buffer.append("        });" + "\n\n");
-            buffer.append("    protected RecordDescriptor getDescriptor() { return red; }" + "\n");
-            buffer.append("\n");
-            if (!baseClassFields.isEmpty()) {
-            	throw new SQLException("Base class " + baseClassName + " maps field " +
-            						   baseClassFields.toArray()[0] + " which is not a member of derived class");
-            }
-        }
-
-		public void writeEntityReference(TableDescription[] desc, String className, String baseClassName,
-									     String generationType, StringBuffer buffer) {
-			if (generationType.equals(BEAN) || generationType.equals(HYBRID))
-				return;
-
-			if (baseClassName == null) {
-				buffer.append("    private " + getClassName(generationType) + " entity;\n");
-				buffer.append("    protected Object getEntity() { return entity; }\n");
-			}
-			buffer.append("    " + getClassName(className) + "(" +
-						  getClassName(generationType) + " entity) { ");
-			if (baseClassName == null)
-				buffer.append("this.entity = entity;");
+	/** Determine the base class for the class to generate. When generating
+	 * a hybrid type, the base class is {@link pm.pride.MappedObject},
+	 * for adapters it is {@link pm.pride.ObjectAdapter} and for beans
+	 * it is nothing. If a base class is passed, it is takes as is. In case of
+	 * bean generation, the base class is assumed to specify the base adapter
+	 * class and the baes bean class is extracted by reflection.
+	 */
+	protected String getBaseClassName(String baseClassName, String generationType)
+		throws SQLException {
+		if (baseClassName == null) {
+			if (generationType.equals(HYBRID))
+				return "MappedObject";
+			else if (!generationType.equals(BEAN))
+				return "ObjectAdapter";
 			else
-				buffer.append("super(entity);");
-			buffer.append(" }\n\n");
+				return null;
 		}
-
-		private boolean hasPrimaryKey(TableDescription tdesc) {	
-			for(TableColumn current: tdesc.getList()) {
-				if (current.isPrimaryKeyField())
-					return true;
-			}
-			return false;
-		}
-		
-	    /** Prints the primary key definition and its access function to standard out */
-        public void writePrimaryKey (TableDescription[] desc, String className, String baseClassName,
-        							 String generationType, StringBuffer buffer) {
+		else {
 			if (generationType.equals(BEAN))
-				return;
-
-            if (desc.length == 1) {
-                if (hasPrimaryKey(desc[0])) {
-                    buffer.append("    private static String[] keyFields = new String[] {");
-                    for(TableColumn current: desc[0].getList()) {
-						if (current.isPrimaryKeyField())
-	                    	buffer.append(" \"" + current.getName() + "\",");
-                	}
-                	buffer.deleteCharAt(buffer.length()-1);
-                    buffer.append(" };" + "\n");
-                    buffer.append("    public String[] getKeyFields() { return keyFields; }" + "\n");
-                }
-                buffer.append("\n");
-            }
-        }
-
-        /** Prints the data members to standard out */
-        public void writeAttributes (TableDescription[] desc, String className, String baseClassName,
-        							 String generationType, StringBuffer buffer)
-        	throws SQLException {
-			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
-				return;
-
-			Set<String> baseClassFields = extractMappedFields(baseClassName);
-			HashMap<TableDescription, HashMap<String, TableColumn>> tableDescs = getAllTableColums(desc);
-			buffer.append("    // Data members" + "\n");
-            for (TableDescription currentTD: tableDescs.keySet()) {
-                HashMap<String, TableColumn> tableColumns = tableDescs.get(currentTD);
-                for (String uniqueName: tableColumns.keySet()) {
-                    TableColumn current = tableColumns.get(uniqueName);
-                    String name = null;
-					if (baseClassFields.contains(current.getName()))
-						continue;
-                    if (uniqueName.indexOf(currentTD.getTableName()) != -1 && desc.length != 1) {
-                        name = currentTD.getTableName().toLowerCase() + current.getName2();
-                    }
-                    else {
-                        name = current.getName3();
-                    }
-                    buffer.append("    private " + (current.getType() != null ?current.getType():"Object") + " "
-                            + name + ";" + "\n");
-                }
-            }
+				return extractBeanClass(baseClassName);
+			else
+				return baseClassName;
+		}
+	}
+	
+    /** Prints the class header to standard out */
+    public void writeHeader (TableDescription[] desc, String className, String baseClassName,
+    						 String generationType, StringBuffer buffer)
+    	throws SQLException {
+		if (!generationType.equals(BEAN)) {
+            buffer.append("import java.sql.SQLException;" + "\n");
+            buffer.append("import pm.pride.*;" + "\n");
             buffer.append("\n");
+		}
+        buffer.append("/**" + "\n");
+        writeAuthor(desc, className, baseClassName, generationType, buffer);
+        buffer.append(" */" + "\n");
+        buffer.append("public class " + getClassName(className) + " ");
+        String actualBaseClassName = getBaseClassName(baseClassName, generationType);
+        if (actualBaseClassName != null)
+			buffer.append("extends " + actualBaseClassName + " ");
+		if (baseClassName == null && (generationType.equals(BEAN) || generationType.equals(HYBRID)))
+			buffer.append("implements Cloneable, java.io.Serializable ");
+		buffer.append("{\n");
+    }
+
+    public void writeConstants (TableDescription[] desc, String className,
+			   String baseClassName, String generationType, StringBuffer buffer)
+		throws SQLException {
+		if (generationType.equals(BEAN))
+			return;
+		Set<String> baseClassFields = extractMappedFields(baseClassName);
+        for (TableColumn tableColumn: flatTableColumnList) {
+            if (baseClassFields.remove(tableColumn.getName()))
+            	continue;
         }
+    }
+    
+    /** Prints the record descriptor and its access function to standard out */
+    public void writeRecordDescriptor (TableDescription[] desc, String className,
+    								   String baseClassName, String generationType, StringBuffer buffer)
+    	throws SQLException {
+		if (generationType.equals(BEAN))
+			return;
 
-        /** Prints the geter methods for all members to standard out */
-        public void writeGetMethods (TableDescription[] desc, String className, String baseClassName,
-        							 String generationType, StringBuffer buffer)
-        	throws SQLException {
-			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
-				return;
-
-			Set<String> baseClassFields = extractMappedFields(baseClassName);
-			HashMap<TableDescription, HashMap<String, TableColumn>> tableDescs = getAllTableColums(desc);
-			buffer.append("    // Read access functions" + "\n");
-            for (TableDescription currentTD: tableDescs.keySet()) {
-                HashMap<String, TableColumn> tableColumns = tableDescs.get(currentTD);
-                for (String uniqueName: tableColumns.keySet()) {
-                    TableColumn current = tableColumns.get(uniqueName);
-                    String name = null;
-                    String name2 = null;
-					if (baseClassFields.contains(current.getName()))
-						continue;
-                    if (uniqueName.indexOf(currentTD.getTableName()) != -1 && desc.length != 1) {
-                        name = currentTD.getTableName().toLowerCase() + current.getName2();
-                        name2 = currentTD.getTableNameFirstUpper() + current.getName2();
-                    }
-                    else {
-                        name = current.getName3();
-                        name2 = current.getName2();
-                    }
-                    buffer.append("    public " + (current.getType() != null ?current.getType():"Object")  + " get"
-                            + name2 + "()   { return " + name + "; }" + "\n");
-                }
-            }
-            buffer.append("\n");
-        }
-
-        /** Prints the seter methods for all members to standard out */
-        public void writeSetMethods (TableDescription[] desc, String className, String baseClassName,
-        							 String generationType, StringBuffer buffer)
-        	throws SQLException {
-			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
-				return;
-
-			Set<String> baseClassFields = extractMappedFields(baseClassName);
-			HashMap<TableDescription, HashMap<String, TableColumn>> tableDescs = getAllTableColums(desc);
-			buffer.append("    // Write access functions" + "\n");
-            for (TableDescription currentTD: tableDescs.keySet()) {
-                HashMap<String, TableColumn> tableColumns = tableDescs.get(currentTD);
-                for (String uniqueName: tableColumns.keySet()) {
-                    TableColumn current = (TableColumn)tableColumns.get(uniqueName);
-                    String name = null;
-                    String name2 = null;
-					if (baseClassFields.contains(current.getName()))
-						continue;
-                    if (uniqueName.indexOf(currentTD.getTableName()) != -1 && desc.length != 1) {
-                        name = currentTD.getTableName().toLowerCase() + current.getName2();
-                        name2 = currentTD.getTableNameFirstUpper() + current.getName2();
-                    }
-                    else {
-                        name = current.getName3();
-                        name2 = current.getName2();
-                    }
-                    buffer.append("    public void set" + name2 + "(" + (current.getType() != null ?current.getType():"Object")
-                            + " " + name + ") { this." + name + " = " + name +
-                            "; }" + "\n");
-                }
-            }
-        }
-
-		public void writeToString(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {
-			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
-				return;
-			if (baseClassName != null)
-				return;
-
-            buffer.append("    public String toString() { return super.toString(); }\n" + "\n");
-        }
-
-		public void writeClone(TableDescription[] desc, String className, String baseClassName,
-							   String generationType, StringBuffer buffer) {
-			if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
-				return;
-			if (baseClassName != null)
-				return;
-
-            buffer.append("    public Object clone() {\n" +
-                          "        try { return super.clone(); }\n" +
-                          "        catch(CloneNotSupportedException cnsx) { return null; }\n" +
-                          "    }\n" + "\n");
-        }
-
-		/** Prints a reconstructor to restore an existing records from its primary key fields */
-		public void writeReconstructor(TableDescription desc, String className,
-									   String baseClassName, StringBuffer buffer) {
-            if (!desc.hasPrimaryKey())
-                return;
-			buffer.append("\n    // Reconstructor\n");
-			buffer.append("    public " + getClassName(className) + "(");
-			for (TableColumn current: desc.getList()) {
-				if (current.isPrimaryKeyField())
-                    buffer.append((current.getType() != null? current.getType(): "Object") + " " + current.getName() + ", ");
-			}
-            buffer.delete(buffer.lastIndexOf(","), buffer.length());	
-			buffer.append(") throws SQLException {\n");
-			if (baseClassName != null)
-				buffer.append("        super(");
-			for (TableColumn current: desc.getList()) {
-				if (current.isPrimaryKeyField()) {
-					if (baseClassName == null)
-						buffer.append("        set" + current.getName2() + "(" + current.getName() + ");\n");
-					else
-						buffer.append(current.getName() + ", ");
-				}
-			}
-			if (baseClassName != null) {
-				buffer.delete(buffer.lastIndexOf(","), buffer.length());
-				buffer.append(");\n");
-			}
-			buffer.append("        find();\n    }\n");	
+		Set<String> baseClassFields = extractMappedFields(baseClassName);
+		buffer.append("    protected static final RecordDescriptor red = new RecordDescriptor" + "\n");
+		buffer.append("        (");
+		buffer.append(getClassName(generationType.equals(HYBRID) ? className : generationType));
+		buffer.append(".class, \"" + getTableName(tableNames) + "\", ");
+		buffer.append(baseClassName != null ? baseClassName + ".red" : "null");
+		buffer.append(", new String[][] {" + "\n");
+		
+		for (TableColumn tableColumn: flatTableColumnList) {
+            if (baseClassFields.remove(tableColumn.getName()))
+            	continue;
+            String name = null;
+            if (desc.length > 1)
+                name = tableColumn.getTableName() + "." + tableColumn.getName();
+            else
+                name = tableColumn.getName();
+            StringBuffer sb = new StringBuffer();
+            sb.append("            { \"");
+            sb.append(name);
+            sb.append("\",   \"get");
+            sb.append(tableColumn.getName2());
+            sb.append("\",   \"set");
+            sb.append(tableColumn.getName2());
+            sb.append("\" },");
+            buffer.append(sb.toString() + "\n");
+			
 		}
 		
-        /** Prints the footer to standard out, i.e. a reconstructor, a default constructor,
-         * a toString method, a clone method, and the closing bracket
-         */
-		public void writeFooter(TableDescription[] desc, String className, String baseClassName,
-								String generationType, StringBuffer buffer) {
-			if (desc.length == 1 && generationType.equals(HYBRID)) {
-				if (desc[0].getList().size() > 0)
-					writeReconstructor(desc[0], className, baseClassName, buffer);
-				buffer.append("\n");
-				buffer.append("    public " + getClassName(className) + "() {}\n\n");
-			}
-			
-			writeToString(desc, className, generationType, buffer);
-			writeClone(desc, className, baseClassName, generationType, buffer);
-			
-			buffer.append("}" + "\n");
-			buffer.append("\n" + "\n");
+        buffer.append("        });" + "\n\n");
+        buffer.append("    protected RecordDescriptor getDescriptor() { return red; }" + "\n");
+        buffer.append("\n");
+        if (!baseClassFields.isEmpty()) {
+        	throw new SQLException("Base class " + baseClassName + " maps field " +
+        						   baseClassFields.toArray()[0] + " which is not a member of derived class");
+        }
+    }
+
+	public void writeEntityReference(TableDescription[] desc, String className, String baseClassName,
+								     String generationType, StringBuffer buffer) {
+		if (generationType.equals(BEAN) || generationType.equals(HYBRID))
+			return;
+
+		if (baseClassName == null) {
+			buffer.append("    private " + getClassName(generationType) + " entity;\n");
+			buffer.append("    protected Object getEntity() { return entity; }\n");
 		}
+		buffer.append("    " + getClassName(className) + "(" +
+					  getClassName(generationType) + " entity) { ");
+		if (baseClassName == null)
+			buffer.append("this.entity = entity;");
+		else
+			buffer.append("super(entity);");
+		buffer.append(" }\n\n");
+	}
+
+	private boolean hasPrimaryKey(TableDescription tdesc) {	
+		for(TableColumn current: tdesc.getList()) {
+			if (current.isPrimaryKeyField())
+				return true;
+		}
+		return false;
+	}
+	
+    /** Prints the primary key definition and its access function to standard out */
+    public void writePrimaryKey (TableDescription[] desc, String className, String baseClassName,
+    							 String generationType, StringBuffer buffer) {
+		if (generationType.equals(BEAN))
+			return;
+
+        if (desc.length == 1) {
+            if (hasPrimaryKey(desc[0])) {
+                buffer.append("    private static String[] keyFields = new String[] {");
+                for(TableColumn current: desc[0].getList()) {
+					if (current.isPrimaryKeyField())
+                    	buffer.append(" \"" + current.getName() + "\",");
+            	}
+            	buffer.deleteCharAt(buffer.length()-1);
+                buffer.append(" };" + "\n");
+                buffer.append("    public String[] getKeyFields() { return keyFields; }" + "\n");
+            }
+            buffer.append("\n");
+        }
+    }
+
+    /** Prints the data members to standard out */
+    public void writeAttributes (TableDescription[] desc, String className, String baseClassName,
+    							 String generationType, StringBuffer buffer)
+    	throws SQLException {
+		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+			return;
+
+		Set<String> baseClassFields = extractMappedFields(baseClassName);
+
+		for (TableColumn tableColumn: flatTableColumnList) {
+			if (baseClassFields.contains(tableColumn.getName()))
+				continue;
+            buffer.append("    private " + tableColumn.getType() + " " + tableColumn.getName3() + ";" + "\n");
+			
+		}
+		
+        buffer.append("\n");
+    }
+
+    /** Prints the geter methods for all members to standard out */
+    public void writeGetMethods (TableDescription[] desc, String className, String baseClassName,
+    							 String generationType, StringBuffer buffer)
+    	throws SQLException {
+		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+			return;
+
+		Set<String> baseClassFields = extractMappedFields(baseClassName);
+
+		buffer.append("    // Read access functions" + "\n");
+		for (TableColumn tableColumn: flatTableColumnList) {
+            buffer.append("    public " + tableColumn.getType()  + " get"
+                    + tableColumn.getName2() + "()   { return " + tableColumn.getName3() + "; }" + "\n");
+			
+		}
+        buffer.append("\n");
+    }
+
+    /** Prints the seter methods for all members to standard out */
+    public void writeSetMethods (TableDescription[] desc, String className, String baseClassName,
+    							 String generationType, StringBuffer buffer)
+    	throws SQLException {
+		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+			return;
+
+		buffer.append("    // Write access functions" + "\n");
+		for (TableColumn tableColumn: flatTableColumnList) {
+            buffer.append("    public void set" + tableColumn.getName2() + "(" + tableColumn.getType()
+                    + " " + tableColumn.getName3() + ") { this." + tableColumn.getName3() + " = " + tableColumn.getName3() +
+                    "; }" + "\n");
+			
+		}
+        buffer.append("\n");
+    }
+
+	public void writeToString(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {
+		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+			return;
+		if (baseClassName != null)
+			return;
+
+        buffer.append("    public String toString() { return super.toString(); }\n" + "\n");
+    }
+
+	public void writeClone(TableDescription[] desc, String className, String baseClassName,
+						   String generationType, StringBuffer buffer) {
+		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+			return;
+		if (baseClassName != null)
+			return;
+
+        buffer.append("    public Object clone() {\n" +
+                      "        try { return super.clone(); }\n" +
+                      "        catch(CloneNotSupportedException cnsx) { return null; }\n" +
+                      "    }\n" + "\n");
+    }
+
+	/** Prints a reconstructor to restore an existing records from its primary key fields */
+	public void writeReconstructor(TableDescription desc, String className,
+								   String baseClassName, StringBuffer buffer) {
+        if (!desc.hasPrimaryKey())
+            return;
+		buffer.append("\n    // Reconstructor\n");
+		buffer.append("    public " + getClassName(className) + "(");
+		for (TableColumn current: desc.getList()) {
+			if (current.isPrimaryKeyField())
+                buffer.append((current.getType() != null? current.getType(): "Object") + " " + current.getName() + ", ");
+		}
+        buffer.delete(buffer.lastIndexOf(","), buffer.length());	
+		buffer.append(") throws SQLException {\n");
+		if (baseClassName != null)
+			buffer.append("        super(");
+		for (TableColumn current: desc.getList()) {
+			if (current.isPrimaryKeyField()) {
+				if (baseClassName == null)
+					buffer.append("        set" + current.getName2() + "(" + current.getName() + ");\n");
+				else
+					buffer.append(current.getName() + ", ");
+			}
+		}
+		if (baseClassName != null) {
+			buffer.delete(buffer.lastIndexOf(","), buffer.length());
+			buffer.append(");\n");
+		}
+		buffer.append("        find();\n    }\n");	
+	}
+	
+    /** Prints the footer to standard out, i.e. a reconstructor, a default constructor,
+     * a toString method, a clone method, and the closing bracket
+     */
+	public void writeFooter(TableDescription[] desc, String className, String baseClassName,
+							String generationType, StringBuffer buffer) {
+		if (desc.length == 1 && generationType.equals(HYBRID)) {
+			if (desc[0].getList().size() > 0)
+				writeReconstructor(desc[0], className, baseClassName, buffer);
+			buffer.append("\n");
+			buffer.append("    public " + getClassName(className) + "() {}\n\n");
+		}
+		
+		writeToString(desc, className, generationType, buffer);
+		writeClone(desc, className, baseClassName, generationType, buffer);
+		
+		buffer.append("}" + "\n");
+		buffer.append("\n" + "\n");
+	}
 
 	/**
 	 * @return ID-Typ der Tabelle
@@ -571,43 +524,28 @@ public class CreateTableTemplate {
 		return buf.toString();
 	}
 
-	/**
-	 * Method to Extract all TableColumns from the TableDescriptions
-	 * @return HashMap with following Format:
-	 * 		Key: TableDescription Value:HashMap with Format:
-	 *      Key: java.lang.String attributName Value: de.mathema.pride.util.TableColumns tableColumn
-	 *
-	 */
-	protected HashMap<TableDescription, HashMap<String, TableColumn>> getAllTableColums(TableDescription[] desc) {
-		HashMap<TableDescription, HashMap<String, TableColumn>> tds = new HashMap<>();
-		LinkedList<String> usedNames = new LinkedList<>();
-		LinkedList<String> criticalNames = new LinkedList<>();
-		for (int i = 0; i < desc.length; i++) {
-			TableDescription td = (TableDescription) desc[i];
-			for (TableColumn current: td.getList()) {
-				if (usedNames.contains(current.getName())) {
-					String name = td.getTableName() + current.getName();
-					criticalNames.add(current.getName());
-					usedNames.add(name);
-				} else {
-					usedNames.add(current.getName());
+	protected List<TableColumn> flattenTableColumns(TableDescription[] tableDescriptions) {
+		List<String> usedColumnNames = new LinkedList<>();
+		List<String> notUniqueColumnNames = new LinkedList<>();
+		List<TableColumn> flatTableColumnList = new ArrayList<>();
+		
+		for (TableDescription tableDescription: tableDescriptions) {
+			for (TableColumn tableColumn: tableDescription.getList()) {
+				flatTableColumnList.add(tableColumn);
+				if (usedColumnNames.contains(tableColumn.getName())) {
+					notUniqueColumnNames.add(tableColumn.getName());
+				}
+				else {
+					usedColumnNames.add(tableColumn.getName());
 				}
 			}
 		}
-		for (int i = 0; i < desc.length; i++) {
-			TableDescription td = (TableDescription) desc[i];
-			HashMap<String, TableColumn> tableColumns = new HashMap<>();
-			for (TableColumn current: td.getList()) {
-				if (criticalNames.contains(current.getName())) {
-					String name = td.getTableName() + current.getName();
-					tableColumns.put(name, current);
-				} else {
-					tableColumns.put(current.getName(), current);
-				}
+		for (TableColumn tableColumn: flatTableColumnList) {
+			if (notUniqueColumnNames.contains(tableColumn.getName())) {
+				tableColumn.makeUnique();
 			}
-			tds.put(td, tableColumns);
 		}
-		return tds;
+		return flatTableColumnList;
 	}
 
 	/**

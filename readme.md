@@ -11,12 +11,12 @@ See doc/PriDE-History.html for release notes!
 
 ## Building PriDE
 
-PriDE is a maven based project. The JUnit-Tests can be executed against different types of databases.
+PriDE is a Maven-based project. The JUnit-Tests can be executed against different types of databases.
 At the moment the following types of databases are supported and actively tested on [Travis CI](https://travis-ci.org/j-pride/pride.pm):
 
 * HSQLDB (Version 2.x.x)
 * MySQL (Version 5.5)
-* Postgres (Version 10.x)
+* Postgres (Version 9.6)
 * Oracle XE 11g
 * Oracle EE (Exadata) **Not on Travis CI, but works in production!**
 

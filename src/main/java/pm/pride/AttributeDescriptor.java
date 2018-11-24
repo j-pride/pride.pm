@@ -13,6 +13,7 @@ package pm.pride;
 import static pm.pride.RevisionedRecordDescriptor.FLAG_IS_NOT_REVISIONED;
 import static pm.pride.RevisionedRecordDescriptor.FLAG_IS_REVISIONED;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -261,15 +262,39 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         else {
             if (enumType != null && (dbValue instanceof String))
                 dbValue = Enum.valueOf(enumType, (String)dbValue);
-            // Following lines work with reflection as they are only valid for Postgres databases
-            // and must not cause any trouble when working with different databases
-            else if (dbValue.getClass().getName().equals("org.postgresql.jdbc4.Jdbc4Array"))
-                dbValue = PosgresAccess.extractArrayFromResultSet(dbValue, fieldAccess.typeFromSetter());
+            else if (dbValue instanceof java.sql.Array) {
+            	dbValue = sqlArray2javaArray((java.sql.Array)dbValue, fieldAccess.typeFromSetter());
+            }
         }
         fieldAccess.set(obj, dbValue);
     }
 
-    /** Returns a string representation of the passed object's value for
+    /** This method is required to also support Enums and primitive types as array elements
+     * Additionally it turned out that Postgres (the only database with array support we know)
+     * uses the String "NULL" to represent a NULL value in a String arrays.
+     */
+    private Object sqlArray2javaArray(java.sql.Array dbValue, Class<?> targetArrayType) throws SQLException {
+        Object rawArray = dbValue.getArray();
+        Class<?> targetComponentType = targetArrayType.getComponentType();
+        if (targetComponentType.isPrimitive() || targetComponentType.isEnum()) {
+            int arrayLength = Array.getLength(rawArray);
+            Object unboxedArray = Array.newInstance(targetComponentType, arrayLength);
+            for (int i = 0; i < arrayLength; i++) {
+                Object rawItemValue = Array.get(rawArray, i);
+                if (targetComponentType.isPrimitive()) {
+                    Array.set(unboxedArray, i, rawItemValue);
+                }
+                else {
+                    Object enumarizedItemValue = Enum.valueOf((Class<Enum>)targetComponentType, rawItemValue.toString());
+                    Array.set(unboxedArray, i, enumarizedItemValue);
+                }
+            }
+            return unboxedArray;
+        }
+        return rawArray;
+	}
+
+	/** Returns a string representation of the passed object's value for
      * this descriptor's attribute. If obj is null, returns "?", required
      * for prepared statements.
      */

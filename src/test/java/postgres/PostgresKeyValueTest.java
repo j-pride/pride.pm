@@ -1,6 +1,8 @@
 package postgres;
 
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.SQLType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -69,7 +71,7 @@ public class PostgresKeyValueTest extends AbstractPrideTest {
 
     @Test
     public void testPreparedInsert() throws Exception {
-        CustomerKeyValue customer = newCustomer(3);
+    	CustomerKeyValue customer = newCustomer(3);
         PreparedInsert pi = new PreparedInsert(customer.getDescriptor());
         pi.execute(customer);
         

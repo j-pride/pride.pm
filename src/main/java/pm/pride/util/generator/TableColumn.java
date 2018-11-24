@@ -60,7 +60,7 @@ public class TableColumn {
      * @return capitalized column name without underscores. Characters following
      * directly after underscores are printed in uppercase.
      */
-    public String getName2() {
+    public String getNameCamelCaseFirstUp() {
         StringBuffer newString = new StringBuffer();
         boolean nextUpper = true;
         for (int i=0; i < uniqueColumnName.length(); i++) {
@@ -82,23 +82,14 @@ public class TableColumn {
     /**
      * @return column name. Like getName2 but prints the first letter in lowercase.
      */
-    public String getName3() {
-        StringBuffer newString = new StringBuffer();
-        boolean nextUpper = false;
-        for (int i=0; i < uniqueColumnName.length(); i++) {
-            if ( uniqueColumnName.substring(i,i + 1).equals("_") ) {
-                nextUpper = true;
-            }
-            else {
-                if ( nextUpper ) {
-                    newString.append(uniqueColumnName.substring(i,i + 1).toUpperCase());
-                    nextUpper = false;
-                }
-                else
-                    newString.append(uniqueColumnName.substring(i,i + 1).toLowerCase());
-            }
-        }
-        return newString.toString();
+    public String getNameCamelCaseFirstLow() {
+    	String firstUp = getNameCamelCaseFirstUp();
+    	String head = firstUp.substring(0, 1);
+    	return head.toLowerCase() + firstUp.substring(1);
+    }
+    
+    public String getNameUpper() {
+    	return getUniqueName().toUpperCase();
     }
     
     /**

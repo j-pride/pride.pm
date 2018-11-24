@@ -16,3 +16,7 @@ test.properties
 test.script
 test.lck
 *.eml
+/.project
+/.classpath
+.settings
+/config/jlessner.test.config.properties

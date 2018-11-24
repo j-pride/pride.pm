@@ -254,16 +254,27 @@ public class CreateTableTemplate {
 		buffer.append("{\n");
     }
 
+    public String toColumnConstant(TableColumn column) {
+    	return "COL_" + column.getNameUpper();
+    }
+    
     public void writeConstants (TableDescription[] desc, String className,
 			   String baseClassName, String generationType, StringBuffer buffer)
 		throws SQLException {
 		if (generationType.equals(BEAN))
 			return;
+		buffer.append("    public static final String TABLE = \"" + getTableName(tableNames) + "\";\n");
 		Set<String> baseClassFields = extractMappedFields(baseClassName);
         for (TableColumn tableColumn: flatTableColumnList) {
-            if (baseClassFields.remove(tableColumn.getName()))
-            	continue;
+			if (baseClassFields.contains(tableColumn.getName()))
+				continue;
+			buffer.append("    public static final String " + toColumnConstant(tableColumn) + " = \"");
+			String qualifiedColumnName = (desc.length > 1) ?
+            	tableColumn.getTableName() + "." + tableColumn.getName() :
+            	tableColumn.getName();
+			buffer.append(qualifiedColumnName + "\";\n");
         }
+        buffer.append("\n");
     }
     
     /** Prints the record descriptor and its access function to standard out */
@@ -284,18 +295,13 @@ public class CreateTableTemplate {
 		for (TableColumn tableColumn: flatTableColumnList) {
             if (baseClassFields.remove(tableColumn.getName()))
             	continue;
-            String name = null;
-            if (desc.length > 1)
-                name = tableColumn.getTableName() + "." + tableColumn.getName();
-            else
-                name = tableColumn.getName();
             StringBuffer sb = new StringBuffer();
-            sb.append("            { \"");
-            sb.append(name);
-            sb.append("\",   \"get");
-            sb.append(tableColumn.getName2());
+            sb.append("            { ");
+            sb.append(toColumnConstant(tableColumn));
+            sb.append(",   \"get");
+            sb.append(tableColumn.getNameCamelCaseFirstUp());
             sb.append("\",   \"set");
-            sb.append(tableColumn.getName2());
+            sb.append(tableColumn.getNameCamelCaseFirstUp());
             sb.append("\" },");
             buffer.append(sb.toString() + "\n");
 			
@@ -369,7 +375,7 @@ public class CreateTableTemplate {
 		for (TableColumn tableColumn: flatTableColumnList) {
 			if (baseClassFields.contains(tableColumn.getName()))
 				continue;
-            buffer.append("    private " + tableColumn.getType() + " " + tableColumn.getName3() + ";" + "\n");
+            buffer.append("    private " + tableColumn.getType() + " " + tableColumn.getNameCamelCaseFirstLow() + ";" + "\n");
 			
 		}
 		
@@ -388,7 +394,7 @@ public class CreateTableTemplate {
 		buffer.append("    // Read access functions" + "\n");
 		for (TableColumn tableColumn: flatTableColumnList) {
             buffer.append("    public " + tableColumn.getType()  + " get"
-                    + tableColumn.getName2() + "()   { return " + tableColumn.getName3() + "; }" + "\n");
+                    + tableColumn.getNameCamelCaseFirstUp() + "()   { return " + tableColumn.getNameCamelCaseFirstLow() + "; }" + "\n");
 			
 		}
         buffer.append("\n");
@@ -403,8 +409,8 @@ public class CreateTableTemplate {
 
 		buffer.append("    // Write access functions" + "\n");
 		for (TableColumn tableColumn: flatTableColumnList) {
-            buffer.append("    public void set" + tableColumn.getName2() + "(" + tableColumn.getType()
-                    + " " + tableColumn.getName3() + ") { this." + tableColumn.getName3() + " = " + tableColumn.getName3() +
+            buffer.append("    public void set" + tableColumn.getNameCamelCaseFirstUp() + "(" + tableColumn.getType()
+                    + " " + tableColumn.getNameCamelCaseFirstLow() + ") { this." + tableColumn.getNameCamelCaseFirstLow() + " = " + tableColumn.getNameCamelCaseFirstLow() +
                     "; }" + "\n");
 			
 		}
@@ -451,7 +457,7 @@ public class CreateTableTemplate {
 		for (TableColumn current: desc.getList()) {
 			if (current.isPrimaryKeyField()) {
 				if (baseClassName == null)
-					buffer.append("        set" + current.getName2() + "(" + current.getName() + ");\n");
+					buffer.append("        set" + current.getNameCamelCaseFirstUp() + "(" + current.getName() + ");\n");
 				else
 					buffer.append(current.getName() + ", ");
 			}

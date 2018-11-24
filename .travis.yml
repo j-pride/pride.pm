@@ -1,5 +1,8 @@
 language: java
 
+addons:
+  postgresql: "9.6"
+  
 sudo: false
 install: true
 

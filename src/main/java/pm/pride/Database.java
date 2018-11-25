@@ -10,7 +10,6 @@
  *******************************************************************************/
 package pm.pride;
 
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -199,7 +198,7 @@ public class Database implements SQL.Formatter
                                         RecordDescriptor red,
                                         boolean keepRest)
         throws SQLException {
-        ResultIterator ri = sqlQuery(query, obj, red);
+        ResultIterator ri = sqlQuery(red, obj, query);
         return returnIteratorIfNotEmpty(ri, query, keepRest);
     }
     
@@ -271,7 +270,7 @@ public class Database implements SQL.Formatter
     protected void revisionEntity(RecordDescriptor red, Object entity) throws SQLException {
         if (red.isRevisioned()) {
             RecordDescriptor recordDescriptorForRevisioning = ((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor();
-            createRecord(null, entity, recordDescriptorForRevisioning);
+            createRecord(recordDescriptorForRevisioning, entity, null);
         }
     }
 
@@ -294,14 +293,14 @@ public class Database implements SQL.Formatter
      * @param params Optional parameters if the statement contains bind variables and therefore needs to be executed as a {@link PreparedStatement}
      */
     public ResultIterator sqlQuery(String sqlStatement, Object... params) throws SQLException {
-        return sqlQuery(sqlStatement, null, null, params);
+        return sqlQuery(null, null, sqlStatement, params);
     }
 
     /** Runs an SQL query and returns a {@link ResultIterator}, initialized
      * with parameters <code>obj</code> and <code>red</code> and the
      * {@link java.sql.ResultSet} returned by the query.
      */
-    public ResultIterator sqlQuery(String operation, Object obj, RecordDescriptor red, Object... params)
+    public ResultIterator sqlQuery(RecordDescriptor red, Object obj, String operation, Object... params)
         throws SQLException {
     	ConnectionAndStatement cns = null;
         try {
@@ -362,31 +361,31 @@ public class Database implements SQL.Formatter
     
     /** Fetch a record from the database and store the results in a JAVA object
      * according to the passed mapping descriptor.
-     * @param primaryKey Primary key used for unique selection from the database
-     * @param obj Destination object to store the data in
      * @param red Descriptor providing the field mappings and the table name to access
+     * @param obj Destination object to store the data in
+     * @param primaryKey Primary key used for unique selection from the database
      * @deprecated use fetchRecord(WhereCondition, Object, RecordDescriptor) insted
      */
     @Deprecated
-    public boolean fetchRecord(Object primaryKey, Object obj, RecordDescriptor red)
+    public boolean fetchRecord(RecordDescriptor red, Object obj, Object primaryKey)
         throws SQLException {
     	WhereCondition primaryKeyCondition = new WhereCondition().and(red.getPrimaryKeyField(), primaryKey);
-        return query(primaryKeyCondition, obj, red, false) != null;
+        return query(red, false, obj, primaryKeyCondition) != null;
     }
 
-    public boolean fetchRecord(WhereCondition primaryKeyCondition, Object obj, RecordDescriptor red) throws SQLException {
-    	return query(primaryKeyCondition, obj, red, false) != null;
+    public boolean fetchRecord(RecordDescriptor red, Object obj, WhereCondition primaryKeyCondition) throws SQLException {
+    	return query(red, false, obj, primaryKeyCondition) != null;
     }
 
     /** Fetch a record from the database and store the results in a JAVA object
      * according to the passed mapping descriptor.
-     * @param obj Destination object to store the data in and to take the primary key from
      * @param red Descriptor providing the field mappings and the table name to access
+     * @param obj Destination object to store the data in and to take the primary key from
      */
-    public boolean fetchRecord(Object obj, RecordDescriptor red)
+    public boolean fetchRecord(RecordDescriptor red, Object obj)
         throws SQLException {
         try {
-        	return fetchRecord(red.assembleWhereCondition(obj, red.getPrimaryKeyFields(), false), obj, red);
+        	return fetchRecord(red, obj, red.assembleWhereCondition(obj, red.getPrimaryKeyFields(), false));
         }
         catch(Exception x) {
         	processSevereButSQLException(x);
@@ -395,71 +394,71 @@ public class Database implements SQL.Formatter
     }
 
     /** Run a database query.
-     * @param dbfield table field which is to be used as selection criteria
-     * @param value value which the field determined by <code>dbfield</code> must match
-     * @param obj Destination object to store the data in
      * @param red Descriptor providing the field mappings and the table name to access
      * @param all Flag saying wether to fetch all matching records or only the first one
+     * @param obj Destination object to store the data in
+     * @param dbfield table field which is to be used as selection criteria
+     * @param value value which the field determined by <code>dbfield</code> must match
      * @return A {@link ResultIterator} if parameter <code>all</code> is true, null
      * otherwise. The first matching record's data is stored in <code>obj</code>.
      * Following records can successivly be copied to <code>obj</code> using the
      * ResultIterator.
      * @throws NoResultsException if no matching record could be found
      */
-    public ResultIterator query(String dbfield, Object value, Object obj,
-                                RecordDescriptor red, boolean all)
+    public ResultIterator query(RecordDescriptor red, boolean all, Object obj,
+                                String dbfield, Object value)
         throws SQLException {
           if(value == null)
-             return query(dbfield + " is  null ", obj, red, all);
-        return query(dbfield + " = " + formatValue(value), obj, red, all);
+             return query(red, all, obj, dbfield + " is  null ");
+        return query(red, all, obj, dbfield + " = " + formatValue(value));
     }
 
     /** Run a database query.
-     * @param dbfields table fields which are to be used as selection criteria
-     * @param obj both, destination object for result data and source object for
-     * the values selection field values
      * @param red descriptor providing the field mappings and the table name to access
      * @param all flag saying wether to fetch all matching records or only the first one
+     * @param obj both, destination object for result data and source object for
+     * the values selection field values
+     * @param dbfields table fields which are to be used as selection criteria
      * @return A {@link ResultIterator} if parameter <code>all</code> is true, null
      * otherwise. The first matching record's data is stored in <code>obj</code>.
      * Following records can successivly be copied to <code>obj</code> using the
      * ResultIterator.
      * @throws NoResultsException if no matching record could be found
      */
-    public ResultIterator query(String[] dbfields, Object obj, RecordDescriptor red, boolean all)
+    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String... dbfields)
         throws SQLException {
-		try { return query(red.assembleWhereCondition(obj, dbfields, false), obj, red, all); }
+		try { return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, false)); }
 		catch(Exception x) { processSevereButSQLException(x); return null; }
     }
 
     /** Like function <code>query()</code> above but selects using the
      * <code>like</code> operator
      */
-    public ResultIterator wildcardSearch(String[] dbfields, Object obj, RecordDescriptor red, boolean all)
+    public ResultIterator wildcardSearch(RecordDescriptor red, boolean all, Object obj, String... dbfields)
         throws SQLException {
-        try { return query(red.assembleWhereCondition(obj, dbfields, true), obj, red, all); }
+        try { return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, true)); }
 		catch(Exception x) { processSevereButSQLException(x); return null; }
     }
 
     /** Run a database query.
-     * @param where where-clause to apply (excluding the keyword 'where'!)
-     * @param obj Destination object to store the data in
      * @param red Descriptor providing the field mappings and the table name to access
      * @param all Flag saying wether to fetch all matching records or only the first one
+     * @param obj Destination object to store the data in
+     * @param where where-clause to apply (excluding the keyword 'where'!)
      * @return A {@link ResultIterator} if parameter <code>all</code> is true, null
      * otherwise. The first matching record's data is stored in <code>obj</code>.
      * Following records can successivly be copied to <code>obj</code> using the
      * ResultIterator.
      * @throws NoResultsException if no matching record could be found
      */
-    public ResultIterator query(String where, Object obj, RecordDescriptor red, boolean all)
+    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String where)
         throws SQLException {
         String query = "select " + red.getResultFields() + " from " +
             getTableName(red) + where(where);
         return fetchFirst(query, obj, red, all);
     }
 
-    public ResultIterator query(WhereCondition where, Object obj, RecordDescriptor red, boolean all) throws SQLException {
+    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, WhereCondition where) throws SQLException {
 		String whereString = where2string(where);
 
     	if (where != null && where.requiresBinding()) {
@@ -480,22 +479,22 @@ public class Database implements SQL.Formatter
             }
     	}
     	else {
-    		return query(whereString, obj, red, all);
+    		return query(red, all, obj, whereString);
     	}
     }
 
 	/** Run a database query, returning all records of the table
      * denoted by parameter <code>red</code>.
-     * @param obj Destination object to store the data in
-     * @param red Descriptor providing the field mappings and the table name to access
+	 * @param red Descriptor providing the field mappings and the table name to access
+	 * @param obj Destination object to store the data in
      * @return A {@link ResultIterator}. The first matching record's data is stored in
      * <code>obj</code>. Following records can successivly be copied to <code>obj</code>
      * using the ResultIterator.
      * @throws NoResultsException if no matching record could be found
      */
-    public ResultIterator queryAll(Object obj, RecordDescriptor red)
+    public ResultIterator queryAll(RecordDescriptor red, Object obj)
       throws SQLException {
-        return query((String)null, obj, red, true);
+        return query(red, true, obj, (String)null);
     }
 
     /** Update a database record with the data of a JAVA object according to the
@@ -503,34 +502,34 @@ public class Database implements SQL.Formatter
      * <code>red</code> is assumed to make up the primary key. It is used for unique
      * object identification in the update statement's where-clause and is not
      * modified
-     * @param obj Source object to extract the data from
      * @param red Descriptor providing the field mappings and the table name to access
+     * @param obj Source object to extract the data from
      */
-    public int updateRecord(Object obj, RecordDescriptor red)
+    public int updateRecord(RecordDescriptor red, Object obj)
         throws SQLException {
-    	return updateRecord(red.getPrimaryKeyFields(), obj, red);
+    	return updateRecord(red, obj, red.getPrimaryKeyFields());
     }
 
     /** Update a database record.
-     * @param dbkeyfields database fields which are supposed to determine the records of
-     *  interest. Typically the primary key, identifying a single object.
+     * @param red descriptor providing the field mappings and the table name to access
      * @param obj source object to extract the data from. There are only those fields
      *  taken into account which are not listed in <code>dbkeyfields</code>
-     * @param red descriptor providing the field mappings and the table name to access
+     * @param dbkeyfields database fields which are supposed to determine the records of
+     *  interest. Typically the primary key, identifying a single object.
      */
-    public int updateRecord(String[] dbkeyfields, Object obj, RecordDescriptor red)
+    public int updateRecord(RecordDescriptor red, Object obj, String... dbkeyfields)
         throws SQLException {
-        return updateRecord(dbkeyfields, null, obj, red);
+        return updateRecord(red, obj, dbkeyfields, null);
     }
 
 	/** Update a database record.
-	 * @param dbkeyfields database fields which are supposed to determine the records of
-	 *  interest. Typically the primary key, identifying a single object.
+	 * @param red descriptor providing the field mappings and the table name to access
 	 * @param obj source object to extract the data from. There are only those fields
 	 *  taken into account which are not listed in <code>dbkeyfields</code>
-	 * @param red descriptor providing the field mappings and the table name to access
+	 * @param dbkeyfields database fields which are supposed to determine the records of
+	 *  interest. Typically the primary key, identifying a single object.
 	 */
-	public int updateRecord(String[] dbkeyfields, String[] updatefields, Object obj, RecordDescriptor red)
+	public int updateRecord(RecordDescriptor red, Object obj, String[] dbkeyfields, String... updatefields)
 		throws SQLException {
 		PreparedUpdate preparedUpdate = null;
 		try {
@@ -556,28 +555,28 @@ public class Database implements SQL.Formatter
 	}
 
     /** Update a database record.
-     * @param where where-clause, identifying the records of interest
-     * @param obj source object to extract the data from
      * @param red descriptor providing the field mappings and the table name to access
+     * @param obj source object to extract the data from
+     * @param where where-clause, identifying the records of interest
      */
 	@Deprecated
-    public int updateRecord(String where, Object obj, RecordDescriptor red)
+    public int updateRecord(RecordDescriptor red, Object obj, String where)
         throws SQLException {
-        return updateRecord(where, null, obj, red);
+        return updateRecord(red, obj, where, null);
     }
 
-    public int updateRecord(WhereCondition where, Object obj, RecordDescriptor red)
+    public int updateRecord(RecordDescriptor red, Object obj, WhereCondition where)
     	throws SQLException {
-    	return updateRecord(where, null, obj, red);
+    	return updateRecord(red, obj, where, null);
     }
 
 	/** Update a database record.
-	 * @param where where-clause, identifying the records of interest
-	 * @param obj source object to extract the data from
 	 * @param red descriptor providing the field mappings and the table name to access
+	 * @param obj source object to extract the data from
+	 * @param where where-clause, identifying the records of interest
 	 */
     @Deprecated
-	public int updateRecord(String where, String[] updatefields, Object obj, RecordDescriptor red)
+	public int updateRecord(RecordDescriptor red, Object obj, String where, String... updatefields)
 		throws SQLException {
 		try {
 			String update = "update " + getTableName(red) + " set " +
@@ -589,7 +588,7 @@ public class Database implements SQL.Formatter
 		catch(Exception x) { throw processSevereButSQLException(x); }
 	}
 
-	public int updateRecord(WhereCondition where, String[] updatefields, Object obj, RecordDescriptor red)
+	public int updateRecord(RecordDescriptor red, Object obj, WhereCondition where, String... updatefields)
 		throws SQLException {
 		try {
 			String whereString = where2string(where);
@@ -613,7 +612,7 @@ public class Database implements SQL.Formatter
 	            }
 	    	}
 	    	else {
-	    		return updateRecord(whereString, updatefields, obj, red);
+	    		return updateRecord(red, obj, whereString, updatefields);
 	    	}
 		}
 		catch(Exception x) { throw processSevereButSQLException(x); }
@@ -632,10 +631,10 @@ public class Database implements SQL.Formatter
     }
 
     /** Add a record to the database.
-     * @param obj source object to extract the data from
      * @param red descriptor providing the field mappings and the table name to access
+     * @param obj source object to extract the data from
      */
-    public int createRecord(String[] autoFields, Object obj, RecordDescriptor red)
+    public int createRecord(RecordDescriptor red, Object obj, String... autoFields)
         throws SQLException {
     	PreparedInsert preparedInsert = null;
 		try {
@@ -659,34 +658,34 @@ public class Database implements SQL.Formatter
     }
 
     /** Delete a record from the database.
-     * @param obj source object to extract the object's key value from.
      * @param red descriptor providing the field mappings and the table name to access.
      *  The very first field in the descriptor is supposed to make up the primary key
+     * @param obj source object to extract the object's key value from.
      */
-    public int deleteRecord(Object obj, RecordDescriptor red) throws SQLException {
+    public int deleteRecord(RecordDescriptor red, Object obj) throws SQLException {
 		try {
-		    return deleteRecord(red.getPrimaryKeyFields(), obj, red);
+		    return deleteRecord(red, obj, red.getPrimaryKeyFields());
 		}
 		catch(Exception x) { throw processSevereButSQLException(x); }
     }
 
     /** Delete a record from the database.
-     * @param where where-clause to select the records of interest
-     * @param obj not used
      * @param red descriptor providing the table name to access.
+     * @param obj not used
+     * @param where where-clause to select the records of interest
      */
-    public int deleteRecord(String where, Object obj, RecordDescriptor red) throws SQLException {
+    public int deleteRecord(RecordDescriptor red, Object obj, String where) throws SQLException {
         String delete = "delete from " + getTableName(red) + where(where);
         return sqlUpdate(delete);
     }
 
     /** Delete record(s) from the database.
+     * @param red descriptor providing the field mappings and the table name to access
+     * @param obj source object to extract the key data from.
      * @param dbkeyfields database fields which are supposed to determine the records of
      *  interest. Typically the primary key, identifying a single object.
-     * @param obj source object to extract the key data from.
-     * @param red descriptor providing the field mappings and the table name to access
      */
-    public int deleteRecord(String[] dbkeyfields, Object obj, RecordDescriptor red)
+    public int deleteRecord(RecordDescriptor red, Object obj, String... dbkeyfields)
         throws SQLException {
 		try {
 		    String delete = "delete from " + getTableName(red) +

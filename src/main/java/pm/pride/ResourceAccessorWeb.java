@@ -19,14 +19,14 @@ import javax.sql.DataSource;
 
 /**
  * {@link ResourceAccessor} for servlet engines.
- * This implementation is somehow a mixture of what is done by {@link ResourceAccessorJ2EE}
- * and {@link ResourceAccessorJ2SE}. It fetches database connections from a
+ * This implementation is somehow a mixture of what is done by {@link ResourceAccessorJEE}
+ * and {@link ResourceAccessorJSE}. It fetches database connections from a
  * {@link DataSource} but keeps it alive in a ThreadLocal until it is explicitely
  * released.
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public class ResourceAccessorWeb extends ResourceAccessorJ2EE
+public class ResourceAccessorWeb extends ResourceAccessorJEE
 {
     //--------------- J D B C   c o n n e c t i o n   h a n d l i n g  -------------
 	private final ThreadLocal dbConnection;

@@ -13,7 +13,7 @@ import pm.pride.*;
  * 
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public class ResourceAccessorMySQL extends ResourceAccessorJ2SE
+public class ResourceAccessorMySQL extends ResourceAccessorJSE
 {
     public ResourceAccessorMySQL(Properties props)
         throws Exception {

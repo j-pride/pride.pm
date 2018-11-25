@@ -13,6 +13,8 @@ package pm.pride;
 import java.sql.*;
 import java.util.Properties;
 
+import pm.pride.ResourceAccessor.Config;
+
 /**
  * Simple {@link ResourceAccessor} for J2SE environments.
  * This implementation stores database connections in a {@link ThreadLocal}
@@ -23,10 +25,10 @@ import java.util.Properties;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public class ResourceAccessorJ2SE extends AbstractResourceAccessor
+public class ResourceAccessorJSE extends AbstractResourceAccessor
 {
     //--------------- J D B C   c o n n e c t i o n   h a n d l i n g  -------------
-    private final ThreadLocal dbConnection;
+    private final ThreadLocal<Connection> dbConnection;
     private final String dbDriver;
     private String db;
 
@@ -46,7 +48,7 @@ public class ResourceAccessorJ2SE extends AbstractResourceAccessor
     	}
 
     	// If connection is closed, force reconnection
-        if (dbConnection.get() != null && ((Connection)dbConnection.get()).isClosed())
+        if (dbConnection.get() != null && dbConnection.get().isClosed())
             dbConnection.set(null);
 
         if (dbConnection.get() == null) {
@@ -61,7 +63,7 @@ public class ResourceAccessorJ2SE extends AbstractResourceAccessor
             setAutoCommit(con, false);
             dbConnection.set(con);
         }
-        return (Connection)dbConnection.get();
+        return dbConnection.get();
     }
 
     /** Close the current thread's connection.
@@ -72,7 +74,7 @@ public class ResourceAccessorJ2SE extends AbstractResourceAccessor
      */
     public void releaseConnection() throws SQLException {
         if (dbConnection.get() != null) {
-            Connection con = (Connection)dbConnection.get();
+            Connection con = dbConnection.get();
             con.close();
             dbConnection.set(null);
         }
@@ -89,14 +91,28 @@ public class ResourceAccessorJ2SE extends AbstractResourceAccessor
      * {@link ResourceAccessor.Config} for available parameters. The property
      * {@link ResourceAccessor.Config#DRIVER} is mandatory
      */
-    public ResourceAccessorJ2SE(Properties props)
+    public ResourceAccessorJSE(Properties props)
     	throws Exception {
     	super(props);
 		dbDriver = props.getProperty(Config.DRIVER);
-		dbConnection = new ThreadLocal();
+		dbConnection = new ThreadLocal<>();
         if (dbDriver != null)
             Class.forName(dbDriver).newInstance();
 	}
 
-    public final static String REVISION_ID = "$Header: ";
+    /** Creates a new resource accessor from system properties. The properties
+     * are expected to be defined according to {@link Config} interface. If the
+     * resource {@link Config#DB} is set, the method also sets the accessors
+     * database accordingly.
+     * @return the created resource accessor
+     */
+    public static ResourceAccessorJSE fromSystemProps() throws Exception {
+		Properties props = System.getProperties();
+		ResourceAccessorJSE accessor = new ResourceAccessorJSE(props);
+		DatabaseFactory.setResourceAccessor(accessor);
+		if (props.containsKey(Config.DB)) {
+			DatabaseFactory.setDatabaseName(props.getProperty(Config.DB));
+		}
+		return accessor;
+    }
 }

@@ -57,17 +57,17 @@ abstract public class ObjectAdapter extends DatabaseAdapter
 	}
 
 	/** Fetch an object by fields. The values are taken from the fields' accociated get-methods */
-	public ResultIterator query(String[] dbfields) throws SQLException {
-		return super.query(getEntity(), dbfields, getDescriptor());
+	public ResultIterator query(String... dbfields) throws SQLException {
+		return super.query(getDescriptor(), getEntity(), dbfields);
 	}
 
 	/** Same like <code>query()</code> but performs a wildcard search */
-	public ResultIterator wildcard(String[] dbfields) throws SQLException {
-		return super.wildcard(getEntity(), dbfields, getDescriptor());
+	public ResultIterator wildcard(String... dbfields) throws SQLException {
+		return super.wildcard(getDescriptor(), getEntity(), dbfields);
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
-	public boolean find(String[] dbkeyfields) throws SQLException {
+	public boolean find(String... dbkeyfields) throws SQLException {
 		return super.find(getEntity(), dbkeyfields, getDescriptor());
 	}
 

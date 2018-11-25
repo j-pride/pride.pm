@@ -25,7 +25,7 @@ import javax.sql.DataSource;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-public class ResourceAccessorJ2EE extends AbstractResourceAccessor
+public class ResourceAccessorJEE extends AbstractResourceAccessor
 {
 	protected final static String LOCAL_JNDI_CONTEXT = "java:comp/env";
 	
@@ -77,7 +77,7 @@ public class ResourceAccessorJ2EE extends AbstractResourceAccessor
 	 * @param props The configuration for the resource accessor. See interface
 	 * {@link ResourceAccessor.Config} for available parameters.
 	 */
-	public ResourceAccessorJ2EE(Properties props)
+	public ResourceAccessorJEE(Properties props)
 		throws Exception {
 		super(props);
 	}

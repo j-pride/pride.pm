@@ -186,7 +186,7 @@ public class StoredProcedureGenerator
             cls = proc;
         props.setProperty(ResourceAccessor.Config.LOGFILE, "sql.log");
         DatabaseFactory.setDatabaseName(db);
-        DatabaseFactory.setResourceAccessor(new ResourceAccessorJ2SE(props));
+        DatabaseFactory.setResourceAccessor(new ResourceAccessorJSE(props));
     }
     
     public static void main(String[] args) throws Exception {

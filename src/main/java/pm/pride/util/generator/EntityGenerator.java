@@ -20,19 +20,19 @@ import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
 
+import pm.pride.DatabaseFactory;
 import pm.pride.RecordDescriptor;
+import pm.pride.ResourceAccessor;
+import pm.pride.ResourceAccessor.Config;
+import pm.pride.ResourceAccessorJSE;
 
 
-public class CreateTableTemplate {
+public class EntityGenerator {
 
 	// Types of generation work products
 	public static final String HYBRID = "-h";
 	public static final String BEAN = "-b";
 	
-	protected String dbDriver;
-	protected String dbName;
-	protected String user;
-	protected String passwd;
 	protected String className;
 	protected String baseClassName;
 	protected String generationType;
@@ -41,29 +41,32 @@ public class CreateTableTemplate {
 	protected List<TableColumn> flatTableColumns;
 	protected TableDescription[] tableDesc;
 	protected List<TableColumn> flatTableColumnList;
+	protected ResourceAccessor resourceAccessor;
+	protected String db;
 
-	public CreateTableTemplate(String dbDriver,String dbName,
-							   String user, String passwd,
-							   String[] tableNames, String className,
+	public EntityGenerator(String[] tableNames, String className,
 							   String generationType, String baseClassName)
-		throws SQLException {
-		this(dbDriver, dbName, user, passwd, tableNames, className, generationType, baseClassName, ClassLoader.getSystemClassLoader());
+		throws Exception {
+		this(tableNames, className, generationType, baseClassName, ClassLoader.getSystemClassLoader());
 	}
 	
-	public CreateTableTemplate(String dbDriver,String dbName,
-							   String user, String passwd,
-							   String[] tableNames, String className,
+	public EntityGenerator(String[] tableNames, String className,
 							   String generationType, String baseClassName, ClassLoader classLoader)
-		throws SQLException {
-		this.dbDriver = dbDriver;
-		this.dbName = dbName;
-		this.user = user;
-		this.passwd = passwd;
+		throws Exception {
+		createResourceAccessor();
 		this.tableNames = tableNames;
 		this.className = className;
 		this.baseClassName = baseClassName;
 		this.generationType = generationType;
 		this.classLoader = classLoader;
+	}
+
+	protected void createResourceAccessor() throws Exception {
+		db = System.getProperty(Config.DB);
+		if (db == null) {
+			throw new IllegalArgumentException("Database URL must be defined by system property " + Config.DB);
+		}
+		resourceAccessor = ResourceAccessorJSE.fromSystemProps();
 	}
 
 	public RecordDescriptor extractRecordDescriptor(String className) throws SQLException {
@@ -128,7 +131,7 @@ public class CreateTableTemplate {
 	/** Creates the entity type by successivly calling the
 	 * write... functions
 	 */
-	public String create() throws SQLException {
+	public String create() throws Exception {
 		Connection con = getDBConnection();
 		StringBuffer buffer = new StringBuffer();
 		if (con != null) {
@@ -152,32 +155,11 @@ public class CreateTableTemplate {
 		return buffer.toString();
 	}
 
-	/** Opens up a database connection accoring to the specified
-	 * database driver, database name, user, and password
+	/** Opens up a database connection according to the
+	 * database driver, database name, user, and password specified by system properties
 	 */
-	public Connection getDBConnection() {
-		try {
-			Driver driver = (Driver)Class.forName(dbDriver, true, this.classLoader).newInstance();
-			DriverManager.registerDriver(driver);
-			return DriverManager.getConnection(dbName, user, passwd);
-		} catch (ClassNotFoundException cnfx) {
-			System.out.println("Driver not found: " + dbDriver);
-		} catch (InstantiationException ix) {
-			System.out.println("Can't instantiate driver");
-		} catch (IllegalAccessException ix) {
-			System.out.println("Driver not accessible");
-		} catch (SQLException e) {
-			try {
-				Driver driver = (Driver)Class.forName(dbDriver, true, this.classLoader).newInstance();		
-				Properties props = new Properties();	
-				props.put("user", user);
-				props.put("password", passwd);
-				return driver.connect(dbName, props);
-			} catch (Exception ex) {
-				System.out.println("Connection failed: " + e.getMessage());
-			}
-		}
-		return null;
+	public Connection getDBConnection() throws Exception {
+		return resourceAccessor.getConnection(db);
 	}
 
 	/** Generates a table description */
@@ -201,11 +183,12 @@ public class CreateTableTemplate {
      * database user and database name as an identificatio
      */
     public void writeAuthor (TableDescription[] desc, String className, String baseClassName,
-    						 String generationType, StringBuffer buffer) {
-    	if (System.getProperty("user.name") != null)
-        	buffer.append(" * @author " + System.getProperty("user.name") + "\n");
+    						 String generationType, StringBuffer buffer) throws Exception {
+    	String userName = System.getProperty("user.name");
+    	if (userName != null)
+        	buffer.append(" * @author " + userName + "\n");
         else
-			buffer.append(" * @author " + user + "@" + dbName + "\n");
+			buffer.append(" * @author " + resourceAccessor.getUserName(db) + "@" + db + "\n");
     }
 
 	/** Determine the base class for the class to generate. When generating
@@ -236,7 +219,7 @@ public class CreateTableTemplate {
     /** Prints the class header to standard out */
     public void writeHeader (TableDescription[] desc, String className, String baseClassName,
     						 String generationType, StringBuffer buffer)
-    	throws SQLException {
+    	throws Exception {
 		if (!generationType.equals(BEAN)) {
             buffer.append("import java.sql.SQLException;" + "\n");
             buffer.append("import pm.pride.*;" + "\n");
@@ -559,16 +542,12 @@ public class CreateTableTemplate {
 	 * @param args
 	 * @exception SQLException
 	 */
-	public static void main (String[] args) throws SQLException {
-		if (args.length < 5) {
-			System.out.println("Usage: CreateTableTemplate dbdriver dbname user passwd tablename [class] [beanclass | -b | -h] [baseclass]");
+	public static void main (String[] args) throws Exception {
+		if (args.length < 1) {
+			System.out.println("Usage: CreateTableTemplate tablename [class] [beanclass | -b | -h] [baseclass]");
 			System.exit(0);
 		}
-		String dbDriver = args[0];
-		String dbName = args[1];
-		String user = args[2];
-		String passwd = args[3];
-		String tableName = args[4];
+		String tableName = args[0];
 		String className = null;
 		String baseClassName = null;
 		String generationType = HYBRID;
@@ -585,8 +564,8 @@ public class CreateTableTemplate {
 				tableName
 			};
 		}
-		if (args.length > 5)
-			className = args[5];
+		if (args.length > 1)
+			className = args[1];
 		else {
 			for (int i = 0; i < tableNames.length; i++) {
 				if (className == null) {
@@ -596,15 +575,15 @@ public class CreateTableTemplate {
 			}
 			className = className.substring(0,1).toUpperCase()+className.substring(1);
 		}
-		if (args.length > 6) {
-			if (args[6].equals(BEAN))
+		if (args.length > 2) {
+			if (args[2].equals(BEAN))
 				generationType = BEAN;
 			else if (!args[6].equals(HYBRID))
-				generationType = args[6];
+				generationType = args[2];
 		}
-		if (args.length > 7)
-			baseClassName = args[7];
-		System.out.println(new CreateTableTemplate(dbDriver, dbName, user, passwd, tableNames,
+		if (args.length > 3)
+			baseClassName = args[3];
+		System.out.println(new EntityGenerator(tableNames,
 				className, generationType, baseClassName).create());
 	}
 

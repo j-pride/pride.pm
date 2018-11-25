@@ -38,97 +38,97 @@ abstract public class DatabaseAdapter
     protected boolean fetch(Object entity, Object key, RecordDescriptor red)
         throws SQLException {
         if (key != null) // null key indicates fetching is performed in derived type
-            return getDatabase(red).fetchRecord(key, entity, red);
+            return getDatabase(red).fetchRecord(red, entity, key);
         return false;
     }
 
-    /** Fetch an object by fields. The values are taken from the fields' accociated get-methods */
-    protected static ResultIterator query(Object entity, String[] dbfields, RecordDescriptor red)
+    /** Fetch an object by fields. The values are taken from the fields' associated get-methods */
+    protected static ResultIterator query(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
-            getDatabase(red).query(dbfields, entity, red, true) : null;
+            getDatabase(red).query(red, true, entity, dbfields) : null;
     }
 
     /** Same like <code>query()</code> but performs a wildcard search */
-    protected static ResultIterator wildcard(Object entity, String[] dbfields, RecordDescriptor red)
+    protected static ResultIterator wildcard(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
-            getDatabase(red).wildcardSearch(dbfields, entity, red, true) : null;
+            getDatabase(red).wildcardSearch(red, true, entity, dbfields) : null;
     }
 
     /** Same like <code>query()</code> but takes the first record only. Returns false if no matching record could be found */
     protected static boolean find(Object entity, String[] dbkeyfields, RecordDescriptor red)
         throws SQLException {
     	return (dbkeyfields != null) ?
-            getDatabase(red).query(dbkeyfields, entity, red, false) != null : false;
+            getDatabase(red).query(red, false, entity, dbkeyfields) != null : false;
     }
 
     /** Same like <code>query()</code> but takes the first record only */
     protected static boolean find(Object entity, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).fetchRecord(entity, red);
+        return getDatabase(red).fetchRecord(red, entity);
     }
 
     /** Fetch all objects */
     protected static ResultIterator queryAll(Object entity, RecordDescriptor red)
       throws SQLException
     {
-      return getDatabase(red).queryAll(entity, red);
+      return getDatabase(red).queryAll(red, entity);
     }
 
     /** Fetch an object by a self-made where clause */
     protected static ResultIterator query(Object entity, String where, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).query(where, entity, red, true);
+        return getDatabase(red).query(red, true, entity, where);
     }
 
     /** Fetch an object by a self-made where clause */
     protected static ResultIterator query(Object entity, WhereCondition where, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).query(where, entity, red, true);
+        return getDatabase(red).query(red, true, entity, where);
     }
 
     /** Same like <code>query()</code> but takes the first record only */
     protected static boolean find(Object entity, String where, RecordDescriptor red)
         throws SQLException {
-        return (getDatabase(red).query(where, entity, red, false) != null);
+        return (getDatabase(red).query(red, false, entity, where) != null);
     }
 
     protected static int update(Object entity, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).updateRecord(entity, red);
+        return getDatabase(red).updateRecord(red, entity);
     }
 
     protected static int update(Object entity, String[] dbkeyfields, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).updateRecord(dbkeyfields, entity, red);
+        return getDatabase(red).updateRecord(red, entity, dbkeyfields);
     }
 
 	protected static int update(Object entity, String[] dbkeyfields, String[] updatefields, RecordDescriptor red)
 		throws SQLException {
-		return getDatabase(red).updateRecord(dbkeyfields, updatefields, entity, red);
+		return getDatabase(red).updateRecord(red, entity, dbkeyfields, updatefields);
 	}
 
     @Deprecated
     protected static int update(Object entity, String where, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).updateRecord(where, entity, red);
+        return getDatabase(red).updateRecord(red, entity, where);
     }
 
     @Deprecated
 	protected static int update(Object entity, String where, String[] updatefields, RecordDescriptor red)
 		throws SQLException {
-		return getDatabase(red).updateRecord(where, updatefields, entity, red);
+		return getDatabase(red).updateRecord(red, entity, where, updatefields);
 	}
 
     protected static int update(Object entity, WhereCondition where, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).updateRecord(where, entity, red);
+        return getDatabase(red).updateRecord(red, entity, where);
     }
 
 	protected static int update(Object entity, WhereCondition where, String[] updatefields, RecordDescriptor red)
 		throws SQLException {
-		return getDatabase(red).updateRecord(where, updatefields, entity, red);
+		return getDatabase(red).updateRecord(red, entity, where, updatefields);
 	}
 
 	/** Create a new record. The values are taken from the passed object, according to the specifications
@@ -145,17 +145,17 @@ abstract public class DatabaseAdapter
 	 */
 	protected static int create(Object entity, String[] autoFields, RecordDescriptor red)
 		throws SQLException {
-		return getDatabase(red).createRecord(autoFields, entity, red);
+		return getDatabase(red).createRecord(red, entity, autoFields);
 	}
 
     protected static int delete(Object entity, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).deleteRecord(entity, red);
+        return getDatabase(red).deleteRecord(red, entity);
     }
 
     protected static int delete(Object entity, String[] dbkeyfields, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).deleteRecord(dbkeyfields, entity, red);
+        return getDatabase(red).deleteRecord(red, entity, dbkeyfields);
     }
 
     /** Assembles an SQL constraint which would be used as a WHERE clause in a query.

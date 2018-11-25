@@ -3,7 +3,7 @@ import org.junit.Test;
 
 import pm.pride.DatabaseFactory;
 import pm.pride.ResourceAccessor;
-import pm.pride.ResourceAccessorJ2SE;
+import pm.pride.ResourceAccessorJSE;
 import pm.pride.ResultIterator;
 
 /**

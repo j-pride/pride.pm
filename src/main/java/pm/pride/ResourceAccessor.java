@@ -43,6 +43,7 @@ public interface ResourceAccessor extends SQL.Formatter
 		public static final String PASSWORD   = "pride.password";
 		public static final String DRIVER     = "pride.driver";
 		public static final String SYSTIME    = "pride.systime";
+		public static final String DB         = "pride.db";
 		
 		public static final String EMPTY      = "";
 	}

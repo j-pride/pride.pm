@@ -133,7 +133,7 @@ public abstract class AbstractPrideTest extends Assert {
 	public static void initDB() throws Exception {
 		Properties testConfig = determineDatabaseTestConfiguration();
         ResourceAccessor ra =
-                new ResourceAccessorJ2SE(testConfig);
+                new ResourceAccessorJSE(testConfig);
             DatabaseFactory.setResourceAccessor(ra);
             DatabaseFactory.setExceptionListener(exlistener);
             DatabaseFactory.setDatabaseName(testConfig.getProperty("pride.db"));

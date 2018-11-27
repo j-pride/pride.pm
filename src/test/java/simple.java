@@ -24,8 +24,8 @@ public class simple {
 	DatabaseFactory.setResourceAccessor(accessor);
 	DatabaseFactory.setDatabaseName("jdbc:odbc:chayyamdb");
 	*/
-	ResourceAccessorJ2SE accessor =
-		new ResourceAccessorJ2SE(System.getProperties());
+	ResourceAccessorJSE accessor =
+		new ResourceAccessorJSE(System.getProperties());
 	DatabaseFactory.setResourceAccessor(accessor);
 	DatabaseFactory.setDatabaseName("jdbc:mysql://localhost/test");
 

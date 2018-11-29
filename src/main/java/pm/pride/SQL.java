@@ -27,9 +27,9 @@ public class SQL {
 		return new Raw(fieldname);
 	}
 	
-	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionFormatter#format(String, Object...)} */
-	public static String format(String formatString, Object... args) {
-		return SQLExpressionFormatter.format(formatString, args);
+	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionBuilder#format(String, Object...)} */
+	public static String build(String formatString, Object... args) {
+		return SQLExpressionBuilder.format(formatString, args);
 	}
 	
 	public interface Formatter {

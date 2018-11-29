@@ -30,11 +30,11 @@ import java.util.regex.Pattern;
  * variable names is pretty well-readable SQL which can easily be verified for syntactical
  * and semantical correctness. The translated string definitely not!
  * <p>
- * The class is supposed to be used indirectly through {@link SQL#format(String, Object...)}
+ * The class is supposed to be used indirectly through {@link SQL#build(String, Object...)}
  * 
  * @author less02
  */
-public class SQLExpressionFormatter {
+public class SQLExpressionBuilder {
     public static String VARIABLE_HEAD = "@";
     public static String VARIABLE_REFERENCE_REGEXP = VARIABLE_HEAD + "[A-Za-z_]+";
 

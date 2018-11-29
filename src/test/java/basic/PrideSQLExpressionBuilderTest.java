@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import pm.pride.SQL;
 
-public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
+public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 
 	private static final Object TABLE_DELTA = "DELTAS";
 	private static final Object COLUMN_HEADID = "HEAD_ID";
@@ -19,19 +19,19 @@ public class PrideSQLExpressionFormatterTest extends AbstractPrideTest {
 
 	@Test
 	public void testSimpleExpression() {
-        String result = SQL.format("@ONE, @TWO, @THREE, @ONE", "one", 2, 3);
+        String result = SQL.build("@ONE, @TWO, @THREE, @ONE", "one", 2, 3);
 		assertEquals("one, 2, 3, one", result);
 	}
 	
 	@Test
 	public void testMixedExpression() {
-        String result = SQL.format("@ONE, @TWO, @THREE, %s, @ONE", "one", 2, 3, "string");
+        String result = SQL.build("@ONE, @TWO, @THREE, %s, @ONE", "one", 2, 3, "string");
 		assertEquals("one, 2, 3, string, one", result);
 	}
 
 	@Test
 	public void testRealisticExample() {
-		String fromClause = SQL.format(
+		String fromClause = SQL.build(
 				"from @DELTA_TABLE delta " +
 	            "  JOIN (SELECT /*+ NO_USE_NL (p) NO_USE_NL (pp))*/ " +
 	            "    p.@HEAD_ID, pp.@PARTNER_ID, pp.@HEAD_ID, pp.@CAMPAIGN_ID, pp.@LAST_TRX_IMPORT_RELEVANCE " +

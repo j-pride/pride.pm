@@ -1,8 +1,8 @@
-# PriDE 3.0.1, 2018-04-27
+# PriDE 3.1.0, 2018-12-02
 
 (c) The PriDE Open Source Team
 
-See license.txt for license conditions!
+See license.txt for license conditions according to Apache Licence 2!
 See doc/PriDE-History.html for release notes!
 
 ## Travis CI Status

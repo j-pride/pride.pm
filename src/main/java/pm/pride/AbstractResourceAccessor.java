@@ -88,6 +88,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
 	
     /** Makes '' from single-quotes in the passed string to make it suitable for SQL syntax
+     * @param raw the raw String to escape quotes in
      * @return the string with the escaped single-quotes
      */
     protected static String escapeQuotes(String raw) {
@@ -95,14 +96,17 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
     }
 
     /** Makes double backslashes from single backslashes which is only required for MySQL
-     * @return the string with the escaped single backslahes
+     * @param raw the raw String to escape backslashes in
+     * @return the string with the escaped single backslashes
      */
     protected String escapeBackslahes(String raw) {
     	return (ResourceAccessor.DBType.MYSQL.equals(dbType)) ?
     			escape(raw, '\\') : raw;
     }
 
-    /** Makes '' from single-quotes in the passed string to make it suitable for SQL syntax
+    /** Duplicate any occurence of the passed character in the passed string to make it suitable for SQL syntax
+     * @param raw the raw String to duplicate  in
+     * @param escapeChar the character to look for and to duplicate
      * @return the string with the escaped single-quotes
      */
     protected static String escape(String raw, char escapeChar) {
@@ -181,6 +185,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 * that java.util.Date members are supposed to include a time with
 	 * second precision. This mapping should match the specifications in
 	 * ResultSetAccess and PreparedStatementAccess.
+	 * 
+	 * @param value The value to convert
 	 * 
 	 * @return A java.sql.Timestamp if the passed value was of type
 	 *   java.util.Date or a derivation other than java.sql.Date or
@@ -427,9 +433,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 * ResourceAccessor. 
 	 * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/DatabaseMetaData.html#getURL()">DatabaseMetaData</a>
 	 * 
-	 * @param db
+	 * @param db The logical database name
 	 * @return the database url
-	 * @throws Exception
 	 */
   	public String getURL(String db) throws Exception {
   		return this.getConnection(db).getMetaData().getURL();

@@ -156,7 +156,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				and("lastName", "Customer").and().
 					or("firstName", "First").
 					or("firstName", "Last").
-					_().
+					bracketClose().
 				and("active", null);
 		System.out.println(expression.toString());
 		Customer[] result = new Customer().query(expression).toArray(Customer.class);
@@ -192,7 +192,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		};
 		
 		WhereCondition expression = new WhereCondition(autowildcard).and("lastname", "C*").and()
-				.and("firstname", "*")._(); // Ensure delegation of formatter to sub conditions
+				.and("firstname", "*").bracketClose(); // Ensure delegation of formatter to sub conditions
 		assertEquals("( lastname LIKE 'C%' AND ( firstname LIKE '%' ) ) ", expression.toString());
 		assertEquals(2, new Customer().query(expression).toArray(Customer.class).length);
 	}

@@ -239,7 +239,7 @@ public class WhereCondition extends WhereConditionPart {
 	 * Closes the assembly of a sub condition
 	 * @return The sub conditions parent condition
 	 */
-	public WhereCondition _() {
+	public WhereCondition bracketClose() {
 		return parent;
 	}
 

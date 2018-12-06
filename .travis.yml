@@ -32,4 +32,4 @@ matrix:
       - docker exec -i oracle bash -c 'until echo -e "WHENEVER SQLERROR EXIT SQL.SQLCODE \n select 1 from dual;" | sqlplus -s system/oracle > /dev/null; do echo "Waiting for Oracle XE to start...($(date))"; sleep 15; done'
       - echo "Give oracle more time to come up..." ; sleep 15
 
-script: "mvn clean install -B -Duser.name=$DATABASE --settings config/mvnsettings.xml"
+script: "mvn clean test -B -Duser.name=$DATABASE --settings config/mvnsettings.xml"

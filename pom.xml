@@ -6,16 +6,48 @@
     <packaging>jar</packaging>
     <version>3.1-SNAPSHOT</version>
     <name>pride</name>
+    <description>World's smallest O/R mapper for Java</description>
     <url>http://pride.pm</url>
+    
+	<licenses>
+	  <license>
+	    <name>The Apache License, Version 2.0</name>
+	    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	  </license>
+	</licenses>
+    
+	<distributionManagement>
+	  <snapshotRepository>
+	    <id>ossrh</id>
+	    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+	  </snapshotRepository>
+	  <repository>
+	    <id>ossrh</id>
+	    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+	  </repository>	  
+	</distributionManagement>
+
+	<scm>
+	  <connection>scm:git:git://github.com/j-pride/pride.pm.git</connection>
+	  <developerConnection>scm:git:ssh://github.com/j-pride/pride.pm.git</developerConnection>
+	  <url>https://github.com/j-pride/pride.pm/tree/master</url>
+	</scm>
+	
+	<developers>
+	    <developer>
+	      <name>Jan Lessner</name>
+	      <email>jlessner@gmx.de</email>
+	      <organization>S&amp;N Invent</organization>
+	      <organizationUrl>https://www.s-und-n.de/</organizationUrl>
+	    </developer>
+	</developers>
+  
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-    <scm>
-        <connection>scm:git:git://github.com/j-pride/pride.pm.git</connection>
-    </scm>
-
+    
     <build>
         <plugins>
         
@@ -71,6 +103,72 @@
                     </archive>
                 </configuration>
             </plugin>
+
+			<!--
+				Following plugins are concerned with publishing PriDE on Maven Central.
+				They are simply added here according to the descriptions at
+				https://central.sonatype.org/pages/ossrh-guide.html, December 2018
+			-->
+		    <plugin>
+		      <groupId>org.sonatype.plugins</groupId>
+		      <artifactId>nexus-staging-maven-plugin</artifactId>
+		      <version>1.6.7</version>
+		      <extensions>true</extensions>
+		      <configuration>
+		        <serverId>ossrh</serverId>
+		        <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+		        <autoReleaseAfterClose>true</autoReleaseAfterClose>
+		      </configuration>
+		    </plugin>
+            
+		    <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-source-plugin</artifactId>
+		      <version>2.2.1</version>
+		      <executions>
+		        <execution>
+		          <id>attach-sources</id>
+		          <goals>
+		            <goal>jar-no-fork</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
+		    
+			<!--
+			Javadocs müssen erst vervollstaendigt werden - sonst jammert das Plugin ganz heftig durch die Gegend
+			Man kann Maven mit -Dmaven.javadoc.skip=true aufrufen, um die Javadoc-Generierung zu umgehen. Das Plugin
+			ist hier aber erstmal auskommentiert, damit Travis CI nicht weinen muss
+			-->
+		    <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-javadoc-plugin</artifactId>
+		      <version>2.9.1</version>
+		      <executions>
+		        <execution>
+		          <id>attach-javadocs</id>
+		          <goals>
+		            <goal>jar</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
+		    
+		    <plugin>
+		      <groupId>org.apache.maven.plugins</groupId>
+		      <artifactId>maven-gpg-plugin</artifactId>
+		      <version>1.5</version>
+		      <executions>
+		        <execution>
+		          <id>sign-artifacts</id>
+		          <phase>verify</phase>
+		          <goals>
+		            <goal>sign</goal>
+		          </goals>
+		        </execution>
+		      </executions>
+		    </plugin>
+		    
         </plugins>
         <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
     </build>

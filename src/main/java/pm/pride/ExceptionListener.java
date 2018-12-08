@@ -30,7 +30,7 @@ public interface ExceptionListener
      *    the exception. This might be null, if the exception occured
      *    in the {@link DatabaseFactory} or during static initialization
      * @param x The exception to report
-     * @throws The passed exception x, if no reasonable handling
+     * @throws Exception The passed exception x, if no reasonable handling
      *    can be applied.
      */
     public void process(Database db, Exception x) throws Exception;
@@ -41,9 +41,9 @@ public interface ExceptionListener
      *    the exception. This might be null, if the exception occured
      *    in the {@link DatabaseFactory} or during static initialization
      * @param x The exception to report
-     * @throws A {@link RuntimeException} if any. In general, the
+     * @throws RuntimeException if any. In general, the
      *    function is supposed not to return at all but to shut down
-     *    the application savely.
+     *    the application safely.
      */
     public RuntimeException processSevere(Database db, Exception x) throws RuntimeException;
     

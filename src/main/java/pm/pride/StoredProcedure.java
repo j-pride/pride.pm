@@ -40,15 +40,15 @@ import java.sql.*;
  * The SQL types of the parameters are derived from the member's
  * Java types. Currently there are the following types supported:
  * <ul>
- * <li>String -> VARCHAR
- * <li>BigDecimal -> DECIMAL
- * <li>int -> INTEGER
- * <li>Integer -> INTEGER
- * <li>long -> BIGINT
- * <li>Long -> BIGINT
- * <li>java.sql.Date -> DATE
- * <li>java.sql.Timestamp -> TIMESTAMP
- * <li>java.util.Date -> TIMESTAMP
+ * <li>String -&gt; VARCHAR
+ * <li>BigDecimal -&gt; DECIMAL
+ * <li>int -&gt; INTEGER
+ * <li>Integer -&gt; INTEGER
+ * <li>long -&gt; BIGINT
+ * <li>Long -&gt; BIGINT
+ * <li>java.sql.Date -&gt; DATE
+ * <li>java.sql.Timestamp -&gt; TIMESTAMP
+ * <li>java.util.Date -&gt; TIMESTAMP
  * </ul>
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
@@ -271,7 +271,7 @@ public abstract class StoredProcedure {
      * connection. If logging is enabled, ths functions writes an appropriate string to
      * the log media.
      * @throws SQLException if the stored procedure call failed
-     * @throws {@link IllegalDescriptorException} if the stored procedure
+     * @throws IllegalDescriptorException if the stored procedure
      *   class is somehow malformed.
      */
     public void execute(Connection con)
@@ -306,7 +306,7 @@ public abstract class StoredProcedure {
     /** Executes the stored procedure represented by this object on the passed database.
      * If logging is enabled, the functions writes an appropriate string to the log media.
      * @throws SQLException if the stored procedure call failed
-     * @throws {@link IllegalDescriptorException} if the stored procedure
+     * @throws IllegalDescriptorException if the stored procedure
      *   class is somehow malformed.
      */
     public void execute(Database db)
@@ -325,27 +325,3 @@ public abstract class StoredProcedure {
     
     public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/StoredProcedure.java-arc   1.1   23 Sep 2002 14:08:52   math19  $";
 }
-
-/* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/StoredProcedure.java-arc  $
- * 
- *    Rev 1.1   23 Sep 2002 14:08:52   math19
- * Support for java.util.Date added.
- * 
- *    Rev 1.0   06 Sep 2002 14:52:52   math19
- * Initial revision.
- * 
- *    Rev 1.5   04 Sep 2002 14:36:22   math19
- * Logging facility for stored procedures added.
- * 
- *    Rev 1.4   Jun 26 2002 09:39:10   math19
- * println removed.
- * 
- *    Rev 1.2   Jun 25 2002 16:11:56   math19
- * Now ignores private members which can be used for other purposes.
- * 
- *    Rev 1.1   May 23 2002 16:23:40   math19
- * Is now null-save.
- * 
- *    Rev 1.1   May 23 2002 13:44:30   math19
- * Inline documented
- */

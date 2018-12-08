@@ -20,3 +20,4 @@ test.lck
 /.classpath
 .settings
 /config/jlessner.test.config.properties
+/pom.xml.versionsBackup

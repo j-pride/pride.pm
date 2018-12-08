@@ -445,9 +445,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 * ResourceAccessor.
 	 * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/DatabaseMetaData.html#getUserName()">DatabaseMetaData</a>
 	 * 
-	 * @param db
+	 * @param db The logical database name
 	 * @return the user name
-	 * @throws Exception
 	 */
   	public String getUserName(String db) throws Exception {
   		return this.getConnection(db).getMetaData().getUserName();

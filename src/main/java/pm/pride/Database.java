@@ -18,6 +18,8 @@ import java.sql.Statement;
 import java.util.Iterator;
 import java.util.Vector;
 
+import pm.pride.ResourceAccessor.DBType;
+
 /** Database access class, providing base functionality for the
  * persistence framework. The member functions in here are supposed
  * to be rarely used by the application except common things like
@@ -111,7 +113,7 @@ public class Database implements SQL.Formatter
 	 * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/DatabaseMetaData.html#getURL()">DatabaseMetaData</a>
 	 * 
 	 * @return the database url
-	 * @throws Exception
+	 * @throws SQLException
 	 */
     public String getURL() throws SQLException {
 		try { return this.accessor.getURL(this.dbname); }
@@ -132,7 +134,6 @@ public class Database implements SQL.Formatter
      * ResourceAccessor.
 	 * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/DatabaseMetaData.html#getUserName()">DatabaseMetaData</a>
 	 * 
-	 * @param db
 	 * @return the user name
 	 */
     public String getUserName() throws SQLException{
@@ -142,8 +143,7 @@ public class Database implements SQL.Formatter
 
     /**
      * Returns the type of DB being represented by the current resource accessor.
-     * See constants in interface {@link ResourceAccessor#DBType} for the
-     * type keys which are supported by default.
+     * See constants in interface {@link DBType} for the type keys which are supported by default.
      */
     public String getDBType() {
         return this.accessor.getDBType();
@@ -232,14 +232,14 @@ public class Database implements SQL.Formatter
     public boolean isLogging() { return accessor.isLogging(); }
 
     /** Runs an SQL update statement according to the passed operation
-     * @param The operation to execute
-     * @param An array of field which to fetch auto-generated values from after
+     * @param operation The operation to execute
+     * @param autoFields An array of field which to fetch auto-generated values from after
      *   a successfull insertion. Should be null if either the operation is not
      *   an insertion or if there are no auto-fields existing
      * @param obj The object to store auto-field values in
      * @param red Descriptor providing the field mappings
      * @param params Optional parameters in case this is a plain prepared SQL statement,
-     *   i.e. function was called from {@link #sqlUpdate(String, Object...)
+     *   i.e. function was called from {@link #sqlUpdate(String, Object...)}
      */
     public int sqlUpdate(String operation, String[] autoFields, Object obj, RecordDescriptor red, Object... params) throws SQLException {
     	ConnectionAndStatement cns = null;
@@ -399,11 +399,10 @@ public class Database implements SQL.Formatter
      * @param obj Destination object to store the data in
      * @param dbfield table field which is to be used as selection criteria
      * @param value value which the field determined by <code>dbfield</code> must match
-     * @return A {@link ResultIterator} if parameter <code>all</code> is true, null
+     * @return A {@link ResultIterator} if at least one matching record is present or null
      * otherwise. The first matching record's data is stored in <code>obj</code>.
-     * Following records can successivly be copied to <code>obj</code> using the
+     * Following records can successively be copied to <code>obj</code> using the
      * ResultIterator.
-     * @throws NoResultsException if no matching record could be found
      */
     public ResultIterator query(RecordDescriptor red, boolean all, Object obj,
                                 String dbfield, Object value)
@@ -419,11 +418,10 @@ public class Database implements SQL.Formatter
      * @param obj both, destination object for result data and source object for
      * the values selection field values
      * @param dbfields table fields which are to be used as selection criteria
-     * @return A {@link ResultIterator} if parameter <code>all</code> is true, null
+     * @return A {@link ResultIterator} if at least one matching record is present or null
      * otherwise. The first matching record's data is stored in <code>obj</code>.
      * Following records can successivly be copied to <code>obj</code> using the
      * ResultIterator.
-     * @throws NoResultsException if no matching record could be found
      */
     public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String... dbfields)
         throws SQLException {
@@ -445,11 +443,10 @@ public class Database implements SQL.Formatter
      * @param all Flag saying wether to fetch all matching records or only the first one
      * @param obj Destination object to store the data in
      * @param where where-clause to apply (excluding the keyword 'where'!)
-     * @return A {@link ResultIterator} if parameter <code>all</code> is true, null
+     * @return A {@link ResultIterator} if at least one matching record is present or null
      * otherwise. The first matching record's data is stored in <code>obj</code>.
-     * Following records can successivly be copied to <code>obj</code> using the
+     * Following records can successively be copied to <code>obj</code> using the
      * ResultIterator.
-     * @throws NoResultsException if no matching record could be found
      */
     public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String where)
         throws SQLException {
@@ -487,10 +484,9 @@ public class Database implements SQL.Formatter
      * denoted by parameter <code>red</code>.
 	 * @param red Descriptor providing the field mappings and the table name to access
 	 * @param obj Destination object to store the data in
-     * @return A {@link ResultIterator}. The first matching record's data is stored in
-     * <code>obj</code>. Following records can successivly be copied to <code>obj</code>
-     * using the ResultIterator.
-     * @throws NoResultsException if no matching record could be found
+     * @return A {@link ResultIterator} if at least one matching record is present or null otherwise.
+     *   The first matching record's data is stored in <code>obj</code>. Following records can
+     *   successively be copied to <code>obj</code> using the ResultIterator.
      */
     public ResultIterator queryAll(RecordDescriptor red, Object obj)
       throws SQLException {
@@ -619,9 +615,9 @@ public class Database implements SQL.Formatter
 	}
 
     /** Returns a header for a record inserting of the form
-     * <code>"insert into <table> ( <field 1> ... <field n> ) values "</code>
+     * <code>"insert into &lt;table&gt; ( &lt;field 1&gt; ... &lt;field n&gt; ) values "</code>
      * This function is helpfull to assemble bulk update statements.
-     * @param descriptor providing the field names and the table name to access
+     * @param red descriptor providing the field names and the table name to access
      * @param autoFields list of fields being automatically managed and initialized
      *   by the database itself and must therefore not be provided on record creation.
      *   May be null if there are no fields to ignore.

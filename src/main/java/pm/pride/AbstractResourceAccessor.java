@@ -141,6 +141,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
 			if(dbType.equalsIgnoreCase(DBType.HSQL))
 			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
+			if(dbType.equalsIgnoreCase(DBType.SQLITE))
+				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.SSS''");
 			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))
 				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.SSS''");
 		}
@@ -228,6 +230,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			return "SYSDATE";
 		else if (ResourceAccessor.DBType.HSQL.equals(dbType))
 			return "CURRENT_DATE";
+		else if (ResourceAccessor.DBType.SQLITE.equals(dbType))
+			return "strftime('%Y-%m-%d %H:%M:%f', 'now')";
 		else
 			return new java.util.Date();
 	}

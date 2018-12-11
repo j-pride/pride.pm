@@ -31,6 +31,7 @@ public interface ResourceAccessor extends SQL.Formatter
 		public static final String POSTGRES   = "postgres";
         public static final String HSQL       = "hsql";
         public static final String POINTBASE  = "pointbase";
+        public static final String SQLITE  = "sqlite";
 	}
 	
 	public interface Config {

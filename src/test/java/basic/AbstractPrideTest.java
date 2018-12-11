@@ -136,7 +136,7 @@ public abstract class AbstractPrideTest extends Assert {
                 new ResourceAccessorJSE(testConfig);
             DatabaseFactory.setResourceAccessor(ra);
             DatabaseFactory.setExceptionListener(exlistener);
-            DatabaseFactory.setDatabaseName(testConfig.getProperty("pride.db"));
+            DatabaseFactory.setDatabaseName(testConfig.getProperty(ResourceAccessor.Config.DB));
 	}
 
 	private void checkIfTestShouldBeSkipped() {
@@ -183,9 +183,17 @@ public abstract class AbstractPrideTest extends Assert {
 
 	protected void dropTestTable(String table) throws SQLException {
         try {
+        	// At least SQLite has problems dropping the table from the same
+        	// connection which was just used to operate on the database. So
+        	// we force the creation of a new connection for that job. It should
+        	// not bother any other database which is less fragile :-)
+        	DatabaseFactory.getDatabase().releaseConnection();
             DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE " + table);
         }
-        catch (SQLException sqlx) {} // ignore
+        catch (SQLException sqlx) {
+        	// Report problem but go ahead. Maybe we are successful anyway
+        	System.err.println("DROP failed: " + sqlx);
+        }
         DatabaseFactory.getDatabase().commit();
 	}
 	

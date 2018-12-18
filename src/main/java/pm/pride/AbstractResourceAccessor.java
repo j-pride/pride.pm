@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.lang.reflect.Array;
 import java.sql.*;
 import java.text.DateFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -22,14 +23,14 @@ import java.util.Properties;
 
 public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
-	protected String           dbType      = null;
-	protected SimpleDateFormat dateFormat  = null;
-	protected SimpleDateFormat timeFormat  = null;
-	protected String           dbUser      = null;
-	protected String           dbPassword  = null;
-	protected Date             dbSystime   = null;
-    protected Properties       props       = null;
-    protected int              autoKeyMode = AutoKeyMode.UNKNOWN;
+	protected String dbType = null;
+	protected Format dateFormat = null;
+	protected Format timeFormat = null;
+	protected String dbUser = null;
+	protected String dbPassword = null;
+	protected Date dbSystime = null;
+    protected Properties props = null;
+    protected int autoKeyMode = AutoKeyMode.UNKNOWN;
 
 	//-----------------  S Q L   l o g g i n g   s t u f f  -----------------
 
@@ -134,28 +135,28 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 * Returns a format for date values, based on the database type. For Oracle databases, the proprietary to_date syntax is used.
 	 * @return The common date format to use or null if there is no format known
 	 */
-	protected SimpleDateFormat dateFormat() {
+	protected Format dateFormat() {
 		if (dbType != null) {
 			if(dbType.equalsIgnoreCase(DBType.ORACLE))
 				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
 			if(dbType.equalsIgnoreCase(DBType.HSQL))
 			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
 			if(dbType.equalsIgnoreCase(DBType.SQLITE))
-				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.S''");
+				return new UnixTimeDateFormat();
 			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))
 				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss''");
 		}
 		return null;
 	}
 	
-	protected SimpleDateFormat timeFormat() {
+	protected Format timeFormat() {
 		if (dbType != null) {
 			if(dbType.equalsIgnoreCase(DBType.ORACLE))
 				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
 			if(dbType.equalsIgnoreCase(DBType.HSQL))
 			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
 			if(dbType.equalsIgnoreCase(DBType.SQLITE))
-				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.SSS''");
+				return new UnixTimeDateFormat();
 			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))
 				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.SSS''");
 		}

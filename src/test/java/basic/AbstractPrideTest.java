@@ -12,6 +12,7 @@ package basic;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -199,7 +200,7 @@ public abstract class AbstractPrideTest extends Assert {
 	
 	protected void generateCustomer(int count) throws Exception {
 		firstCustomersHiredate = new Date(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse("01.01.2010 13:05:45").getTime());
-
+		
 		Customer c = new Customer(1, "First", "Customer", null, firstCustomersHiredate);
 		for (int i = 2; i < count; i++) {
 			String[] name = generateName(i);

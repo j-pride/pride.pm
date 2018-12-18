@@ -388,6 +388,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
                 return stmt.executeQuery("SELECT @@IDENTITY");
             if (DBType.HSQL.equalsIgnoreCase(dbType))
                 return stmt.executeQuery("CALL IDENTITY()");
+            if (DBType.SQLITE.equalsIgnoreCase(dbType))
+                return stmt.executeQuery("SELECT LAST_INSERT_ROWID()");
         }
         return stmt.getGeneratedKeys();
     }

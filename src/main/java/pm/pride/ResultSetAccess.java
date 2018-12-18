@@ -89,7 +89,7 @@ public class ResultSetAccess
     public static void init() throws NoSuchMethodException {
         putMethod("getString", String.class);
         putMethod("getString", Enum.class);
-		putMethod("getTimestamp", java.util.Date.class);
+		putMethod("getDate", java.util.Date.class);
         putMethod("getDate", java.sql.Date.class);
         putMethod("getTimestamp", java.sql.Timestamp.class);
         putMethod("getInt", Integer.class);

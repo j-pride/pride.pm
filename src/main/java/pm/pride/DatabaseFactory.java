@@ -114,7 +114,7 @@ public class DatabaseFactory
     public static Database getDatabase() { return currentContext.getDatabase(); }
 
     /** Returns the {@link Database} instance of the specified context.
-     * @param contextName The context to refer to with <null> identifying
+     * @param contextName The context to refer to with null identifying
      * the current context.
      */
     public static Database getDatabase(String contextName) {
@@ -126,7 +126,7 @@ public class DatabaseFactory
 
     /** Makes the specified context the current one and returns the context's
      * {@link Database} instance. If the context doesn't exist yet, it is
-     * created and the function returns null. <null> identifies the current
+     * created and the function returns null. null identifies the current
      * context and thus causes no context switch.
      */
     public static Database setContext(String name) {
@@ -159,18 +159,3 @@ public class DatabaseFactory
 
     public final static String REVISION_ID = "$Header: /framework/pride/src/de/mathema/pride/DatabaseFactory.java 3     3.02.06 13:41 Less02 $";
 }
-
-/* $Log: /framework/pride/src/de/mathema/pride/DatabaseFactory.java $
- * 
- * 3     3.02.06 13:41 Less02
- * Upgrade to PriDE 2.3.2
-/* Revision 1.2  2001/07/31 18:09:28  lessner
-/* Job monitor supports interactive toggling of SQL logging
-/*
-/* Revision 1.1.1.1  2001/06/19 09:20:24  lessner
-/* XBCSetup Project Directory
-/*
-/* Revision 1.1.1.1  2001/06/19 08:19:08  lessner
-/* XBCSetup Project Directory
-/*
- */

@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import pm.pride.ResourceAccessor.DBType;
 import pm.pride.util.generator.PreparedStatementLogger;
 
 class ConnectionAndStatement implements PreparedOperationI {
@@ -56,7 +57,12 @@ class ConnectionAndStatement implements PreparedOperationI {
 			throw new UnsupportedOperationException();
 		}
 		else {
-			return stmt.executeUpdate(statementContent, autoFieldsForExec);
+			if (autoFieldsForExec != null && autoFieldsForExec.length > 0 && database.getDBType().equals(DBType.SQLITE)) {
+				return stmt.executeUpdate(statementContent);
+			}
+			else {
+				return stmt.executeUpdate(statementContent, autoFieldsForExec);
+			}
 		}
 	}
 

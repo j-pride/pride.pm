@@ -487,10 +487,6 @@ public class EntityGenerator {
 		buffer.append("\n" + "\n");
 	}
 
-	/**
-	 * @return ID-Typ der Tabelle
-	 * @param Tabellenbeschreibung
-	 */
 	protected String getTableIdType(final TableDescription tabCols) {
 		String idType;
 

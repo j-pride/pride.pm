@@ -293,7 +293,6 @@ public class RecordDescriptor
      * @param table the name of the database table, the operation refers to.
      *   See {@link AttributeDescriptor} for the nasty reason
      * @param position index of the prepared statements next parameter to set
-     * @return the next pending position
      */
     public void getWhereValue(Object obj, String dbfield, PreparedOperationI pop, String table, int position)
 		throws ReflectiveOperationException, SQLException {

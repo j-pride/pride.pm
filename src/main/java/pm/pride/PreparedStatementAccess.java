@@ -39,7 +39,7 @@ public class PreparedStatementAccess
      *   prepared statement access method denoted by parameter methodName.
      * @param valueType Type of value returned by a getter method of a
      *   source object. This parameter is required to express mappings like
-     *   Float -> float. If it is null, the functionParamType is used.
+     *   Float -&gt; float. If it is null, the functionParamType is used.
      * @throws NoSuchMethodException if the specified method is not
      *   available for class java.sql.ResultSet
      */
@@ -59,30 +59,30 @@ public class PreparedStatementAccess
      * provide additional getter methods in you entity, providing a conversion
      * to either java.sql.Date or java.sql.Timestamp.
      * <ul>
-     * <li>String -> setString
-     * <li>Enum -> setString
-     * <li>java.util.Date -> setDate
-     * <li>java.sql.Date -> setDate
-     * <li>java.sql.Timestamp -> setTimestamp
-     * <li>Integer/int -> setInt
-     * <li>Float/float -> setFloat
-     * <li>Double/double -> setDouble
-     * <li>Boolean/boolean -> setBoolean
-     * <li>BigDecimal -> setBigDecimal
-     * <li>Long/long -> setLong
-     * <li>Short/short -> setShort
-     * <li>byte[] -> setBytes
-     * <li>Byte/byte -> setByte
-     * <li>Blob -> setBlob
-     * <li>Clob -> setClob
-     * <li>Map -> setObject, for Postgres only
-     * <li>Any array type -> setArray, for Postgres only
+     * <li>String -&gt; setString
+     * <li>Enum -&gt; setString
+     * <li>java.util.Date -&gt; setDate
+     * <li>java.sql.Date -&gt; setDate
+     * <li>java.sql.Timestamp -&gt; setTimestamp
+     * <li>Integer/int -&gt; setInt
+     * <li>Float/float -&gt; setFloat
+     * <li>Double/double -&gt; setDouble
+     * <li>Boolean/boolean -&gt; setBoolean
+     * <li>BigDecimal -&gt; setBigDecimal
+     * <li>Long/long -&gt; setLong
+     * <li>Short/short -&gt; setShort
+     * <li>byte[] -&gt; setBytes
+     * <li>Byte/byte -&gt; setByte
+     * <li>Blob -&gt; setBlob
+     * <li>Clob -&gt; setClob
+     * <li>Map -&gt; setObject, for Postgres only
+     * <li>Any array type -&gt; setArray, for Postgres only
      * </ul>
      */
     public static void init() throws NoSuchMethodException {
         putMethod("setString", String.class);
         putMethod("setString", String.class, Enum.class);
-        putMethod("setTimestamp", Timestamp.class, java.util.Date.class);
+        putMethod("setDate", java.sql.Date.class, java.util.Date.class);
         putMethod("setDate", java.sql.Date.class);
         putMethod("setTimestamp", Timestamp.class);
         putMethod("setInt", int.class, Integer.class);

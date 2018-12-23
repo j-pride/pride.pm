@@ -185,7 +185,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         return fieldAccess.get(obj);
     }
 
-    /** Returns an update expression of the form "<name> = <value>"
+    /** Returns an update expression of the form "&lt;name&gt; = &lt;value&gt;"
      * by extracting the pased object's value for this descriptor's
      * attribute.
      */
@@ -194,9 +194,9 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         return getFieldName() + " = " + getCreationValue(obj, db);
     }
 
-    /** Returns a constraint expression of the form "<name> = <value>"
+    /** Returns a constraint expression of the form "&lt;name&gt; = &lt;value&gt;"
      * if the objects's value for this descriptor's attribute defers
-     * from null, "<name> IS NULL" otherwise
+     * from null, "&lt;name&gt; IS NULL" otherwise
      */
     @Deprecated
     public String getWhereValue(Object obj, Database db, boolean byLike)

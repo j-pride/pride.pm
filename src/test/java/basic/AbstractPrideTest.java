@@ -12,6 +12,7 @@ package basic;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -136,7 +137,7 @@ public abstract class AbstractPrideTest extends Assert {
                 new ResourceAccessorJSE(testConfig);
             DatabaseFactory.setResourceAccessor(ra);
             DatabaseFactory.setExceptionListener(exlistener);
-            DatabaseFactory.setDatabaseName(testConfig.getProperty("pride.db"));
+            DatabaseFactory.setDatabaseName(testConfig.getProperty(ResourceAccessor.Config.DB));
 	}
 
 	private void checkIfTestShouldBeSkipped() {
@@ -183,15 +184,23 @@ public abstract class AbstractPrideTest extends Assert {
 
 	protected void dropTestTable(String table) throws SQLException {
         try {
+        	// At least SQLite has problems dropping the table from the same
+        	// connection which was just used to operate on the database. So
+        	// we force the creation of a new connection for that job. It should
+        	// not bother any other database which is less fragile :-)
+        	DatabaseFactory.getDatabase().releaseConnection();
             DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE " + table);
         }
-        catch (SQLException sqlx) {} // ignore
+        catch (SQLException sqlx) {
+        	// Report problem but go ahead. Maybe we are successful anyway
+        	System.err.println("DROP failed: " + sqlx);
+        }
         DatabaseFactory.getDatabase().commit();
 	}
 	
 	protected void generateCustomer(int count) throws Exception {
 		firstCustomersHiredate = new Date(new SimpleDateFormat("dd.MM.yyyy HH:mm:ss").parse("01.01.2010 13:05:45").getTime());
-
+		
 		Customer c = new Customer(1, "First", "Customer", null, firstCustomersHiredate);
 		for (int i = 2; i < count; i++) {
 			String[] name = generateName(i);

@@ -20,8 +20,8 @@ import java.math.BigDecimal;
  * JDBC result sets. It is required for PriDE's generic way
  * of fetching record fields from an SQL query result.
  * By default, the class is initialized by its {@link #init()}
- * method on the first call of {@link #getAccessMethod(String)} or
- * {@link #getIndexAccessMethod(String)} which in turn are called
+ * method on the first call of {@link #getAccessMethod(Class)} or
+ * {@link #getIndexAccessMethod(Class)} which in turn are called
  * by the constructors of class {@link RecordDescriptor}.
  * However, you might be required to change the default
  * mappings according to your driver's abilities. E.g.
@@ -66,30 +66,30 @@ public class ResultSetAccess
     
     /** Initialize the class by the following default type mappings:
      * <ul>
-     * <li>String -> getString
-     * <li>Enum -> getString
-     * <li>java.util.Date -> getDate
-     * <li>java.sql.Date -> getDate
-     * <li>java.sql.Timestamp -> getTimestamp
-     * <li>Integer/int -> getInt
-     * <li>Float/float -> getFloat
-     * <li>Double/double -> getDouble
-     * <li>Boolean/boolean -> getBoolean
-     * <li>BigDecimal -> getBigDecimal
-     * <li>Long/long -> getLong
-     * <li>Short/short -> getShort
-     * <li>Byte/byte -> getByte
-     * <li>byte[] -> getBytes
-     * <li>Blob -> getBlob
-     * <li>Clob -> getClob
-     * <li>Map<String, String> -> getObject, for Postgres only
-     * <li>Any array type -> getObject, for Postgres only
+     * <li>String -&gt; getString
+     * <li>Enum -&gt; getString
+     * <li>java.util.Date -&gt; getDate
+     * <li>java.sql.Date -&gt; getDate
+     * <li>java.sql.Timestamp -&gt; getTimestamp
+     * <li>Integer/int -&gt; getInt
+     * <li>Float/float -&gt; getFloat
+     * <li>Double/double -&gt; getDouble
+     * <li>Boolean/boolean -&gt; getBoolean
+     * <li>BigDecimal -&gt; getBigDecimal
+     * <li>Long/long -&gt; getLong
+     * <li>Short/short -&gt; getShort
+     * <li>Byte/byte -&gt; getByte
+     * <li>byte[] -&gt; getBytes
+     * <li>Blob -&gt; getBlob
+     * <li>Clob -&gt; getClob
+     * <li>Map&lt;String, String&gt; -&gt; getObject, for Postgres only
+     * <li>Any array type -&gt; getObject, for Postgres only
      * </ul>
      */
     public static void init() throws NoSuchMethodException {
         putMethod("getString", String.class);
         putMethod("getString", Enum.class);
-		putMethod("getTimestamp", java.util.Date.class);
+		putMethod("getDate", java.util.Date.class);
         putMethod("getDate", java.sql.Date.class);
         putMethod("getTimestamp", java.sql.Timestamp.class);
         putMethod("getInt", Integer.class);

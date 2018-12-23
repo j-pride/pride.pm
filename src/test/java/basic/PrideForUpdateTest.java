@@ -2,12 +2,14 @@ package basic;
 
 import org.junit.Test;
 
+import pm.pride.ResourceAccessor;
 import pm.pride.WhereCondition;
 
 import static pm.pride.WhereCondition.Operator.UNEQUAL;
 
 import java.sql.SQLException;
 
+@SkipForDBType(ResourceAccessor.DBType.SQLITE) // SQLite doesn't support SELECT ... FOR UPDATE
 public class PrideForUpdateTest extends AbstractPrideTest{
 
     @Override

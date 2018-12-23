@@ -22,7 +22,7 @@ import java.util.GregorianCalendar;
  */
 public interface ResourceAccessor extends SQL.Formatter
 {
-	public static interface DBType {
+	public interface DBType {
 		public static final String ORACLE     = "oracle";
 		public static final String CLOUDSCAPE = "cloudscape";
 		public static final String MYSQL      = "mysql";
@@ -31,9 +31,10 @@ public interface ResourceAccessor extends SQL.Formatter
 		public static final String POSTGRES   = "postgres";
         public static final String HSQL       = "hsql";
         public static final String POINTBASE  = "pointbase";
+        public static final String SQLITE  = "sqlite";
 	}
 	
-	public static interface Config {
+	public interface Config {
 		public static final String DBTYPE     = "pride.dbtype";
 		public static final String DATEFORMAT = "pride.format.date";
 		public static final String TIMEFORMAT = "pride.format.time";
@@ -64,33 +65,44 @@ public interface ResourceAccessor extends SQL.Formatter
 	
 	
 	/**
-	 * Returns the timestamp, that is currently used to identify, that a date 
+	 * Returns the timestamp, that is currently used to indicate, that a date 
 	 * has to be replaced by the database server's system time.
 	 * If a date for an sql statement matches this value, it will
-	 * be replaced by a database specific string in insert and update statements. 
+	 * be replaced by a database specific string in insert and update statements.
+	 * @return The indicator timestamp
 	 */
 	public java.util.Date getSystime();
 	  
-    /** Switch SQL logging on and off, according to the the value of
-     * parameter <code>state</code>.
+    /** Switch SQL logging on and off.
+     * @param db The logical name of the database to toggle the logging state for
+     * @param state The requested state, true for switching logging on, false for switching off
      * @return the new logging state. The value might defer from
      * <code>state</code> if the ResourceAccessor denies toggling.
      */
     public boolean setLogging(Database db, boolean state);
 
-    /** Returns the current SQL logging state */
+    /** Returns the current SQL logging state
+     * @return the current logging state - true = on, false = off */
     public boolean isLogging();
 
-    /** Writes the passed operation to the SQL log, if logging is enabled */
+    /** Writes the passed operation to the SQL log, if logging is enabled
+     * @param db The logical name of the database to log an operation for
+     * @param operation The operation to log
+     */
     public void sqlLog(Database db, String operation);
 
-    /** Writes the passed SQL exception to the log, if logging is enabled */
+    /** Writes the passed SQL exception to the log, if logging is enabled
+     * @param db The logical name of the database to log an exception for
+     * @param sqlx The exception to log
+     */
     public void sqlLogError(Database db, SQLException sqlx);
 
     /** Returns a connection to the database represented by the
      * ResourceAccessor. This function is called before every
      * single database operation and is therefore supposed to
      * run very fast.
+     * @param db The logical name of the database to provide a connection for
+     * @return The connection
      */
     public Connection getConnection(String db) throws Exception;
     
@@ -175,10 +187,9 @@ public interface ResourceAccessor extends SQL.Formatter
 
     /**
      * Returns the type of DB being represented by this resource accessor.
-     * See constants in interface {@link #DBType} for the
+     * See constants in interface {@link DBType} for the
      * type keys which are supported by default.
      */
     public String getDBType();
     
-    public final static String REVISION_ID = "$Header: ";
 }

@@ -211,6 +211,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	private void checkOrderByResult(WhereCondition expression, int firstId, int lastId) throws SQLException {
 		Customer c = new Customer();
 		ResultIterator ri = c.query(expression);
+		assertNotNull(ri);
 		Customer[] array = (Customer[]) ri.toArray(COUNT);
     	assertEquals(firstId, array[0].getId());
     	assertEquals(lastId, array[array.length - 1].getId());

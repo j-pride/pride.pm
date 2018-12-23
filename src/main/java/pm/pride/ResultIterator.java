@@ -135,8 +135,6 @@ public class ResultIterator
      * @param maxResults The maximum number of results to collect. If maxResults is -1,
      *   the function returns all data from the underlying result set
      * @return The assembled ArrayList
-     * @throws CloneNotSupportedException if the operation object has no public clone
-     *   method available
      * @throws SQLException if there occurs a databaes error during iteration
      */
 	public List<?> toList(long maxResults) throws SQLException {

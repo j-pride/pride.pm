@@ -9,7 +9,7 @@ import java.util.List;
  * individually by bound to variables, causing PriDE to execute queries based
  * in this where condition as a prepared statement.
  * <p>
- * (age < 18 or age > 64) and status = '5' and foo in (1, 17, 99)
+ * (age &lt; 18 or age &gt; 64) and status = '5' and foo in (1, 17, 99)
  * 
  * @author LESS02
  */
@@ -39,7 +39,7 @@ public class WhereCondition extends WhereConditionPart {
 
     protected static boolean bindDefault;
 
-    /** Specifies of PriDE should <i>by default<i> use bind variables in SQL statements.
+    /** Specifies of PriDE should <i>by default</i> use bind variables in SQL statements.
      * Traditionally PriDE does <i>not</i> so but talks plain SQL.
      */
     public static void setBindDefault(boolean bind) {
@@ -183,7 +183,7 @@ public class WhereCondition extends WhereConditionPart {
 	/**
 	 * Initiates a sub condition which is AND-concatenated with what is already present in this WhereCondition.
 	 * @return The sub condition. You can switch back to the parent condition by closing the sub condition using
-	 *    method {@link #_}.
+	 *    method {@link #bracketClose()}.
 	 */
 	public WhereCondition and() {
 		return chain(ChainOperator.AND);
@@ -204,14 +204,14 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	/**
-	 * Like {@link #and(String, Object...)} but performs an OR-concatenation.
+	 * Like {@link #and(String, Object)} but performs an OR-concatenation.
 	 */
 	public WhereCondition or(String field, Object value) {
 		return or(field, Operator.EQUAL, value);
 	}
 
 	/**
-	 * Like {@link #andNotNull(String, Object...)} but performs an OR-concatenation.
+	 * Like {@link #andNotNull(String, Object)} but performs an OR-concatenation.
 	 */
 	public WhereCondition orNotNull(String field, Object value) {
 		return orNotNull(field, Operator.EQUAL, value);
@@ -251,7 +251,7 @@ public class WhereCondition extends WhereConditionPart {
 	 * <p>
 	 * Causes an SQL ordering clause like
 	 * <p>
-	 * <pre>order by last_name ASC, first_name DESC<pre>
+	 * <pre>order by last_name ASC, first_name DESC</pre>
 	 * <p>
 	 * @param field The field to order the output by
 	 * @param direction The direction, usually either {@link Direction#ASC} or {@link Direction#DESC}

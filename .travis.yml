@@ -16,6 +16,7 @@ jdk:
 matrix:
   include:
     - env: DATABASE=hsql
+    - env: DATABASE=sqlite
     - env: DATABASE=mysql
       services: mysql
       before_install: mysql -e 'CREATE DATABASE test;'

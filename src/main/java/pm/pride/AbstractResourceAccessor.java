@@ -14,6 +14,7 @@ import java.io.FileWriter;
 import java.lang.reflect.Array;
 import java.sql.*;
 import java.text.DateFormat;
+import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
@@ -22,14 +23,14 @@ import java.util.Properties;
 
 public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
-	protected String           dbType      = null;
-	protected SimpleDateFormat dateFormat  = null;
-	protected SimpleDateFormat timeFormat  = null;
-	protected String           dbUser      = null;
-	protected String           dbPassword  = null;
-	protected Date             dbSystime   = null;
-    protected Properties       props       = null;
-    protected int              autoKeyMode = AutoKeyMode.UNKNOWN;
+	protected String dbType = null;
+	protected Format dateFormat = null;
+	protected Format timeFormat = null;
+	protected String dbUser = null;
+	protected String dbPassword = null;
+	protected Date dbSystime = null;
+    protected Properties props = null;
+    protected int autoKeyMode = AutoKeyMode.UNKNOWN;
 
 	//-----------------  S Q L   l o g g i n g   s t u f f  -----------------
 
@@ -131,16 +132,31 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	}
 	
 	/**
-	 * Returns a common format for date and/or time values, based on the
-	 * database type. For Oracle databases, the propriatary to_date syntax is used
+	 * Returns a format for date values, based on the database type. For Oracle databases, the proprietary to_date syntax is used.
 	 * @return The common date format to use or null if there is no format known
 	 */
-	protected SimpleDateFormat commonDateFormat() {
+	protected Format dateFormat() {
 		if (dbType != null) {
 			if(dbType.equalsIgnoreCase(DBType.ORACLE))
 				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
 			if(dbType.equalsIgnoreCase(DBType.HSQL))
 			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
+			if(dbType.equalsIgnoreCase(DBType.SQLITE))
+				return new UnixTimeDateFormat();
+			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))
+				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss''");
+		}
+		return null;
+	}
+	
+	protected Format timeFormat() {
+		if (dbType != null) {
+			if(dbType.equalsIgnoreCase(DBType.ORACLE))
+				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
+			if(dbType.equalsIgnoreCase(DBType.HSQL))
+			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
+			if(dbType.equalsIgnoreCase(DBType.SQLITE))
+				return new UnixTimeDateFormat();
 			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))
 				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.SSS''");
 		}
@@ -155,7 +171,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 */
     synchronized protected String formatDate(java.sql.Date date) {
 		if(dateFormat == null)
-			dateFormat = commonDateFormat();
+			dateFormat = dateFormat();
 		return (dateFormat != null) ?
 			dateFormat.format(date) : "'" + date + "'";
     }
@@ -171,7 +187,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 */
     synchronized protected String formatTime(java.sql.Timestamp time) {
 		if(timeFormat == null)
-			timeFormat = commonDateFormat();
+			timeFormat = timeFormat();
 		return (timeFormat != null) ?
 			timeFormat.format(time) : "'" + time + "'";
 	}
@@ -208,7 +224,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			!(value instanceof java.sql.Timestamp)) {
 			long timeWithMillisecondsPrecision = ((java.util.Date) value).getTime();
 			long timeWithSecondsPrecision = timeWithMillisecondsPrecision - (timeWithMillisecondsPrecision % 1000);
-			return new java.sql.Timestamp(timeWithSecondsPrecision);
+			return new java.sql.Date(timeWithSecondsPrecision);
 		}
 		return value;
 	}
@@ -228,6 +244,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			return "SYSDATE";
 		else if (ResourceAccessor.DBType.HSQL.equals(dbType))
 			return "CURRENT_DATE";
+		else if (ResourceAccessor.DBType.SQLITE.equals(dbType))
+			return "strftime('%Y-%m-%d %H:%M:%f', 'now')";
 		else
 			return new java.util.Date();
 	}
@@ -370,6 +388,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
                 return stmt.executeQuery("SELECT @@IDENTITY");
             if (DBType.HSQL.equalsIgnoreCase(dbType))
                 return stmt.executeQuery("CALL IDENTITY()");
+            if (DBType.SQLITE.equalsIgnoreCase(dbType))
+                return stmt.executeQuery("SELECT LAST_INSERT_ROWID()");
         }
         return stmt.getGeneratedKeys();
     }
@@ -445,9 +465,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 * ResourceAccessor.
 	 * @see <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/sql/DatabaseMetaData.html#getUserName()">DatabaseMetaData</a>
 	 * 
-	 * @param db
+	 * @param db The logical database name
 	 * @return the user name
-	 * @throws Exception
 	 */
   	public String getUserName(String db) throws Exception {
   		return this.getConnection(db).getMetaData().getUserName();

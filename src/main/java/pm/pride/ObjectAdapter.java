@@ -10,10 +10,6 @@
  *******************************************************************************/
 package pm.pride;
 
-import java.sql.SQLException;
-
-import basics.Customer;
-
 /**
  * Convenience baseclass, providing a set of ready-to-use standard
  * methods for interaction between the database and data entity

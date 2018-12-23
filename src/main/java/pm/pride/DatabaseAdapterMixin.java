@@ -12,8 +12,6 @@ package pm.pride;
 
 import java.sql.SQLException;
 
-import basics.Customer;
-
 /** This is the base for two different flavors of {@link DatabaseAdapter}s. The
  * {@link ObjectAdapter} which provides an entity fpr alle mapping functions
  * and the {@link MappedObject} which maps itself.

@@ -178,10 +178,10 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
 	/**
 	 * Formats a time value into an SQL-suitable string. The function uses the
-	 * time format specified in the constructor or tries to get a get a common
-	 * date-and-time format from {@link #commonDateFormat}. If there is nothing
-	 * to find, it returns the value itself, surrounded by single-quotes. This
-     * function is synchronized due to the fact that DateFormat.format is not!!
+	 * time format specified in the constructor or tries a get a common time
+	 * format from {@link #timeFormat}. If there is nothing to find, it returns the
+	 * value itself, surrounded by single-quotes. This function is synchronized
+	 * due to the fact that DateFormat.format is not!!
 	 * @param time The value to format
 	 * @return The SQL-formatted value
 	 */

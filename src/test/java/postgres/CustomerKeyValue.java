@@ -22,7 +22,7 @@ public class CustomerKeyValue extends IdentifiedEntity {
             }
         );
 
-    protected RecordDescriptor getDescriptor() { return red; }
+    public RecordDescriptor getDescriptor() { return red; }
 
 
 }

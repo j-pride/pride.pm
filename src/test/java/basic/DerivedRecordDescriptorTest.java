@@ -52,7 +52,7 @@ public class DerivedRecordDescriptorTest extends AbstractPrideTest {
 		c.setStreet("Bei Schneewittchen");
 		c.update(new String[] {"id", "city"});
 		DatabaseFactory.getDatabase().commit();
-		DerivedCustomer[] ca = (DerivedCustomer[])c.query(new String [] { "id", "street" } ).toArray();
+		DerivedCustomer[] ca = (DerivedCustomer[])c.queryByExample("id", "street").toArray();
 		assertEquals(ca.length, 1);
 		assertEquals("Casper", ca[0].getFirstName());
 		assertEquals("Kopp", ca[0].getLastName());        

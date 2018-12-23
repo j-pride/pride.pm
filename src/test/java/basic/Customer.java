@@ -64,10 +64,7 @@ public class Customer extends IdentifiedEntity {
 		}
 	);
 
-	/**
-	 * @see pm.pride.MappedObject#getDesc()
-	 */
-	protected RecordDescriptor getDescriptor() { return red; }
+	public RecordDescriptor getDescriptor() { return red; }
 
 	public String getFirstName() { return firstName; }
 	public String getLastName()  { return lastName; }

@@ -34,6 +34,7 @@ public class EntityGenerator {
 	public static final String BEAN = "-b";
 	
 	protected String className;
+	protected String entityClassName;
 	protected String baseClassName;
 	protected String generationType;
 	protected String[] tableNames;
@@ -54,13 +55,26 @@ public class EntityGenerator {
 							   String generationType, String baseClassName, ClassLoader classLoader)
 		throws Exception {
 		createResourceAccessor();
+		this.generationType = generationType;
 		this.tableNames = tableNames;
 		this.className = className;
 		this.baseClassName = baseClassName;
-		this.generationType = generationType;
+		this.entityClassName = generateDBA() ? generationType : className;
 		this.classLoader = classLoader;
 	}
 
+	protected boolean generateBean() {
+		return generationType.equals(BEAN);
+	}
+	
+	protected boolean generateHybrid() {
+		return generationType.equals(HYBRID);
+	}
+	
+	protected boolean generateDBA() {
+		return !generationType.equals(BEAN) && !generationType.equals(HYBRID);
+	}
+	
 	protected void createResourceAccessor() throws Exception {
 		db = System.getProperty(Config.DB);
 		if (db == null) {
@@ -201,15 +215,15 @@ public class EntityGenerator {
 	protected String getBaseClassName(String baseClassName, String generationType)
 		throws SQLException {
 		if (baseClassName == null) {
-			if (generationType.equals(HYBRID))
-				return "MappedObject";
-			else if (!generationType.equals(BEAN))
-				return "ObjectAdapter";
+			if (generateHybrid())
+				return "MappedObject<" + getSimpleClassName(entityClassName) + ">";
+			else if (generateDBA())
+				return "ObjectAdapter<" + getSimpleClassName(entityClassName) + ">";
 			else
 				return null;
 		}
 		else {
-			if (generationType.equals(BEAN))
+			if (generateBean())
 				return extractBeanClass(baseClassName);
 			else
 				return baseClassName;
@@ -228,11 +242,11 @@ public class EntityGenerator {
         buffer.append("/**" + "\n");
         writeAuthor(desc, className, baseClassName, generationType, buffer);
         buffer.append(" */" + "\n");
-        buffer.append("public class " + getClassName(className) + " ");
+        buffer.append("public class " + getSimpleClassName(className) + " ");
         String actualBaseClassName = getBaseClassName(baseClassName, generationType);
         if (actualBaseClassName != null)
 			buffer.append("extends " + actualBaseClassName + " ");
-		if (baseClassName == null && (generationType.equals(BEAN) || generationType.equals(HYBRID)))
+		if (baseClassName == null && !generateDBA())
 			buffer.append("implements Cloneable, java.io.Serializable ");
 		buffer.append("{\n");
     }
@@ -264,14 +278,14 @@ public class EntityGenerator {
     public void writeRecordDescriptor (TableDescription[] desc, String className,
     								   String baseClassName, String generationType, StringBuffer buffer)
     	throws SQLException {
-		if (generationType.equals(BEAN))
+		if (generateBean())
 			return;
 
 		Set<String> baseClassFields = extractMappedFields(baseClassName);
 		buffer.append("    protected static final RecordDescriptor red = new RecordDescriptor" + "\n");
 		buffer.append("        (");
-		buffer.append(getClassName(generationType.equals(HYBRID) ? className : generationType));
-		buffer.append(".class, \"" + getTableName(tableNames) + "\", ");
+		buffer.append(getSimpleClassName(generationType.equals(HYBRID) ? className : generationType));
+		buffer.append(".class, TABLE, ");
 		buffer.append(baseClassName != null ? baseClassName + ".red" : "null");
 		buffer.append(", new String[][] {" + "\n");
 		
@@ -291,7 +305,7 @@ public class EntityGenerator {
 		}
 		
         buffer.append("        });" + "\n\n");
-        buffer.append("    protected RecordDescriptor getDescriptor() { return red; }" + "\n");
+        buffer.append("    public RecordDescriptor getDescriptor() { return red; }" + "\n");
         buffer.append("\n");
         if (!baseClassFields.isEmpty()) {
         	throw new SQLException("Base class " + baseClassName + " maps field " +
@@ -301,19 +315,12 @@ public class EntityGenerator {
 
 	public void writeEntityReference(TableDescription[] desc, String className, String baseClassName,
 								     String generationType, StringBuffer buffer) {
-		if (generationType.equals(BEAN) || generationType.equals(HYBRID))
+		if (!generateDBA())
 			return;
 
-		if (baseClassName == null) {
-			buffer.append("    private " + getClassName(generationType) + " entity;\n");
-			buffer.append("    protected Object getEntity() { return entity; }\n");
-		}
-		buffer.append("    " + getClassName(className) + "(" +
-					  getClassName(generationType) + " entity) { ");
-		if (baseClassName == null)
-			buffer.append("this.entity = entity;");
-		else
-			buffer.append("super(entity);");
+		buffer.append("    " + getSimpleClassName(className) + "(" +
+					  getSimpleClassName(generationType) + " entity) { ");
+		buffer.append("super(entity);");
 		buffer.append(" }\n\n");
 	}
 
@@ -328,15 +335,15 @@ public class EntityGenerator {
     /** Prints the primary key definition and its access function to standard out */
     public void writePrimaryKey (TableDescription[] desc, String className, String baseClassName,
     							 String generationType, StringBuffer buffer) {
-		if (generationType.equals(BEAN))
+		if (generateBean())
 			return;
 
         if (desc.length == 1) {
             if (hasPrimaryKey(desc[0])) {
-                buffer.append("    private static String[] keyFields = new String[] {");
+                buffer.append("    private static String[] keyFields = new String[] { ");
                 for(TableColumn current: desc[0].getList()) {
 					if (current.isPrimaryKeyField())
-                    	buffer.append(" \"" + current.getName() + "\",");
+                    	buffer.append( toColumnConstant(current) + ",");
             	}
             	buffer.deleteCharAt(buffer.length()-1);
                 buffer.append(" };" + "\n");
@@ -350,7 +357,7 @@ public class EntityGenerator {
     public void writeAttributes (TableDescription[] desc, String className, String baseClassName,
     							 String generationType, StringBuffer buffer)
     	throws SQLException {
-		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+		if (generateDBA())
 			return;
 
 		Set<String> baseClassFields = extractMappedFields(baseClassName);
@@ -369,7 +376,7 @@ public class EntityGenerator {
     public void writeGetMethods (TableDescription[] desc, String className, String baseClassName,
     							 String generationType, StringBuffer buffer)
     	throws SQLException {
-		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+		if (generateDBA())
 			return;
 
 		Set<String> baseClassFields = extractMappedFields(baseClassName);
@@ -387,7 +394,7 @@ public class EntityGenerator {
     public void writeSetMethods (TableDescription[] desc, String className, String baseClassName,
     							 String generationType, StringBuffer buffer)
     	throws SQLException {
-		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+		if (generateDBA())
 			return;
 
 		buffer.append("    // Write access functions" + "\n");
@@ -411,7 +418,7 @@ public class EntityGenerator {
 
 	public void writeClone(TableDescription[] desc, String className, String baseClassName,
 						   String generationType, StringBuffer buffer) {
-		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+		if (generateDBA())
 			return;
 		if (baseClassName != null)
 			return;
@@ -422,19 +429,25 @@ public class EntityGenerator {
                       "    }\n" + "\n");
     }
 
-	/** Prints a reconstructor to restore an existing records from its primary key fields */
+	/** Prints a reconstructor to restore an existing records from its primary key fields
+	 * In case of a bean class, this is just a constructor with the primary key fields
+	 */
 	public void writeReconstructor(TableDescription desc, String className,
 								   String baseClassName, StringBuffer buffer) {
         if (!desc.hasPrimaryKey())
             return;
 		buffer.append("\n    // Reconstructor\n");
-		buffer.append("    public " + getClassName(className) + "(");
+		buffer.append("    public " + getSimpleClassName(className) + "(");
 		for (TableColumn current: desc.getList()) {
 			if (current.isPrimaryKeyField())
                 buffer.append((current.getType() != null? current.getType(): "Object") + " " + current.getName() + ", ");
 		}
-        buffer.delete(buffer.lastIndexOf(","), buffer.length());	
-		buffer.append(") throws SQLException {\n");
+        buffer.delete(buffer.lastIndexOf(","), buffer.length());
+        buffer.append(")");
+        if (generateHybrid()) {
+        	buffer.append(" throws SQLException");
+        }
+    	buffer.append(" {\n");
 		if (baseClassName != null)
 			buffer.append("        super(");
 		for (TableColumn current: desc.getList()) {
@@ -449,7 +462,10 @@ public class EntityGenerator {
 			buffer.delete(buffer.lastIndexOf(","), buffer.length());
 			buffer.append(");\n");
 		}
-		buffer.append("        find();\n    }\n");	
+		if (generateHybrid()) {
+			buffer.append("        find();\n");
+		}
+		buffer.append("    }\n");
 	}
 	
     /** Prints the footer to standard out, i.e. a reconstructor, a default constructor,
@@ -457,11 +473,11 @@ public class EntityGenerator {
      */
 	public void writeFooter(TableDescription[] desc, String className, String baseClassName,
 							String generationType, StringBuffer buffer) {
-		if (desc.length == 1 && generationType.equals(HYBRID)) {
+		if (desc.length == 1) {
 			if (desc[0].getList().size() > 0)
 				writeReconstructor(desc[0], className, baseClassName, buffer);
 			buffer.append("\n");
-			buffer.append("    public " + getClassName(className) + "() {}\n\n");
+			buffer.append("    public " + getSimpleClassName(className) + "() {}\n\n");
 		}
 		
 		writeToString(desc, className, generationType, buffer);
@@ -497,7 +513,7 @@ public class EntityGenerator {
 		return pack;
 	}
 
-    protected String getClassName(String className) {
+    protected String getSimpleClassName(String className) {
         if (className.indexOf(".") != -1)
             return className.substring(className.lastIndexOf(".") + 1);
         else
@@ -544,7 +560,7 @@ public class EntityGenerator {
 	 */
 	public static void main (String[] args) throws Exception {
 		if (args.length < 1) {
-			System.out.println("Usage: CreateTableTemplate tablename [class] [beanclass | -b | -h] [baseclass]");
+			System.out.println("Usage: CreateTableTemplate tablename(s) [class] [beanclass | -b | -h] [baseclass]");
 			System.exit(0);
 		}
 		String tableName = args[0];
@@ -576,9 +592,9 @@ public class EntityGenerator {
 			className = className.substring(0,1).toUpperCase()+className.substring(1);
 		}
 		if (args.length > 2) {
-			if (args[2].equals(BEAN))
+			if (args[1].equals(BEAN))
 				generationType = BEAN;
-			else if (!args[6].equals(HYBRID))
+			else if (!args[1].equals(HYBRID))
 				generationType = args[2];
 		}
 		if (args.length > 3)

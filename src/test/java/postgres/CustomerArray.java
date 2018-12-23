@@ -38,7 +38,7 @@ public class CustomerArray extends IdentifiedEntity {
             }
         );
 
-    protected RecordDescriptor getDescriptor() { return red; }
+    public RecordDescriptor getDescriptor() { return red; }
 
 
 }

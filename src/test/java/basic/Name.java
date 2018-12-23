@@ -3,7 +3,7 @@ import java.sql.Date;
 
 import pm.pride.*;
 
-public class Name extends MappedObject {
+public class Name extends MappedObject<Name> {
     private int id;
     private String firstname;
     private String lastname;

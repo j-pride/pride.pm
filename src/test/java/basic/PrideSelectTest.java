@@ -67,7 +67,7 @@ public class PrideSelectTest extends AbstractPrideTest {
     public void testQueryByExample() throws Exception {
         Customer c = new Customer();
         c.setLastName("Customer");
-        ResultIterator it = c.query(new String[] {"lastName"});
+        ResultIterator it = c.queryByExample("lastName");
         int numRecords = 0;
         do {
             assertTrue(c.getLastName().equals("Customer"));
@@ -82,7 +82,7 @@ public class PrideSelectTest extends AbstractPrideTest {
 	@Test
     public void testQueryByEmptyExample() throws Exception {
         Customer c = new Customer();
-        ResultIterator it = c.query(new String[] {});
+        ResultIterator it = c.queryByExample();
         int numRecords = 0;
         do { numRecords++; } while (it.next());
         assertEquals(COUNT, numRecords);

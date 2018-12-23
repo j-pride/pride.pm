@@ -17,7 +17,7 @@ import java.sql.SQLException;
  *
  * @author <a href="mailto:jan.lessner@acoreus.de">Jan Lessner</a>
  */
-public class Attribute extends MappedObject
+public class Attribute extends MappedObject<Attribute>
 {
     private static String[] primaryKey = new String[] { "object_type", "object", "name" };
     public String[] getKeyFields() { return primaryKey; }
@@ -30,7 +30,7 @@ public class Attribute extends MappedObject
             { "seq_no",      "getSeqNo",      "setSeqNo"      },
             { "value",       "getValue",      "setValue"      },
         });
-    protected RecordDescriptor getDescriptor() { return red; }
+    public RecordDescriptor getDescriptor() { return red; }
 
     private String objectType;
     private String object;

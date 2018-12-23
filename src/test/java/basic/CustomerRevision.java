@@ -40,7 +40,7 @@ public class CustomerRevision extends Customer {
     }
 
     @Override
-    protected RecordDescriptor getDescriptor() {
+    public RecordDescriptor getDescriptor() {
         return redToReadFromRevisioningTable;
     }
 

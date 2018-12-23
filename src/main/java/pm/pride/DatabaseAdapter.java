@@ -20,7 +20,7 @@ import java.sql.SQLException;
  * database manipulation resp. to pass data to returned from
  * database queries.<br>
  * This class is of minor importance. The derived types {@link MappedObject}
- * or {@link ValueObjectAdapter} are usually sufficient and easier to use.
+ * or {@link ObjectAdapter} are usually sufficient and easier to use.
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
@@ -35,7 +35,7 @@ abstract public class DatabaseAdapter
     }
     
     /** Fetch an object by key. */
-    protected boolean fetch(Object entity, Object key, RecordDescriptor red)
+    protected static boolean fetch(Object entity, Object key, RecordDescriptor red)
         throws SQLException {
         if (key != null) // null key indicates fetching is performed in derived type
             return getDatabase(red).fetchRecord(red, entity, key);
@@ -165,7 +165,7 @@ abstract public class DatabaseAdapter
      * @param red The {@link RecordDescriptor} providing the attribute mappings
      * @return The SQL constraint (without leading 'where')
      */
-    protected String constraint(Object entity, String[] dbfields, boolean byLike, RecordDescriptor red) {
+    protected static String constraint(Object entity, String[] dbfields, boolean byLike, RecordDescriptor red) {
         try {
 		    Database db = getDatabase(red);
 		    return red.getConstraint(entity, dbfields, byLike, db);

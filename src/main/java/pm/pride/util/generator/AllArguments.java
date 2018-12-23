@@ -25,7 +25,7 @@ import pm.pride.RecordDescriptor;
  * @author Jan Lessner / Christoph Apke
  * @version 1.0
  */
-public class AllArguments extends MappedObject
+public class AllArguments extends MappedObject<AllArguments>
 {
     protected static RecordDescriptor red = new RecordDescriptor
         (AllArguments.class, "ALL_ARGUMENTS", null, new String[][] {
@@ -52,7 +52,7 @@ public class AllArguments extends MappedObject
             { "type_link",   "getTypeLink",   "setTypeLink" },
             { "pls_type",   "getPlsType",   "setPlsType" },
         });
-    protected RecordDescriptor getDescriptor() { return red; }
+    public RecordDescriptor getDescriptor() { return red; }
 
     private static String[] primaryKey = new String[] { "object_name", "package_name" };
     public String[] getKeyFields() { return primaryKey; }

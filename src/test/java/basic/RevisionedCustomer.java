@@ -38,7 +38,7 @@ public class RevisionedCustomer extends Customer {
     }
 
     @Override
-    protected RecordDescriptor getDescriptor() {
+    public RecordDescriptor getDescriptor() {
         return red;
     }
 

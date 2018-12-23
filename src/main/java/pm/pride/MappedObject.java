@@ -23,12 +23,7 @@ package pm.pride;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-abstract public class MappedObject extends ObjectAdapter
-{
-	public Object getEntity() { return this; }
-	
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/DatabaseRecord.java,v 1.7 2001/07/24 11:47:05 lessner Exp $";
+abstract public class MappedObject<E> implements DatabaseAdapterMixin<E> {
+	@Override
+	public E getEntity() { return (E)this; }
 }
-
-/* $Log: MappedRecord.java,v $
- */

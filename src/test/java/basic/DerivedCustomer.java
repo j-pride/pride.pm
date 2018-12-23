@@ -55,7 +55,7 @@ import pm.pride.RecordDescriptor;
 		return getId() + "/" + getFirstName() + "/" + getLastName() + "/" + getStreet() + "/" + getCity() + "/" + getActive();
 	}
 	
-	protected RecordDescriptor getDescriptor() { return red; }
+	public RecordDescriptor getDescriptor() { return red; }
 	
 	protected static RecordDescriptor red =
 		new RecordDescriptor(

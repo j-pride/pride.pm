@@ -88,7 +88,7 @@ public class PridePreparedTest extends AbstractPrideTest {
 		pu.execute(c);
 		pu.close();
 		DatabaseFactory.getDatabase().commit();
-		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
+		Customer[] ca = (Customer[])c.queryByExample("lastName").toArray();
 		assertEquals(ca.length, 2);
 		assertTrue(ca[0].getId() != ca[1].getId());
 		assertTrue(ca[0].getId() == 7 || ca[0].getId() == 8);
@@ -106,7 +106,7 @@ public class PridePreparedTest extends AbstractPrideTest {
 		pu.executeBatch();
 		pu.close();
 		DatabaseFactory.getDatabase().commit();
-		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
+		Customer[] ca = (Customer[])c.queryByExample("lastName").toArray();
 		assertEquals(ca.length, 3);
 	}
 	

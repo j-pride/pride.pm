@@ -24,7 +24,7 @@ public class PrideUpdateTestWithWhereCondition extends AbstractPrideTest {
 		c.update(new WhereCondition().withBind().and("id",1));
 		DatabaseFactory.getDatabase().commit();
 
-		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
+		Customer[] ca = (Customer[])c.queryByExample("lastName").toArray();
 		assertEquals(ca.length, 1);
 		assertEquals("Inge", ca[0].getFirstName());
 		assertEquals("Updated", ca[0].getLastName());
@@ -41,7 +41,7 @@ public class PrideUpdateTestWithWhereCondition extends AbstractPrideTest {
 		c.update(new WhereCondition().withoutBind().and("id",1));
 		DatabaseFactory.getDatabase().commit();
 
-		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
+		Customer[] ca = (Customer[])c.queryByExample("lastName").toArray();
 		assertEquals(ca.length, 1);
 		assertEquals("Inge", ca[0].getFirstName());
 		assertEquals("Updated", ca[0].getLastName());

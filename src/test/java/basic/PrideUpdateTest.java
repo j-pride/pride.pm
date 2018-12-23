@@ -43,7 +43,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 		c.setLastName("Updated");
 		c.update(new String[] { "id" });
 		DatabaseFactory.getDatabase().commit();
-		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
+		Customer[] ca = (Customer[])c.queryByExample("lastName").toArray();
 		assertEquals(ca.length, 1);
 		assertEquals("Inge", ca[0].getFirstName());
 		assertEquals("Updated", ca[0].getLastName());
@@ -69,7 +69,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 		c.setLastName("Updated");
 		c.update(new String[] { "firstName"}, new String[] { "lastName" });
 		DatabaseFactory.getDatabase().commit();
-		Customer[] ca = (Customer[])c.query(new String [] { "firstName" } ).toArray();
+		Customer[] ca = (Customer[])c.queryByExample("firstName").toArray();
 		assertEquals(ca.length, 2);
 		assertTrue(ca[0].getId() != ca[1].getId());
 		assertTrue(ca[0].getId() == 7 || ca[0].getId() == 8);
@@ -82,7 +82,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 		c.setLastName("Updated");
 		c.update(new WhereCondition().and("firstName", WhereCondition.Operator.LIKE, "Pe%"), new String[] { "lastName" });
 		DatabaseFactory.getDatabase().commit();
-		Customer[] ca = (Customer[])c.query(new String [] { "lastName" } ).toArray();
+		Customer[] ca = (Customer[])c.queryByExample("lastName").toArray();
 		assertEquals(ca.length, 2);
 		assertTrue(ca[0].getId() != ca[1].getId());
 		assertTrue(ca[0].getId() == 2 || ca[0].getId() == 5);

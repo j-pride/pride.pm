@@ -42,7 +42,7 @@ abstract public class DatabaseAdapter
         return false;
     }
 
-    /** Fetch an object by fields. The values are taken from the fields' associated get-methods */
+    /** Fetch objects by fields. The values are taken from the fields' associated get-methods */
     protected static ResultIterator query(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
@@ -56,23 +56,67 @@ abstract public class DatabaseAdapter
             getDatabase(red).wildcardSearch(red, true, entity, dbfields) : null;
     }
 
-    /** Same like <code>query()</code> but takes the first record only. Returns false if no matching record could be found */
+    /** Same like {@link #query(RecordDescriptor, Object, String...)} but takes the first record only.
+     * Returns false if no matching record could be found. */
     protected static boolean find(Object entity, String[] dbkeyfields, RecordDescriptor red)
         throws SQLException {
     	return (dbkeyfields != null) ?
             getDatabase(red).query(red, false, entity, dbkeyfields) != null : false;
     }
 
-    /** Same like <code>query()</code> but takes the first record only */
+    /** Like {@link #find(Object, String[], RecordDescriptor)} but reports a missing match by
+     * a {@link FindException} rather than a return value. This is of interest when ever finding
+     * no result is an unexpected situation. In these cases findx() keeps from cluttering the
+     * happy-path of the application logic with if-statements for error handling.
+     * <p>
+     * The FindException is derived from SQLException, so there is usually no additionally catch
+     * block required for this exception.
+     */
+    protected static void findx(Object entity, String[] dbkeyfields, RecordDescriptor red)
+        throws SQLException {
+    	if (!find(entity, dbkeyfields, red)) {
+    		throw new FindException();
+    	}
+    }
+
+    /** Find an object by it's primary key fields. Returns false if no matching record could be found. */
     protected static boolean find(Object entity, RecordDescriptor red)
         throws SQLException {
         return getDatabase(red).fetchRecord(red, entity);
     }
 
+    /** Like {@link #find(Object, RecordDescriptor)} but reports a missing match by
+     * a {@link FindException} rather than a return value. Further details, see
+     * {@link #findx(Object, String[], RecordDescriptor)}.
+     */
+    protected static void findx(Object entity, RecordDescriptor red)
+        throws SQLException {
+    	if (!find(entity, red)) {
+    		throw new FindException();
+    	}
+    }
+
+    /** Same like {@link #query(Object, WhereCondition, RecordDescriptor)} but takes the first record only.
+     * Returns false if no matching record could be found */
+    protected static boolean find(Object entity, String where, RecordDescriptor red)
+        throws SQLException {
+        return (getDatabase(red).query(red, false, entity, where) != null);
+    }
+
+    /** Like {@link #find(Object, String, RecordDescriptor)} but reports a missing match by
+     * a {@link FindException} rather than a return value. Further details, see
+     * {@link #findx(Object, String[], RecordDescriptor)}.
+     */
+    protected static void findx(Object entity, String where, RecordDescriptor red)
+        throws SQLException {
+    	if (!find(entity, where, red)) {
+    		throw new FindException();
+    	}
+    }
+
     /** Fetch all objects */
     protected static ResultIterator queryAll(Object entity, RecordDescriptor red)
-      throws SQLException
-    {
+      throws SQLException {
       return getDatabase(red).queryAll(red, entity);
     }
 
@@ -86,12 +130,6 @@ abstract public class DatabaseAdapter
     protected static ResultIterator query(Object entity, WhereCondition where, RecordDescriptor red)
         throws SQLException {
         return getDatabase(red).query(red, true, entity, where);
-    }
-
-    /** Same like <code>query()</code> but takes the first record only */
-    protected static boolean find(Object entity, String where, RecordDescriptor red)
-        throws SQLException {
-        return (getDatabase(red).query(red, false, entity, where) != null);
     }
 
     protected static int update(Object entity, RecordDescriptor red)
@@ -184,12 +222,4 @@ abstract public class DatabaseAdapter
         getDatabase(red).processSevereButSQLException(x);
     }
 
-
-    public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/DatabaseAdapter.java-arc   1.0   Jun 05 2002 16:18:40   math19  $";
 }
-
-/* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/DatabaseAdapter.java-arc  $
- * 
- *    Rev 1.0   Jun 05 2002 16:18:40   math19
- * Initial revision.
- */

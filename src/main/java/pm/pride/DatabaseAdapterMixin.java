@@ -64,17 +64,48 @@ public interface DatabaseAdapterMixin<E> {
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
-	default boolean find(String... dbkeyfields) throws SQLException {
-		return DatabaseAdapter.find(getEntity(), dbkeyfields, getDescriptor());
-	}
-
-	/** Same like <code>query()</code> but takes the first record only */
 	default boolean find() throws SQLException {
 		String[] pk = getKeyFields();
 		if (pk != null)
 			return find(pk);
 		else
 			return DatabaseAdapter.find(getEntity(), getDescriptor());
+	}
+
+    /** Like {@link #find()} but reports a missing match by a {@link FindException} rather than
+     * a return value. This is of interest when ever finding no result is an unexpected situation.
+     * In these cases findx() keeps from cluttering the happy-path of the application logic with
+     * if-statements for error handling.
+     * <p>
+     * The FindException is derived from SQLException, so there is usually no additional catch
+     * block required for this exception.
+     */
+	default void findx() throws SQLException {
+		if (!find()) {
+			throw new FindException();
+		}
+	}
+	
+	/** Same like <code>query()</code> but takes the first record only */
+	default boolean find(String... dbkeyfields) throws SQLException {
+		return DatabaseAdapter.find(getEntity(), dbkeyfields, getDescriptor());
+	}
+
+	/** Same like <code>find()</code> but reports a missing match by a {@link FindException} rather than
+     * a return value. Further details concerning the intention, see {@link #findx()}. */
+	default void findx(String... dbkeyfields) throws SQLException {
+		DatabaseAdapter.findx(getEntity(), dbkeyfields, getDescriptor());
+	}
+
+	/** Same like <code>query()</code> but takes the first record only */
+	default boolean find(String where) throws SQLException {
+		return DatabaseAdapter.find(getEntity(), where, getDescriptor());
+	}
+
+	/** Same like <code>find()</code> but reports a missing match by a {@link FindException} rather than
+     * a return value. Further details concerning the intention, see {@link #findx()}. */
+	default void findx(String where) throws SQLException {
+		DatabaseAdapter.findx(getEntity(), where, getDescriptor());
 	}
 
 	/** Fetch all objects */
@@ -90,11 +121,6 @@ public interface DatabaseAdapterMixin<E> {
 	/** Fetch an object by a self-made where clause */
 	default ResultIterator query(WhereCondition where) throws SQLException {
 		return DatabaseAdapter.query(getEntity(), where, getDescriptor());
-	}
-
-	/** Same like <code>query()</code> but takes the first record only */
-	default boolean find(String where) throws SQLException {
-		return DatabaseAdapter.find(getEntity(), where, getDescriptor());
 	}
 
 	default int update() throws SQLException {

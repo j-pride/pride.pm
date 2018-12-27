@@ -2,6 +2,7 @@ package quickstart;
 
 import java.sql.SQLException;
 
+import pm.pride.FindException;
 import pm.pride.ResourceAccessorJSE;
 import pm.pride.ResultIterator;
 import util.AbstractCommandLineClient;
@@ -19,11 +20,11 @@ public class CustomerClient extends AbstractCommandLineClient {
 	}
 	
 	public void find(int id) throws SQLException {
-		Customer customer = new Customer(id);
-		if (customer.find()) {
+		try {
+			Customer customer = new Customer(id);
 			printCustomer(customer);
 		}
-		else {
+		catch(FindException x) {
 			System.err.println("not found");
 		}
 	}

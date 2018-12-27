@@ -42,7 +42,7 @@ public class Customer extends MappedObject<Customer> implements Cloneable, java.
     // Reconstructor
     public Customer(long id) throws SQLException {
         setId(id);
-        find();
+        findx();
     }
 
     public Customer() {}

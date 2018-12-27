@@ -434,7 +434,7 @@ public class EntityGenerator {
 	 */
 	public void writeReconstructor(TableDescription desc, String className,
 								   String baseClassName, StringBuffer buffer) {
-        if (!desc.hasPrimaryKey())
+        if (!desc.hasPrimaryKey() || generateDBA())
             return;
 		buffer.append("\n    // Reconstructor\n");
 		buffer.append("    public " + getSimpleClassName(className) + "(");
@@ -477,7 +477,9 @@ public class EntityGenerator {
 			if (desc[0].getList().size() > 0)
 				writeReconstructor(desc[0], className, baseClassName, buffer);
 			buffer.append("\n");
-			buffer.append("    public " + getSimpleClassName(className) + "() {}\n\n");
+			if (!generateDBA()) {
+				buffer.append("    public " + getSimpleClassName(className) + "() {}\n\n");
+			}
 		}
 		
 		writeToString(desc, className, generationType, buffer);

@@ -6,6 +6,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.swing.*;
+
+import pm.pride.DatabaseFactory;
+
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.event.ActionListener;
@@ -38,6 +41,7 @@ public abstract class AbstractCommandLineClient {
 			        	return;
 			        }
 		        	executeCmd (str);
+		        	DatabaseFactory.getDatabase().commit();
 		        }
 		        catch(InvocationTargetException itx) {
 		        	System.err.println(itx.getTargetException().getMessage());

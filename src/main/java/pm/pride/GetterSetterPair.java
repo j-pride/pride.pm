@@ -58,16 +58,20 @@ public class GetterSetterPair {
          * matching one, we look it up by name and assume the first one being suitable.
          */
         try {
-            setMethod = objectType.getMethod(setterName, new Class[] { lastGetter().getReturnType() });
+        	if (!isConstantGetValue()) {
+        		setMethod = objectType.getMethod(setterName, new Class[] { lastGetter().getReturnType() });
+        	}
         }
-        catch(NoSuchMethodException nsmx) {
-            Method[] methods = objectType.getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getName().equals(setterName)) {
-                    setMethod = methods[i];
-                    break;
-                }
-            }
+        catch(NoSuchMethodException nsmx) {} // Go ahead
+
+        if (setMethod == null) {
+	        Method[] methods = objectType.getMethods();
+	        for (int i = 0; i < methods.length; i++) {
+	            if (methods[i].getName().equals(setterName)) {
+	                setMethod = methods[i];
+	                break;
+	            }
+	        }
         }
     
         if (setMethod == null)
@@ -90,6 +94,9 @@ public class GetterSetterPair {
     }
     
     public Class<?> type() {
+    	if (isConstantGetValue()) {
+    		return setMethod.getParameterTypes()[0];
+    	}
         return lastGetter().getReturnType();
     }
 
@@ -126,7 +133,7 @@ public class GetterSetterPair {
 
     public void set(Object obj, Object value) throws ReflectiveOperationException {
         if (setMethod == null) return;
-        set(obj, value, getMethod.length-1);
+        set(obj, value, getMethod != null ? getMethod.length-1 : 0);
     }
 
     public void set(Object obj, Object value, int depth) throws ReflectiveOperationException {

@@ -17,7 +17,7 @@ public class PrideUpdateTest extends AbstractPrideTest {
 	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(9);
-		WhereCondition.setBindDefault(false);
+		setBindvarsDefault(false);
 	}
 
 	@Test

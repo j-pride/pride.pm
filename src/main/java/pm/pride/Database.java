@@ -184,8 +184,12 @@ public class Database implements SQL.Formatter
 		return accessor.formatPreparedValue(value);
 	}
 
+    @Override
+	public boolean bindvarsByDefault() {
+		return accessor.bindvarsByDefault();
+	}
 
-    /** Fetches the first record from a result set returned for <code>query</code>.
+	/** Fetches the first record from a result set returned for <code>query</code>.
      * The result is stored in the passed <code>obj</code> the mapping scheme of
      * which is described by parameter <code>red</code>.
      * @return A {@link ResultIterator} which allows to walk through the following records by storing
@@ -458,7 +462,7 @@ public class Database implements SQL.Formatter
     public ResultIterator query(RecordDescriptor red, boolean all, Object obj, WhereCondition where) throws SQLException {
 		String whereString = where2string(where);
 
-    	if (where != null && where.requiresBinding()) {
+    	if (where != null && where.requiresBinding(this)) {
             String query = "select " + red.getResultFields() + " from " +
                     getTableName(red) + " where " + whereString;
             ConnectionAndStatement cns = null;
@@ -529,7 +533,7 @@ public class Database implements SQL.Formatter
 		throws SQLException {
 		PreparedUpdate preparedUpdate = null;
 		try {
-			if (WhereCondition.bindDefault || red.withBind) {
+			if (accessor.bindvarsByDefault() || red.withBind) {
 				preparedUpdate = new PreparedUpdate(dbkeyfields, updatefields, red);
 				return preparedUpdate.execute(obj);
 			}
@@ -588,7 +592,7 @@ public class Database implements SQL.Formatter
 		throws SQLException {
 		try {
 			String whereString = where2string(where);
-	    	if (where != null && where.requiresBinding()) {
+	    	if (where != null && where.requiresBinding(this)) {
 	    		String[] excludeFields = red.getPrimaryKeyFields();
 				String update = "update " + getTableName(red) + " set " +
 						red.getUpdateValues(null, excludeFields, updatefields, this) + " where " + whereString;
@@ -634,7 +638,7 @@ public class Database implements SQL.Formatter
         throws SQLException {
     	PreparedInsert preparedInsert = null;
 		try {
-			if (WhereCondition.bindDefault) {
+			if (accessor.bindvarsByDefault()) {
 				preparedInsert = new PreparedInsert(autoFields, red);
 				return preparedInsert.execute(obj);
 			}

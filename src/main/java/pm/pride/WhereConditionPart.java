@@ -2,7 +2,7 @@ package pm.pride;
 
 abstract class WhereConditionPart {
 	String chainOperator;
-	boolean bind;
+	Boolean bind; // true = with bind variable, false = without, null = like default
 	
 	@Override
 	public String toString() {
@@ -23,8 +23,12 @@ abstract class WhereConditionPart {
 
 	protected abstract String toSQL(SQL.Formatter formatter, boolean withBinding);
 
-	protected boolean requiresBinding() {
-		return bind;
+	protected boolean requiresBinding(SQL.Formatter formatter) {
+		if (bind != null)
+			return bind;
+		if (formatter != null)
+			return formatter.bindvarsByDefault();
+		return false;
 	}
 
 	abstract protected int bind(SQL.Formatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException;

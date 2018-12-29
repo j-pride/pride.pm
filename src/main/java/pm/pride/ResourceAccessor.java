@@ -35,16 +35,18 @@ public interface ResourceAccessor extends SQL.Formatter
 	}
 	
 	public interface Config {
-		public static final String DBTYPE     = "pride.dbtype";
-		public static final String DATEFORMAT = "pride.format.date";
-		public static final String TIMEFORMAT = "pride.format.time";
-		public static final String LOGFILE    = "pride.logfile";
-		public static final String LOGMAX     = "pride.logmax";
-		public static final String USER       = "pride.user";
-		public static final String PASSWORD   = "pride.password";
-		public static final String DRIVER     = "pride.driver";
-		public static final String SYSTIME    = "pride.systime";
-		public static final String DB         = "pride.db";
+		public static final String PREFIX     = "pride.";
+		public static final String DBTYPE     = PREFIX + "dbtype";
+		public static final String DATEFORMAT = PREFIX + "format.date";
+		public static final String TIMEFORMAT = PREFIX + "format.time";
+		public static final String LOGFILE    = PREFIX + "logfile";
+		public static final String LOGMAX     = PREFIX + "logmax";
+		public static final String USER       = PREFIX + "user";
+		public static final String PASSWORD   = PREFIX + "password";
+		public static final String DRIVER     = PREFIX + "driver";
+		public static final String SYSTIME    = PREFIX + "systime";
+		public static final String DB         = PREFIX + "db";
+		public static final String BINDVARS   = PREFIX + "bindvars";
 		
 		public static final String EMPTY      = "";
 	}
@@ -192,4 +194,10 @@ public interface ResourceAccessor extends SQL.Formatter
      */
     public String getDBType();
     
+    /**
+     * Returns true if SQL statements should be assembled via bind-variables by default
+     * Without specifying any default, PriDE talks plain SQL.
+     */
+    public boolean bindvarsByDefault();
+
 }

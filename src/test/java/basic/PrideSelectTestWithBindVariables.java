@@ -18,12 +18,12 @@ public class PrideSelectTestWithBindVariables extends AbstractPrideTest {
     @Override
     public void setUp() throws Exception {
 		prideSelectTest.setUp();
-    	WhereCondition.setBindDefault(true);
+		setBindvarsDefault(true);
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-    	WhereCondition.setBindDefault(false);
+		setBindvarsDefault(null);
 	}
 	
 	@Test

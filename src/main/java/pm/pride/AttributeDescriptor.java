@@ -213,7 +213,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         return getFieldName() + " " + operator + " " + strval;
     }
 
-	public WhereFieldCondition assembleWhereValue(Object obj, boolean byLike, boolean withBind)
+	public WhereFieldCondition assembleWhereValue(Object obj, boolean byLike, Boolean withBind)
 		throws ReflectiveOperationException {
         Object val = getValue(obj);
         String operator = byLike ? LIKE : EQUAL;

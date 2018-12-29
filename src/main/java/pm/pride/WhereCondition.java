@@ -37,15 +37,6 @@ public class WhereCondition extends WhereConditionPart {
     	public String DESC = "DESC";
     }
 
-    protected static boolean bindDefault;
-
-    /** Specifies of PriDE should <i>by default</i> use bind variables in SQL statements.
-     * Traditionally PriDE does <i>not</i> so but talks plain SQL.
-     */
-    public static void setBindDefault(boolean bind) {
-    	bindDefault = bind;
-    }
-
     protected WhereCondition parent;
     protected SQL.Formatter formatter;
     protected List<WhereConditionPart> parts = new ArrayList<WhereConditionPart>();
@@ -81,7 +72,6 @@ public class WhereCondition extends WhereConditionPart {
     }
     
     public WhereCondition(WhereCondition parent, SQL.Formatter formatter, String chainOperator, String initialExpression) {
-    	this.bind = bindDefault;
     	this.chainOperator = chainOperator;
     	this.parent = parent;
     	this.formatter = formatter;
@@ -101,11 +91,13 @@ public class WhereCondition extends WhereConditionPart {
     	and(field, operator, values);
 	}
 	
-	public WhereCondition withBind() { return withBind(true); }
+	public WhereCondition bindvarsOn() { return bindvars(true); }
 
-    public WhereCondition withoutBind() { return withBind(false); }
+    public WhereCondition bindvarsOff() { return bindvars(false); }
 
-    public WhereCondition withBind(boolean bind) {
+    public WhereCondition bindvarsDefault() { return bindvars(null); }
+
+    public WhereCondition bindvars(Boolean bind) {
     	this.bind = bind;
     	return this;
     }
@@ -346,11 +338,11 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	@Override
-	protected boolean requiresBinding() {
-		if (bind)
+	protected boolean requiresBinding(SQL.Formatter formatter) {
+		if (super.requiresBinding(formatter))
 			return true;
 		for (WhereConditionPart part: parts) {
-			if (part.requiresBinding())
+			if (part.requiresBinding(formatter))
 				return true;
 		}
 		return false;

@@ -3,7 +3,6 @@ package quickstart;
 import java.sql.SQLException;
 
 import pm.pride.FindException;
-import pm.pride.ResourceAccessorJSE;
 import pm.pride.ResultIterator;
 import util.AbstractCommandLineClient;
 
@@ -59,7 +58,6 @@ public class CustomerClient extends AbstractCommandLineClient {
 	}
 
 	public static void main(String[] args) throws Exception {
-		ResourceAccessorJSE.fromSystemProps();
 		new CustomerClient().
 		registerCommand("create a new customer", "create", "id", "name", "firstName").
 		registerCommand("find a customer by its ID", "find", "id").

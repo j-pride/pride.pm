@@ -20,11 +20,6 @@ public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest impl
     }
 
     @Override
-    public String formatOperator(String operator, Object rawValue) {
-        return DatabaseFactory.getDatabase().formatOperator(operator, rawValue);
-    }
-
-    @Override
     public Object formatPreparedValue(Object rawValue) {
         if(rawValue instanceof String)
             rawValue = ((String) rawValue).replace('*', '%');
@@ -33,6 +28,16 @@ public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest impl
     }
 
     @Override
+    public String formatOperator(String operator, Object rawValue) {
+        return DatabaseFactory.getDatabase().formatOperator(operator, rawValue);
+    }
+
+    @Override
+	public boolean bindvarsByDefault() {
+    	return DatabaseFactory.getDatabase().bindvarsByDefault();
+	}
+
+	@Override
     public void setUp() throws Exception {
         super.setUp();
         generateCustomer(1);
@@ -49,7 +54,7 @@ public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest impl
     @Test
     public void testUseFormatterInWhereConditionWithBinding() throws SQLException {
         WhereCondition whereCondition = new WhereCondition(this)
-                .withBind()
+                .bindvarsOn()
                 .and("firstName", LIKE, "F*");
 
         assertEquals(1, new Customer().query(whereCondition).toArray(Customer.class).length);

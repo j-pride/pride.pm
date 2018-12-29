@@ -8,6 +8,7 @@ import java.lang.reflect.Method;
 import javax.swing.*;
 
 import pm.pride.DatabaseFactory;
+import pm.pride.ResourceAccessorJSE;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -24,6 +25,7 @@ public abstract class AbstractCommandLineClient {
 	List<Command> commands = new ArrayList<Command>();
 
     public void work() throws Exception {
+		ResourceAccessorExampleConfig.initPriDE();
     	help();
         BufferedReader input = new BufferedReader(new InputStreamReader( System.in ) );
         while (true) {

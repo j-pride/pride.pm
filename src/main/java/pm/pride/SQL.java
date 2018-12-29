@@ -36,6 +36,7 @@ public class SQL {
 	    String formatValue(Object rawValue);
 	    String formatOperator(String operator, Object rawValue);
 	    Object formatPreparedValue(Object rawValue);
+	    boolean bindvarsByDefault();
 	}
 	
 }

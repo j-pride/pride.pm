@@ -10,7 +10,7 @@ import pm.pride.WhereCondition;
 /**
  * @author bart57
  *
- * Class to Test the Insert-Behaviour of the PriDE-Framework
+ * Class to Test the Insert-Behaviour of the PriDE-Framework when using bind-variables
  */
 public class PrideInsertTestWithBindVariables extends AbstractPrideTest {
 	
@@ -20,12 +20,12 @@ public class PrideInsertTestWithBindVariables extends AbstractPrideTest {
     @Override
 	public void setUp() throws Exception {
     	prideInsertTest.setUp();
-    	WhereCondition.setBindDefault(true);
+    	setBindvarsDefault(true);
 	}
 
 	@Override
 	public void tearDown() throws Exception {
-    	WhereCondition.setBindDefault(false);
+		setBindvarsDefault(null);
 	}
 
 	@Test

@@ -7,7 +7,7 @@ class WhereFieldCondition extends WhereConditionPart {
 	final String operator;
 	final Object[] values;
 	
-	public WhereFieldCondition(String chainOperator, boolean bind, String field, String operator, Object... values) {
+	public WhereFieldCondition(String chainOperator, Boolean bind, String field, String operator, Object... values) {
 		this.chainOperator = chainOperator;
 		this.field = field;
 		this.operator = operator;
@@ -16,7 +16,7 @@ class WhereFieldCondition extends WhereConditionPart {
 	}
 	
 	protected String toSQL(SQL.Formatter formatter, boolean ignoreBindings) {
-		boolean withBinding = ignoreBindings ? false : bind;
+		boolean withBinding = ignoreBindings ? false : requiresBinding(formatter);
 		return toSQLChainer(formatter) +
 				field + " " +
 				formatOperator(operator, values, formatter) + " " +
@@ -78,7 +78,7 @@ class WhereFieldCondition extends WhereConditionPart {
 	@Override
 	protected int bind(SQL.Formatter formatter, ConnectionAndStatement cns, int nextParam)
 		throws ReflectiveOperationException {
-		if (bind && operator != null && values != null) {
+		if (requiresBinding(formatter) && operator != null && values != null) {
 			for(Object aValue : values) {
 				nextParam = bindSingleValue(aValue, formatter, cns, nextParam);
 			}

@@ -269,7 +269,7 @@ public class RecordDescriptor
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
 
-    public WhereFieldCondition assembleWhereValue(Object obj, String dbfield, boolean byLike, boolean withBind)
+    public WhereFieldCondition assembleWhereValue(Object obj, String dbfield, boolean byLike, Boolean withBind)
 		throws ReflectiveOperationException {
         try {
         	if (baseDescriptor != null)

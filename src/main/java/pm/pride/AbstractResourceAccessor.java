@@ -29,6 +29,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	protected String dbUser = null;
 	protected String dbPassword = null;
 	protected Date dbSystime = null;
+	protected boolean bindvarsDefault = false;
     protected Properties props = null;
     protected int autoKeyMode = AutoKeyMode.UNKNOWN;
 
@@ -477,5 +478,11 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
      * null if no type is specified at all.
      */
     public String getDBType() { return this.dbType; }
+
+    /**
+     * Returns true if SQL statements should be assembled via bind-variables by default
+     * Without specifying and default, PriDE runs plain SQL.
+     */
+    public boolean bindvarsByDefault() { return this.bindvarsDefault; }
 
 }

@@ -94,7 +94,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	
 	@Test
 	public void testBind() throws Exception {
-		WhereCondition expression = new WhereCondition().withBind().
+		WhereCondition expression = new WhereCondition().bindvarsOn().
 				and("firstName", "First").
 				and("lastName", "Customer");
 		checkOrderByResult(expression, 1, 1);
@@ -102,7 +102,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 
 	@Test
 	public void testBindPlainSQLOutput() {
-		WhereCondition expression = new WhereCondition().withBind().
+		WhereCondition expression = new WhereCondition().bindvarsOn().
 				and("firstName", "First").
 				and("lastName", "Customer");
 
@@ -179,10 +179,11 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				return value.toString().replace('*', '%');
 			}
 			
-			@Override public Object formatPreparedValue(Object rawValue) {
-				return null;
-			}
+			@Override public Object formatPreparedValue(Object rawValue) { return null; }
 			
+			@Override
+			public boolean bindvarsByDefault() { return false; }
+
 			@Override public String formatOperator(String operator, Object rawValue) {
 				if (operator.equals(WhereCondition.Operator.EQUAL) &&
 						rawValue.toString().contains("*"))
@@ -230,7 +231,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	@Test
 	public void testInOperatorsWithBindVariables() throws SQLException {
 		WhereCondition expression = new WhereCondition()
-				.withBind()
+				.bindvarsOn()
 				.and("firstname", IN, "First", "SECOND", "THIRD")
 				.and("lastname", LIKE, "C%");
 
@@ -241,7 +242,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	@Test
 	public void testPlainSQLStringFromBindingWhereCondition() {
 		WhereCondition expression = new WhereCondition()
-				.withBind()
+				.bindvarsOn()
 				.and("firstname", IN, "First", "SECOND", "THIRD")
 				.and("lastname", LIKE, "C%")
 				.and("active", true);
@@ -253,8 +254,8 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	public void testNestedWhereConditionWithBindings() throws SQLException {
 		List<String> names = Arrays.asList("Customer", "Test", "Other");
 
-		WhereCondition whereCondition = new WhereCondition().withBind().and("firstname", "First");
-		WhereCondition secondCondition = new WhereCondition().withBind();
+		WhereCondition whereCondition = new WhereCondition().bindvarsOn().and("firstname", "First");
+		WhereCondition secondCondition = new WhereCondition().bindvarsOn();
 		for (String name : names) {
 			secondCondition.or("lastname", name);
 		}

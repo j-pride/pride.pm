@@ -1,20 +1,19 @@
 package query;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
-import pm.pride.ResourceAccessorJSE;
 import pm.pride.ResultIterator;
 import pm.pride.SQL;
 import pm.pride.WhereCondition;
 import static pm.pride.WhereCondition.Operator.*;
 import static quickstart.Customer.*;
 import quickstart.Customer;
+import util.ResourceAccessorExampleConfig;
 
 public class QueryClient {
 	public static void main(String[] args) throws Exception {
-		ResourceAccessorJSE.fromSystemProps();
+		ResourceAccessorExampleConfig.initPriDE();
 		findCustomerById();
 		printAllCustomers();
 		printAllCustomersAsList();

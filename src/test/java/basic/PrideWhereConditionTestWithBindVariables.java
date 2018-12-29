@@ -31,12 +31,12 @@ public class PrideWhereConditionTestWithBindVariables extends AbstractPrideTest 
 	@Override
 	public void setUp() throws Exception {
 		prideWhereConditionTest.setUp();
-		WhereCondition.setBindDefault(true);
+		setBindvarsDefault(true);
 	}
 
 	@Override
 	public void tearDown() {
-		WhereCondition.setBindDefault(false);
+		setBindvarsDefault(null);
 	}
 	
 	@Test

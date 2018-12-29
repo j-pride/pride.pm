@@ -52,6 +52,7 @@ public abstract class AbstractPrideTest extends Assert {
 	};
 	protected Date firstCustomersHiredate;
 
+	private static Boolean overriddenBindvarsDefault;
 	protected static final String TEST_TABLE = "customer_pride_test";
 	protected static final String REVISIONING_TEST_TABLE = "R_" + TEST_TABLE;
 	protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
@@ -131,13 +132,30 @@ public abstract class AbstractPrideTest extends Assert {
         createRevisioningTestTable();
 	}
 
+	protected static void setBindvarsDefault(Boolean value) {
+		overriddenBindvarsDefault = value;
+	}
+	
 	public static void initDB() throws Exception {
 		Properties testConfig = determineDatabaseTestConfiguration();
-        ResourceAccessor ra =
-                new ResourceAccessorJSE(testConfig);
-            DatabaseFactory.setResourceAccessor(ra);
-            DatabaseFactory.setExceptionListener(exlistener);
-            DatabaseFactory.setDatabaseName(testConfig.getProperty(ResourceAccessor.Config.DB));
+		
+		// Special resource accessor to allow changing the default
+		// for bind-variable usage at any time in the unit tests, not only on initialization
+        ResourceAccessor ra = new ResourceAccessorJSE(testConfig) {
+			@Override
+			public boolean bindvarsByDefault() {
+				if (overriddenBindvarsDefault != null)
+					return overriddenBindvarsDefault;
+				return super.bindvarsByDefault();
+			}
+        };
+        
+        DatabaseFactory.setResourceAccessor(ra);
+        DatabaseFactory.setExceptionListener(exlistener);
+        DatabaseFactory.setDatabaseName(testConfig.getProperty(ResourceAccessor.Config.DB));
+	}
+
+	protected void setBindvarsByDefault(boolean b) {
 	}
 
 	private void checkIfTestShouldBeSkipped() {

@@ -10,7 +10,10 @@
  *******************************************************************************/
 package pm.pride;
 
+import java.lang.reflect.Array;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 /** This is the base for two different flavors of {@link DatabaseAdapter}s. The
  * {@link ObjectAdapter} which provides an entity fpr alle mapping functions
@@ -121,6 +124,37 @@ public interface DatabaseAdapterMixin<E> {
 	/** Fetch an object by a self-made where clause */
 	default ResultIterator query(WhereCondition where) throws SQLException {
 		return DatabaseAdapter.query(getEntity(), where, getDescriptor());
+	}
+
+	/** Convenience function to convert a {@link ResultIterator} into a list of objects.
+	 * Returns an empty list if the iterator is null, otherwise calls {@link ResultIterator#toList(long).
+	 */
+	default List<E> toList(ResultIterator iterator, long maxResults) throws SQLException {
+		return (iterator != null) ?
+				(List<E>)iterator.toList() : new ArrayList<E>();
+	}
+
+	/** Convenience function to convert a {@link ResultIterator} into a list of objects.
+	 * Returns an empty list if the iterator is null, otherwise calls {@link ResultIterator#toList().
+	 */
+	default List<E> toList(ResultIterator iterator) throws SQLException {
+		return toList(iterator, ResultIterator.UNLIMIT_NUMBER_OF_RESULTS);
+	}
+
+	/** Convenience function to convert a {@link ResultIterator} into an array of objects.
+	 * Returns an empty array if the iterator is null, otherwise calls {@link ResultIterator#toArray(long).
+	 */
+	default E[] toArray(ResultIterator iterator, long maxResults) throws SQLException {
+		return (iterator != null) ?
+				(E[])iterator.toArray() :
+				(E[])Array.newInstance(getDescriptor().getObjectType(), 0);
+	}
+
+	/** Convenience function to convert a {@link ResultIterator} into an array of objects.
+	 * Returns an empty array if the iterator is null, otherwise calls {@link ResultIterator#toArray().
+	 */
+	default E[] toArray(ResultIterator iterator) throws SQLException {
+		return toArray(iterator, ResultIterator.UNLIMIT_NUMBER_OF_RESULTS);
 	}
 
 	default int update() throws SQLException {

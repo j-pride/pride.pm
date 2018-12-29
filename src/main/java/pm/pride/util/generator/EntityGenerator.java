@@ -410,10 +410,7 @@ public class EntityGenerator {
 	public void writeToString(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {
 		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
 			return;
-		if (baseClassName != null)
-			return;
-
-        buffer.append("    public String toString() { return super.toString(); }\n" + "\n");
+		// Something intelligent would be nice but is not yet implemented
     }
 
 	public void writeClone(TableDescription[] desc, String className, String baseClassName,
@@ -423,9 +420,8 @@ public class EntityGenerator {
 		if (baseClassName != null)
 			return;
 
-        buffer.append("    public Object clone() {\n" +
-                      "        try { return super.clone(); }\n" +
-                      "        catch(CloneNotSupportedException cnsx) { return null; }\n" +
+        buffer.append("    public Object clone() throws CloneNotSupportedException {\n" +
+                      "        return super.clone();\n" +
                       "    }\n" + "\n");
     }
 

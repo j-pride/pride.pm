@@ -1,6 +1,8 @@
 package quickstart;
 
 import java.sql.SQLException;
+import java.util.List;
+
 import pm.pride.*;
 
 /**
@@ -47,12 +49,13 @@ public class Customer extends MappedObject<Customer> implements Cloneable, java.
 
     public Customer() {}
 
-    public String toString() { return super.toString(); }
-
-    public Object clone() {
-        try { return super.clone(); }
-        catch(CloneNotSupportedException cnsx) { return null; }
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 
+    public String toString() {
+    	return id + ": " + name + ", " + firstName;    	
+    }
+    
 }
 

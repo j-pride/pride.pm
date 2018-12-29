@@ -91,6 +91,16 @@ public class WhereCondition extends WhereConditionPart {
     		and(initialExpression);
 	}
 
+	public WhereCondition(String field, Object value) {
+    	this(null, null, null, null);
+    	and(field, value);
+	}
+	
+	public WhereCondition(String field, String operator, Object... values) {
+    	this(null, null, null, null);
+    	and(field, operator, values);
+	}
+	
 	public WhereCondition withBind() { return withBind(true); }
 
     public WhereCondition withoutBind() { return withBind(false); }

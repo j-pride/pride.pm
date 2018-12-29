@@ -40,6 +40,7 @@ import java.math.BigDecimal;
 public class ResultIterator
 {
     public final static int COLUMN_STARTINDEX = 1;
+    public final static long UNLIMIT_NUMBER_OF_RESULTS = -1;
 
     protected Statement statement;
     protected boolean customStatement;
@@ -108,18 +109,27 @@ public class ResultIterator
         if (isClosed())
             throw new SQLException("Result iterator closed");
         boolean b = results.next();
-        if (b) {
-            if (red != null) {
-				try {
-					red.record2object(obj, results, COLUMN_STARTINDEX);
-					red.calculateUpdateChecksum(obj);
-				}
-				catch(Exception x) { db.processSevereButSQLException(x); }
-	    	}
+        try {
+	        if (b) {
+	            if (red != null) {
+					try {
+						red.record2object(obj, results, COLUMN_STARTINDEX);
+						red.calculateUpdateChecksum(obj);
+					}
+					catch(Exception x) {
+						db.processSevereButSQLException(x);
+					}
+		    	}
+	        }
+	        else {
+	            close();
+	        }
+	        return b;
         }
-        else
-            close();
-        return b;
+        catch(SQLException | RuntimeException x) {
+        	close();
+        	throw x;
+        }
     }
 
     /** Returns the object, the ResultIterator writes its data to */
@@ -143,7 +153,7 @@ public class ResultIterator
 				int count = 0;
 				@Override
 				public boolean spool(Object entity) throws SQLException {
-					return maxResults == -1 || ++count <= maxResults;
+					return maxResults == UNLIMIT_NUMBER_OF_RESULTS || ++count <= maxResults;
 				}
 			};
 			return spoolToList(Object.class, counter);
@@ -158,7 +168,7 @@ public class ResultIterator
 	 * must be used with great care since the number of elements in a result set can
 	 * be very large.
 	 */
-	public List<?> toList() throws SQLException { return toList(-1); }
+	public List<?> toList() throws SQLException { return toList(UNLIMIT_NUMBER_OF_RESULTS); }
 	
 	public <T> List<T> toList(Class<T> t, long maxResults) throws SQLException {
 		return (List<T>)toList(maxResults);
@@ -174,7 +184,7 @@ public class ResultIterator
 		try {
 			ArrayList<Object> list = new ArrayList<Object>();
 			if (cloneMethod == null)
-				cloneMethod = obj.getClass().getMethod("clone", null);
+				cloneMethod = obj.getClass().getMethod("clone");
 			switch(spoolState) {
 			case Finished:
 				return null;
@@ -242,7 +252,7 @@ public class ResultIterator
 	 * must be used with great care since the number of elements in a result set can
 	 * be very large.
 	 */
-	public Object[] toArray() throws SQLException { return toArray(-1); }
+	public Object[] toArray() throws SQLException { return toArray(UNLIMIT_NUMBER_OF_RESULTS); }
 	
 	public <T> T[] toArray(Class<T> t, long maxResults) throws SQLException { return (T[])toArray(maxResults); }
 	
@@ -270,33 +280,3 @@ public class ResultIterator
 	}
 
 }
-
-/* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/ResultIterator.java-arc  $
- * 
- *    Rev 1.1   02 Oct 2002 11:16:56   math19
- * New method isClosed() added.
- * 
- *    Rev 1.0   Jun 05 2002 16:18:44   math19
- * Initial revision.
-/* Revision 1.7  2001/08/08 14:04:23  lessner
-/* *** empty log message ***
-/*
-/* Revision 1.6  2001/07/24 14:33:50  haag
-/* getDate()
-/*
-/* Revision 1.5  2001/07/18 08:19:41  lessner
-/* *** empty log message ***
-/*
-/* Revision 1.4  2001/07/18 08:18:13  lessner
-/* BigDecimal support added.
-/*
-/* Revision 1.3  2001/07/13 08:09:13  lessner
-/* Minor improvements
-/*
-/* Revision 1.2  2001/07/13 07:57:28  lessner
-/* Flexibelized for usage without object-depending iteration. ResultSet access functions like getInt() must successively be added on request.
-/*
-/* Revision 1.1  2001/06/25 07:50:07  lessner
-/* Database framework extended by support for generic attributes
-/*
- */

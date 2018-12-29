@@ -44,7 +44,7 @@ public class CustomerClient extends AbstractCommandLineClient {
 
 	private void printCustomers(ResultIterator ri) throws SQLException {
 		if (ri != null) {
-			Customer customer = (Customer)ri.getObject();
+			Customer customer = ri.getObject(Customer.class);
 			do {
 				printCustomer(customer);
 			} while(ri.next());

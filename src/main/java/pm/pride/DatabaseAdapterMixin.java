@@ -58,7 +58,7 @@ public interface DatabaseAdapterMixin<E> {
 
 	/** Fetch an object by fields. The values are taken from the fields' accociated get-methods */
 	default ResultIterator queryByExample(String... dbfields) throws SQLException {
-		return DatabaseAdapter.query(getDescriptor(), getEntity(), dbfields);
+		return DatabaseAdapter.queryByExample(getDescriptor(), getEntity(), dbfields);
 	}
 
 	/** Same like <code>query()</code> but performs a wildcard search */
@@ -91,24 +91,24 @@ public interface DatabaseAdapterMixin<E> {
 	
 	/** Same like <code>query()</code> but takes the first record only */
 	default boolean find(String... dbkeyfields) throws SQLException {
-		return DatabaseAdapter.find(getEntity(), dbkeyfields, getDescriptor());
+		return DatabaseAdapter.find(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
 	/** Same like <code>find()</code> but reports a missing match by a {@link FindException} rather than
      * a return value. Further details concerning the intention, see {@link #findx()}. */
 	default void findx(String... dbkeyfields) throws SQLException {
-		DatabaseAdapter.findx(getEntity(), dbkeyfields, getDescriptor());
+		DatabaseAdapter.findx(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
 	/** Same like <code>query()</code> but takes the first record only */
 	default boolean find(String where) throws SQLException {
-		return DatabaseAdapter.find(getEntity(), where, getDescriptor());
+		return DatabaseAdapter.find(getEntity(), getDescriptor(), where);
 	}
 
 	/** Same like <code>find()</code> but reports a missing match by a {@link FindException} rather than
      * a return value. Further details concerning the intention, see {@link #findx()}. */
 	default void findx(String where) throws SQLException {
-		DatabaseAdapter.findx(getEntity(), where, getDescriptor());
+		DatabaseAdapter.findx(getEntity(), getDescriptor(), where);
 	}
 
 	/** Fetch all objects */
@@ -118,12 +118,12 @@ public interface DatabaseAdapterMixin<E> {
 
 	/** Fetch an object by a self-made where clause */
 	default ResultIterator query(String where) throws SQLException {
-		return DatabaseAdapter.query(getEntity(), where, getDescriptor());
+		return DatabaseAdapter.query(getEntity(), getDescriptor(), where);
 	}
 
 	/** Fetch an object by a self-made where clause */
 	default ResultIterator query(WhereCondition where) throws SQLException {
-		return DatabaseAdapter.query(getEntity(), where, getDescriptor());
+		return DatabaseAdapter.query(getEntity(), getDescriptor(), where);
 	}
 
 	/** Convenience function to convert a {@link ResultIterator} into a list of objects.
@@ -162,36 +162,36 @@ public interface DatabaseAdapterMixin<E> {
 		return (pk != null) ? update(pk) : DatabaseAdapter.update(getEntity(), getDescriptor());
 	}
 
-	default int update(String[] dbkeyfields) throws SQLException {
-		return DatabaseAdapter.update(getEntity(), dbkeyfields, getDescriptor());
+	default int update(String... dbkeyfields) throws SQLException {
+		return DatabaseAdapter.update(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
-	default int update(String[] dbkeyfields, String[] updatefields) throws SQLException {
-		return DatabaseAdapter.update(getEntity(), dbkeyfields, updatefields, getDescriptor());
+	default int update(String[] dbkeyfields, String... updatefields) throws SQLException {
+		return DatabaseAdapter.update(getEntity(), getDescriptor(), dbkeyfields, updatefields);
 	}
 
 	@Deprecated
 	default int update(String where) throws SQLException {
-		return DatabaseAdapter.update(getEntity(), where, getDescriptor());
+		return DatabaseAdapter.update(getEntity(), getDescriptor(), where);
 	}
 
 	@Deprecated
-	default int update(String where, String[] updatefields) throws SQLException {
-		return DatabaseAdapter.update(getEntity(), where, updatefields, getDescriptor());
+	default int update(String where, String... updatefields) throws SQLException {
+		return DatabaseAdapter.update(getEntity(), getDescriptor(), where, updatefields);
 	}
 
 	default int update(WhereCondition where) throws SQLException {
-		return DatabaseAdapter.update(getEntity(), where, getDescriptor());
+		return DatabaseAdapter.update(getEntity(), getDescriptor(), where);
 	}
 
-	default int update(WhereCondition where, String[] updatefields) throws SQLException {
-		return DatabaseAdapter.update(getEntity(), where, updatefields, getDescriptor());
+	default int update(WhereCondition where, String... updatefields) throws SQLException {
+		return DatabaseAdapter.update(getEntity(), getDescriptor(), where, updatefields);
 	}
 
 	default int create() throws SQLException { return create(getAutoFields()); }
 
-	default int create(String[] autoFields) throws SQLException {
-		return DatabaseAdapter.create(getEntity(), autoFields, getDescriptor());
+	default int create(String... autoFields) throws SQLException {
+		return DatabaseAdapter.create(getEntity(), getDescriptor(), autoFields);
 	}
 
 	default int delete() throws SQLException {
@@ -199,8 +199,8 @@ public interface DatabaseAdapterMixin<E> {
 		return (pk != null) ? delete(pk) : DatabaseAdapter.delete(getEntity(), getDescriptor());
 	}
 
-	default int delete(String[] dbkeyfields) throws SQLException {
-		return DatabaseAdapter.delete(getEntity(), dbkeyfields, getDescriptor());
+	default int delete(String... dbkeyfields) throws SQLException {
+		return DatabaseAdapter.delete(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
 	default String constraint(String[] dbfields, boolean byLike) {

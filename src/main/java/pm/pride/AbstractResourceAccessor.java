@@ -433,6 +433,9 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 					logMax = LOGMAX_DEFAULT;
 			}
 			catch(NumberFormatException nfx) { /* Do nothing, i.e. use the default */ }
+			
+			String bindvarsDefaultString = props.getProperty(Config.BINDVARS, "off");
+			bindvarsDefault = bindvarsDefaultString.equals("on");
 		}
 	}
 	

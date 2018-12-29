@@ -43,7 +43,7 @@ abstract public class DatabaseAdapter
     }
 
     /** Fetch objects by fields. The values are taken from the fields' associated get-methods */
-    protected static ResultIterator query(RecordDescriptor red, Object entity, String... dbfields)
+    protected static ResultIterator queryByExample(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
             getDatabase(red).query(red, true, entity, dbfields) : null;
@@ -56,15 +56,15 @@ abstract public class DatabaseAdapter
             getDatabase(red).wildcardSearch(red, true, entity, dbfields) : null;
     }
 
-    /** Same like {@link #query(RecordDescriptor, Object, String...)} but takes the first record only.
+    /** Same like {@link #queryByExample(RecordDescriptor, Object, String...)} but takes the first record only.
      * Returns false if no matching record could be found. */
-    protected static boolean find(Object entity, String[] dbkeyfields, RecordDescriptor red)
+    protected static boolean find(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
     	return (dbkeyfields != null) ?
             getDatabase(red).query(red, false, entity, dbkeyfields) != null : false;
     }
 
-    /** Like {@link #find(Object, String[], RecordDescriptor)} but reports a missing match by
+    /** Like {@link #find(Object, RecordDescriptor, String[])} but reports a missing match by
      * a {@link FindException} rather than a return value. This is of interest when ever finding
      * no result is an unexpected situation. In these cases findx() keeps from cluttering the
      * happy-path of the application logic with if-statements for error handling.
@@ -72,9 +72,9 @@ abstract public class DatabaseAdapter
      * The FindException is derived from SQLException, so there is usually no additionally catch
      * block required for this exception.
      */
-    protected static void findx(Object entity, String[] dbkeyfields, RecordDescriptor red)
+    protected static void findx(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
-    	if (!find(entity, dbkeyfields, red)) {
+    	if (!find(entity, red, dbkeyfields)) {
     		throw new FindException();
     	}
     }
@@ -87,7 +87,7 @@ abstract public class DatabaseAdapter
 
     /** Like {@link #find(Object, RecordDescriptor)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
-     * {@link #findx(Object, String[], RecordDescriptor)}.
+     * {@link #findx(Object, RecordDescriptor, String[])}.
      */
     protected static void findx(Object entity, RecordDescriptor red)
         throws SQLException {
@@ -96,20 +96,20 @@ abstract public class DatabaseAdapter
     	}
     }
 
-    /** Same like {@link #query(Object, WhereCondition, RecordDescriptor)} but takes the first record only.
+    /** Same like {@link #query(Object, RecordDescriptor, WhereCondition)} but takes the first record only.
      * Returns false if no matching record could be found */
-    protected static boolean find(Object entity, String where, RecordDescriptor red)
+    protected static boolean find(Object entity, RecordDescriptor red, String where)
         throws SQLException {
         return (getDatabase(red).query(red, false, entity, where) != null);
     }
 
-    /** Like {@link #find(Object, String, RecordDescriptor)} but reports a missing match by
+    /** Like {@link #find(Object, RecordDescriptor, String)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
-     * {@link #findx(Object, String[], RecordDescriptor)}.
+     * {@link #findx(Object, RecordDescriptor, String[])}.
      */
-    protected static void findx(Object entity, String where, RecordDescriptor red)
+    protected static void findx(Object entity, RecordDescriptor red, String where)
         throws SQLException {
-    	if (!find(entity, where, red)) {
+    	if (!find(entity, red, where)) {
     		throw new FindException();
     	}
     }
@@ -121,13 +121,13 @@ abstract public class DatabaseAdapter
     }
 
     /** Fetch an object by a self-made where clause */
-    protected static ResultIterator query(Object entity, String where, RecordDescriptor red)
+    protected static ResultIterator query(Object entity, RecordDescriptor red, String where)
         throws SQLException {
         return getDatabase(red).query(red, true, entity, where);
     }
 
     /** Fetch an object by a self-made where clause */
-    protected static ResultIterator query(Object entity, WhereCondition where, RecordDescriptor red)
+    protected static ResultIterator query(Object entity, RecordDescriptor red, WhereCondition where)
         throws SQLException {
         return getDatabase(red).query(red, true, entity, where);
     }
@@ -137,34 +137,34 @@ abstract public class DatabaseAdapter
         return getDatabase(red).updateRecord(red, entity);
     }
 
-    protected static int update(Object entity, String[] dbkeyfields, RecordDescriptor red)
+    protected static int update(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
         return getDatabase(red).updateRecord(red, entity, dbkeyfields);
     }
 
-	protected static int update(Object entity, String[] dbkeyfields, String[] updatefields, RecordDescriptor red)
+	protected static int update(Object entity, RecordDescriptor red, String[] dbkeyfields, String... updatefields)
 		throws SQLException {
 		return getDatabase(red).updateRecord(red, entity, dbkeyfields, updatefields);
 	}
 
     @Deprecated
-    protected static int update(Object entity, String where, RecordDescriptor red)
+    protected static int update(Object entity, RecordDescriptor red, String where)
         throws SQLException {
         return getDatabase(red).updateRecord(red, entity, where);
     }
 
     @Deprecated
-	protected static int update(Object entity, String where, String[] updatefields, RecordDescriptor red)
+	protected static int update(Object entity, RecordDescriptor red, String where, String... updatefields)
 		throws SQLException {
 		return getDatabase(red).updateRecord(red, entity, where, updatefields);
 	}
 
-    protected static int update(Object entity, WhereCondition where, RecordDescriptor red)
+    protected static int update(Object entity, RecordDescriptor red, WhereCondition where)
         throws SQLException {
         return getDatabase(red).updateRecord(red, entity, where);
     }
 
-	protected static int update(Object entity, WhereCondition where, String[] updatefields, RecordDescriptor red)
+	protected static int update(Object entity, RecordDescriptor red, WhereCondition where, String... updatefields)
 		throws SQLException {
 		return getDatabase(red).updateRecord(red, entity, where, updatefields);
 	}
@@ -174,14 +174,14 @@ abstract public class DatabaseAdapter
 	 */
     protected static int create(Object entity, RecordDescriptor red)
         throws SQLException {
-        return create(entity, null, red);
+        return create(entity, red, null);
     }
 
 	/** Like function above but additionally allows to pass a set of fields which should be excluded
 	 *  from the SQL insert command. This functon is required if the table containes any database-managed
 	 *  columns which must not be provided on creation (usually sequence columns). 
 	 */
-	protected static int create(Object entity, String[] autoFields, RecordDescriptor red)
+	protected static int create(Object entity, RecordDescriptor red, String... autoFields)
 		throws SQLException {
 		return getDatabase(red).createRecord(red, entity, autoFields);
 	}
@@ -191,7 +191,7 @@ abstract public class DatabaseAdapter
         return getDatabase(red).deleteRecord(red, entity);
     }
 
-    protected static int delete(Object entity, String[] dbkeyfields, RecordDescriptor red)
+    protected static int delete(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
         return getDatabase(red).deleteRecord(red, entity, dbkeyfields);
     }

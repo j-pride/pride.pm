@@ -45,16 +45,15 @@ public class EntityGenerator {
 	protected ResourceAccessor resourceAccessor;
 	protected String db;
 
-	public EntityGenerator(String[] tableNames, String className,
+	public void postInit(String[] tableNames, String className,
 							   String generationType, String baseClassName)
 		throws Exception {
-		this(tableNames, className, generationType, baseClassName, ClassLoader.getSystemClassLoader());
+		postInit(tableNames, className, generationType, baseClassName, ClassLoader.getSystemClassLoader());
 	}
 	
-	public EntityGenerator(String[] tableNames, String className,
+	public void postInit(String[] tableNames, String className,
 							   String generationType, String baseClassName, ClassLoader classLoader)
 		throws Exception {
-		createResourceAccessor();
 		this.generationType = generationType;
 		this.tableNames = tableNames;
 		this.className = className;
@@ -76,8 +75,7 @@ public class EntityGenerator {
 	}
 	
 	protected void createResourceAccessor() throws Exception {
-		db = System.getProperty(Config.DB);
-		if (db == null) {
+		if (System.getProperty(Config.DB) == null) {
 			throw new IllegalArgumentException("Database URL must be defined by system property " + Config.DB);
 		}
 		resourceAccessor = ResourceAccessorJSE.fromSystemProps();
@@ -146,6 +144,8 @@ public class EntityGenerator {
 	 * write... functions
 	 */
 	public String create() throws Exception {
+		createResourceAccessor();
+		db = DatabaseFactory.getDatabase().getDBName();
 		Connection con = getDBConnection();
 		StringBuffer buffer = new StringBuffer();
 		if (con != null) {
@@ -552,9 +552,9 @@ public class EntityGenerator {
 	 * @param args
 	 * @exception SQLException
 	 */
-	public static void main (String[] args) throws Exception {
+	public EntityGenerator (String[] args) throws Exception {
 		if (args.length < 1) {
-			System.out.println("Usage: CreateTableTemplate tablename(s) [class] [beanclass | -b | -h] [baseclass]");
+			System.out.println("Usage: EntityGenerator tablename(s) [class] [beanclass | -b | -h] [baseclass]");
 			System.exit(0);
 		}
 		String tableName = args[0];
@@ -593,8 +593,15 @@ public class EntityGenerator {
 		}
 		if (args.length > 3)
 			baseClassName = args[3];
-		System.out.println(new EntityGenerator(tableNames,
-				className, generationType, baseClassName).create());
+		postInit(tableNames, className, generationType, baseClassName);
+	}
+
+	public void createAndPrint() throws Exception {
+		System.out.println(create());
+	}
+	
+	public static void main (String[] args) throws Exception {
+		new EntityGenerator(args).createAndPrint();
 	}
 
 }

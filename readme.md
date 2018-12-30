@@ -17,7 +17,8 @@ See doc/PriDE-History.html for release notes!
 PriDE is a Maven-based project. The JUnit-Tests can be executed against different types of databases.
 At the moment the following types of databases are supported and actively tested on [Travis CI](https://travis-ci.org/j-pride/pride.pm):
 
-* HSQLDB (Version 2.x.x)
+* HSQLDB (Version 2.x)
+* SQLite (Version 3.x)
 * MySQL (Version 5.5)
 * Postgres (Version 9.6)
 * Oracle XE 11g
@@ -25,12 +26,12 @@ At the moment the following types of databases are supported and actively tested
 
 To build PriDE _and_ execute all tests, you have to specify a database to run the tests on:
 
-    mvn package -Duser.name=[mysql,hsql,oracle,postgres]
+    mvn package -Duser.name=[mysql,hsql,oracle,postgres,sqlite]
 
 To just build PriDE without execute any tests run
-    
+​    
     mvn package -DskipTests
-    
+
 Afterwards the built jar can be found in `target/pride-<Major-Version>-SNAPSHOT-<Git-Commit-ID>.jar`
 
 ### Preperations needed for Oracle

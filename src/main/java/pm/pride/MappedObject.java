@@ -23,7 +23,7 @@ package pm.pride;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-abstract public class MappedObject<E> implements DatabaseAdapterMixin<E> {
+abstract public class MappedObject implements DatabaseAdapterMixin {
 	@Override
-	public E getEntity() { return (E)this; }
+	public Object getEntity() { return this; }
 }

@@ -17,7 +17,7 @@ import java.sql.SQLException;
  *
  * @author <a href="mailto:jan.lessner@acoreus.de">Jan Lessner</a>
  */
-public class Attribute extends MappedObject<Attribute>
+public class Attribute extends MappedObject
 {
     private static String[] primaryKey = new String[] { "object_type", "object", "name" };
     public String[] getKeyFields() { return primaryKey; }

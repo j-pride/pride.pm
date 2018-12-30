@@ -87,13 +87,15 @@ public class QueryClient {
 	private static void printPaddysByExample() throws SQLException {
 		Customer customer = new Customer();
 		customer.setFirstName("Paddy");
-		List<Customer> paddys = customer.toList(customer.queryByExample(Customer.COL_FIRST_NAME, Customer.COL_NAME));
+		List<Customer> paddys = customer
+				.queryByExample(Customer.COL_FIRST_NAME, Customer.COL_NAME)
+				.toList(Customer.class);
 		System.out.println(paddys);
 	}
 
 	private static void printAllCustomersAsList() throws SQLException {
 		Customer customer = new Customer();
-		List<Customer> allCustomers = customer.toList(customer.queryAll());
+		List<Customer> allCustomers = customer.queryAll().toList(Customer.class);
 		System.out.println(allCustomers);
 	}
 

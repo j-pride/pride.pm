@@ -8,7 +8,7 @@ import pm.pride.*;
 /**
  * @author jlessner
  */
-public class Customer extends MappedObject<Customer> implements Cloneable, java.io.Serializable {
+public class Customer extends MappedObject implements Cloneable, java.io.Serializable {
     public static final String TABLE = "CUSTOMER";
     public static final String COL_ID = "id";
     public static final String COL_NAME = "name";

@@ -19,23 +19,32 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 
 /**
- * Helper class to iterate through a list of results from a query.
- * ResultIterators are initialized by the {@link Database} class
- * and provide their results step-by-step in the same entity
- * object. The first query result is initially put into entity.
- * If a query does not find any results at all, it returns null.
- * A typical usage looks like this:
+ * Result of a multi-record query, used to iterate through the list of results.
+ * ResultIterators are initialized by the {@link Database} class and provide their
+ * results step-by-step in the same entity object. The first query result is
+ * initially put into entity. If a query does not find any results at all, it
+ * returns a empty-result representing instance. The function doesn't simply return
+ * null to avoid null checks for the typical case that the results are not directly
+ * process but extracted as list or array. A typical usage for direct processing
+ * looks like this:
  * <pre>
  *       Person p = new Person();
  *       ResultIterator iter = p.queryAll();
- *       if (iter != null) {
+ *       if (!iter.isNull()) {
  *         do {
  *           System.println(p.getName());
  *         } while(iter.next());
  *       }
  * </pre>
+ * A typical result extraction for later processing in a higher application level
+ * looks like this:
+ * <pre>
+ *       Person p = new Person();
+ *       ResultIterator iter = p.queryAll();
+ *       return iter.toList(Person.class);
+ * </pre>
  *
- * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
+ * @author Jan Lessner
  */
 public class ResultIterator
 {
@@ -51,6 +60,12 @@ public class ResultIterator
     protected Database db;
     protected Method cloneMethod;
     protected SpoolState spoolState;
+    
+    private ResultIterator() {} // Used to represent an empty resp. null result
+
+	public static ResultIterator emptyResult() {
+		return new ResultIterator();
+	}
 
     /** Creates a new ResultIterator from an query. */
     public ResultIterator(Statement statement, boolean customStatement, ResultSet rs,
@@ -69,6 +84,8 @@ public class ResultIterator
         this(statement, customStatement, rs, null, null, db, con);
     }
 
+    public boolean isNull() { return statement == null; }
+    
     /** Returns the result set, the iterator is operating on. This may be
      * required to pass query results to standard reporting engines etc.
      */
@@ -149,6 +166,9 @@ public class ResultIterator
      */
 	public List<?> toList(long maxResults) throws SQLException {
 		try {
+			if (isNull()) {
+				return new ArrayList<Object>();
+			}
 			SpoolCondition<Object> counter = new SpoolCondition<Object>() {
 				int count = 0;
 				@Override
@@ -240,7 +260,7 @@ public class ResultIterator
 	 * of the array's elements is the one of the iterator's operation object.
 	 */
 	public Object[] toArray(long maxResults) throws SQLException {
-		if (obj == null)
+		if (!isNull() && obj == null)
 			throw new UnsupportedOperationException("Target object missing");
 		List<?> list = toList(maxResults);
 		Object[] result = (Object[])Array.newInstance(obj.getClass(), list.size());

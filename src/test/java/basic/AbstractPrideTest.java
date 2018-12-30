@@ -256,4 +256,9 @@ public abstract class AbstractPrideTest extends Assert {
 	protected int countCustomers() throws SQLException {
 		return new Customer().queryAll().toArray().length;
 	}
+	
+	protected void assertNullResult(ResultIterator ri) {
+		assertTrue(ri.isNull());
+	}
+	
 }

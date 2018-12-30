@@ -21,10 +21,10 @@ import java.util.List;
  *
  * @param <E> The type of entity to be mapped
  */
-public interface DatabaseAdapterMixin<E> {
+public interface DatabaseAdapterMixin {
 	
 	/** Returns the value object the adapter is operating on */
-    E getEntity();
+    Object getEntity();
 
 	/** Returns the entity's record descriptor. This function is used by the
 	 * the default database access functions below to provide simplified
@@ -117,44 +117,13 @@ public interface DatabaseAdapterMixin<E> {
 	}
 
 	/** Fetch an object by a self-made where clause */
-	default ResultIterator query(String where) throws SQLException {
-		return DatabaseAdapter.query(getEntity(), getDescriptor(), where);
+	default ResultIterator query(String where, Object... params) throws SQLException {
+		return DatabaseAdapter.query(getEntity(), getDescriptor(), where, params);
 	}
 
 	/** Fetch an object by a self-made where clause */
 	default ResultIterator query(WhereCondition where) throws SQLException {
 		return DatabaseAdapter.query(getEntity(), getDescriptor(), where);
-	}
-
-	/** Convenience function to convert a {@link ResultIterator} into a list of objects.
-	 * Returns an empty list if the iterator is null, otherwise calls {@link ResultIterator#toList(long).
-	 */
-	default List<E> toList(ResultIterator iterator, long maxResults) throws SQLException {
-		return (iterator != null) ?
-				(List<E>)iterator.toList() : new ArrayList<E>();
-	}
-
-	/** Convenience function to convert a {@link ResultIterator} into a list of objects.
-	 * Returns an empty list if the iterator is null, otherwise calls {@link ResultIterator#toList().
-	 */
-	default List<E> toList(ResultIterator iterator) throws SQLException {
-		return toList(iterator, ResultIterator.UNLIMIT_NUMBER_OF_RESULTS);
-	}
-
-	/** Convenience function to convert a {@link ResultIterator} into an array of objects.
-	 * Returns an empty array if the iterator is null, otherwise calls {@link ResultIterator#toArray(long).
-	 */
-	default E[] toArray(ResultIterator iterator, long maxResults) throws SQLException {
-		return (iterator != null) ?
-				(E[])iterator.toArray() :
-				(E[])Array.newInstance(getDescriptor().getObjectType(), 0);
-	}
-
-	/** Convenience function to convert a {@link ResultIterator} into an array of objects.
-	 * Returns an empty array if the iterator is null, otherwise calls {@link ResultIterator#toArray().
-	 */
-	default E[] toArray(ResultIterator iterator) throws SQLException {
-		return toArray(iterator, ResultIterator.UNLIMIT_NUMBER_OF_RESULTS);
 	}
 
 	default int update() throws SQLException {

@@ -46,7 +46,7 @@ abstract public class DatabaseAdapter
     protected static ResultIterator queryByExample(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
-            getDatabase(red).query(red, true, entity, dbfields) : null;
+            getDatabase(red).queryByExample(red, true, entity, dbfields) : null;
     }
 
     /** Same like <code>query()</code> but performs a wildcard search */
@@ -61,7 +61,7 @@ abstract public class DatabaseAdapter
     protected static boolean find(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
     	return (dbkeyfields != null) ?
-            getDatabase(red).query(red, false, entity, dbkeyfields) != null : false;
+            getDatabase(red).queryByExample(red, false, entity, dbkeyfields) != null : false;
     }
 
     /** Like {@link #find(Object, RecordDescriptor, String[])} but reports a missing match by
@@ -98,18 +98,18 @@ abstract public class DatabaseAdapter
 
     /** Same like {@link #query(Object, RecordDescriptor, WhereCondition)} but takes the first record only.
      * Returns false if no matching record could be found */
-    protected static boolean find(Object entity, RecordDescriptor red, String where)
+    protected static boolean find(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return (getDatabase(red).query(red, false, entity, where) != null);
+        return (getDatabase(red).queryByExample(red, false, entity, where) != null);
     }
 
     /** Like {@link #find(Object, RecordDescriptor, String)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
      * {@link #findx(Object, RecordDescriptor, String[])}.
      */
-    protected static void findx(Object entity, RecordDescriptor red, String where)
+    protected static void findx(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-    	if (!find(entity, red, where)) {
+    	if (!find(entity, red, where, params)) {
     		throw new FindException();
     	}
     }
@@ -121,9 +121,9 @@ abstract public class DatabaseAdapter
     }
 
     /** Fetch an object by a self-made where clause */
-    protected static ResultIterator query(Object entity, RecordDescriptor red, String where)
+    protected static ResultIterator query(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return getDatabase(red).query(red, true, entity, where);
+        return getDatabase(red).query(red, true, entity, where, params);
     }
 
     /** Fetch an object by a self-made where clause */

@@ -11,7 +11,7 @@ import pm.pride.RevisionedRecordDescriptor;
 
  * @author jlessner
  */
-public abstract class IdentifiedEntity extends MappedObject<IdentifiedEntity> implements Cloneable {
+public abstract class IdentifiedEntity extends MappedObject implements Cloneable {
 	private int id = 0;
 
 	public int getId() { return id; }
@@ -28,5 +28,9 @@ public abstract class IdentifiedEntity extends MappedObject<IdentifiedEntity> im
 			{ "id", "getId", "setId" },
 		}
 	);
+
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
 
 }

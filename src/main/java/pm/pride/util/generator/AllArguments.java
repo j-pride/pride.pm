@@ -25,7 +25,7 @@ import pm.pride.RecordDescriptor;
  * @author Jan Lessner / Christoph Apke
  * @version 1.0
  */
-public class AllArguments extends MappedObject<AllArguments>
+public class AllArguments extends MappedObject
 {
     protected static RecordDescriptor red = new RecordDescriptor
         (AllArguments.class, "ALL_ARGUMENTS", null, new String[][] {

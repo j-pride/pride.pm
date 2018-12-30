@@ -1,4 +1,6 @@
 package basic;
+import java.util.List;
+
 import org.junit.Test;
 
 import pm.pride.DatabaseFactory;
@@ -143,6 +145,13 @@ public class PrideSelectTest extends AbstractPrideTest {
 		assertTrue(iter.next());
 		assertEquals("First", iter.getString(1));
 		assertFalse(iter.next());
+	}
+	
+	@Test
+	public void testSelectPlainPreparedWithAdapter() throws Exception {
+        Customer c = new Customer();
+        List<Customer> lc = c.query("firstName=?", "First").toList(Customer.class);
+        assertEquals(1, lc.size());
 	}
 	
 }

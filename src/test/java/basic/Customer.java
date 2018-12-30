@@ -14,7 +14,6 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import pm.pride.RecordDescriptor;
-import pm.pride.RevisionedRecordDescriptor;
 
 /**
  * @author bart57
@@ -78,10 +77,6 @@ public class Customer extends IdentifiedEntity {
 	public void setHireDate(Date d)            { this.hireDate = d; }
     public void setType(CustomerType type)            { this.type = type; }
  
-	public Object clone() throws CloneNotSupportedException {
-		return super.clone();
-	}
-	
 	public String toString() {
 		return getId() + "/" + firstName + "/" + lastName + "/" + active + "/" + hireDate + "/" + type;
 	}

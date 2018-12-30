@@ -6,7 +6,7 @@ import pm.pride.*;
 /**
  * @author jlessner
  */
-public class CustomerAdapter extends ObjectAdapter<CustomerEntity> {
+public class CustomerAdapter extends ObjectAdapter {
     public static final String TABLE = "CUSTOMER";
     public static final String COL_ID = "id";
     public static final String COL_NAME = "name";

@@ -196,20 +196,21 @@ public class Database implements SQL.Formatter
      * them step by step into <code>obj</code>. If parameter keepRest is false, the ResultIterator is
      * immediately closed after fetching the first record into the passed object. The caller can only
      * use the returned Iterator to check if the query was successful. Further iterating is omitted.
-     * A return value of <code>null</code> indicates that there was no matching record found. 
+     * If there was no matching record found, the function returns a ResultIterator which returns true
+     * from its isNull() method.
      */
-    protected ResultIterator fetchFirst(String query, Object obj,
-                                        RecordDescriptor red,
-                                        boolean keepRest)
+    protected ResultIterator fetchFirst(Object obj, RecordDescriptor red,
+                                        boolean keepRest,
+                                        String query, Object... params)
         throws SQLException {
-        ResultIterator ri = sqlQuery(red, obj, query);
+        ResultIterator ri = sqlQuery(red, obj, query, params);
         return returnIteratorIfNotEmpty(ri, query, keepRest);
     }
     
     protected ResultIterator returnIteratorIfNotEmpty(ResultIterator ri, String query, boolean keepRest) throws SQLException {
         if (!ri.next()) {
             ri.close();
-            return null;
+            return ResultIterator.emptyResult();
         }
         if (!keepRest) {
             ri.close();
@@ -398,25 +399,6 @@ public class Database implements SQL.Formatter
     }
 
     /** Run a database query.
-     * @param red Descriptor providing the field mappings and the table name to access
-     * @param all Flag saying wether to fetch all matching records or only the first one
-     * @param obj Destination object to store the data in
-     * @param dbfield table field which is to be used as selection criteria
-     * @param value value which the field determined by <code>dbfield</code> must match
-     * @return A {@link ResultIterator} if at least one matching record is present or null
-     * otherwise. The first matching record's data is stored in <code>obj</code>.
-     * Following records can successively be copied to <code>obj</code> using the
-     * ResultIterator.
-     */
-    public ResultIterator query(RecordDescriptor red, boolean all, Object obj,
-                                String dbfield, Object value)
-        throws SQLException {
-          if(value == null)
-             return query(red, all, obj, dbfield + " is  null ");
-        return query(red, all, obj, dbfield + " = " + formatValue(value));
-    }
-
-    /** Run a database query.
      * @param red descriptor providing the field mappings and the table name to access
      * @param all flag saying wether to fetch all matching records or only the first one
      * @param obj both, destination object for result data and source object for
@@ -427,10 +409,15 @@ public class Database implements SQL.Formatter
      * Following records can successivly be copied to <code>obj</code> using the
      * ResultIterator.
      */
-    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String... dbfields)
+    public ResultIterator queryByExample(RecordDescriptor red, boolean all, Object obj, String... dbfields)
         throws SQLException {
-		try { return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, false)); }
-		catch(Exception x) { processSevereButSQLException(x); return null; }
+		try {
+			return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, false));
+		}
+		catch(Exception x) {
+			processSevereButSQLException(x);
+			return ResultIterator.emptyResult();
+		}
     }
 
     /** Like function <code>query()</code> above but selects using the
@@ -438,8 +425,13 @@ public class Database implements SQL.Formatter
      */
     public ResultIterator wildcardSearch(RecordDescriptor red, boolean all, Object obj, String... dbfields)
         throws SQLException {
-        try { return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, true)); }
-		catch(Exception x) { processSevereButSQLException(x); return null; }
+        try {
+        	return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, true));
+        }
+		catch(Exception x) {
+			processSevereButSQLException(x);
+			return ResultIterator.emptyResult();
+		}
     }
 
     /** Run a database query.
@@ -452,11 +444,11 @@ public class Database implements SQL.Formatter
      * Following records can successively be copied to <code>obj</code> using the
      * ResultIterator.
      */
-    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String where)
+    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String where, Object... params)
         throws SQLException {
         String query = "select " + red.getResultFields() + " from " +
             getTableName(red) + where(where);
-        return fetchFirst(query, obj, red, all);
+        return fetchFirst(obj, red, all, query, params);
     }
 
     public ResultIterator query(RecordDescriptor red, boolean all, Object obj, WhereCondition where) throws SQLException {
@@ -476,7 +468,7 @@ public class Database implements SQL.Formatter
             catch (Exception x) {
             	if (cns != null)
             		cns.closeAfterException(x);
-                return null;
+                return ResultIterator.emptyResult();
             }
     	}
     	else {

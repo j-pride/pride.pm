@@ -19,12 +19,12 @@ package pm.pride;
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */
-abstract public class ObjectAdapter<E> implements DatabaseAdapterMixin<E> {
-    private E entity;
+abstract public class ObjectAdapter implements DatabaseAdapterMixin {
+    private Object entity;
     
 	/** Returns the value object the adapter is operating on */
-    public E getEntity() { return entity; }
+    public Object getEntity() { return entity; }
     
-    protected ObjectAdapter(E entity) { this.entity = entity; }
+    protected ObjectAdapter(Object entity) { this.entity = entity; }
 
 }

@@ -42,7 +42,7 @@ public class PrideDeleteTest extends AbstractPrideTest {
 		DatabaseFactory.getDatabase().commit();
 		assertEquals(COUNT, counter);
 		it = c.queryAll();
-		assertNull(it);
+		assertNullResult(it);
 	}
 
     @Test

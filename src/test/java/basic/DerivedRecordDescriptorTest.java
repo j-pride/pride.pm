@@ -71,7 +71,7 @@ public class DerivedRecordDescriptorTest extends AbstractPrideTest {
 		DatabaseFactory.getDatabase().commit();
 		assertEquals(1, counter);
 		ri = c.queryAll();
-		assertNull(ri);
+		assertNullResult(ri);
     }
     
 }

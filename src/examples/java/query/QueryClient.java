@@ -2,6 +2,10 @@ package query;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import pm.pride.ResultIterator;
 import pm.pride.SQL;
@@ -17,6 +21,7 @@ public class QueryClient {
 		findCustomerById();
 		printAllCustomers();
 		printAllCustomersAsList();
+		printAllCustomersAsStream();
 		printPaddysByExample();
 		printPaddysByWhereCondition();
 		printPaddysAndMarys();
@@ -97,6 +102,12 @@ public class QueryClient {
 		Customer customer = new Customer();
 		List<Customer> allCustomers = customer.queryAll().toList(Customer.class);
 		System.out.println(allCustomers);
+	}
+
+	private static void printAllCustomersAsStream() throws SQLException {
+		Customer customer = new Customer();
+		customer.queryAll().stream(Customer.class)
+			.forEach(c -> System.out.println(c));
 	}
 
 	private static void findCustomerById() throws SQLException {

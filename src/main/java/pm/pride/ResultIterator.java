@@ -13,6 +13,15 @@ package pm.pride;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import javax.naming.ReferralException;
+
+import quickstart.Customer;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -155,6 +164,12 @@ public class ResultIterator
     /** Returns the object, the ResultIterator writes its data to */
     public <T> T getObject(Class<T> t) { return (T)obj; }
     
+	protected Object cloneObject() throws ReflectiveOperationException {
+		if (cloneMethod == null)
+			cloneMethod = obj.getClass().getMethod("clone");
+		return cloneMethod.invoke(obj);
+	}
+	
     /**
      * Iterates through the complete result set and returns the data in an ArrayList.
      * The list contains clones of the iterator's operation object for each iteration
@@ -184,8 +199,8 @@ public class ResultIterator
 	}
 
 	/**
-	 * Like the function above but returns all data without size limitation. This function
-	 * must be used with great care since the number of elements in a result set can
+	 * Like {@link #toList(long)} but returns all data without size limitation. This function
+	 * must be used with great care as the number of elements in a result set can
 	 * be very large.
 	 */
 	public List<?> toList() throws SQLException { return toList(UNLIMIT_NUMBER_OF_RESULTS); }
@@ -203,8 +218,6 @@ public class ResultIterator
 			throw new UnsupportedOperationException("Target object missing");
 		try {
 			ArrayList<Object> list = new ArrayList<Object>();
-			if (cloneMethod == null)
-				cloneMethod = obj.getClass().getMethod("clone");
 			switch(spoolState) {
 			case Finished:
 				return null;
@@ -219,7 +232,7 @@ public class ResultIterator
 				do {
 					lastResultSpooled = spoolCondition.spool((T)obj);
 					if (lastResultSpooled)
-						list.add(cloneMethod.invoke(obj, null));
+						list.add(cloneObject());
 					else
 						break;
 				}
@@ -268,8 +281,8 @@ public class ResultIterator
 	}
 
 	/**
-	 * Like the function above but returns all data without limitation. This function
-	 * must be used with great care since the number of elements in a result set can
+	 * Like {@link #toArray(long)} but returns all data without limitation. This function
+	 * must be used with great care as the number of elements in a result set can
 	 * be very large.
 	 */
 	public Object[] toArray() throws SQLException { return toArray(UNLIMIT_NUMBER_OF_RESULTS); }
@@ -278,6 +291,28 @@ public class ResultIterator
 	
 	public <T> T[] toArray(Class<T> t) throws SQLException { return (T[])toArray(); }
 
+    /**
+     * Provides the results as a stream. The stream contains clones of the iterator's
+     * operation object and therefore the function is only suitable for small amounts of
+     * result. For iterating through large result sets you may alternatively use the function
+     * {@link #streamUncloned(Class)}.
+     */
+	public <T> Stream<T> stream(Class<T> t) {
+		return StreamSupport.stream(new ResultSpliterator<T>(true), false);
+	}
+	
+    /**
+     * Provides the results as a stream without cloning the iterator's operation object for each
+     * result. This function is suitable for large result sets but is only a convenient form for
+     * direct processing within the iteration process. The stream is not suitable for collecting
+     * or sorting results or whatever stream operation requires that multiple result instances
+     * exist at a time and have their own identity. Save streaming is instead achieved by using
+     * function {@link #stream(Class)}.
+     */
+	public <T> Stream<T> streamUncloned(Class<T> t) {
+		return StreamSupport.stream(new ResultSpliterator<T>(false), false);
+	}
+	
 	/** Returns the current fetch size for the underlying ResultSet */
 	public int getFetchSize() throws SQLException { return results.getFetchSize(); }
 
@@ -299,4 +334,29 @@ public class ResultIterator
         return results.getString(index);
 	}
 
+	public class ResultSpliterator<T> implements Spliterator<T> {
+		final boolean withClone;
+		
+		ResultSpliterator(boolean withClone) { this.withClone = withClone; }
+		
+		@Override
+		public boolean tryAdvance(Consumer<? super T> action) {
+			try {
+				if (!isNull()) {
+					action.accept((T) (withClone ? cloneObject() : getObject()));
+					return ResultIterator.this.next();
+				}
+			}
+			catch(SQLException | ReflectiveOperationException x) {
+				db.processSevereException(x);
+			}
+			return false;
+		}
+
+		@Override public Spliterator<T> trySplit() { return null; }
+		@Override public long estimateSize() { return Long.MAX_VALUE; }
+		@Override public int characteristics() { return IMMUTABLE; }
+	}
+
+	
 }

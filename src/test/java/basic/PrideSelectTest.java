@@ -1,5 +1,7 @@
 package basic;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -25,6 +27,8 @@ import pm.pride.ResultIterator;
 public class PrideSelectTest extends AbstractPrideTest {
 
 	private static int COUNT = 100;
+	int count;
+	int lastId;
 
 	@Override
 	public void setUp() throws Exception {
@@ -52,6 +56,48 @@ public class PrideSelectTest extends AbstractPrideTest {
 			counter++;
 		} while (it.next());
 		assertEquals(counter,COUNT);
+	}
+	
+	@Test
+	public void testSelectByStream() throws Exception{
+		Customer c = new Customer();
+		count = 0;
+		lastId = -1;
+		c.queryAll().stream(Customer.class).forEach(customer -> {
+			assertNotNull(customer);
+			assertNotEquals(c, customer); // Original entity is cloned
+			assertNotEquals(lastId, customer.getId()); // And the content differs
+			lastId = customer.getId();
+			count++;
+		});
+		assertEquals(count,COUNT);
+	}
+	
+	@Test
+	public void testSelectByUnclonedStream() throws Exception{
+		Customer c = new Customer();
+		count = 0;
+		lastId = -1;
+		Set<Integer> selectedIds = new HashSet<>();
+		c.queryAll().streamUncloned(Customer.class).forEach(customer -> {
+			assertNotNull(customer);
+			assertEquals(c, customer); // Original entity is not cloned
+			assertNotEquals(lastId, customer.getId()); // But the content differs
+			// Produce back-pressure to ensure that slow processing doesn't cause skipping of results
+			try { Thread.sleep(10); } catch (InterruptedException ir) {};
+			lastId = customer.getId();
+			selectedIds.add(lastId);
+			count++;
+		});
+		assertEquals(COUNT, count);
+		assertEquals(COUNT, selectedIds.size()); // Back-pressure didn't cause results to be skipped
+	}
+	
+	@Test
+	public void testSelectByEmptyStream() throws Exception{
+		Customer c = new Customer();
+		long count = c.query("id = 0").stream(Customer.class).count();
+		assertEquals(count, 0);
 	}
 	
 	@Test

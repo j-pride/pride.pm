@@ -425,14 +425,14 @@ public class EntityGenerator {
                       "    }\n" + "\n");
     }
 
-	/** Prints a reconstructor to restore an existing records from its primary key fields
+	/** Prints a re-constructor to restore an existing records from its primary key fields
 	 * In case of a bean class, this is just a constructor with the primary key fields
 	 */
 	public void writeReconstructor(TableDescription desc, String className,
 								   String baseClassName, StringBuffer buffer) {
         if (!desc.hasPrimaryKey() || generateDBA())
             return;
-		buffer.append("\n    // Reconstructor\n");
+		buffer.append("\n    // Re-constructor\n");
 		buffer.append("    public " + getSimpleClassName(className) + "(");
 		for (TableColumn current: desc.getList()) {
 			if (current.isPrimaryKeyField())

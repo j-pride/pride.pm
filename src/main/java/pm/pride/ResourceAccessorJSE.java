@@ -16,12 +16,12 @@ import java.util.Properties;
 import pm.pride.ResourceAccessor.Config;
 
 /**
- * Simple {@link ResourceAccessor} for J2SE environments.
+ * Simple {@link ResourceAccessor} for JSE environments.
  * This implementation stores database connections in a {@link ThreadLocal}
  * object, which garuantees fast connection access and multi-threading safety.
  * However, the connection is kept until the accessor is invoked with a different
  * database name. It is therefore recommended to work with multiple accessors
- * if you need to swith rapidly between multiple databases.
+ * if you need to switch rapidly between multiple databases.
  *
  * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
  */

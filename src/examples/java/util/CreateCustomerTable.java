@@ -17,10 +17,11 @@ public class CreateCustomerTable {
 		catch(SQLException sqlx) {} // Go ahead, table may not yet exist
 		database.sqlExecute(
 			"create table " + TABLE_NAME + " (" +
-			"  id integer not null primary key," +
+			"  id integer not null primary key AUTOINCREMENT," +
 			"  name varchar(20)," +
 		    "  first_name varchar(30)" +
 			")");
 		database.commit();
+		System.out.println(TABLE_NAME + " table created successfully");
 	}
 }

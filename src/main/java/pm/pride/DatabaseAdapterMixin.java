@@ -165,11 +165,11 @@ public interface DatabaseAdapterMixin {
 
 	default int delete() throws SQLException {
 		String[] pk = getKeyFields();
-		return (pk != null) ? delete(pk) : DatabaseAdapter.delete(getEntity(), getDescriptor());
+		return (pk != null) ? deleteByExample(pk) : DatabaseAdapter.delete(getEntity(), getDescriptor());
 	}
 
-	default int delete(String... dbkeyfields) throws SQLException {
-		return DatabaseAdapter.delete(getEntity(), getDescriptor(), dbkeyfields);
+	default int deleteByExample(String... dbkeyfields) throws SQLException {
+		return DatabaseAdapter.deleteByExample(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
 	default String constraint(String[] dbfields, boolean byLike) {

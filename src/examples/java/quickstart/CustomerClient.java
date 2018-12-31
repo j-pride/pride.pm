@@ -14,8 +14,7 @@ public class CustomerClient extends AbstractCommandLineClient {
 		customer.setName(name);
 		customer.setFirstName(firstName);
 		customer.create();
-		System.out.println("Customer created");
-		customer.commit();
+		System.out.println("Customer " + customer.getId() + " created");
 	}
 	
 	public void find(int id) throws SQLException {

@@ -191,7 +191,7 @@ abstract public class DatabaseAdapter
         return getDatabase(red).deleteRecord(red, entity);
     }
 
-    protected static int delete(Object entity, RecordDescriptor red, String... dbkeyfields)
+    protected static int deleteByExample(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
         return getDatabase(red).deleteRecord(red, entity, dbkeyfields);
     }

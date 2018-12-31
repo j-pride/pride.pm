@@ -75,7 +75,7 @@ public class QueryClient {
 	}
 
 	private static void printCustomers(ResultIterator ri) throws SQLException {
-		if (ri != null) {
+		if (!ri.isNull()) {
 		    do {
 		        System.out.println(ri.getObject());
 		    }
@@ -108,7 +108,7 @@ public class QueryClient {
 	private static void printAllCustomers() throws SQLException {
 		Customer customer = new Customer();
 		ResultIterator ri = customer.queryAll();
-		if (ri != null) {
+		if (!ri.isNull()) {
 		    do {
 		        System.out.println(customer);
 		    }

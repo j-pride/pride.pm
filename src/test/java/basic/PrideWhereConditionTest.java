@@ -135,7 +135,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 		ResultIterator ri = c.query(expression);
 		String lastFirstName = "ZZZ";
 		int lastId = 99999;
-		if (ri != null){
+		if (!ri.isNull()){
 		    do {
 		    	String firstName = c.getFirstName();
 		    	int id = c.getId();

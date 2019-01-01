@@ -26,23 +26,23 @@ public class Customer extends MappedObject implements Cloneable, java.io.Seriali
     private static String[] keyFields = new String[] { "id" };
     public String[] getKeyFields() { return keyFields; }
 
-    private long id;
+    private int id;
     private String name;
     private String firstName;
 
     // Read access functions
-    public long getId()   { return id; }
+    public int getId()   { return id; }
     public String getName()   { return name; }
     public String getFirstName()   { return firstName; }
 
     // Write access functions
-    public void setId(long id) { this.id = id; }
+    public void setId(int id) { this.id = id; }
     public void setName(String name) { this.name = name; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
 
 
     // Reconstructor
-    public Customer(long id) throws SQLException {
+    public Customer(int id) throws SQLException {
         setId(id);
         findx();
     }

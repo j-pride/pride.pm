@@ -14,12 +14,16 @@ import pm.pride.ResourceAccessor.Config;
 public class ResourceAccessorExampleConfig {
 	public static final String EXAMPLES_CONFIG_FILE_NAME = "config/pride.examples.config.properties";
 	
+	static ResourceAccessorJSE accessor;
+	
 	public static ResourceAccessor initPriDE() throws Exception {
-		Properties initProperties = assembleConfigFromFileAndSystemProperties();
-		ResourceAccessorJSE accessor = new ResourceAccessorJSE(initProperties);
-		DatabaseFactory.setResourceAccessor(accessor);
-		if (initProperties.containsKey(Config.DB)) {
-			DatabaseFactory.setDatabaseName(initProperties.getProperty(Config.DB));
+		if (accessor == null) {
+			Properties initProperties = assembleConfigFromFileAndSystemProperties();
+			accessor = new ResourceAccessorJSE(initProperties);
+			DatabaseFactory.setResourceAccessor(accessor);
+			if (initProperties.containsKey(Config.DB)) {
+				DatabaseFactory.setDatabaseName(initProperties.getProperty(Config.DB));
+			}
 		}
 		return accessor;
 	}

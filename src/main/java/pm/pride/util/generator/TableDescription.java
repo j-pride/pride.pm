@@ -22,30 +22,39 @@ import java.util.*;
 
 public class TableDescription {
 
-    protected Vector<TableColumn> tableList;
+	public static final String COLUMN_LIST_START = "(";
+	public static final String COLUMN_LIST_END = ")";
+	public static final String COLUMN_LIST_SEPARATOR = ",";
+	
+    protected List<TableColumn> columnList;
     protected String tableName;
+    protected boolean partial;
 
-	protected Vector<TableColumn> getColumns(DatabaseMetaData db_meta, String tableName) throws SQLException {
+	protected List<TableColumn> extractColumns(DatabaseMetaData db_meta, String tableName, List<String> columnsOfInterest)
+			throws SQLException {
 		ResultSet rset2 = db_meta.getColumns (null, //con.getCatalog (),
 											  null, //"*",
 											  tableName, "%");
-		Vector<TableColumn> result = new Vector<>(0);
+		List<TableColumn> result = new ArrayList<>(0);
 		while (rset2.next ()) {
-			TableColumn tabColumn =
-					new TableColumn(
-							tableName,
-							rset2.getString ("COLUMN_NAME"),
-							rset2.getInt ("DATA_TYPE"),
-							rset2.getInt ("DECIMAL_DIGITS"),
-							(rset2.getInt ("NULLABLE")== ResultSetMetaData.columnNoNulls));
-			result.addElement(tabColumn);
+			String columnName = rset2.getString ("COLUMN_NAME");
+			int dataType = rset2.getInt ("DATA_TYPE");
+			int decimalDigits = rset2.getInt ("DECIMAL_DIGITS");
+			boolean nullable = rset2.getInt ("NULLABLE")== ResultSetMetaData.columnNoNulls;
+			if (columnsOfInterest == null || columnsOfInterest.remove(columnName)) {
+				TableColumn tabColumn = new TableColumn(tableName, columnName, dataType, decimalDigits, nullable);
+				result.add(tabColumn);
+			}
 		}
 		rset2.close ();
 
+		if (columnsOfInterest != null && columnsOfInterest.size() > 0) {
+			throw new SQLException("Unknown columns in table " + tableName + ": " + columnsOfInterest);
+		}
 		return result;
 	}
 
-	protected void markKeyColumns(DatabaseMetaData db_meta, String tableName, Vector<TableColumn> columns) throws SQLException {
+	protected void markKeyColumns(DatabaseMetaData db_meta, String tableName, List<TableColumn> columns) throws SQLException {
 		ResultSet rset2 = db_meta.getPrimaryKeys(null, //con.getCatalog (),
 								                 null, //"*",
 								                 tableName);
@@ -65,35 +74,53 @@ public class TableDescription {
 	}
 
 	protected void init(Connection con, String tableName) throws SQLException {
-		this.tableName = tableName;
+		if (tableName.contains(COLUMN_LIST_START)) {
+			this.tableName = extractColumnsFromTableName(con, tableName);
+		}
+		else {
+			this.tableName = extractColumnsFromTableMetadata(con, tableName, null);
+		}
+	}
+	
+    private String extractColumnsFromTableName(Connection con, String tableName) throws SQLException {
+    	partial = true;
+    	String columnNamesString = tableName
+    			.replaceFirst(".+\\" + COLUMN_LIST_START, "")
+    			.replace(COLUMN_LIST_END, "")
+    			.replaceAll("\\s", "");
+    	String[] columnNames = columnNamesString.split(COLUMN_LIST_SEPARATOR);
+    	List<String> mutableColumnNameList = new ArrayList<>(Arrays.asList(columnNames));
+    	String cleanedTableName = tableName.replaceFirst("\\" + COLUMN_LIST_START + ".*\\" + COLUMN_LIST_END, "");
+    	return extractColumnsFromTableMetadata(con, cleanedTableName, mutableColumnNameList);
+	}
 
+	protected String extractColumnsFromTableMetadata(Connection con, String tableName, List<String> columnsOfInterest) throws SQLException {
 		DatabaseMetaData db_meta = con.getMetaData ();
 		String[] tbl_types = { "TABLE", "VIEW" };
 		ResultSet rset1 = db_meta.getTables (null, //con.getCatalog (),
 											 null, //"*",
 											 tableName,
 											 tbl_types);
-
-		while (rset1.next ()) {
-		  String tbl_name = rset1.getString ("TABLE_NAME");
-		  this.tableName = tbl_name; // Just in case there is something to normalize ;-)
-		  this.tableList = getColumns(db_meta, tbl_name);
-		  markKeyColumns(db_meta, tbl_name, tableList);
+		if (rset1.next()) {
+			tableName = rset1.getString ("TABLE_NAME"); // Just in case there is something to normalize ;-)
+			this.columnList = extractColumns(db_meta, tableName, columnsOfInterest);
+			markKeyColumns(db_meta, tableName, columnList);
 		}
 		rset1.close ();
+		return tableName;
 	}
-	
-    public TableDescription(Connection con, String tableName) throws SQLException {
+
+	public TableDescription(Connection con, String tableName) throws SQLException {
 		init(con, tableName);
-		if (tableList == null) {
+		if (columnList == null) {
 			init(con, tableName.toUpperCase());
-			if (tableList == null)
+			if (columnList == null)
 				throw new SQLException("Unknown table " + tableName);
 		}
     }
 
     public boolean hasPrimaryKey() {
-        for (TableColumn current: getList()) {
+        for (TableColumn current: getColumnList()) {
             if (current.isPrimaryKeyField())
                 return true;
         }
@@ -101,7 +128,7 @@ public class TableDescription {
     }
     
     /** Returns an enumerator for the table's columns in form of TableColumns objects */
-    public Vector<TableColumn> getList() { return tableList; }
+    public List<TableColumn> getColumnList() { return columnList; }
 
     /** Returns the plain table name */
     public String getTableName() { return tableName; }
@@ -110,4 +137,8 @@ public class TableDescription {
     public String getTableNameFirstUpper() {
         return tableName.substring(0,1).toUpperCase() + tableName.substring(1);
     }
+
+	public boolean isPartial() {
+		return partial;
+	}
 }

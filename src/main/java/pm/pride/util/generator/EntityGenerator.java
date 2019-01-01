@@ -41,6 +41,7 @@ public class EntityGenerator {
 	protected ClassLoader classLoader;
 	protected List<TableColumn> flatTableColumns;
 	protected TableDescription[] tableDesc;
+	protected boolean generateAbstractClass;
 	protected List<TableColumn> flatTableColumnList;
 	protected ResourceAccessor resourceAccessor;
 	protected String db;
@@ -182,6 +183,10 @@ public class EntityGenerator {
 		TableDescription[] tableDesc = new TableDescription[tableNames.length];
 		for (int i = 0; i < tableNames.length; i++) {
 			tableDesc[i] = new TableDescription(con, tableNames[i]);
+			if (tableDesc[i].isPartial() || i > 0) {
+				generateAbstractClass = true;
+			}
+				
 		}
 		return tableDesc;
 	}
@@ -216,9 +221,9 @@ public class EntityGenerator {
 		throws SQLException {
 		if (baseClassName == null) {
 			if (generateHybrid())
-				return "MappedObject<" + getSimpleClassName(entityClassName) + ">";
+				return "MappedObject";
 			else if (generateDBA())
-				return "ObjectAdapter<" + getSimpleClassName(entityClassName) + ">";
+				return "ObjectAdapter";
 			else
 				return null;
 		}
@@ -242,7 +247,11 @@ public class EntityGenerator {
         buffer.append("/**" + "\n");
         writeAuthor(desc, className, baseClassName, generationType, buffer);
         buffer.append(" */" + "\n");
-        buffer.append("public class " + getSimpleClassName(className) + " ");
+        if (generateAbstractClass) {
+            buffer.append("abstract ");
+        }
+        buffer.append("public ");
+        buffer.append("class " + getSimpleClassName(className) + " ");
         String actualBaseClassName = getBaseClassName(baseClassName, generationType);
         if (actualBaseClassName != null)
 			buffer.append("extends " + actualBaseClassName + " ");
@@ -260,7 +269,8 @@ public class EntityGenerator {
 		throws SQLException {
 		if (generationType.equals(BEAN))
 			return;
-		buffer.append("    public static final String TABLE = \"" + getTableName(tableNames) + "\";\n");
+		if (!generateAbstractClass)
+			buffer.append("    public static final String TABLE = \"" + getCommaSeparatedTableNames() + "\";\n");
 		Set<String> baseClassFields = extractMappedFields(baseClassName);
         for (TableColumn tableColumn: flatTableColumnList) {
 			if (baseClassFields.contains(tableColumn.getName()))
@@ -285,7 +295,8 @@ public class EntityGenerator {
 		buffer.append("    protected static final RecordDescriptor red = new RecordDescriptor" + "\n");
 		buffer.append("        (");
 		buffer.append(getSimpleClassName(generationType.equals(HYBRID) ? className : generationType));
-		buffer.append(".class, TABLE, ");
+		buffer.append(".class, ");
+		buffer.append(generateAbstractClass ? "null, " : "TABLE, ");
 		buffer.append(baseClassName != null ? baseClassName + ".red" : "null");
 		buffer.append(", new String[][] {" + "\n");
 		
@@ -307,10 +318,6 @@ public class EntityGenerator {
         buffer.append("        });" + "\n\n");
         buffer.append("    public RecordDescriptor getDescriptor() { return red; }" + "\n");
         buffer.append("\n");
-        if (!baseClassFields.isEmpty()) {
-        	throw new SQLException("Base class " + baseClassName + " maps field " +
-        						   baseClassFields.toArray()[0] + " which is not a member of derived class");
-        }
     }
 
 	public void writeEntityReference(TableDescription[] desc, String className, String baseClassName,
@@ -325,7 +332,7 @@ public class EntityGenerator {
 	}
 
 	private boolean hasPrimaryKey(TableDescription tdesc) {	
-		for(TableColumn current: tdesc.getList()) {
+		for(TableColumn current: tdesc.getColumnList()) {
 			if (current.isPrimaryKeyField())
 				return true;
 		}
@@ -341,7 +348,7 @@ public class EntityGenerator {
         if (desc.length == 1) {
             if (hasPrimaryKey(desc[0])) {
                 buffer.append("    private static String[] keyFields = new String[] { ");
-                for(TableColumn current: desc[0].getList()) {
+                for(TableColumn current: desc[0].getColumnList()) {
 					if (current.isPrimaryKeyField())
                     	buffer.append( toColumnConstant(current) + ",");
             	}
@@ -383,6 +390,8 @@ public class EntityGenerator {
 
 		buffer.append("    // Read access functions" + "\n");
 		for (TableColumn tableColumn: flatTableColumnList) {
+			if (baseClassFields.contains(tableColumn.getName()))
+				continue;
             buffer.append("    public " + tableColumn.getType()  + " get"
                     + tableColumn.getNameCamelCaseFirstUp() + "()   { return " + tableColumn.getNameCamelCaseFirstLow() + "; }" + "\n");
 			
@@ -397,8 +406,12 @@ public class EntityGenerator {
 		if (generateDBA())
 			return;
 
+		Set<String> baseClassFields = extractMappedFields(baseClassName);
+
 		buffer.append("    // Write access functions" + "\n");
 		for (TableColumn tableColumn: flatTableColumnList) {
+			if (baseClassFields.contains(tableColumn.getName()))
+				continue;
             buffer.append("    public void set" + tableColumn.getNameCamelCaseFirstUp() + "(" + tableColumn.getType()
                     + " " + tableColumn.getNameCamelCaseFirstLow() + ") { this." + tableColumn.getNameCamelCaseFirstLow() + " = " + tableColumn.getNameCamelCaseFirstLow() +
                     "; }" + "\n");
@@ -407,7 +420,7 @@ public class EntityGenerator {
         buffer.append("\n");
     }
 
-	public void writeToString(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {
+	public void writeToStringMethod(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {
 		if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
 			return;
 		// Something intelligent would be nice but is not yet implemented
@@ -434,7 +447,7 @@ public class EntityGenerator {
             return;
 		buffer.append("\n    // Re-constructor\n");
 		buffer.append("    public " + getSimpleClassName(className) + "(");
-		for (TableColumn current: desc.getList()) {
+		for (TableColumn current: desc.getColumnList()) {
 			if (current.isPrimaryKeyField())
                 buffer.append((current.getType() != null? current.getType(): "Object") + " " + current.getName() + ", ");
 		}
@@ -446,7 +459,7 @@ public class EntityGenerator {
     	buffer.append(" {\n");
 		if (baseClassName != null)
 			buffer.append("        super(");
-		for (TableColumn current: desc.getList()) {
+		for (TableColumn current: desc.getColumnList()) {
 			if (current.isPrimaryKeyField()) {
 				if (baseClassName == null)
 					buffer.append("        set" + current.getNameCamelCaseFirstUp() + "(" + current.getName() + ");\n");
@@ -458,7 +471,7 @@ public class EntityGenerator {
 			buffer.delete(buffer.lastIndexOf(","), buffer.length());
 			buffer.append(");\n");
 		}
-		if (generateHybrid()) {
+		if (generateHybrid() && baseClassName == null) {
 			buffer.append("        findx();\n");
 		}
 		buffer.append("    }\n");
@@ -470,7 +483,7 @@ public class EntityGenerator {
 	public void writeFooter(TableDescription[] desc, String className, String baseClassName,
 							String generationType, StringBuffer buffer) {
 		if (desc.length == 1) {
-			if (desc[0].getList().size() > 0)
+			if (desc[0].getColumnList().size() > 0)
 				writeReconstructor(desc[0], className, baseClassName, buffer);
 			buffer.append("\n");
 			if (!generateDBA()) {
@@ -478,7 +491,7 @@ public class EntityGenerator {
 			}
 		}
 		
-		writeToString(desc, className, generationType, buffer);
+		writeToStringMethod(desc, className, generationType, buffer);
 		writeClone(desc, className, baseClassName, generationType, buffer);
 		
 		buffer.append("}" + "\n");
@@ -488,7 +501,7 @@ public class EntityGenerator {
 	protected String getTableIdType(final TableDescription tabCols) {
 		String idType;
 
-		Vector<TableColumn> tableList = tabCols.getList();
+		List<TableColumn> tableList = tabCols.getColumnList();
 		if (tableList.size() > 0) {
 			TableColumn current = (TableColumn) tableList.get(0);
 			idType = current.getType();
@@ -514,13 +527,13 @@ public class EntityGenerator {
             return className;
 	}
 
-	protected String getTableName(String[] tables) {
-		StringBuffer buf = new StringBuffer(tables[0]);
-		for (int i = 1; i < tables.length; i++) {
+	protected String getCommaSeparatedTableNames() {
+		StringBuffer buf = new StringBuffer();
+		for (TableDescription desc: this.tableDesc) {
 			buf.append(",");
-			buf.append(tables[i]);
+			buf.append(desc.getTableName());
 		}
-		return buf.toString();
+		return buf.toString().substring(1);
 	}
 
 	protected List<TableColumn> flattenTableColumns(TableDescription[] tableDescriptions) {
@@ -529,7 +542,7 @@ public class EntityGenerator {
 		List<TableColumn> flatTableColumnList = new ArrayList<>();
 		
 		for (TableDescription tableDescription: tableDescriptions) {
-			for (TableColumn tableColumn: tableDescription.getList()) {
+			for (TableColumn tableColumn: tableDescription.getColumnList()) {
 				flatTableColumnList.add(tableColumn);
 				if (usedColumnNames.contains(tableColumn.getName())) {
 					notUniqueColumnNames.add(tableColumn.getName());

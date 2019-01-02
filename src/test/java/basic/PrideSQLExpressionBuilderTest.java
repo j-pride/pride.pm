@@ -17,6 +17,13 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 	private static final Object COLUMN_ACTIVATIONCHANNEL = "ACTIVATION_CHANNEL";
 	private static final Object COLUMN_PROMOTION_HEAD_ID = "PROMOTION_HEAD_ID";
 
+	
+	@Override
+	public void setUp() throws Exception {
+		// Avoid database initialization. We don't need anything like that here
+		// This speeds up the test dramatically
+	}
+
 	@Test
 	public void testSimpleExpression() {
         String result = SQL.build("@ONE, @TWO, @THREE, @ONE", "one", 2, 3);
@@ -24,11 +31,51 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 	}
 	
 	@Test
-	public void testMixedExpression() {
+	public void testMixed() {
         String result = SQL.build("@ONE, @TWO, @THREE, %s, @ONE", "one", 2, 3, "string");
 		assertEquals("one, 2, 3, string, one", result);
 	}
 
+	@Test
+	public void testMixedWithDecimal() {
+        String result = SQL.build("@ONE, @TWO, @THREE, %d, @ONE", "one", 2, "string", 3);
+		assertEquals("one, 2, string, 3, one", result);
+	}
+
+	@Test
+	public void testMixedWithPositionSpecs() {
+        String result = SQL.build("@ONE, %3$s, @TWO, %3$s, @ONE", "one", 2, 3);
+		assertEquals("one, 3, 2, 3, one", result);
+	}
+	
+	@Test
+	public void testWithPositionSpec() {
+        String result = SQL.build("@2$ONE, @1$TWO", "one", 2);
+		assertEquals("2, one", result);
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testSameNameDifferentPositions() {
+        SQL.build("@1$ONE @2$ONE", "irrelevant");
+	}
+	
+	@Test
+	public void testNameWithAndWithoutPosition() {
+		assertEquals("1 1", SQL.build("@1$ONE @ONE", 1));
+	}
+	
+	@Test
+	public void testNameWithPositionOverridesAllNamesWithout() {
+		assertEquals("1 2 2", SQL.build("@TWO @ONE @ONE", 1, 2));
+		assertEquals("1 1 1", SQL.build("@TWO @ONE @1$ONE", 1, 2));
+		assertEquals("1 1 1 1", SQL.build("@TWO @ONE @1$ONE @ONE", 1, 2));
+	}
+	
+	@Test
+	public void testDifferentNamesSamePosition() {
+		assertEquals("1 1", SQL.build("@1$ONE @1$TWO", 1));
+	}
+	
 	@Test
 	public void testRealisticExample() {
 		String fromClause = SQL.build(

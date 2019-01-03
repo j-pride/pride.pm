@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  * than by index. Names are indicated by a leading @ character, i.e. you may as well combine
  * % expressions from String.format with @ expressions from SQLExpressionFormatter. The names
  * are read from the format string and are replaced by their indices according to there
- * occurence. E.g. the string
+ * occurrence. E.g. the string
  * <pre>
  * "where @PROMOTION_TABLE.@ID = @CAMPAIGN_TABLE.@ID"
  * </pre>
@@ -51,7 +51,7 @@ import java.util.regex.Pattern;
  */
 public class SQLExpressionBuilder {
     public static String VARIABLE_HEAD = "@";
-    public static String VARIABLE_REFERENCE_REGEXP = VARIABLE_HEAD + "((\\d+)\\$)?([A-Za-z_]+)";
+    public static String VARIABLE_REFERENCE_REGEXP = VARIABLE_HEAD + "(([0-9]+)\\$)?([A-Za-z_]+)";
 
     static String format(String formatString, Object... args) {
         List<VariableReference> variables = extractVariables(formatString);

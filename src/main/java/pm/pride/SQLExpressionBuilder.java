@@ -53,13 +53,45 @@ public class SQLExpressionBuilder {
     public static String VARIABLE_HEAD = "@";
     public static String VARIABLE_REFERENCE_REGEXP = VARIABLE_HEAD + "(([0-9]+)\\$)?([A-Za-z_]+)";
 
-    static String format(String formatString, Object... args) {
+    public static Validation validationDefault = Validation.None;
+    protected Validation validation;
+    
+    public SQLExpressionBuilder() { this(validationDefault); }
+    
+    public SQLExpressionBuilder(Validation validation) {
+    	this.validation = validation;
+    }
+    
+    public String format(String formatString, Object... args) {
         List<VariableReference> variables = extractVariables(formatString);
+        if (validation != Validation.None)
+        	validateVariableNames(validation, variables, args);
         formatString = replaceVariables(formatString, variables);
         return String.format(formatString, args);
     }
 
-    private static String replaceVariables(String formatString, List<VariableReference> variables) {
+    protected void validateVariableNames(Validation validation, List<VariableReference> variables, Object[] args) {
+    	for (VariableReference variable: variables) {
+    		if (args.length < variable.index)
+    			throw new IllegalArgumentException("Variable " + variable.variableName + " has number " + variable.index +
+    					" but there were only " + args.length + " arguments passed");
+    		boolean namesMatch = validation.caseSensitive() ?
+    				variable.variableName.equals(args[variable.index-1].toString()) :
+        			variable.variableName.equalsIgnoreCase(args[variable.index-1].toString());
+    		if (!namesMatch) {
+    			String message = "Variable " + variable.variableName + " does not match argument " + variable.index +
+    					 " with value '" + args[variable.index-1] + "'";
+    			if (validation.warning()) {
+    				System.err.println(message);
+    			}
+    			else {
+    				throw new IllegalArgumentException(message);
+    			}
+    		}
+    	}
+	}
+
+	protected String replaceVariables(String formatString, List<VariableReference> variables) {
         // Sort list by variable name length in descending order, so that e.g.
     	// @PROMOTIONS_PARTNER will not be replaced by dmd_promotionS_PARTNER because there is a variable
     	// @PROMOTION present too
@@ -77,7 +109,7 @@ public class SQLExpressionBuilder {
         return formatString;
     }
 
-    private static List<VariableReference> extractVariables(String formatString) {
+    protected List<VariableReference> extractVariables(String formatString) {
         Map<String, VariableReference> variables = new HashMap<>();
         Pattern pattern = Pattern.compile(VARIABLE_REFERENCE_REGEXP);
         Matcher matcher = pattern.matcher(formatString);
@@ -98,7 +130,7 @@ public class SQLExpressionBuilder {
         return new ArrayList<VariableReference>(variables.values());
     }
 
-    private static class VariableReference implements Comparable<VariableReference> {
+    protected static class VariableReference implements Comparable<VariableReference> {
         final int index;
         final String variableName;
         final boolean indexFromName;
@@ -132,12 +164,15 @@ public class SQLExpressionBuilder {
         public String toString() { return variableName + "(" + index + ")"; }
     }
     
-    public static void main(String[] args) {
-        Pattern pattern = Pattern.compile(VARIABLE_REFERENCE_REGEXP);
-        Matcher matcher = pattern.matcher("@ONE @1$ONE @01$ONE @f$ONE");
-		while(matcher.find()) {
-			System.out.println(matcher.group(0) + " / " + matcher.group(1) +
-					" / " + matcher.group(2) + " / " + matcher.group(3));
-		}
-	}
+    public enum Validation {
+    	None,
+    	WarningCaseSensitive,
+    	ExceptionCaseSensitive,
+    	WarningCaseInsensitive,
+    	ExceptionCaseInsensitive;
+    	
+    	boolean caseSensitive() { return this == WarningCaseSensitive || this == Validation.ExceptionCaseSensitive; }
+    	boolean warning() { return this == WarningCaseSensitive || this == Validation.WarningCaseInsensitive; }
+    }
+    
 }

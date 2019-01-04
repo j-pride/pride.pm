@@ -3,6 +3,8 @@ package basic;
 import org.junit.Test;
 
 import pm.pride.SQL;
+import pm.pride.SQLExpressionBuilder;
+import static pm.pride.SQLExpressionBuilder.Validation.*;
 
 public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 
@@ -74,6 +76,31 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 	@Test
 	public void testDifferentNamesSamePosition() {
 		assertEquals("1 1", SQL.build("@1$ONE @1$TWO", 1));
+	}
+	
+	@Test
+	public void testNoExceptionOnMatchingNamesCaseInsensitive() {
+		SQL.buildx("@ONE", "One");
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testExceptionOnWrongName() {
+		SQL.buildx("@ONE", "ON");
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testNotEnoughArguments() {
+		SQL.buildx("@ONE");
+	}
+	
+	@Test(expected=IllegalArgumentException.class)
+	public void testExceptionOnWrongNameCaseInsensitive() {
+		new SQLExpressionBuilder(ExceptionCaseSensitive).format("@ONE", "One");
+	}
+	
+	@Test
+	public void testWarningOnWrongNameCaseInsensitive() {
+		new SQLExpressionBuilder(WarningCaseSensitive).format("@ONE", "One");
 	}
 	
 	@Test

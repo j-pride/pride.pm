@@ -29,7 +29,12 @@ public class SQL {
 	
 	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionBuilder#format(String, Object...)} */
 	public static String build(String formatString, Object... args) {
-		return SQLExpressionBuilder.format(formatString, args);
+		return new SQLExpressionBuilder().format(formatString, args);
+	}
+	
+	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionBuilder#format(String, Object...)} */
+	public static String buildx(String formatString, Object... args) {
+		return new SQLExpressionBuilder(SQLExpressionBuilder.Validation.ExceptionCaseInsensitive).format(formatString, args);
 	}
 	
 	public interface Formatter {

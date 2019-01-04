@@ -91,8 +91,8 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 	@Test(expected=IllegalArgumentException.class)
 	public void testExceptionOnWrongNameByChangedDefault() {
 		try {
-			SQLExpressionBuilder.validationDefault = ExceptionCaseInsensitive;
-			SQL.build("@ONE", "ON");
+			SQLExpressionBuilder.validationDefault = ExceptionCaseSensitive;
+			SQL.build("@ONE", "one");
 		}
 		finally {
 			SQLExpressionBuilder.validationDefault = None;

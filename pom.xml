@@ -4,7 +4,8 @@
     <groupId>pm.pride</groupId>
     <artifactId>pride</artifactId>
     <packaging>jar</packaging>
-    <version>3.1-SNAPSHOT</version>
+    <version>3.2.0</version>
+    <!-- <version>3.3-SNAPSHOT</version> -->
     <name>pride</name>
     <description>World's smallest O/R mapper for Java</description>
     <url>http://pride.pm</url>
@@ -51,26 +52,6 @@
     <build>
         <plugins>
         
-        	<!-- Following plugin is required to add an additional source folder for example code snippets in the build process -->
-			<plugin>
-			    <groupId>org.codehaus.mojo</groupId>
-			    <artifactId>build-helper-maven-plugin</artifactId>
-			    <version>3.0.0</version>
-			    <executions>
-			        <execution>
-			            <phase>generate-test-sources</phase>
-			            <goals>
-			                <goal>add-test-source</goal>
-			            </goals>
-			            <configuration>
-			                <sources>
-			                    <source>src/examples/java</source>
-			                </sources>
-			            </configuration>
-			        </execution>
-			    </executions>
-			</plugin>
-			
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
@@ -135,11 +116,6 @@
 		      </executions>
 		    </plugin>
 		    
-			<!--
-			Javadocs müssen erst vervollstaendigt werden - sonst jammert das Plugin ganz heftig durch die Gegend
-			Man kann Maven mit -Dmaven.javadoc.skip=true aufrufen, um die Javadoc-Generierung zu umgehen. Das Plugin
-			ist hier aber erstmal auskommentiert, damit Travis CI nicht weinen muss
-			-->
 		    <plugin>
 		      <groupId>org.apache.maven.plugins</groupId>
 		      <artifactId>maven-javadoc-plugin</artifactId>

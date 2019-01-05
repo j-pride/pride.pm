@@ -195,6 +195,7 @@
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.2.5</version>
+		    <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.jdbc</groupId>
@@ -206,6 +207,7 @@
 		  <groupId>org.xerial</groupId>
 		  <artifactId>sqlite-jdbc</artifactId>
 		  <version>3.25.2</version>
+		  <scope>test</scope>
 		</dependency>
     </dependencies>
 </project>

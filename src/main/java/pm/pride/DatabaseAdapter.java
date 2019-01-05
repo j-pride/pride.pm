@@ -103,7 +103,7 @@ abstract public class DatabaseAdapter
         return (getDatabase(red).queryByExample(red, false, entity, where) != null);
     }
 
-    /** Like {@link #find(Object, RecordDescriptor, String)} but reports a missing match by
+    /** Like {@link #find(Object, RecordDescriptor, String, Object...)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
      * {@link #findx(Object, RecordDescriptor, String[])}.
      */

@@ -18,8 +18,6 @@ import java.util.List;
 /** This is the base for two different flavors of {@link DatabaseAdapter}s. The
  * {@link ObjectAdapter} which provides an entity fpr alle mapping functions
  * and the {@link MappedObject} which maps itself.
- *
- * @param <E> The type of entity to be mapped
  */
 public interface DatabaseAdapterMixin {
 	

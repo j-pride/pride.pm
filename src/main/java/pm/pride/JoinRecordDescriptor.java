@@ -183,7 +183,11 @@ public class JoinRecordDescriptor extends RecordDescriptor {
 		}
         return names;
     }
-    private String getColumnAlias(String tableAlias, String column) {
+	
+    @Override
+	protected String getTablePrefix() { return tableAlias; }
+
+	private String getColumnAlias(String tableAlias, String column) {
         String alias = tableAlias + "_" + column;
         String result = columnNames.get(alias);
         if (result == null) {

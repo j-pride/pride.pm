@@ -278,14 +278,17 @@ public class RecordDescriptor
             // Nothing to be done here. The field was not found in the base
             // descriptor but probably occurs in the current one
         }
+        String tablePrefix = getTablePrefix();
         for (int i = 0; i < attrDescriptors.length; i++) {
             if (attrDescriptors[i].getFieldName().equals(dbfield))
-                return attrDescriptors[i].assembleWhereValue(obj, byLike, withBind);
+                return attrDescriptors[i].assembleWhereValue(obj, tablePrefix, byLike, withBind);
         }
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
 
-    /** Similar to function above but instead writes the value into a passed
+    protected String getTablePrefix() { return null; }
+
+	/** Similar to function above but instead writes the value into a passed
      * {@link PreparedOperation}.
      * @param obj the value object from which to take the value from
      * @param dbfield the field to fetch the value for
@@ -342,8 +345,9 @@ public class RecordDescriptor
 	public WhereCondition assembleWhereCondition(Object obj, String[] dbfields, boolean byLike)
 		throws ReflectiveOperationException {
 		WhereCondition condition = new WhereCondition();
-        if (dbfields == null)
+        if (dbfields == null) {
             dbfields = getPrimaryKeyFields();
+        }
         for (int i = 0; i < dbfields.length; i++) {
         	WhereFieldCondition fieldCondition = assembleWhereValue(obj, dbfields[i], byLike, condition.bind);
         	condition = condition.and(fieldCondition);
@@ -351,7 +355,7 @@ public class RecordDescriptor
 		return condition;
 	}
 	
-    /** Similar to function above but instead writes the values into a passed
+	/** Similar to function above but instead writes the values into a passed
      * {@link PreparedOperation}.
      * @param obj the value object from which to take the constraint values
      * @param dbfields the database fields for which to take a

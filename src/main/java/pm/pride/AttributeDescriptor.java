@@ -213,13 +213,25 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         return getFieldName() + " " + operator + " " + strval;
     }
 
-	public WhereFieldCondition assembleWhereValue(Object obj, boolean byLike, Boolean withBind)
+	public WhereFieldCondition assembleWhereValue(Object obj, String defaultAliasPrefix, boolean byLike, Boolean withBind)
 		throws ReflectiveOperationException {
         Object val = getValue(obj);
         String operator = byLike ? LIKE : EQUAL;
-		return new WhereFieldCondition(null, withBind, getFieldName(), operator, val);
+        String fieldName = getFieldNameWithAliasPrefix(defaultAliasPrefix);
+		return new WhereFieldCondition(null, withBind, fieldName, operator, val);
 	}
-	
+
+	/** Allows to use the column names of the primary RecordDescriptor's of a JoinRecordDescriptor
+	 * in a query by example resp. find operation without providing a table alias prefix. This is
+	 * of interest for entity compositions - the entity base class' query functions should still work */
+	protected String getFieldNameWithAliasPrefix(String defaultAliasPrefix) {
+        String fieldName = getFieldName();
+        if (defaultAliasPrefix != null && !fieldName.contains(".")) {
+        	fieldName = defaultAliasPrefix + "." + fieldName;
+        }
+		return fieldName;
+	}
+
 	/** Fetch a value from a database result set according to this
 	 * descriptor's extraction mode. If mode is ExtractionMode.AUTO or NAME
 	 * extract the field value by name. If the extraction causes an InvocationTargetExtraction

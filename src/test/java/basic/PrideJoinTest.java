@@ -10,6 +10,8 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 
+import java.util.List;
+
 import org.junit.Assume;
 import org.junit.Test;
 
@@ -48,6 +50,14 @@ public class PrideJoinTest extends AbstractPrideTest {
 
         assertEquals(8, nowife);
         assertTrue(firstFound);
+    }
+
+    @Test
+    public void testOuterJoinByExampleWithAliasPrefixAutomaticallyAdded() throws Exception {
+        JoinedCustomer jc = new JoinedCustomer();
+        jc.setLastName("Customer");
+    	List<JoinedCustomer> results = jc.queryByExample("lastName").toList(JoinedCustomer.class);
+    	assertEquals(2, results.size()); // First married with Last, Last married with noone
     }
 
     @Test

@@ -43,6 +43,7 @@ public class RecordDescriptor
     protected Class<?> objectType;
     protected String dbContext;
     protected String dbtable;
+    protected String dbtableAlias;
     protected AttributeDescriptor[] attrDescriptors;
     protected RecordDescriptor baseDescriptor;
     protected boolean withBind;
@@ -68,19 +69,21 @@ public class RecordDescriptor
     /** Creates a new mapping descriptor
      * @param objectType JAVA object type being mapped by the descriptor
      * @param dbtable Database table to refer to
-     * @param attributeMap Description of field mappings used to instantiate
-     *   {@link AttributeDescriptor}s. Each inner array is passed as parameter
-     *   <code>attrInfo</code> to the {@link AttributeDescriptor#AttributeDescriptor
+     * @param dbtableAlias an optional alias for the table name. This is especially of interest for descriptors of
+     *   composite types from joins
+     * @param attributeMap Description of field mappings used to instantiate {@link AttributeDescriptor}s. Each
+     *   inner array is passed as parameter <code>attrInfo</code> to the {@link AttributeDescriptor#AttributeDescriptor
      *   constructor of AttributeDescriptor}.
      * @param extractionMode The ResultSet extraction mode according to the constants
      *   defined in interface {@link ExtractionMode}.
      */
-    public RecordDescriptor(Class objectType, String dbContext, String dbtable,
+    public RecordDescriptor(Class objectType, String dbContext, String dbtable, String dbtableAlias,
 			    RecordDescriptor baseDescriptor, String[][] attributeMap, int extractionMode)
 		throws IllegalDescriptorException {
         this.objectType = objectType;
         this.dbContext = dbContext;
         this.dbtable = dbtable;
+        this.dbtableAlias = dbtableAlias;
         this.baseDescriptor = baseDescriptor;
         if (attributeMap != null) {
             attrDescriptors = new AttributeDescriptor[attributeMap.length];
@@ -98,22 +101,22 @@ public class RecordDescriptor
     public RecordDescriptor(Class<?> objectType, String dbtable,
 		RecordDescriptor baseDescriptor, String[][] attributeMap)
 		throws IllegalDescriptorException {
-        this(objectType, null, dbtable, baseDescriptor, attributeMap);
+        this(objectType, null, dbtable, null, baseDescriptor, attributeMap);
     }
 
 	/** Creates a new mapping descriptor like constructor above
 	 * but always uses the current DB context of {@link DatabaseFactory}.
 	 */
-	public RecordDescriptor(Class<?> objectType, String dbtable,
+	public RecordDescriptor(Class<?> objectType, String dbtable, String dbtableAlias,
 		RecordDescriptor baseDescriptor, String[][] attributeMap, int extractionMode)
 		throws IllegalDescriptorException {
-		this(objectType, null, dbtable, baseDescriptor, attributeMap, extractionMode);
+		this(objectType, null, dbtable, dbtableAlias, baseDescriptor, attributeMap, extractionMode);
 	}
 
-	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable,
+	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
 		RecordDescriptor baseDescriptor, String[][] attributeMap)
 		throws IllegalDescriptorException {
-		this(objectType, dbContext, dbtable, baseDescriptor, attributeMap, ExtractionMode.AUTO);
+		this(objectType, dbContext, dbtable, dbtableAlias, baseDescriptor, attributeMap, ExtractionMode.AUTO);
 	}
 
     /**
@@ -131,6 +134,7 @@ public class RecordDescriptor
         objectType = red.objectType;
         dbContext = red.dbContext;
         dbtable = (altTable == null) ? red.dbtable : altTable;
+        dbtableAlias = alias;
         
         if (alias != null) {
             if (altTable == null) // Don't apply alias on explicite alternate table name
@@ -278,10 +282,9 @@ public class RecordDescriptor
             // Nothing to be done here. The field was not found in the base
             // descriptor but probably occurs in the current one
         }
-        String tablePrefix = getTablePrefix();
         for (int i = 0; i < attrDescriptors.length; i++) {
-            if (attrDescriptors[i].getFieldName().equals(dbfield))
-                return attrDescriptors[i].assembleWhereValue(obj, tablePrefix, byLike, withBind);
+            if (attrDescriptors[i].matches(dbtableAlias, dbfield))
+                return attrDescriptors[i].assembleWhereValue(obj, dbtableAlias, byLike, withBind);
         }
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
@@ -473,11 +476,26 @@ public class RecordDescriptor
      */
     public String getFieldNames(String[] excludeAttrs) {
         String names = (baseDescriptor != null) ? baseDescriptor.getFieldNames(excludeAttrs) : "";
-        for (int i = 0; i < attrDescriptors.length; i++) {
-        	if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false))
-            	names += "," + attrDescriptors[i].getFieldName();
-		}
+        names += getFieldNames(dbtableAlias, attrDescriptors, excludeAttrs);
         return trim(names);
+    }
+
+    protected String getFieldNames(String alias, AttributeDescriptor[] attrDescriptors, String[] excludeAttrs) {
+        String names = "";
+        for (int i = 0; i < attrDescriptors.length; i++) {
+            if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false)) {
+                names += "," + getFieldName(alias, attrDescriptors[i]);
+            }
+        }
+        return names;
+    }   
+
+    protected String getFieldName(String alias, AttributeDescriptor attrdesc) {
+    	String fullFieldName = attrdesc.getFieldName();
+    	if (alias != null && !fullFieldName.contains(".")) {
+    		fullFieldName = alias + "." + fullFieldName;
+    	}
+    	return fullFieldName;
     }
 
     /** Returns the list of fields to be looked up in a query, which is by

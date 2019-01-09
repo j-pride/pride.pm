@@ -13,16 +13,14 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     public static final int MAX_ALIAS_NAME_LENGTH = 30;
     
     private List<Join> joins = new ArrayList<Join>();
-    private String tableAlias;
     private RecordDescriptor base;
     private Map<String,String> columnNames = new HashMap<String,String>();
     private int columnCounter = 0;
     
     public JoinRecordDescriptor(RecordDescriptor baseDescriptor, String tableAlias) throws IllegalDescriptorException {
-        super(baseDescriptor.getObjectType(),
+        super(baseDescriptor.getObjectType(), null,
                 baseDescriptor.getTableName() + " " +  tableAlias,
-                null, null);
-        this.tableAlias = tableAlias;
+                tableAlias, null, null);
         this.base = baseDescriptor;
         init();
     }
@@ -79,7 +77,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     @Override
     public String getFieldNames(String[] excludeAttrs) {
         String names = (baseDescriptor != null) ? baseDescriptor.getFieldNames(excludeAttrs) : "";
-        names += getFieldNames(tableAlias, attrDescriptors, excludeAttrs);
+        names += getFieldNames(dbtableAlias, attrDescriptors, excludeAttrs);
         
         for (Join join : joins) {
             names += getFieldNames(join.getAlias(), join.getAttributeDescriptors(), excludeAttrs);
@@ -88,15 +86,10 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         return trim(names);
     }
     
-    private String getFieldNames(String alias, AttributeDescriptor[] attrDescriptors, String[] excludeAttrs) {
-        String names = ""; 
-        for (int i = 0; i < attrDescriptors.length; i++) {
-            if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false)) {
-                names += "," + alias + "." + attrDescriptors[i].getFieldName() + " as " + getColumnAlias(alias, attrDescriptors[i].getFieldName());
-            }
-        }
-        return names;
-    }   
+    protected String getFieldName(String alias, AttributeDescriptor attrdesc) {
+    	String fullFieldName = super.getFieldName(alias, attrdesc);
+    	return fullFieldName  + " as " + getColumnAlias(alias, attrdesc.getFieldName());
+    }
 
     /**
      * Returns the total number of attributes being mapped by this
@@ -184,9 +177,6 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         return names;
     }
 	
-    @Override
-	protected String getTablePrefix() { return tableAlias; }
-
 	private String getColumnAlias(String tableAlias, String column) {
         String alias = tableAlias + "_" + column;
         String result = columnNames.get(alias);

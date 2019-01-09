@@ -232,6 +232,19 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 		return fieldName;
 	}
 
+	/** Allows to use the column names of the primary RecordDescriptor's of a JoinRecordDescriptor
+	 * in a query by example resp. find operation without providing a table alias prefix. This is
+	 * of interest for entity compositions - the entity base class' query functions should still work */
+	public boolean matches(String defaultAliasPrefix, String dbfield) {
+		if (databaseFieldName.equals(dbfield))
+			return true;
+		if (defaultAliasPrefix != null && !dbfield.contains(".")) {
+			dbfield = defaultAliasPrefix + "." + dbfield;
+			return databaseFieldName.equals(dbfield);
+		}
+		return false;
+	}
+
 	/** Fetch a value from a database result set according to this
 	 * descriptor's extraction mode. If mode is ExtractionMode.AUTO or NAME
 	 * extract the field value by name. If the extraction causes an InvocationTargetExtraction
@@ -368,50 +381,4 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         return new String[] { databaseFieldName, fieldAccess.getterName(), fieldAccess.setterName(), revisioning ? FLAG_IS_REVISIONED : FLAG_IS_NOT_REVISIONED};
     }
     
-    public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/AttributeDescriptor.java-arc   1.2   06 Sep 2002 14:54:18   math19  $";
-
 }
-
-/* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/AttributeDescriptor.java-arc  $
- * 
- *    Rev 1.2   06 Sep 2002 14:54:18   math19
- * Now use new SQLFormatter interface.
- * 
- *    Rev 1.0   Jun 05 2002 16:18:40   math19
- * Initial revision.
-/* Revision 1.12  2001/08/08 14:04:23  lessner
-/* *** empty log message ***
-/*
-/* Revision 1.11  2001/08/06 15:55:47  lessner
-/* Minor refactoring
-/*
-/* Revision 1.10  2001/07/30 07:33:34  lessner
-/* Support for NULL values is where clauses
-/*
-/* Revision 1.9  2001/07/27 14:00:51  hollendung
-/* bugfixing
-/*
-/* Revision 1.8  2001/07/24 11:47:05  lessner
-/* Support for wildcard search added
-/*
-/* Revision 1.7  2001/07/09 08:38:24  kessels
-/* use insert with table columns
-/*
-/* Revision 1.6  2001/07/02 06:44:55  kessels
-/* *** empty log message ***
-/*
-/* Revision 1.5  2001/06/25 07:06:46  lessner
-/* Updated database access framework, supporting extended generic attributes
-/*
-/* Revision 1.4  2001/06/21 22:19:46  lessner
-/* New functions in database package allow simple queries for single objects
-/*
-/* Revision 1.3  2001/06/19 21:17:37  lessner
-/* creation of database records added to DB framework
-/*
-/* Revision 1.2  2001/06/19 20:56:06  lessner
-/* several improvements
-/*
-/* Revision 1.1.1.1  2001/06/19 09:20:24  lessner
-/* XBCSetup Project Directory
- */

@@ -40,7 +40,7 @@ public class RecordDescriptor
 		public static final int INDEX = 2;
 	};
 	
-    protected Class objectType;
+    protected Class<?> objectType;
     protected String dbContext;
     protected String dbtable;
     protected AttributeDescriptor[] attrDescriptors;
@@ -95,7 +95,7 @@ public class RecordDescriptor
      * but always uses the current DB context of {@link DatabaseFactory}
      * and auto extraction mode.
      */
-    public RecordDescriptor(Class objectType, String dbtable,
+    public RecordDescriptor(Class<?> objectType, String dbtable,
 		RecordDescriptor baseDescriptor, String[][] attributeMap)
 		throws IllegalDescriptorException {
         this(objectType, null, dbtable, baseDescriptor, attributeMap);
@@ -104,13 +104,13 @@ public class RecordDescriptor
 	/** Creates a new mapping descriptor like constructor above
 	 * but always uses the current DB context of {@link DatabaseFactory}.
 	 */
-	public RecordDescriptor(Class objectType, String dbtable,
+	public RecordDescriptor(Class<?> objectType, String dbtable,
 		RecordDescriptor baseDescriptor, String[][] attributeMap, int extractionMode)
 		throws IllegalDescriptorException {
 		this(objectType, null, dbtable, baseDescriptor, attributeMap, extractionMode);
 	}
 
-	public RecordDescriptor(Class objectType, String dbContext, String dbtable,
+	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable,
 		RecordDescriptor baseDescriptor, String[][] attributeMap)
 		throws IllegalDescriptorException {
 		this(objectType, dbContext, dbtable, baseDescriptor, attributeMap, ExtractionMode.AUTO);

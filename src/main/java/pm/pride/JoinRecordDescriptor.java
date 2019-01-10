@@ -26,10 +26,8 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     }
 
     private void init() {
-        List<AttributeDescriptor> elements = new ArrayList<AttributeDescriptor>();
-        extractAttributeDescriptors(elements, base);
-                
-        attrDescriptors = elements.toArray(new AttributeDescriptor[0]);
+        attrDescriptors = new ArrayList<AttributeDescriptor>();
+        extractAttributeDescriptors(attrDescriptors, base);
     }
 
     public JoinRecordDescriptor join(RecordDescriptor joinDescriptor, String joinName, String propertyName, String joinOnExpression) {
@@ -62,8 +60,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
 
 
     private void extractAttributeDescriptors(List<AttributeDescriptor> elements, RecordDescriptor red) {
-        AttributeDescriptor[] desc = red.attrDescriptors;
-        elements.addAll(Arrays.asList(desc));
+        elements.addAll(red.attrDescriptors);
         if (red.baseDescriptor != null) {
             extractAttributeDescriptors(elements, red.baseDescriptor);
         }
@@ -99,7 +96,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
      */
     @Override
     public int totalAttributes() {
-        int attribs = attrDescriptors.length +
+        int attribs = attrDescriptors.size() +
            ((baseDescriptor != null) ? baseDescriptor.totalAttributes() : 0);
         //FIXME joins
         return attribs;
@@ -127,8 +124,8 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         if (baseDescriptor != null)
             position = baseDescriptor.record2object(obj, results, position);
         
-        for (int i = 0; i < attrDescriptors.length; i++)
-            position = record2object(obj, results, position, attrDescriptors[i]);
+        for (AttributeDescriptor attrDesc: attrDescriptors)
+            position = record2object(obj, results, position, attrDesc);
         
             for (Join join : joins) {
                 position = record2child(join, obj, results, position);
@@ -147,15 +144,14 @@ public class JoinRecordDescriptor extends RecordDescriptor {
                 child = join.provideChild(parent);
                 childAccess.set(obj, child);
             }
-            AttributeDescriptor[] desc = join.getAttributeDescriptors();
-            for (int i = 0; i < desc.length; i++) {
-                position = record2object(child, results, position, desc[i]);
+            for (AttributeDescriptor attrDesc: join.getAttributeDescriptors()) {
+                position = record2object(child, results, position, attrDesc);
             }
         }
         else {
             if (childAccess.getDirectOwner(obj) != null)
                 childAccess.set(obj, null);
-            position += join.getAttributeDescriptors().length;
+            position += join.getAttributeDescriptors().size();
         }
         return position;
     }
@@ -199,7 +195,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     }
 
     public class Join {
-        private AttributeDescriptor[] attributeDescriptors;
+        private List<AttributeDescriptor> attributeDescriptors;
         protected String alias;
         protected String joinOnExpression;
         private String propertyName;
@@ -216,10 +212,9 @@ public class JoinRecordDescriptor extends RecordDescriptor {
             this.alias = alias;
             this.joinDescriptor = joinDescriptor;
 
-            List<AttributeDescriptor> elements = new ArrayList<AttributeDescriptor>();
-            extractAttributeDescriptors(elements, joinDescriptor);
+            this.attributeDescriptors = new ArrayList<AttributeDescriptor>();
+            extractAttributeDescriptors(attributeDescriptors, joinDescriptor);
 
-            this.attributeDescriptors = elements.toArray(new AttributeDescriptor[0]);
             this.objectType = joinDescriptor.getObjectType();
             this.primaryKeyFields = getColumnAlias(alias, joinDescriptor.getPrimaryKeyFields());;
         }
@@ -231,7 +226,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
             return propertyAccess;
         }
 
-        public AttributeDescriptor[] getAttributeDescriptors() {
+        public List<AttributeDescriptor> getAttributeDescriptors() {
             return attributeDescriptors;
         }
 

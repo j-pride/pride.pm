@@ -44,7 +44,7 @@ public class RecordDescriptor
     protected String dbContext;
     protected String dbtable;
     protected String dbtableAlias;
-    protected AttributeDescriptor[] attrDescriptors;
+    protected List<AttributeDescriptor> attrDescriptors;
     protected RecordDescriptor baseDescriptor;
     protected boolean withBind;
 
@@ -85,13 +85,13 @@ public class RecordDescriptor
         this.dbtable = dbtable;
         this.dbtableAlias = dbtableAlias;
         this.baseDescriptor = baseDescriptor;
+        attrDescriptors = new ArrayList<>();
         if (attributeMap != null) {
-            attrDescriptors = new AttributeDescriptor[attributeMap.length];
-            for (int i = 0; i < attributeMap.length; i++)
-                attrDescriptors[i] = new AttributeDescriptor(objectType, attributeMap[i], extractionMode);
+            for (String[] rawAttributeDesc: attributeMap) {
+            	AttributeDescriptor attributeDesc = new AttributeDescriptor(objectType, rawAttributeDesc, extractionMode);
+            	attrDescriptors.add(attributeDesc);
+            }
         }
-        else
-            attrDescriptors = new AttributeDescriptor[0];
     }
 
     /** Creates a new mapping descriptor like constructor above
@@ -145,9 +145,11 @@ public class RecordDescriptor
                 baseDescriptor = new RecordDescriptor(red.baseDescriptor, alias);
             else
                 baseDescriptor = null;
-            attrDescriptors = new AttributeDescriptor[red.attrDescriptors.length];
-            for (int a = 0; a < attrDescriptors.length; a++)
-                attrDescriptors[a] = new AttributeDescriptor(red.attrDescriptors[a], alias);
+            attrDescriptors = new ArrayList<>();
+            for (AttributeDescriptor sourceDesc: red.attrDescriptors) {
+            	AttributeDescriptor attributeDesc = new AttributeDescriptor(sourceDesc, alias);
+            	attrDescriptors.add(attributeDesc);
+            }
         }
         else {
             baseDescriptor = red.baseDescriptor;
@@ -162,7 +164,7 @@ public class RecordDescriptor
      * @return The number of mapped attributes
      */
     public int totalAttributes() {
-        return attrDescriptors.length +
+        return attrDescriptors.size() +
            ((baseDescriptor != null) ? baseDescriptor.totalAttributes() : 0);
     }
     
@@ -181,12 +183,12 @@ public class RecordDescriptor
     @Deprecated
     public String getPrimaryKeyField() {
         return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyField() :
-            attrDescriptors[0].getFieldName();
+            attrDescriptors.get(0).getFieldName();
     }
 
     public String[] getPrimaryKeyFields() {
         return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyFields() :
-            new String[]{attrDescriptors[0].getFieldName()};
+            new String[]{attrDescriptors.get(0).getFieldName()};
     }
 
 	public int record2object(Object obj, ResultSet results,
@@ -216,8 +218,8 @@ public class RecordDescriptor
         throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
             position = baseDescriptor.record2object(obj, results, position);
-        for (int i = 0; i < attrDescriptors.length; i++)
-        	position = record2object(obj, results, position, attrDescriptors[i]);
+        for (AttributeDescriptor attrDesc: attrDescriptors)
+        	position = record2object(obj, results, position, attrDesc);
         return position;
     }
 
@@ -236,9 +238,10 @@ public class RecordDescriptor
         throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
             position = baseDescriptor.record2object(obj, results, position, includeAttrs);
-        for (int i = 0; i < attrDescriptors.length; i++)
-            if (contains(includeAttrs, attrDescriptors[i].getFieldName(), false))
-                position = record2object(obj, results, position, attrDescriptors[i]);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+            if (contains(includeAttrs, attrDesc.getFieldName(), false))
+                position = record2object(obj, results, position, attrDesc);
+        }
         return position;
     }
     
@@ -247,7 +250,7 @@ public class RecordDescriptor
      */
     public Object getPrimaryKey(Object obj) throws ReflectiveOperationException {
         return (baseDescriptor != null) ? baseDescriptor.getPrimaryKey(obj) :
-            attrDescriptors[0].getValue(obj);
+        	attrDescriptors.get(0).getValue(obj);
     }
 
     /** Runs getWhereValue on the attribute descriptor, representing the
@@ -266,9 +269,9 @@ public class RecordDescriptor
         }
         if (value != null)
             return value;
-        for (int i = 0; i < attrDescriptors.length; i++) {
-            if (attrDescriptors[i].getFieldName().equals(dbfield))
-                return attrDescriptors[i].getWhereValue(obj, db, byLike);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+            if (attrDesc.getFieldName().equals(dbfield))
+                return attrDesc.getWhereValue(obj, db, byLike);
         }
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
@@ -282,9 +285,9 @@ public class RecordDescriptor
             // Nothing to be done here. The field was not found in the base
             // descriptor but probably occurs in the current one
         }
-        for (int i = 0; i < attrDescriptors.length; i++) {
-            if (attrDescriptors[i].matches(dbtableAlias, dbfield))
-                return attrDescriptors[i].assembleWhereValue(obj, dbtableAlias, byLike, withBind);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+            if (attrDesc.matches(dbtableAlias, dbfield))
+                return attrDesc.assembleWhereValue(obj, dbtableAlias, byLike, withBind);
         }
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
@@ -313,9 +316,9 @@ public class RecordDescriptor
                 // descriptor but probably occurs in the current one
             }
         }
-        for (int i = 0; i < attrDescriptors.length; i++) {
-            if (attrDescriptors[i].getFieldName().equals(dbfield)) {
-                attrDescriptors[i].getParameter(obj, pop, table, position);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+            if (attrDesc.getFieldName().equals(dbfield)) {
+            	attrDesc.getParameter(obj, pop, table, position);
                 return;
             }
         }
@@ -401,10 +404,10 @@ public class RecordDescriptor
 		throws ReflectiveOperationException, SQLException {
         String values = (baseDescriptor != null) ?
             baseDescriptor.getUpdateValues(obj, excludeAttrs, includeAttrs, db) : "";
-        for (int i = 0; i < attrDescriptors.length; i++) {
-            if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false)
-                && contains(includeAttrs, attrDescriptors[i].getFieldName(), true))
-                values += "," + attrDescriptors[i].getUpdateValue(obj, db);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+            if (!contains(excludeAttrs, attrDesc.getFieldName(), false)
+                && contains(includeAttrs, attrDesc.getFieldName(), true))
+                values += "," + attrDesc.getUpdateValue(obj, db);
         }
         return trim(values);
     }
@@ -427,10 +430,10 @@ public class RecordDescriptor
 			table = dbtable;
         if (baseDescriptor != null)
             position = baseDescriptor.getUpdateValues(obj, excludeAttrs, includeAttrs, pop, table, position);
-        for (int i = 0; i < attrDescriptors.length; i++) {
-            if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false)
-            	&& contains(includeAttrs, attrDescriptors[i].getFieldName(), true))
-                attrDescriptors[i].getParameter(obj, pop, table, position++);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+            if (!contains(excludeAttrs, attrDesc.getFieldName(), false)
+            	&& contains(includeAttrs, attrDesc.getFieldName(), true))
+            	attrDesc.getParameter(obj, pop, table, position++);
         }
         return position;
     }
@@ -441,9 +444,9 @@ public class RecordDescriptor
     public String getCreationValues(Object obj, String[] excludeAttrs, Database db)
 		throws ReflectiveOperationException, SQLException {
         String values = (baseDescriptor != null) ? baseDescriptor.getCreationValues(obj, excludeAttrs, db) : "";
-        for (int i = 0; i < attrDescriptors.length; i++) {
-			if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false))
-            	values += "," + attrDescriptors[i].getCreationValue(obj, db);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+			if (!contains(excludeAttrs, attrDesc.getFieldName(), false))
+            	values += "," + attrDesc.getCreationValue(obj, db);
 		}
         return trim(values);
     }
@@ -464,9 +467,9 @@ public class RecordDescriptor
 			table = dbtable;
         if (baseDescriptor != null)
             position = baseDescriptor.getCreationValues(obj, excludeAttrs, pop, table, position);
-        for (int i = 0; i < attrDescriptors.length; i++) {
-			if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false))
-            	attrDescriptors[i].getParameter(obj, pop, table, position++);
+        for (AttributeDescriptor attrDesc: attrDescriptors) {
+			if (!contains(excludeAttrs, attrDesc.getFieldName(), false))
+				attrDesc.getParameter(obj, pop, table, position++);
 		}
         return position;
     }
@@ -480,11 +483,11 @@ public class RecordDescriptor
         return trim(names);
     }
 
-    protected String getFieldNames(String alias, AttributeDescriptor[] attrDescriptors, String[] excludeAttrs) {
+    protected String getFieldNames(String alias, List<AttributeDescriptor> pAttrDescriptors, String[] excludeAttrs) {
         String names = "";
-        for (int i = 0; i < attrDescriptors.length; i++) {
-            if (!contains(excludeAttrs, attrDescriptors[i].getFieldName(), false)) {
-                names += "," + getFieldName(alias, attrDescriptors[i]);
+        for (AttributeDescriptor attrDesc: pAttrDescriptors) {
+            if (!contains(excludeAttrs, attrDesc.getFieldName(), false)) {
+                names += "," + getFieldName(alias, attrDesc);
             }
         }
         return names;

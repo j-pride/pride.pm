@@ -13,8 +13,10 @@ package basic;
 import java.util.List;
 
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 
+import oracle.jdbc.logging.annotations.DisableTrace;
 import pm.pride.*;
 /**
  * Test of table join functionality
@@ -83,4 +85,12 @@ public class PrideJoinTest extends AbstractPrideTest {
         }
     }
 
+    @Ignore @Test
+    public void testFragmentJoin() throws Exception {
+    	JoinedCustomerFragments jcf = new JoinedCustomerFragments();
+    	jcf.setLastName("Customer");
+    	List<JoinedCustomerFragments> results = jcf.queryByExample(Customer.COL_LASTNAME).toList(JoinedCustomerFragments.class);
+    	System.out.println(results);
+    }
+    
 }

@@ -45,8 +45,11 @@ public class RecordDescriptor
     protected String dbtable;
     protected String dbtableAlias;
     protected List<AttributeDescriptor> attrDescriptors;
+    protected int extractionMode;
     protected RecordDescriptor baseDescriptor;
     protected boolean withBind;
+    
+    protected String fluentRowTableAlias;
 
     /** Returns <code>true</code> if the passed array of strings contains <code>element</code>.
      * Parameter <tt>onNull</tt> is returned in case the passed string array is <tt>null</tt>.
@@ -80,43 +83,72 @@ public class RecordDescriptor
     public RecordDescriptor(Class objectType, String dbContext, String dbtable, String dbtableAlias,
 			    RecordDescriptor baseDescriptor, String[][] attributeMap, int extractionMode)
 		throws IllegalDescriptorException {
-        this.objectType = objectType;
-        this.dbContext = dbContext;
-        this.dbtable = dbtable;
-        this.dbtableAlias = dbtableAlias;
-        this.baseDescriptor = baseDescriptor;
-        attrDescriptors = new ArrayList<>();
+    	this(objectType, dbContext, dbtable, dbtableAlias, baseDescriptor, extractionMode);
         if (attributeMap != null) {
             for (String[] rawAttributeDesc: attributeMap) {
-            	AttributeDescriptor attributeDesc = new AttributeDescriptor(objectType, rawAttributeDesc, extractionMode);
-            	attrDescriptors.add(attributeDesc);
+            	row(rawAttributeDesc);
             }
         }
     }
 
-    /** Creates a new mapping descriptor like constructor above
+    public RecordDescriptor row(String[] rawAttributeDesc) {
+    	AttributeDescriptor attributeDesc = new AttributeDescriptor(objectType, rawAttributeDesc, extractionMode);
+    	attrDescriptors.add(attributeDesc);
+    	return this;
+	}
+
+    public RecordDescriptor row(String dbfield, String getter, String setter) {
+    	if (fluentRowTableAlias != null && !dbfield.contains(".")) {
+    		dbfield = fluentRowTableAlias + "." + dbfield; 
+    	}
+    	return row(new String[] { dbfield, getter, setter });
+	}
+
+    public RecordDescriptor from(String tableAlias) {
+    	fluentRowTableAlias = tableAlias;
+    	return this;
+    }
+    
+	public RecordDescriptor(Class objectType, String dbContext, String dbtable, String dbtableAlias,
+		    RecordDescriptor baseDescriptor, int extractionMode)
+		throws IllegalDescriptorException {
+	    this.objectType = objectType;
+	    this.dbContext = dbContext;
+	    this.dbtable = dbtable;
+	    this.dbtableAlias = dbtableAlias;
+	    this.baseDescriptor = baseDescriptor;
+	    this.attrDescriptors = new ArrayList<>();
+	    this.extractionMode = extractionMode;
+	}
+
+	/** Creates a new mapping descriptor like constructor above
      * but always uses the current DB context of {@link DatabaseFactory}
      * and auto extraction mode.
      */
     public RecordDescriptor(Class<?> objectType, String dbtable,
 		RecordDescriptor baseDescriptor, String[][] attributeMap)
 		throws IllegalDescriptorException {
-        this(objectType, null, dbtable, null, baseDescriptor, attributeMap);
+        this(objectType, null, dbtable, null, baseDescriptor, attributeMap, ExtractionMode.AUTO);
+    }
+
+    public RecordDescriptor(Class<?> objectType, String dbtable, RecordDescriptor baseDescriptor)
+		throws IllegalDescriptorException {
+        this(objectType, null, dbtable, null, baseDescriptor, null, ExtractionMode.AUTO);
     }
 
 	/** Creates a new mapping descriptor like constructor above
 	 * but always uses the current DB context of {@link DatabaseFactory}.
 	 */
 	public RecordDescriptor(Class<?> objectType, String dbtable, String dbtableAlias,
-		RecordDescriptor baseDescriptor, String[][] attributeMap, int extractionMode)
+		RecordDescriptor baseDescriptor, int extractionMode)
 		throws IllegalDescriptorException {
-		this(objectType, null, dbtable, dbtableAlias, baseDescriptor, attributeMap, extractionMode);
+		this(objectType, null, dbtable, dbtableAlias, baseDescriptor, extractionMode);
 	}
 
 	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
-		RecordDescriptor baseDescriptor, String[][] attributeMap)
+		RecordDescriptor baseDescriptor)
 		throws IllegalDescriptorException {
-		this(objectType, dbContext, dbtable, dbtableAlias, baseDescriptor, attributeMap, ExtractionMode.AUTO);
+		this(objectType, dbContext, dbtable, dbtableAlias, baseDescriptor, ExtractionMode.AUTO);
 	}
 
     /**

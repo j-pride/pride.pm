@@ -22,6 +22,14 @@ import pm.pride.RecordDescriptor;
  */
 public class Customer extends IdentifiedEntity {
 
+	public static String TABLE = AbstractPrideTest.TEST_TABLE;
+	public static String COL_ID = "id";
+	public static String COL_FIRSTNAME = "firstName";
+	public static String COL_LASTNAME = "lastName";
+	public static String COL_ACTIVE = "active";
+	public static String COL_HIREDATE = "hireDate";
+	public static String COL_TYPE = "type";
+	
 	private String firstName;
 	private String lastName;
 	private Boolean active;
@@ -54,14 +62,12 @@ public class Customer extends IdentifiedEntity {
 	}
 
 	protected static RecordDescriptor red =
-		new RecordDescriptor(Customer.class, AbstractPrideTest.TEST_TABLE, IdentifiedEntity.red, new String[][] {
-			{ "firstName", "getFirstName", "setFirstName"},
-			{ "lastName",  "getLastName",  "setLastName"},
-			{ "hireDate",  "getHireDate",  "setHireDate"},
-			{ "active",    "getActive",    "setActive" },
-            { "type",    "getType",    "setType" }
-		}
-	);
+		new RecordDescriptor(Customer.class, TABLE, IdentifiedEntity.red)
+			.row(COL_FIRSTNAME, "getFirstName", "setFirstName")
+			.row(COL_LASTNAME,  "getLastName",  "setLastName")
+			.row(COL_HIREDATE,  "getHireDate",  "setHireDate")
+			.row(COL_ACTIVE,    "getActive",    "setActive")
+			.row(COL_TYPE,    "getType",    "setType");
 
 	public RecordDescriptor getDescriptor() { return red; }
 

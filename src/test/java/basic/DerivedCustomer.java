@@ -58,14 +58,8 @@ import pm.pride.RecordDescriptor;
 	public RecordDescriptor getDescriptor() { return red; }
 	
 	protected static RecordDescriptor red =
-		new RecordDescriptor(
-			DerivedCustomer.class,
-			"customer_pride_test",
-			Customer.red,
-			new String[][] {
-				{ "street", "getStreet", "setStreet"},
-				{ "city", "getCity", "setCity"}
-			}
-	);
+		new RecordDescriptor(DerivedCustomer.class, "customer_pride_test", Customer.red)
+			.row("street", "getStreet", "setStreet")
+			.row("city", "getCity", "setCity");
  
  }

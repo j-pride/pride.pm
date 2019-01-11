@@ -24,10 +24,8 @@ public abstract class IdentifiedEntity extends MappedObject implements Cloneable
 	public RecordDescriptor getDescriptor() { return red; }
 
 	protected static RecordDescriptor red =
-		new RecordDescriptor(IdentifiedEntity.class, null, null, new String[][] {
-			{ "id", "getId", "setId" },
-		}
-	);
+		new RecordDescriptor(IdentifiedEntity.class, null, null)
+			.row("id", "getId", "setId");
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();

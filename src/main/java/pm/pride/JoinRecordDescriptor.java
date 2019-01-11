@@ -20,7 +20,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     public JoinRecordDescriptor(RecordDescriptor baseDescriptor, String tableAlias) throws IllegalDescriptorException {
         super(baseDescriptor.getObjectType(), null,
                 baseDescriptor.getTableName() + " " +  tableAlias,
-                tableAlias, null, null);
+                tableAlias, null);
         this.base = baseDescriptor;
         init();
     }

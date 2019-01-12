@@ -292,30 +292,31 @@ public class EntityGenerator {
 			return;
 
 		Set<String> baseClassFields = extractMappedFields(baseClassName);
-		buffer.append("    protected static final RecordDescriptor red = new RecordDescriptor" + "\n");
-		buffer.append("        (");
+		buffer.append("    protected static final RecordDescriptor red =\n");
+		buffer.append("        new RecordDescriptor(");
 		buffer.append(getSimpleClassName(generationType.equals(HYBRID) ? className : generationType));
 		buffer.append(".class, ");
 		buffer.append(generateAbstractClass ? "null, " : "TABLE, ");
 		buffer.append(baseClassName != null ? baseClassName + ".red" : "null");
-		buffer.append(", new String[][] {" + "\n");
+		
+		buffer.append(")");
 		
 		for (TableColumn tableColumn: flatTableColumnList) {
             if (baseClassFields.remove(tableColumn.getName()))
             	continue;
             StringBuffer sb = new StringBuffer();
-            sb.append("            { ");
+            sb.append("\n            .row( ");
             sb.append(toColumnConstant(tableColumn));
-            sb.append(",   \"get");
+            sb.append(", \"get");
             sb.append(tableColumn.getNameCamelCaseFirstUp());
-            sb.append("\",   \"set");
+            sb.append("\", \"set");
             sb.append(tableColumn.getNameCamelCaseFirstUp());
-            sb.append("\" },");
-            buffer.append(sb.toString() + "\n");
-			
+            sb.append("\" )");
+            buffer.append(sb.toString());
 		}
 		
-        buffer.append("        });" + "\n\n");
+        buffer.append(";" + "\n\n");
+				
         buffer.append("    public RecordDescriptor getDescriptor() { return red; }" + "\n");
         buffer.append("\n");
     }

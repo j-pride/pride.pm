@@ -116,7 +116,7 @@ public interface DatabaseAdapterMixin {
 	 * which span multiple related tables. The method throws an {@link IllegalArgumentException}
 	 * if the passed descriptor is not compatible.
 	 */
-	default ResultIterator xqueryAll(RecordDescriptor desc) throws SQLException {
+	default ResultIterator joinQueryAll(RecordDescriptor desc) throws SQLException {
 		assertDescriptorCompatibility(desc);
 		return DatabaseAdapter.queryAll(getEntity(), desc);
 	}
@@ -133,7 +133,7 @@ public interface DatabaseAdapterMixin {
 	 * which span multiple related tables. The method throws an {@link IllegalArgumentException}
 	 * if the passed descriptor is not compatible.
 	 */
-	default ResultIterator xquery(RecordDescriptor desc, String where, Object... params) throws SQLException {
+	default ResultIterator joinQuery(RecordDescriptor desc, String where, Object... params) throws SQLException {
 		assertDescriptorCompatibility(desc);
 		return DatabaseAdapter.query(getEntity(), desc, where);
 	}
@@ -150,7 +150,7 @@ public interface DatabaseAdapterMixin {
 	 * which span multiple related tables. The method throws an {@link IllegalArgumentException}
 	 * if the passed descriptor is not compatible.
 	 */
-	default ResultIterator xquery(RecordDescriptor desc, WhereCondition where) throws SQLException {
+	default ResultIterator joinQuery(RecordDescriptor desc, WhereCondition where) throws SQLException {
 		assertDescriptorCompatibility(desc);
 		return DatabaseAdapter.query(getEntity(), desc, where);
 	}

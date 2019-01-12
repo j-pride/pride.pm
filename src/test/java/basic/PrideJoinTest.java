@@ -136,7 +136,7 @@ public class PrideJoinTest extends AbstractPrideTest {
     @Test
     public void testAdHocJoin() throws Exception {
     	Customer customer = new Customer();
-    	List<Customer> results = customer.xqueryAll(adhocJoin).toList(Customer.class);
+    	List<Customer> results = customer.joinQueryAll(adhocJoin).toList(Customer.class);
     	assertEquals(2, results.size());
     }
     
@@ -144,14 +144,14 @@ public class PrideJoinTest extends AbstractPrideTest {
     public void testAdHocJoinWithWhereCondition() throws Exception {
     	Customer customer = new Customer();
     	WhereCondition id1 = new WhereCondition().and("id", 1);
-    	List<Customer> results = customer.xquery(adhocJoin, id1).toList(Customer.class);
+    	List<Customer> results = customer.joinQuery(adhocJoin, id1).toList(Customer.class);
     	assertEquals(1, results.size());
     	assertEquals(1, results.get(0).getId());
     }
     
     @Test(expected=IllegalArgumentException.class)
     public void testAdHocJoinMustBeCompatible() throws Exception {
-    	new Customer().xqueryAll(IdentifiedEntity.red);
+    	new Customer().joinQueryAll(IdentifiedEntity.red);
     }
     
 }

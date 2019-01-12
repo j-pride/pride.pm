@@ -15,10 +15,13 @@ class WhereFieldCondition extends WhereConditionPart {
 		this.bind = bind;
 	}
 	
-	protected String toSQL(SQL.Formatter formatter, boolean ignoreBindings) {
+	protected String toSQL(SQL.Formatter formatter, String defaultTablePrefix, boolean ignoreBindings) {
 		boolean withBinding = ignoreBindings ? false : requiresBinding(formatter);
+		String qualifiedField = field;
+		if (defaultTablePrefix != null && !field.contains("."))
+			qualifiedField = defaultTablePrefix + "." + field;
 		return toSQLChainer(formatter) +
-				field + " " +
+				qualifiedField + " " +
 				formatOperator(operator, values, formatter) + " " +
 				formatValue(values, operator, withBinding, formatter) + " ";
 	}
@@ -61,7 +64,7 @@ class WhereFieldCondition extends WhereConditionPart {
 	private static String formatSingleValue(Object value, boolean withBinding, SQL.Formatter formatter) {
 		if (withBinding && value != null)
 			return "?";
-		if (formatter == null || (value instanceof SQL.Raw)) {
+		if (formatter == null || (value instanceof SQL.Pre)) {
 			return (value == null) ? "null" : value.toString();
 		}
 		return formatter.formatValue(value);

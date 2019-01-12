@@ -6,22 +6,22 @@ abstract class WhereConditionPart {
 	
 	@Override
 	public String toString() {
-		return toSQL(null);
+		return toSQL(null, null);
 	}
 
 	public String toSQLChainer(SQL.Formatter formatter) {
 		return chainOperator != null ? (chainOperator + " ") : "";
 	}
 
-	public String toSQLIgnoreBindings(SQL.Formatter formatter) {
-		return toSQL(formatter, true);
+	public String toSQLIgnoreBindings(SQL.Formatter formatter, String defaultTablePrefix) {
+		return toSQL(formatter, defaultTablePrefix, true);
 	}
 
-	public String toSQL(SQL.Formatter formatter) {
-		return toSQL(formatter, false);
+	public String toSQL(SQL.Formatter formatter, String defaultTablePrefix) {
+		return toSQL(formatter, defaultTablePrefix, false);
 	}
 
-	protected abstract String toSQL(SQL.Formatter formatter, boolean withBinding);
+	protected abstract String toSQL(SQL.Formatter formatter, String defaultTablePrefix, boolean withBinding);
 
 	protected boolean requiresBinding(SQL.Formatter formatter) {
 		if (bind != null)

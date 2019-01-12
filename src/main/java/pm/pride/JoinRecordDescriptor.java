@@ -18,7 +18,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     private int columnCounter = 0;
     
     public JoinRecordDescriptor(Class<?> objectType, RecordDescriptor baseDescriptor, String tableAlias) {
-        super(objectType, null,
+        super(objectType, baseDescriptor.dbContext,
               baseDescriptor.getTableName() + " " +  tableAlias,
               tableAlias, null);
         this.base = baseDescriptor;
@@ -29,9 +29,19 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     	this(baseDescriptor.getObjectType(), baseDescriptor, tableAlias);
     }
 
+	public JoinRecordDescriptor(Class<?> objectType, String tableName, String tableAlias) {
+		// TODO JL: centralize init code
+        super(objectType, null,
+              tableName + " " +  tableAlias,
+              tableAlias, null);
+        init();
+	}
+
 	private void init() {
         attrDescriptors = new ArrayList<AttributeDescriptor>();
-        extractAttributeDescriptors(attrDescriptors, base);
+        if (base != null) {
+            extractAttributeDescriptors(attrDescriptors, base);
+        }
     }
 
     public JoinRecordDescriptor join(RecordDescriptor joinDescriptor, String joinName, String propertyName, String joinOnExpression) {
@@ -172,8 +182,16 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         return position;
     }
     
+    
     @Override
-    public RecordDescriptor row(String[] rawAttributeDesc) {
+    /** Overridden to return {@link JoinRecordDescriptor} rather than {@link RecordDescriptor}
+     * to keep the API fluent */
+	public JoinRecordDescriptor row(String dbfield, String getter, String setter) {
+		return (JoinRecordDescriptor)super.row(dbfield, getter, setter);
+	}
+
+	@Override
+    public JoinRecordDescriptor row(String[] rawAttributeDesc) {
     	if (joins.size() > 0) {
     		Join lastJoin = joins.get(joins.size() - 1);
     		lastJoin.row(rawAttributeDesc);

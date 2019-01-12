@@ -109,16 +109,59 @@ public interface DatabaseAdapterMixin {
 		return DatabaseAdapter.queryAll(getEntity(), getDescriptor());
 	}
 
+	/**
+	 * Like {@link #queryAll()} but uses an alternative record descriptor. The descriptor must be
+	 * applicable to this adapter's descriptor. The method is intended for queries which require
+	 * an extended record descriptor, primarily a {@link JoinRecordDescriptor} for query conditions
+	 * which span multiple related tables. The method throws an {@link IllegalArgumentException}
+	 * if the passed descriptor is not compatible.
+	 */
+	default ResultIterator xqueryAll(RecordDescriptor desc) throws SQLException {
+		assertDescriptorCompatibility(desc);
+		return DatabaseAdapter.queryAll(getEntity(), desc);
+	}
+
 	/** Fetch an object by a self-made where clause */
 	default ResultIterator query(String where, Object... params) throws SQLException {
 		return DatabaseAdapter.query(getEntity(), getDescriptor(), where, params);
 	}
 
+	/**
+	 * Like {@link #query(String, Object...)} but uses an alternative record descriptor. The descriptor must be
+	 * applicable to this adapter's descriptor. The method is intended for queries which require
+	 * an extended record descriptor, primarily a {@link JoinRecordDescriptor} for query conditions
+	 * which span multiple related tables. The method throws an {@link IllegalArgumentException}
+	 * if the passed descriptor is not compatible.
+	 */
+	default ResultIterator xquery(RecordDescriptor desc, String where, Object... params) throws SQLException {
+		assertDescriptorCompatibility(desc);
+		return DatabaseAdapter.query(getEntity(), desc, where);
+	}
+	
 	/** Fetch an object by a self-made where clause */
 	default ResultIterator query(WhereCondition where) throws SQLException {
 		return DatabaseAdapter.query(getEntity(), getDescriptor(), where);
 	}
 
+	/**
+	 * Like {@link #query(WhereCondition)} but uses an alternative record descriptor. The descriptor must be
+	 * applicable to this adapter's descriptor. The method is intended for queries which require
+	 * an extended record descriptor, primarily a {@link JoinRecordDescriptor} for query conditions
+	 * which span multiple related tables. The method throws an {@link IllegalArgumentException}
+	 * if the passed descriptor is not compatible.
+	 */
+	default ResultIterator xquery(RecordDescriptor desc, WhereCondition where) throws SQLException {
+		assertDescriptorCompatibility(desc);
+		return DatabaseAdapter.query(getEntity(), desc, where);
+	}
+
+	default void assertDescriptorCompatibility(RecordDescriptor desc) {
+		if (desc.getObjectType() != getDescriptor().getObjectType()) {
+			throw new IllegalArgumentException("Descriptor for type " + desc.getObjectType() +
+					" not applicable for a query for " + getDescriptor().getObjectType());
+		}
+	}
+	
 	default int update() throws SQLException {
 		String[] pk = getKeyFields();
 		return (pk != null) ? update(pk) : DatabaseAdapter.update(getEntity(), getDescriptor());

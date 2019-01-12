@@ -99,7 +99,7 @@ public class RecordDescriptor
     	return row(new String[] { dbfield, getter, setter });
 	}
 
-	public RecordDescriptor(Class objectType, String dbContext, String dbtable, String dbtableAlias,
+	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
 		    RecordDescriptor baseDescriptor, int extractionMode)
 		throws IllegalDescriptorException {
 	    this.objectType = objectType;

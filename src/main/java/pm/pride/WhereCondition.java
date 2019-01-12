@@ -301,18 +301,18 @@ public class WhereCondition extends WhereConditionPart {
 	
 	@Override
 	public String toString() {
-		return toSQL(formatter);
+		return toSQL(formatter, null);
 	}
 
 	@Override
-	protected String toSQL(SQL.Formatter formatter, boolean ignoreBindings) {
+	protected String toSQL(SQL.Formatter formatter, String defaultTablePrefix, boolean ignoreBindings) {
 		String s = toSQLChainer(formatter) + "( ";
 		if (parts.size() == 0) {
 			s += "1=1 ";
 		}
 		else {
 			for (WhereConditionPart part: parts) {
-				s += part.toSQL(formatter, ignoreBindings);
+				s += part.toSQL(formatter, defaultTablePrefix, ignoreBindings);
 			}
 		}
 		s += ") ";

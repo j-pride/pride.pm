@@ -12,7 +12,7 @@ import pm.pride.RecordDescriptor;
  * 
  * @author Jan Lessner
  */
-public class JoinedCustomer extends Customer {
+public class CustomerJoinedWithCustomer extends Customer {
     
     private Customer wife;
     public Customer getWife() { return wife; }

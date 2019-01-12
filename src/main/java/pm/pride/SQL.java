@@ -13,18 +13,18 @@ public class SQL {
 	 * This is just a helper class, preventing a string value from getting formatted when
 	 * passed to any expression builder function of {@link WhereCondition}. E.g. use this
 	 * type to express an equality check between two database fields like this:<p>
-	 * <tt>exp.and("field1", new SQLRaw("field2"))</tt>
+	 * <tt>exp.and("field1", new SQL.Pre("field2"))</tt>
 	 * or
-	 * <tt>exp.and("field1", SQL.raw("field2"))</tt>
+	 * <tt>exp.and("field1", SQL.pre("field2"))</tt>
 	 */
-	public static class Raw {
+	public static class Pre {
 	    protected String fieldname;
-	    public Raw(String fieldname) { this.fieldname = fieldname; }
+	    public Pre(String fieldname) { this.fieldname = fieldname; }
 	    public String toString() { return fieldname; }
 	}
 
-	public static Raw raw(String fieldname) {
-		return new Raw(fieldname);
+	public static Pre pre(String fieldname) {
+		return new Pre(fieldname);
 	}
 	
 	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionBuilder#format(String, Object...)} */

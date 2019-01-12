@@ -58,7 +58,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 
 	@Test
 	public void testEqualsWithRaw() throws Exception {
-		WhereCondition expression = new WhereCondition().and("firstName", SQL.raw("'First'"));
+		WhereCondition expression = new WhereCondition().and("firstName", SQL.pre("'First'"));
 		checkOrderByResult(expression, 1, 1);
 	}
 
@@ -106,7 +106,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				and("firstName", "First").
 				and("lastName", "Customer");
 
-		assertEquals("( firstName = First AND lastName = Customer ) ", expression.toSQLIgnoreBindings(null));
+		assertEquals("( firstName = First AND lastName = Customer ) ", expression.toSQLIgnoreBindings(null, null));
 	}
 	
 	@Test
@@ -247,7 +247,17 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				.and("lastname", LIKE, "C%")
 				.and("active", true);
 
-		assertEquals("( firstname IN ( First, SECOND, THIRD ) AND lastname LIKE C% AND active = true ) ", expression.toSQLIgnoreBindings(null));
+		assertEquals("( firstname IN ( First, SECOND, THIRD ) AND lastname LIKE C% AND active = true ) ", expression.toSQLIgnoreBindings(null, null));
+	}
+
+	@Test
+	public void testDefaultTablePrefixing() {
+		WhereCondition expression = new WhereCondition()
+				.and("firstname", IN, "First", "SECOND", "THIRD")
+				.and("T1.lastname", LIKE, "C%")
+				.and("T2.active", true);
+
+		assertEquals("( T1.firstname IN ( First, SECOND, THIRD ) AND T1.lastname LIKE C% AND T2.active = true ) ", expression.toSQLIgnoreBindings(null, "T1"));
 	}
 
 	@Test

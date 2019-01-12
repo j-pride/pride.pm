@@ -24,6 +24,9 @@ import pm.pride.*;
 @SkipForDBType(ResourceAccessor.DBType.HSQL)
 public class PrideJoinTest extends AbstractPrideTest {
 
+	static JoinRecordDescriptor adhocJoin = new JoinRecordDescriptor(Customer.red, "husband")
+    		.join("customer_pride_test", "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName");
+
     @Override
     public void setUp() throws Exception {
         super.setUp();
@@ -34,7 +37,7 @@ public class PrideJoinTest extends AbstractPrideTest {
     public void testOuterJoin() throws Exception {
         int nowife = 0;
         boolean firstFound = false;
-        JoinedCustomer jc = new JoinedCustomer();
+        CustomerJoinedWithCustomer jc = new CustomerJoinedWithCustomer();
         ResultIterator iter = jc.queryAll();
 
         do {
@@ -56,19 +59,19 @@ public class PrideJoinTest extends AbstractPrideTest {
 
     @Test
     public void testOuterJoinByExampleWithAliasPrefixAutomaticallyAdded() throws Exception {
-        JoinedCustomer jc = new JoinedCustomer();
+        CustomerJoinedWithCustomer jc = new CustomerJoinedWithCustomer();
         jc.setLastName("Customer");
-    	List<JoinedCustomer> results = jc.queryByExample("lastName").toList(JoinedCustomer.class);
+    	List<CustomerJoinedWithCustomer> results = jc.queryByExample("lastName").toList(CustomerJoinedWithCustomer.class);
     	assertEquals(2, results.size()); // First married with Last, Last married with noone
     }
 
     @Test
     public void testInnerJoin() throws Exception {
-        RecordDescriptor orig = JoinedCustomer.red;
+        RecordDescriptor orig = CustomerJoinedWithCustomer.red;
         try {
-            JoinedCustomer.red = JoinedCustomer.innerJoinRed;
+            CustomerJoinedWithCustomer.red = CustomerJoinedWithCustomer.innerJoinRed;
             int found = 0;
-            JoinedCustomer jc = new JoinedCustomer();
+            CustomerJoinedWithCustomer jc = new CustomerJoinedWithCustomer();
             ResultIterator iter = jc.queryAll();
 
             do {
@@ -81,15 +84,17 @@ public class PrideJoinTest extends AbstractPrideTest {
 
             assertEquals(1, found);
         } finally {
-            JoinedCustomer.red = orig;
+            CustomerJoinedWithCustomer.red = orig;
         }
     }
 
     @Test
-    public void testFragmentJoin() throws Exception {
-    	JoinedCustomerFragments jcf = new JoinedCustomerFragments();
+    public void testJoinWithFragments() throws Exception {
+    	CustomerJoinedWithCustomerFragments jcf = new CustomerJoinedWithCustomerFragments();
     	jcf.setLastName("Customer");
-    	List<JoinedCustomerFragments> results = jcf.queryByExample(Customer.COL_LASTNAME).toList(JoinedCustomerFragments.class);
+    	List<CustomerJoinedWithCustomerFragments> results = jcf
+    			.queryByExample(Customer.COL_LASTNAME)
+    			.toList(CustomerJoinedWithCustomerFragments.class);
     	System.out.println(results);
     	assertEquals(1, results.size());
     	jcf = results.get(0);
@@ -97,6 +102,56 @@ public class PrideJoinTest extends AbstractPrideTest {
     	assertEquals("First", jcf.getFirstName());
     	assertEquals("Last", jcf.getWifeFirstName());
     	assertNotEquals(jcf.getId(), jcf.getWifeId());
+    }
+
+    @Test
+    /** Column name "id" in the where condition is ambiguous but is automatically expanded to husband.id */
+    public void testJoinWithFragmentsAndWhereConditionAutoTableAlias() throws Exception {
+    	CustomerJoinedWithCustomerFragments jcf = new CustomerJoinedWithCustomerFragments();
+    	List<?> results = jcf.query(
+    		new WhereCondition()
+    			.and("id", 1)
+    			.and("wife.id", 9)).toList();
+    	System.out.println(results);
+    	assertEquals(1, results.size());
+    }
+
+    @Test
+    public void testFragmentJoin() throws Exception {
+    	CustomerFragments fragments = new CustomerFragments();
+    	List<CustomerFragments> results = fragments.queryAll().toList(CustomerFragments.class);
+    	System.out.println(results);
+    	assertEquals(2, results.size());
+    	CustomerFragments r1 = results.get(0);
+    	CustomerFragments r2 = results.get(1);
+    	assertEquals(r1.getHusbandFirstName(), r2.getWifeFirstName());
+    	assertEquals(r2.getHusbandFirstName(), r1.getWifeFirstName());
+    	assertNotEquals(r1.getHusbandFirstName(), r1.getWifeFirstName());
+    }
+
+    /** Run a query which returns customers but needs a join with another
+     * table just to express certain query conditions. In this case: query
+     * married customers.
+     */
+    @Test
+    public void testAdHocJoin() throws Exception {
+    	Customer customer = new Customer();
+    	List<Customer> results = customer.xqueryAll(adhocJoin).toList(Customer.class);
+    	assertEquals(2, results.size());
+    }
+    
+    @Test
+    public void testAdHocJoinWithWhereCondition() throws Exception {
+    	Customer customer = new Customer();
+    	WhereCondition id1 = new WhereCondition().and("id", 1);
+    	List<Customer> results = customer.xquery(adhocJoin, id1).toList(Customer.class);
+    	assertEquals(1, results.size());
+    	assertEquals(1, results.get(0).getId());
+    }
+    
+    @Test(expected=IllegalArgumentException.class)
+    public void testAdHocJoinMustBeCompatible() throws Exception {
+    	new Customer().xqueryAll(IdentifiedEntity.red);
     }
     
 }

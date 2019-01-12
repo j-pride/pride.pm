@@ -344,11 +344,11 @@ public class Database implements SQL.Formatter
         }
     }
     
-    protected String where2string(WhereCondition where) {
+    protected String where2string(WhereCondition where, String defaultTableAlias) {
         if (where == null)
             return null;
         SQL.Formatter formatter = where.formatter != null ? where.formatter : this;
-        return where.toSQL(formatter);
+        return where.toSQL(formatter, defaultTableAlias);
     }
 
     protected String where(String where) {
@@ -438,7 +438,7 @@ public class Database implements SQL.Formatter
     }
 
     public ResultIterator query(RecordDescriptor red, boolean all, Object obj, WhereCondition where) throws SQLException {
-		String whereString = where2string(where);
+		String whereString = where2string(where, red.dbtableAlias);
 
     	if (where != null && where.requiresBinding(this)) {
             String query = "select " + red.getResultFields() + " from " +
@@ -569,7 +569,7 @@ public class Database implements SQL.Formatter
 	public int updateRecord(RecordDescriptor red, Object obj, WhereCondition where, String... updatefields)
 		throws SQLException {
 		try {
-			String whereString = where2string(where);
+			String whereString = where2string(where, red.dbtableAlias);
 	    	if (where != null && where.requiresBinding(this)) {
 	    		String[] excludeFields = red.getPrimaryKeyFields();
 				String update = "update " + getTableName(red) + " set " +

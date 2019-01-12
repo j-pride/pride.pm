@@ -13,6 +13,7 @@ package basic;
 import java.sql.SQLException;
 import java.util.Date;
 
+import pm.pride.JoinRecordDescriptor;
 import pm.pride.RecordDescriptor;
 
 /**
@@ -85,5 +86,9 @@ public class Customer extends IdentifiedEntity {
  
 	public String toString() {
 		return getId() + "/" + firstName + "/" + lastName + "/" + active + "/" + hireDate + "/" + type;
+	}
+
+	public void query(RecordDescriptor desc) {
+		
 	}
 }

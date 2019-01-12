@@ -48,8 +48,6 @@ public class RecordDescriptor
     protected int extractionMode;
     protected RecordDescriptor baseDescriptor;
     protected boolean withBind;
-    
-    protected String fluentRowTableAlias;
 
     /** Returns <code>true</code> if the passed array of strings contains <code>element</code>.
      * Parameter <tt>onNull</tt> is returned in case the passed string array is <tt>null</tt>.
@@ -80,7 +78,7 @@ public class RecordDescriptor
      * @param extractionMode The ResultSet extraction mode according to the constants
      *   defined in interface {@link ExtractionMode}.
      */
-    public RecordDescriptor(Class objectType, String dbContext, String dbtable, String dbtableAlias,
+    public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
 			    RecordDescriptor baseDescriptor, String[][] attributeMap, int extractionMode)
 		throws IllegalDescriptorException {
     	this(objectType, dbContext, dbtable, dbtableAlias, baseDescriptor, extractionMode);
@@ -98,17 +96,9 @@ public class RecordDescriptor
 	}
 
     public RecordDescriptor row(String dbfield, String getter, String setter) {
-    	if (fluentRowTableAlias != null && !dbfield.contains(".")) {
-    		dbfield = fluentRowTableAlias + "." + dbfield; 
-    	}
     	return row(new String[] { dbfield, getter, setter });
 	}
 
-    public RecordDescriptor from(String tableAlias) {
-    	fluentRowTableAlias = tableAlias;
-    	return this;
-    }
-    
 	public RecordDescriptor(Class objectType, String dbContext, String dbtable, String dbtableAlias,
 		    RecordDescriptor baseDescriptor, int extractionMode)
 		throws IllegalDescriptorException {
@@ -177,16 +167,11 @@ public class RecordDescriptor
                 baseDescriptor = new RecordDescriptor(red.baseDescriptor, alias);
             else
                 baseDescriptor = null;
-            attrDescriptors = new ArrayList<>();
-            for (AttributeDescriptor sourceDesc: red.attrDescriptors) {
-            	AttributeDescriptor attributeDesc = new AttributeDescriptor(sourceDesc, alias);
-            	attrDescriptors.add(attributeDesc);
-            }
         }
         else {
             baseDescriptor = red.baseDescriptor;
-            attrDescriptors = red.attrDescriptors;
         }
+        attrDescriptors = red.attrDescriptors;
     }
 
     /**
@@ -207,26 +192,20 @@ public class RecordDescriptor
     public Class getObjectType() { return objectType; }
     public String getContext() { return dbContext; }
 
-    /** Get the name of the database field making up the primary key.
+    /** Get the names of the database fields making up the primary key.
      * Currently just returns the first attribute mapping's field name, so make
-     * shure to always put the description of the primary key field at the
+     * sure to always put the description of the primary key field at the
      * very beginning of the mappings passed in the constructor.
      */
-    @Deprecated
-    public String getPrimaryKeyField() {
-        return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyField() :
-            attrDescriptors.get(0).getFieldName();
-    }
-
     public String[] getPrimaryKeyFields() {
         return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyFields() :
-            new String[]{attrDescriptors.get(0).getFieldName()};
+            new String[]{attrDescriptors.get(0).getFieldName(dbtableAlias)};
     }
 
-	public int record2object(Object obj, ResultSet results,
+	public int record2object(String toplevelTableAlias, Object obj, ResultSet results,
 		int position, AttributeDescriptor attrDesc)
 		throws SQLException, ReflectiveOperationException {
-		attrDesc.record2object(obj, results, position);
+		attrDesc.record2object(toplevelTableAlias, obj, results, position);
 		return (position >= 0) ? position+1 : position;
 	}
 	
@@ -247,11 +226,16 @@ public class RecordDescriptor
      *   extraction by name (see class {@link AttributeDescriptor} for details).
      */
     public int record2object(Object obj, ResultSet results, int position)
+            throws SQLException, ReflectiveOperationException {
+    	return record2object(dbtableAlias, obj, results, position);
+    }
+
+    protected int record2object(String toplevelTableAlias, Object obj, ResultSet results, int position)
         throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
-            position = baseDescriptor.record2object(obj, results, position);
+            position = baseDescriptor.record2object(toplevelTableAlias, obj, results, position);
         for (AttributeDescriptor attrDesc: attrDescriptors)
-        	position = record2object(obj, results, position, attrDesc);
+        	position = record2object(toplevelTableAlias, obj, results, position, attrDesc);
         return position;
     }
 
@@ -268,11 +252,16 @@ public class RecordDescriptor
      */
     public int record2object(Object obj, ResultSet results, int position, String[] includeAttrs)
         throws SQLException, ReflectiveOperationException {
+    	return record2object(dbtableAlias, obj, results, position, includeAttrs);
+	}
+
+    protected int record2object(String toplevelTableAlias, Object obj, ResultSet results, int position, String[] includeAttrs)
+        throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
-            position = baseDescriptor.record2object(obj, results, position, includeAttrs);
+            position = baseDescriptor.record2object(toplevelTableAlias, obj, results, position, includeAttrs);
         for (AttributeDescriptor attrDesc: attrDescriptors) {
             if (contains(includeAttrs, attrDesc.getFieldName(), false))
-                position = record2object(obj, results, position, attrDesc);
+                position = record2object(toplevelTableAlias, obj, results, position, attrDesc);
         }
         return position;
     }
@@ -302,24 +291,24 @@ public class RecordDescriptor
         if (value != null)
             return value;
         for (AttributeDescriptor attrDesc: attrDescriptors) {
-            if (attrDesc.getFieldName().equals(dbfield))
+            if (attrDesc.matches(dbtableAlias, dbfield))
                 return attrDesc.getWhereValue(obj, db, byLike);
         }
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
 
-    public WhereFieldCondition assembleWhereValue(Object obj, String dbfield, boolean byLike, Boolean withBind)
+    public WhereFieldCondition assembleWhereValue(String toplevelTableAlias, Object obj, String dbfield, boolean byLike, Boolean withBind)
 		throws ReflectiveOperationException {
         try {
         	if (baseDescriptor != null)
-        		return baseDescriptor.assembleWhereValue(obj, dbfield, byLike, withBind);
+        		return baseDescriptor.assembleWhereValue(toplevelTableAlias, obj, dbfield, byLike, withBind);
         } catch (IllegalAccessException e) {
             // Nothing to be done here. The field was not found in the base
             // descriptor but probably occurs in the current one
         }
         for (AttributeDescriptor attrDesc: attrDescriptors) {
-            if (attrDesc.matches(dbtableAlias, dbfield))
-                return attrDesc.assembleWhereValue(obj, dbtableAlias, byLike, withBind);
+            if (attrDesc.matches(toplevelTableAlias, dbfield))
+                return attrDesc.assembleWhereValue(obj, toplevelTableAlias, byLike, withBind);
         }
         throw new IllegalAccessException("Unknown field " + dbfield + " in where-clause");
     }
@@ -335,13 +324,13 @@ public class RecordDescriptor
      *   See {@link AttributeDescriptor} for the nasty reason
      * @param position index of the prepared statements next parameter to set
      */
-    public void getWhereValue(Object obj, String dbfield, PreparedOperationI pop, String table, int position)
+    public void getWhereValue(String toplevelTableAlias, Object obj, String dbfield, PreparedOperationI pop, String table, int position)
 		throws ReflectiveOperationException, SQLException {
 		if (table == null)
 			table = dbtable;
         if (baseDescriptor != null) {
         	try {
-        		baseDescriptor.getWhereValue(obj, dbfield, pop, table, position);
+        		baseDescriptor.getWhereValue(toplevelTableAlias, obj, dbfield, pop, table, position);
         		return;
             } catch (IllegalAccessException e) {
                 // Nothing to be done here. The field was not found in the base
@@ -349,7 +338,7 @@ public class RecordDescriptor
             }
         }
         for (AttributeDescriptor attrDesc: attrDescriptors) {
-            if (attrDesc.getFieldName().equals(dbfield)) {
+            if (attrDesc.matches(toplevelTableAlias, dbfield)) {
             	attrDesc.getParameter(obj, pop, table, position);
                 return;
             }
@@ -387,7 +376,7 @@ public class RecordDescriptor
             dbfields = getPrimaryKeyFields();
         }
         for (int i = 0; i < dbfields.length; i++) {
-        	WhereFieldCondition fieldCondition = assembleWhereValue(obj, dbfields[i], byLike, condition.bind);
+        	WhereFieldCondition fieldCondition = assembleWhereValue(dbtableAlias, obj, dbfields[i], byLike, condition.bind);
         	condition = condition.and(fieldCondition);
         }
 		return condition;
@@ -411,9 +400,9 @@ public class RecordDescriptor
 		if (table == null)
 			table = dbtable;
         if (dbfields == null)
-            dbfields = new String[] { getPrimaryKeyField() };
+            dbfields = getPrimaryKeyFields();
         for (int i = 0; i < dbfields.length; i++)
-            getWhereValue(obj, dbfields[i], pop, table, position++);
+            getWhereValue(dbtableAlias, obj, dbfields[i], pop, table, position++);
         return position;
     }
 
@@ -526,11 +515,7 @@ public class RecordDescriptor
     }   
 
     protected String getFieldName(String alias, AttributeDescriptor attrdesc) {
-    	String fullFieldName = attrdesc.getFieldName();
-    	if (alias != null && !fullFieldName.contains(".")) {
-    		fullFieldName = alias + "." + fullFieldName;
-    	}
-    	return fullFieldName;
+    	return attrdesc.getFieldName(alias);
     }
 
     /** Returns the list of fields to be looked up in a query, which is by

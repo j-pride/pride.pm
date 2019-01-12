@@ -49,11 +49,6 @@ public interface DatabaseAdapterMixin {
         return DatabaseFactory.getDatabase(red.getContext());
     }
     
-	/** Fetch an object by key. */
-	default boolean fetch(Object key) throws SQLException {
-		return DatabaseAdapter.fetch(getEntity(), key, getDescriptor());
-	}
-
 	/** Fetch an object by fields. The values are taken from the fields' accociated get-methods */
 	default ResultIterator queryByExample(String... dbfields) throws SQLException {
 		return DatabaseAdapter.queryByExample(getDescriptor(), getEntity(), dbfields);

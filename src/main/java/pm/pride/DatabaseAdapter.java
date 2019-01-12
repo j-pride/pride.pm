@@ -34,14 +34,6 @@ abstract public class DatabaseAdapter
         return DatabaseFactory.getDatabase(xd.getContext());
     }
     
-    /** Fetch an object by key. */
-    protected static boolean fetch(Object entity, Object key, RecordDescriptor red)
-        throws SQLException {
-        if (key != null) // null key indicates fetching is performed in derived type
-            return getDatabase(red).fetchRecord(red, entity, key);
-        return false;
-    }
-
     /** Fetch objects by fields. The values are taken from the fields' associated get-methods */
     protected static ResultIterator queryByExample(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {

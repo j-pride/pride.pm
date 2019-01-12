@@ -26,11 +26,22 @@ public class JoinedCustomerFragments extends Customer {
 	public String getWifeFirstName() { return wifeFirstName; }
 	public void setWifeFirstName(String wifeFirstName) { this.wifeFirstName = wifeFirstName; }
 
-	public static RecordDescriptor red = new RecordDescriptor
-			(JoinedCustomerFragments.class, null, TABLE_JOIN, HUSBAND_ALIAS, Customer.red)
-    	.from(WIFE_ALIAS)
-    	.row(COL_FIRSTNAME, "getWifeFirstName", "setWifeFirstName")
-    	.row(COL_ID, "getWifeId", "setWifeId");
-    		
+//	public static RecordDescriptor red = new JoinRecordDescriptor(JoinedCustomerFragments.class, Customer.red, "husband")
+//			.leftJoin("Address", "wife", "wife.lastName = cst.lastName and wife.id > cst.id")
+//	    		.row(COL_FIRSTNAME, "getWifeFirstName", "setWifeFirstName")
+//	    		.row(COL_ID, "getWifeId", "setWifeId");
+
+	public static RecordDescriptor red = new JoinRecordDescriptor(JoinedCustomerFragments.class, Customer.red, "husband")
+			.join("customer_pride_test", "wife", "wife.lastName = husband.lastName and wife.id > husband.id")
+	    		.row(COL_FIRSTNAME, "getWifeFirstName", "setWifeFirstName")
+	    		.row(COL_ID, "getWifeId", "setWifeId");
+			
+
+	@Override
     public RecordDescriptor getDescriptor() { return red; }
+	
+	@Override
+	public String toString() {
+		return super.toString() + "/" + wifeFirstName + "/" + wifeId;
+	}
 }

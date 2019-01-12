@@ -85,12 +85,18 @@ public class PrideJoinTest extends AbstractPrideTest {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testFragmentJoin() throws Exception {
     	JoinedCustomerFragments jcf = new JoinedCustomerFragments();
     	jcf.setLastName("Customer");
     	List<JoinedCustomerFragments> results = jcf.queryByExample(Customer.COL_LASTNAME).toList(JoinedCustomerFragments.class);
     	System.out.println(results);
+    	assertEquals(1, results.size());
+    	jcf = results.get(0);
+    	assertEquals("Customer", jcf.getLastName());
+    	assertEquals("First", jcf.getFirstName());
+    	assertEquals("Last", jcf.getWifeFirstName());
+    	assertNotEquals(jcf.getId(), jcf.getWifeId());
     }
     
 }

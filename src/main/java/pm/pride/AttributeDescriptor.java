@@ -140,6 +140,17 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     /** Returns the database field name */
     public String getFieldName() { return databaseFieldName; }
 
+	/** Allows to use the column names of the primary RecordDescriptor's of a JoinRecordDescriptor
+	 * in a query by example resp. find operation without providing a table alias prefix. This is
+	 * of interest for entity compositions - the entity base class' query functions should still work */
+	public String getFieldName(String defaultAliasPrefix) {
+        String fieldName = getFieldName();
+        if (defaultAliasPrefix != null && !fieldName.contains(".")) {
+        	fieldName = defaultAliasPrefix + "." + fieldName;
+        }
+		return fieldName;
+	}
+
 	/** Retrieve the column's SQL type, required for setting NULL values
 	 * in prepared statements. The retrieval is performed lazy as it may
 	 * take some time and is not always required.
@@ -217,19 +228,8 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 		throws ReflectiveOperationException {
         Object val = getValue(obj);
         String operator = byLike ? LIKE : EQUAL;
-        String fieldName = getFieldNameWithAliasPrefix(defaultAliasPrefix);
+        String fieldName = getFieldName(defaultAliasPrefix);
 		return new WhereFieldCondition(null, withBind, fieldName, operator, val);
-	}
-
-	/** Allows to use the column names of the primary RecordDescriptor's of a JoinRecordDescriptor
-	 * in a query by example resp. find operation without providing a table alias prefix. This is
-	 * of interest for entity compositions - the entity base class' query functions should still work */
-	protected String getFieldNameWithAliasPrefix(String defaultAliasPrefix) {
-        String fieldName = getFieldName();
-        if (defaultAliasPrefix != null && !fieldName.contains(".")) {
-        	fieldName = defaultAliasPrefix + "." + fieldName;
-        }
-		return fieldName;
 	}
 
 	/** Allows to use the column names of the primary RecordDescriptor's of a JoinRecordDescriptor
@@ -255,12 +255,13 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 	 *   Passsing -1 forces extraction by name.
 	 * @return The extracted value
 	 */
-	protected Object record2object(ResultSet results, int position)
+	protected Object record2object(String tableAlias, ResultSet results, int position)
 		throws InvocationTargetException, IllegalAccessException {
 		if (position < 0 || extractionMode == AUTO || extractionMode == NAME) {
 			try {
+				String lookupFieldName = getFieldName(tableAlias);
 				return databaseGetByNameMethod.invoke
-					(results, new Object[] { databaseFieldName });
+					(results, new Object[] { lookupFieldName });
 			}
 			catch(InvocationTargetException itx) {
 				if (extractionMode == NAME || position < 0)
@@ -275,9 +276,9 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     /** Fetch a value from a database result set and copy it into an object
      * according to this attribute descriptor
      */
-    protected void record2object(Object obj, ResultSet results, int position)
+    protected void record2object(String tableAlias, Object obj, ResultSet results, int position)
         throws SQLException, ReflectiveOperationException {
-		Object dbValue = record2object(results, position);
+		Object dbValue = record2object(tableAlias, results, position);
         if (results.wasNull()) {
             dbValue = null;
             if (isPrimitive)

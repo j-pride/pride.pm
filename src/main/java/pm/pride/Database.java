@@ -364,20 +364,6 @@ public class Database implements SQL.Formatter
     	return this.statementTimeout;
     }
     
-    /** Fetch a record from the database and store the results in a JAVA object
-     * according to the passed mapping descriptor.
-     * @param red Descriptor providing the field mappings and the table name to access
-     * @param obj Destination object to store the data in
-     * @param primaryKey Primary key used for unique selection from the database
-     * @deprecated use fetchRecord(WhereCondition, Object, RecordDescriptor) insted
-     */
-    @Deprecated
-    public boolean fetchRecord(RecordDescriptor red, Object obj, Object primaryKey)
-        throws SQLException {
-    	WhereCondition primaryKeyCondition = new WhereCondition().and(red.getPrimaryKeyField(), primaryKey);
-        return query(red, false, obj, primaryKeyCondition) != null;
-    }
-
     public boolean fetchRecord(RecordDescriptor red, Object obj, WhereCondition primaryKeyCondition) throws SQLException {
     	return query(red, false, obj, primaryKeyCondition) != null;
     }

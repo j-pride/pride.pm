@@ -348,7 +348,9 @@ public class Database implements SQL.Formatter
         if (where == null)
             return null;
         SQL.Formatter formatter = where.formatter != null ? where.formatter : this;
-        return where.toSQL(formatter, defaultTableAlias);
+        // Auto-expension is not yet working consistently
+        //return where.toSQL(formatter, defaultTableAlias);
+        return where.toSQL(formatter, null);
     }
 
     protected String where(String where) {

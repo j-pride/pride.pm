@@ -240,6 +240,25 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         return result;
     }
 
+	@Override
+    public WhereFieldCondition assembleWhereValue
+    	(String toplevelTableAlias, Object obj, String dbfield, boolean byLike, Boolean withBind)
+		throws ReflectiveOperationException {
+    	try {
+    		return super.assembleWhereValue(toplevelTableAlias, obj, dbfield, byLike, withBind);
+    	}
+    	catch(IllegalAccessException iax) {
+    		for (Join join: joins) {
+    			String joinTableAlias = join.getAlias();
+    	        for (AttributeDescriptor attrDesc: join.attributeDescriptors) {
+    	            if (attrDesc.matches(joinTableAlias, dbfield))
+    	                return attrDesc.assembleWhereValue(obj, joinTableAlias, byLike, withBind);
+    	        }
+    		}
+    		throw iax;
+    	}
+    }
+	
     public class Join {
         private List<AttributeDescriptor> attributeDescriptors;
         protected String alias;

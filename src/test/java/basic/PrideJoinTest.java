@@ -1,6 +1,6 @@
 package basic;
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
+ * Copyright (c) 2001-2019 The PriDE team
  * All rights reserved. This toolkit and the accompanying materials 
  * are made available under the terms of the GNU Lesser General Public
  * License (LGPL) which accompanies this distribution, and is available
@@ -104,8 +104,12 @@ public class PrideJoinTest extends AbstractPrideTest {
     	assertNotEquals(jcf.getId(), jcf.getWifeId());
     }
 
-    @Test
+    @Test @Ignore
     /** Column name "id" in the where condition is ambiguous but is automatically expanded to husband.id */
+    // Test is disabled until the problem is solved, that automatic expansion
+    // should only happen if a column name is not unique. Otherwise the expansion
+    // may cause a wrong table association. See Database#where2string where the auto-expension
+    // feature is switched off
     public void testJoinWithFragmentsAndWhereConditionAutoTableAlias() throws Exception {
     	CustomerJoinedWithCustomerFragments jcf = new CustomerJoinedWithCustomerFragments();
     	List<?> results = jcf.query(
@@ -143,7 +147,9 @@ public class PrideJoinTest extends AbstractPrideTest {
     @Test
     public void testAdHocJoinWithWhereCondition() throws Exception {
     	Customer customer = new Customer();
-    	WhereCondition id1 = new WhereCondition().and("id", 1);
+    	// Prefix husband. should not be necessary if auto-expansion is in place
+    	// Unfortunalety this doesn't fully work. See testJoinWithFragmentsAndWhereConditionAutoTableAlias
+    	WhereCondition id1 = new WhereCondition().and("husband.id", 1);
     	List<Customer> results = customer.joinQuery(adhocJoin, id1).toList(Customer.class);
     	assertEquals(1, results.size());
     	assertEquals(1, results.get(0).getId());

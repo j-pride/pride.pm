@@ -144,7 +144,7 @@ public interface ResourceAccessor extends SQL.Formatter
         throws SQLException;
     
     /** Returns the physical table name for the logical table
-     * name refered to by parameter <code>logicalTableName</code>
+     * name referred to by parameter <code>logicalTableName</code>
      */
     public String getTableName(String logicalTableName) throws Exception;
 

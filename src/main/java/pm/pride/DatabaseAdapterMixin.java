@@ -163,8 +163,10 @@ public interface DatabaseAdapterMixin {
 	}
 	
 	default int update() throws SQLException {
-		String[] pk = getKeyFields();
-		return (pk != null) ? update(pk) : DatabaseAdapter.update(getEntity(), getDescriptor());
+		String[] primaryKeyFields = getKeyFields();
+		return (primaryKeyFields != null) ?
+			update(primaryKeyFields) :
+			DatabaseAdapter.update(getEntity(), getDescriptor());
 	}
 
 	default int update(String... dbkeyfields) throws SQLException {
@@ -208,16 +210,36 @@ public interface DatabaseAdapterMixin {
 		return DatabaseAdapter.deleteByExample(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
+	/** @deprecated Use {@link #where(String[], boolean)} instead */
+	@Deprecated
 	default String constraint(String[] dbfields, boolean byLike) {
 		return DatabaseAdapter.constraint(getEntity(), dbfields, byLike, getDescriptor());
 	}
 
+	/** @deprecated Use {@link #where(String[])} instead */
+	@Deprecated
 	default String constraint(String[] dbfields) {
 		return constraint(dbfields, false);
 	}
 
-	/** Returns a constraint made up from the primary key attributes of this getEntity() */
+	/** Returns a constraint made up from the primary key attributes
+	 * of the entity return by {@link #getEntity()}
+	 * @deprecated Use {@link #where()} instead */
+	@Deprecated
 	default String constraint() { return constraint(getKeyFields()); }
+
+	default WhereCondition where(String[] dbfields, boolean byLike) {
+		return DatabaseAdapter.assembleWhereCondition(getEntity(), dbfields, byLike, getDescriptor());
+	}
+
+	default WhereCondition where(String[] dbfields) {
+		return where(dbfields, false);
+	}
+
+	/** Returns a {@link WhereCondition} made up from the primary key attributes
+	 * of the entity return by {@link #getEntity()} */
+	default WhereCondition where() { return where(getKeyFields()); }
+
 
 	default void commit() throws SQLException {
 		DatabaseAdapter.commit(getDescriptor());

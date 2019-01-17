@@ -113,7 +113,7 @@ public class PreparedStatementAccess
     static Method getAccessMethod(Class<?> attributeType) throws NoSuchMethodException {
 		if (preparedStatementAccessMethods == null)
 	    	init();
-		if (attributeType.isArray()) {
+		if (attributeType != byte[].class && attributeType.isArray()) {
 		    return (Method)preparedStatementAccessMethods.get(Array.class.getName());
 		}
         Method result = (Method)preparedStatementAccessMethods.get(attributeType.getName());

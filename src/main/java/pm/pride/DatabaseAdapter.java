@@ -53,7 +53,7 @@ abstract public class DatabaseAdapter
     protected static boolean find(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
     	return (dbkeyfields != null) ?
-            getDatabase(red).queryByExample(red, false, entity, dbkeyfields) != null : false;
+            !getDatabase(red).queryByExample(red, false, entity, dbkeyfields).isNull() : false;
     }
 
     /** Like {@link #find(Object, RecordDescriptor, String[])} but reports a missing match by
@@ -194,7 +194,9 @@ abstract public class DatabaseAdapter
      * @param byLike Use the <code>like</code> operator if set
      * @param red The {@link RecordDescriptor} providing the attribute mappings
      * @return The SQL constraint (without leading 'where')
+     * @deprecated Use {@link #assembleWhereCondition(Object, String[], boolean, RecordDescriptor)} instead.
      */
+    @Deprecated
     protected static String constraint(Object entity, String[] dbfields, boolean byLike, RecordDescriptor red) {
         try {
 		    Database db = getDatabase(red);
@@ -206,6 +208,15 @@ abstract public class DatabaseAdapter
         }
     }
 
+    protected static WhereCondition assembleWhereCondition(Object entity, String[] dbfields, boolean byLike, RecordDescriptor red) {
+        try {
+        	return red.assembleWhereCondition(entity, dbfields, byLike);
+        }
+        catch(ReflectiveOperationException rox) {
+            throw getDatabase(red).processSevereException(rox);
+        }
+    }
+    
     protected static void commit(RecordDescriptor red) throws SQLException {
         getDatabase(red).commit();
     }

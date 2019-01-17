@@ -153,9 +153,9 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	protected Format timeFormat() {
 		if (dbType != null) {
 			if(dbType.equalsIgnoreCase(DBType.ORACLE))
-				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
+				return new SimpleDateFormat("'to_timestamp('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
 			if(dbType.equalsIgnoreCase(DBType.HSQL))
-			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
+			    return new SimpleDateFormat("'to_timestamp('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF3'')'");
 			if(dbType.equalsIgnoreCase(DBType.SQLITE))
 				return new UnixTimeDateFormat();
 			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))

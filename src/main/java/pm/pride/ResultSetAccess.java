@@ -115,7 +115,7 @@ public class ResultSetAccess
     }
 
     static Method getAccessMethod(Map source, Class attributeType)  throws NoSuchMethodException {
-        if (attributeType.isArray())
+        if (attributeType != byte[].class && attributeType.isArray())
             attributeType = Array.class;
         Method result = (Method)source.get(attributeType.getName());
         if (result == null && attributeType.isEnum())

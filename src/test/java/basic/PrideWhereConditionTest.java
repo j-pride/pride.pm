@@ -72,7 +72,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	@Test
 	public void testEqualsWithNullSkipped() throws Exception {
 		WhereCondition expression = new WhereCondition().
-				andNotNull("firstName", null).
+				andNN("firstName", null).
 				and("lastName", "Customer");
 		checkOrderByResult(expression, 1, COUNT);
 	}

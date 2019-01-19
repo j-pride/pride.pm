@@ -33,7 +33,7 @@ public class PreparedSelect extends PreparedOperation {
             if (db.isLogging()) // Optimization to avoid string assembly if not required
                 db.sqlLog(operation + " using " + obj.toString());
             ResultSet rs = stmt.executeQuery();
-            ResultIterator ri = new ResultIterator(stmt, true, rs, obj, red, db, db.getConnection());
+            ResultIterator ri = new ResultIterator(stmt, db.getConnection(), true, rs, obj, false, red, db);
             if (!ri.next()) {
                 ri.close();
                 return null;

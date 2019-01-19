@@ -61,26 +61,33 @@ public class ResultIterator
     protected Connection connection;
     protected ResultSet results;
     protected Object obj;
+    protected boolean duplicateObj;
     protected RecordDescriptor red;
     protected Database db;
     protected Method cloneMethod;
     protected SpoolState spoolState;
     
+    public ResultIterator(ConnectionAndStatement cns, boolean customStatement, ResultSet rs,
+		Object obj, boolean duplicateObj, RecordDescriptor red, Database db) {
+    	this(cns.stmt, cns.con, customStatement, rs, obj, duplicateObj, red, db);
+    }
+    
     /** Creates a new ResultIterator from an query. */
-    public ResultIterator(Statement statement, boolean customStatement, ResultSet rs,
-		Object obj, RecordDescriptor red,
-		Database db, Connection con) {
+    public ResultIterator(Statement statement, Connection con, boolean customStatement, ResultSet rs,
+		Object obj, boolean duplicateObj, RecordDescriptor red,
+		Database db) {
         results = rs;
         this.statement = statement;
         this.obj = obj;
+        this.duplicateObj = duplicateObj;
         this.red = red;
 		this.db = db;
 		this.connection = con;
 		this.spoolState = SpoolState.ReadyToSpool;
     }
 
-    public ResultIterator(Statement statement, boolean customStatement, ResultSet rs, Database db, Connection con) {
-        this(statement, customStatement, rs, null, null, db, con);
+    public ResultIterator(Statement statement, Connection con, boolean customStatement, ResultSet rs, Database db) {
+        this(statement, con, customStatement, rs, null, false, null, db);
     }
 
     public boolean isNull() { return statement == null; }
@@ -135,6 +142,10 @@ public class ResultIterator
 	        if (b) {
 	            if (red != null) {
 					try {
+						if (duplicateObj) {
+							obj = cloneObject();
+							duplicateObj = false;
+						}
 						red.record2object(obj, results, COLUMN_STARTINDEX);
 						red.calculateUpdateChecksum(obj);
 					}

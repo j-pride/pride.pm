@@ -83,13 +83,6 @@ public class Database implements SQL.Formatter
 		}
 	}
 
-    public String getPhysicalTableName(ExtensionDescriptor xd) {
-        try { return accessor.getTableName(xd.getTableName()); }
-        catch(Exception x) {
-            throw processSevereException(x);
-        }
-    }
-    
 	/**
 	 * Returns the resource accessors timestamp, that is currently used to
 	 * identify, that a date has to be replaced by the database server's
@@ -191,11 +184,10 @@ public class Database implements SQL.Formatter
      * If there was no matching record found, the function returns a ResultIterator which returns true
      * from its isNull() method.
      */
-    protected ResultIterator fetchFirst(Object obj, RecordDescriptor red,
-                                        QueryScope qscope,
-                                        String query, Object... params)
+    protected ResultIterator fetchFirst(Object obj, boolean duplicateObj, RecordDescriptor red,
+                                        QueryScope qscope, String query, Object... params)
         throws SQLException {
-        ResultIterator ri = sqlQuery(red, obj, query, params);
+        ResultIterator ri = sqlQuery(red, obj, duplicateObj, query, params);
         return returnIteratorIfNotEmpty(ri, qscope);
     }
     
@@ -292,20 +284,20 @@ public class Database implements SQL.Formatter
      * @param params Optional parameters if the statement contains bind variables and therefore needs to be executed as a {@link PreparedStatement}
      */
     public ResultIterator sqlQuery(String sqlStatement, Object... params) throws SQLException {
-        return sqlQuery(null, null, sqlStatement, params);
+        return sqlQuery(null, null, false, sqlStatement, params);
     }
 
     /** Runs an SQL query and returns a {@link ResultIterator}, initialized
      * with parameters <code>obj</code> and <code>red</code> and the
      * {@link java.sql.ResultSet} returned by the query.
      */
-    public ResultIterator sqlQuery(RecordDescriptor red, Object obj, String operation, Object... params)
+    public ResultIterator sqlQuery(RecordDescriptor red, Object obj, boolean duplicateObj, String operation, Object... params)
         throws SQLException {
     	ConnectionAndStatement cns = null;
         try {
         	cns = new ConnectionAndStatement(this, operation, params);
             ResultSet rs = cns.executeQuery();
-            return new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
+            return new ResultIterator(cns, false, rs, obj, duplicateObj, red, this);
         }
         catch(Exception x) {
         	if (cns != null) {
@@ -360,23 +352,31 @@ public class Database implements SQL.Formatter
     	return this.statementTimeout;
     }
     
-    public boolean fetchRecord(RecordDescriptor red, Object obj, WhereCondition primaryKeyCondition) throws SQLException {
-    	return !query(red, QueryScope.First, obj, primaryKeyCondition).isNull();
+    public Object fetchRecord(RecordDescriptor red, Object obj,
+    		boolean duplicateObj, WhereCondition primaryKeyCondition) throws SQLException {
+    	ResultIterator ri = query(red, QueryScope.First, obj, duplicateObj, primaryKeyCondition);
+    	return ri.isNull() ? null : ri.getObject();
     }
 
     /** Fetch a record from the database and store the results in a JAVA object
      * according to the passed mapping descriptor.
      * @param red Descriptor providing the field mappings and the table name to access
      * @param obj Destination object to store the data in and to take the primary key from
+     * @param duplicateObj if false, the result is directly stored in the passed object.
+     *   Otherwise, PriDE will duplicate the object, either <ul>
+     *   <li>by cloning the original object, using a clone() method with public visibility or
+     *   <li>by instanciating a copy using a constructor without parameters or a copy constructor
+     *     getting passed the original object
+     *   </ul>
      */
-    public boolean fetchRecord(RecordDescriptor red, Object obj)
+    public Object fetchRecord(RecordDescriptor red, Object obj, boolean duplicateObj)
         throws SQLException {
         try {
-        	return fetchRecord(red, obj, red.assembleWhereCondition(obj, red.getPrimaryKeyFields(), false));
+        	return fetchRecord(red, obj, duplicateObj,
+        		red.assembleWhereCondition(obj, red.getPrimaryKeyFields(), false));
         }
         catch(Exception x) {
-        	processSevereButSQLException(x);
-        	return false;
+        	throw processSevereButSQLException(x);
         }
     }
 
@@ -391,10 +391,11 @@ public class Database implements SQL.Formatter
      * Following records can successivly be copied to <code>obj</code> using the
      * ResultIterator.
      */
-    public ResultIterator queryByExample(RecordDescriptor red, QueryScope qscope, Object obj, String... dbfields)
+    public ResultIterator queryByExample(RecordDescriptor red, QueryScope qscope,
+    	Object obj, boolean duplicateObj, String... dbfields)
         throws SQLException {
 		try {
-			return query(red, qscope, obj, red.assembleWhereCondition(obj, dbfields, false));
+			return query(red, qscope, obj, duplicateObj, red.assembleWhereCondition(obj, dbfields, false));
 		}
 		catch(Exception x) {
 			throw processSevereButSQLException(x);
@@ -404,7 +405,7 @@ public class Database implements SQL.Formatter
 	public boolean exists(RecordDescriptor red, Object obj) throws SQLException {
 		try {
 			WhereCondition where = red.assembleWhereCondition(obj, null, false);
-			ResultIterator ri = query(red, QueryScope.Exists, obj, where);
+			ResultIterator ri = query(red, QueryScope.Exists, obj, false, where);
 			return !ri.isEmpty();
 		}
 		catch(Exception x) {
@@ -416,10 +417,10 @@ public class Database implements SQL.Formatter
     /** Like function <code>query()</code> above but selects using the
      * <code>like</code> operator
      */
-    public ResultIterator wildcardSearch(RecordDescriptor red, QueryScope qscope, Object obj, String... dbfields)
+    public ResultIterator wildcardSearch(RecordDescriptor red, QueryScope qscope, Object obj, boolean duplicateObj, String... dbfields)
         throws SQLException {
         try {
-        	return query(red, qscope, obj, red.assembleWhereCondition(obj, dbfields, true));
+        	return query(red, qscope, obj, duplicateObj, red.assembleWhereCondition(obj, dbfields, true));
         }
 		catch(Exception x) {
 			throw processSevereButSQLException(x);
@@ -436,14 +437,15 @@ public class Database implements SQL.Formatter
      * Following records can successively be copied to <code>obj</code> using the
      * ResultIterator.
      */
-    public ResultIterator query(RecordDescriptor red, QueryScope qscope, Object obj, String where, Object... params)
+    public ResultIterator query(RecordDescriptor red, QueryScope qscope, Object obj, boolean duplicateObj, String where, Object... params)
         throws SQLException {
         String query = "select " + red.getResultFields() + " from " +
             getTableName(red) + where(where);
-        return fetchFirst(obj, red, qscope, query, params);
+        return fetchFirst(obj, duplicateObj, red, qscope, query, params);
     }
 
-    public ResultIterator query(RecordDescriptor red, QueryScope qscope, Object obj, WhereCondition where) throws SQLException {
+    public ResultIterator query(RecordDescriptor red, QueryScope qscope,
+    		Object obj, boolean duplicateObj, WhereCondition where) throws SQLException {
 		String whereString = where2string(where, red.dbtableAlias);
 
     	if (where != null && where.requiresBinding(this)) {
@@ -454,7 +456,7 @@ public class Database implements SQL.Formatter
             	cns = new ConnectionAndStatement(this, query, true);
                 where.bind(this, cns);
                 ResultSet rs = cns.getStatement().executeQuery();
-                ResultIterator ri = new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
+                ResultIterator ri = new ResultIterator(cns, false, rs, obj, duplicateObj, red, this);
                 return returnIteratorIfNotEmpty(ri, qscope);
             }
             catch (Exception x) {
@@ -464,7 +466,7 @@ public class Database implements SQL.Formatter
             }
     	}
     	else {
-    		return query(red, qscope, obj, whereString);
+    		return query(red, qscope, obj, duplicateObj, whereString);
     	}
     }
 
@@ -478,7 +480,7 @@ public class Database implements SQL.Formatter
      */
     public ResultIterator queryAll(RecordDescriptor red, Object obj)
       throws SQLException {
-        return query(red, QueryScope.All, obj, (String)null);
+        return query(red, QueryScope.All, obj, false, (String)null);
     }
 
     /** Update a database record with the data of a JAVA object according to the

@@ -79,7 +79,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      * @param ResultSet extraction mode, as specified by interface
      *   {@link RecordDescriptor#ExtractionMode}.
      */
-    public AttributeDescriptor(Class<?> objectType, String[] attrInfo, int extractionMode)
+    public AttributeDescriptor(Class<?> objectType, int extractionMode, String[] attrInfo)
 		throws IllegalDescriptorException {
 		this.extractionMode = extractionMode;
 		databaseFieldName = attrInfo[FIELDNAME];

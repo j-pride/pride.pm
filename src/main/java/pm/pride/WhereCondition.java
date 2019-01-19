@@ -147,9 +147,9 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	/**
-	 * Like {@link #and(String, String, Object...)} but only adds the sub condition if the first value is different from null.
+	 * Like {@link #and(String, String, Object...)} but only adds the sub condition if the first value is not null.
 	 */
-	public WhereCondition andNotNull(String field, String operator, Object... values) {
+	public WhereCondition andNN(String field, String operator, Object... values) {
 		return chain(ChainOperator.AND, true, field, operator, values);
 	}
 
@@ -161,10 +161,10 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	/**
-	 * Like {@link #andNotNull(String, String, Object...)} with {@link Operator#EQUAL}
+	 * Like {@link #andNN(String, String, Object...)} with {@link Operator#EQUAL}
 	 */
-	public WhereCondition andNotNull(String field, Object value) {
-		return andNotNull(field, Operator.EQUAL, value);
+	public WhereCondition andNN(String field, Object value) {
+		return andNN(field, Operator.EQUAL, value);
 	}
 
 	/**
@@ -199,7 +199,7 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	/**
-	 * Like {@link #andNotNull(String, String, Object...)} but performs an OR-concatenation.
+	 * Like {@link #andNN(String, String, Object...)} but performs an OR-concatenation.
 	 */
 	public WhereCondition orNotNull(String field, String operator, Object... values) {
 		return chain(ChainOperator.OR, true, field, operator, values);
@@ -213,7 +213,7 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	/**
-	 * Like {@link #andNotNull(String, Object)} but performs an OR-concatenation.
+	 * Like {@link #andNN(String, Object)} but performs an OR-concatenation.
 	 */
 	public WhereCondition orNotNull(String field, Object value) {
 		return orNotNull(field, Operator.EQUAL, value);

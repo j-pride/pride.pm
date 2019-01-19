@@ -39,6 +39,11 @@ public class RecordDescriptor
 		/** ResultSet data is extracted by index */
 		public static final int INDEX = 2;
 	};
+
+	public static enum RowQualifier {
+		/** Row is the table's primary key or part of it */
+		PK
+	};
 	
     protected Class<?> objectType;
     protected String dbContext;
@@ -90,7 +95,7 @@ public class RecordDescriptor
     }
 
     public RecordDescriptor row(String[] rawAttributeDesc) {
-    	AttributeDescriptor attributeDesc = new AttributeDescriptor(objectType, rawAttributeDesc, extractionMode);
+    	AttributeDescriptor attributeDesc = new AttributeDescriptor(objectType, extractionMode, rawAttributeDesc);
     	attrDescriptors.add(attributeDesc);
     	return this;
 	}

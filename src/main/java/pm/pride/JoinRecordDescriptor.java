@@ -287,7 +287,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         }
         
         public void row(String[] rawAttributeDesc) {
-        	attributeDescriptors.add(new AttributeDescriptor(objectType, rawAttributeDesc, extractionMode));
+        	attributeDescriptors.add(new AttributeDescriptor(objectType, extractionMode, rawAttributeDesc));
 		}
 
 		public Join(Class<?> objectType, String tableName, String alias, String joinOnExpression) {

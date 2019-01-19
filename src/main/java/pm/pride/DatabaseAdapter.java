@@ -32,30 +32,26 @@ abstract public class DatabaseAdapter
         return DatabaseFactory.getDatabase(red.getContext());
     }
     
-    protected static Database getDatabase(ExtensionDescriptor xd) {
-        return DatabaseFactory.getDatabase(xd.getContext());
-    }
-    
     /** Fetch objects by fields. The values are taken from the fields' associated get-methods */
     protected static ResultIterator queryByExample(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
-            getDatabase(red).queryByExample(red, All, entity, dbfields) : null;
+            getDatabase(red).queryByExample(red, All, entity, false, dbfields) : null;
     }
 
     /** Same like <code>query()</code> but performs a wildcard search */
     protected static ResultIterator wildcard(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
-            getDatabase(red).wildcardSearch(red, All, entity, dbfields) : null;
+            getDatabase(red).wildcardSearch(red, All, entity, false, dbfields) : null;
     }
 
     /** Same like {@link #queryByExample(RecordDescriptor, Object, String...)} but takes the first record only.
      * Returns false if no matching record could be found. */
-    protected static boolean find(Object entity, RecordDescriptor red, String... dbkeyfields)
+    protected static boolean findByExample(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
     	return (dbkeyfields != null) ?
-            !getDatabase(red).queryByExample(red, First, entity, dbkeyfields).isNull() : false;
+            !getDatabase(red).queryByExample(red, First, entity, false, dbkeyfields).isNull() : false;
     }
 
 	static boolean exists(Object entity, RecordDescriptor red) throws SQLException {
@@ -63,7 +59,7 @@ abstract public class DatabaseAdapter
 	}
 
     
-    /** Like {@link #find(Object, RecordDescriptor, String[])} but reports a missing match by
+    /** Like {@link #findByExample(Object, RecordDescriptor, String[])} but reports a missing match by
      * a {@link FindException} rather than a return value. This is of interest when ever finding
      * no result is an unexpected situation. In these cases findx() keeps from cluttering the
      * happy-path of the application logic with if-statements for error handling.
@@ -71,9 +67,9 @@ abstract public class DatabaseAdapter
      * The FindException is derived from SQLException, so there is usually no additionally catch
      * block required for this exception.
      */
-    protected static void findx(Object entity, RecordDescriptor red, String... dbkeyfields)
+    protected static void findByExampleX(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
-    	if (!find(entity, red, dbkeyfields)) {
+    	if (!findByExample(entity, red, dbkeyfields)) {
     		throw new FindException();
     	}
     }
@@ -81,14 +77,19 @@ abstract public class DatabaseAdapter
     /** Find an object by it's primary key fields. Returns false if no matching record could be found. */
     protected static boolean find(Object entity, RecordDescriptor red)
         throws SQLException {
-        return getDatabase(red).fetchRecord(red, entity);
+        return getDatabase(red).fetchRecord(red, entity, false) != null;
+    }
+
+    protected static Object findC(Object entity, RecordDescriptor red)
+        throws SQLException {
+        return getDatabase(red).fetchRecord(red, entity, true);
     }
 
     /** Like {@link #find(Object, RecordDescriptor)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
-     * {@link #findx(Object, RecordDescriptor, String[])}.
+     * {@link #findByExampleX(Object, RecordDescriptor, String[])}.
      */
-    protected static void findx(Object entity, RecordDescriptor red)
+    protected static void findX(Object entity, RecordDescriptor red)
         throws SQLException {
     	if (!find(entity, red)) {
     		throw new FindException();
@@ -99,14 +100,14 @@ abstract public class DatabaseAdapter
      * Returns false if no matching record could be found */
     protected static boolean find(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return (getDatabase(red).queryByExample(red, First, entity, where) != null);
+        return (getDatabase(red).queryByExample(red, First, entity, false, where) != null);
     }
 
     /** Like {@link #find(Object, RecordDescriptor, String, Object...)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
-     * {@link #findx(Object, RecordDescriptor, String[])}.
+     * {@link #findByExampleX(Object, RecordDescriptor, String[])}.
      */
-    protected static void findx(Object entity, RecordDescriptor red, String where, Object... params)
+    protected static void findX(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
     	if (!find(entity, red, where, params)) {
     		throw new FindException();
@@ -122,13 +123,13 @@ abstract public class DatabaseAdapter
     /** Fetch an object by a self-made where clause */
     protected static ResultIterator query(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return getDatabase(red).query(red, All, entity, where, params);
+        return getDatabase(red).query(red, All, entity, false, where, params);
     }
 
     /** Fetch an object by a self-made where clause */
     protected static ResultIterator query(Object entity, RecordDescriptor red, WhereCondition where)
         throws SQLException {
-        return getDatabase(red).query(red, All, entity, where);
+        return getDatabase(red).query(red, All, entity, false, where);
     }
 
     protected static int update(Object entity, RecordDescriptor red)

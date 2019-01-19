@@ -57,10 +57,29 @@ public class PrideSelectTest extends AbstractPrideTest {
 	}
 	
 	@Test(expected=SQLException.class)
-	public void findxThrowsExceptionOnMissingResult() throws Exception {
+	public void findXThrowsExceptionOnMissingResult() throws Exception {
 		Customer c = new Customer();
 		c.setId(UNKNOWN_ID);
-		c.findx();
+		c.findX();
+	}
+
+	@Test
+	public void findCReturnsCopyOnMatch() throws Exception {
+		Customer c = new Customer();
+		c.setId(1);
+		Customer fc = c.findC(Customer.class);
+		assertNotNull(fc);
+		assertFalse(fc == c);
+		assertNull(c.getFirstName());
+		assertNotNull(fc.getFirstName());
+	}
+
+	@Test
+	public void findCReturnsNullOnMissingResult() throws Exception {
+		Customer c = new Customer();
+		c.setId(UNKNOWN_ID);
+		Customer fc = c.findC(Customer.class);
+		assertNull(fc);
 	}
 
 	@Test
@@ -201,7 +220,7 @@ public class PrideSelectTest extends AbstractPrideTest {
 	@Test(expected = RuntimeException.class)
 	public void testIllegalSelect() throws Exception {
 		Customer c = new Customer();
-		c.find(new String[] { "unknown" });
+		c.findByExample(new String[] { "unknown" });
 		fail("Illegal select should have thrown an exception");
 	}
 	

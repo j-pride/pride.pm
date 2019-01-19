@@ -12,6 +12,8 @@ package pm.pride;
 
 import java.sql.SQLException;
 
+import static pm.pride.Database.QueryScope.*;
+
 /**
  * Convenience baseclass, providing a set of simple methods for
  * interaction between the database and data entity objects. Most
@@ -38,14 +40,14 @@ abstract public class DatabaseAdapter
     protected static ResultIterator queryByExample(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
-            getDatabase(red).queryByExample(red, true, entity, dbfields) : null;
+            getDatabase(red).queryByExample(red, All, entity, dbfields) : null;
     }
 
     /** Same like <code>query()</code> but performs a wildcard search */
     protected static ResultIterator wildcard(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {
         return (dbfields != null) ? // null fields indicates fetching is performed in derived type
-            getDatabase(red).wildcardSearch(red, true, entity, dbfields) : null;
+            getDatabase(red).wildcardSearch(red, All, entity, dbfields) : null;
     }
 
     /** Same like {@link #queryByExample(RecordDescriptor, Object, String...)} but takes the first record only.
@@ -53,9 +55,14 @@ abstract public class DatabaseAdapter
     protected static boolean find(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
     	return (dbkeyfields != null) ?
-            !getDatabase(red).queryByExample(red, false, entity, dbkeyfields).isNull() : false;
+            !getDatabase(red).queryByExample(red, First, entity, dbkeyfields).isNull() : false;
     }
 
+	static boolean exists(Object entity, RecordDescriptor red) throws SQLException {
+		return getDatabase(red).exists(red, entity);
+	}
+
+    
     /** Like {@link #find(Object, RecordDescriptor, String[])} but reports a missing match by
      * a {@link FindException} rather than a return value. This is of interest when ever finding
      * no result is an unexpected situation. In these cases findx() keeps from cluttering the
@@ -92,7 +99,7 @@ abstract public class DatabaseAdapter
      * Returns false if no matching record could be found */
     protected static boolean find(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return (getDatabase(red).queryByExample(red, false, entity, where) != null);
+        return (getDatabase(red).queryByExample(red, First, entity, where) != null);
     }
 
     /** Like {@link #find(Object, RecordDescriptor, String, Object...)} but reports a missing match by
@@ -115,13 +122,13 @@ abstract public class DatabaseAdapter
     /** Fetch an object by a self-made where clause */
     protected static ResultIterator query(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return getDatabase(red).query(red, true, entity, where, params);
+        return getDatabase(red).query(red, All, entity, where, params);
     }
 
     /** Fetch an object by a self-made where clause */
     protected static ResultIterator query(Object entity, RecordDescriptor red, WhereCondition where)
         throws SQLException {
-        return getDatabase(red).query(red, true, entity, where);
+        return getDatabase(red).query(red, All, entity, where);
     }
 
     protected static int update(Object entity, RecordDescriptor red)

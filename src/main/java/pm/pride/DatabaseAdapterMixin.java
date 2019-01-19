@@ -68,6 +68,13 @@ public interface DatabaseAdapterMixin {
 			return DatabaseAdapter.find(getEntity(), getDescriptor());
 	}
 
+	/**
+	 * Returns true, if there exists a record in the database mathing the entity's primary key.
+	 */
+	default boolean exists() throws SQLException {
+		return DatabaseAdapter.exists(getEntity(), getDescriptor());
+	}
+	
     /** Like {@link #find()} but reports a missing match by a {@link FindException} rather than
      * a return value. This is of interest when ever finding no result is an unexpected situation.
      * In these cases findx() keeps from cluttering the happy-path of the application logic with

@@ -66,12 +66,6 @@ public class ResultIterator
     protected Method cloneMethod;
     protected SpoolState spoolState;
     
-    private ResultIterator() {} // Used to represent an empty resp. null result
-
-	public static ResultIterator emptyResult() {
-		return new ResultIterator();
-	}
-
     /** Creates a new ResultIterator from an query. */
     public ResultIterator(Statement statement, boolean customStatement, ResultSet rs,
 		Object obj, RecordDescriptor red,
@@ -91,6 +85,12 @@ public class ResultIterator
 
     public boolean isNull() { return statement == null; }
     
+	public ResultIterator toNull() throws SQLException {
+		close();
+		statement = null;
+		return this;
+	}
+
     /** Returns the result set, the iterator is operating on. This may be
      * required to pass query results to standard reporting engines etc.
      */
@@ -104,7 +104,7 @@ public class ResultIterator
      * assuming that it may be reused.
      */
     public void close() throws SQLException {
-		if (results != null) { // Keep from multiply closing operations on database resources
+		if (results != null) { // Avoid multiple closing operations on database resources
 		    results.close();
 		    if (customStatement) {
 		        ((PreparedStatement)statement).clearParameters();
@@ -153,6 +153,22 @@ public class ResultIterator
         	throw x;
         }
     }
+
+    /** Only of interest after a call of {@link #checkEmptyOnly()} used for result existence check.
+     * Returns true if there was at least one result and false otherwise.
+     */
+    public boolean isEmpty() { return spoolState == SpoolState.Finished; }
+
+	public ResultIterator checkEmptyOnly() throws SQLException {
+		try {
+	        boolean b = results.next();
+	        spoolState = b ? SpoolState.PendingLastResultAfterClose : SpoolState.Finished;
+		}
+		finally {
+			close();
+		}
+        return this;
+	}
 
     /** Returns the object, the ResultIterator writes its data to */
     public Object getObject() { return obj; }
@@ -354,5 +370,4 @@ public class ResultIterator
 		@Override public int characteristics() { return IMMUTABLE; }
 	}
 
-	
 }

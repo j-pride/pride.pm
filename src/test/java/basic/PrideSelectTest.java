@@ -1,4 +1,5 @@
 package basic;
+import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +28,7 @@ import pm.pride.ResultIterator;
 public class PrideSelectTest extends AbstractPrideTest {
 
 	private static int COUNT = 100;
+	private static int UNKNOWN_ID = COUNT+1;
 	int count;
 	int lastId;
 
@@ -41,11 +43,41 @@ public class PrideSelectTest extends AbstractPrideTest {
 		Customer c = new Customer(1);
 		assertEquals("First", c.getFirstName());
 		assertEquals("Customer", c.getLastName());
-		c = new Customer(COUNT);
+		c.setId(COUNT);
+		assertTrue(c.find());
 		assertEquals("Last", c.getFirstName());
 		assertEquals("Customer", c.getLastName());
 	}
 	
+	@Test
+	public void findReturnsFalseOnMissingResult() throws Exception {
+		Customer c = new Customer();
+		c.setId(UNKNOWN_ID);
+		assertFalse(c.find());
+	}
+	
+	@Test(expected=SQLException.class)
+	public void findxThrowsExceptionOnMissingResult() throws Exception {
+		Customer c = new Customer();
+		c.setId(UNKNOWN_ID);
+		c.findx();
+	}
+
+	@Test
+	public void existsReturnsFalseOnMissingResult() throws Exception {
+		Customer c = new Customer();
+		c.setId(UNKNOWN_ID);
+		assertFalse(c.exists());
+	}
+
+	@Test
+	public void existsReturnsTrueOnMatch() throws Exception {
+		Customer c = new Customer();
+		c.setId(1);
+		assertTrue(c.exists());
+		assertEquals(null, c.getFirstName());
+	}
+
 	@Test
 	public void testSelectAll() throws Exception{
 		Customer c = new Customer();

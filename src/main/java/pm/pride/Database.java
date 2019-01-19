@@ -1,12 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
+ * Copyright (c) 2001-2019 The PriDE team 
  *******************************************************************************/
 package pm.pride;
 
@@ -36,7 +29,8 @@ public class Database implements SQL.Formatter
     private Vector txlisteners = null;
     private Integer statementTimeout = null;
 
-
+    public static enum QueryScope { First, All, Exists };
+    
     // ------------- G e n e r a l   e x c e p t i o n   h a n d l i n g ------------
 
     void processException(Exception x) throws Exception {
@@ -61,7 +55,7 @@ public class Database implements SQL.Formatter
      */
     public Connection getConnection() throws SQLException {
 		try { return accessor.getConnection(dbname); }
-		catch(Exception x) { processSevereButSQLException(x); return null; }
+		catch(Exception x) { throw processSevereButSQLException(x); }
     }
 
     /** Close the current thread's connection for later reuse.
@@ -85,16 +79,14 @@ public class Database implements SQL.Formatter
 	public String getPhysicalTableName(String logicalTableName) {
 		try { return accessor.getTableName(logicalTableName); }
 		catch(Exception x) {
-			processSevereException(x);
-			return null;
+			throw processSevereException(x);
 		}
 	}
 
     public String getPhysicalTableName(ExtensionDescriptor xd) {
         try { return accessor.getTableName(xd.getTableName()); }
         catch(Exception x) {
-            processSevereException(x);
-            return null;
+            throw processSevereException(x);
         }
     }
     
@@ -138,7 +130,7 @@ public class Database implements SQL.Formatter
 	 */
     public String getUserName() throws SQLException{
 		try { return this.accessor.getUserName(this.dbname); }
-		catch(Exception x) { processSevereButSQLException(x); return null; }
+		catch(Exception x) { throw processSevereButSQLException(x); }
     }
 
     /**
@@ -200,19 +192,21 @@ public class Database implements SQL.Formatter
      * from its isNull() method.
      */
     protected ResultIterator fetchFirst(Object obj, RecordDescriptor red,
-                                        boolean keepRest,
+                                        QueryScope qscope,
                                         String query, Object... params)
         throws SQLException {
         ResultIterator ri = sqlQuery(red, obj, query, params);
-        return returnIteratorIfNotEmpty(ri, query, keepRest);
+        return returnIteratorIfNotEmpty(ri, qscope);
     }
     
-    protected ResultIterator returnIteratorIfNotEmpty(ResultIterator ri, String query, boolean keepRest) throws SQLException {
+    protected ResultIterator returnIteratorIfNotEmpty(ResultIterator ri, QueryScope qscope) throws SQLException {
+    	if (qscope == QueryScope.Exists) {
+    		return ri.checkEmptyOnly();
+    	}
         if (!ri.next()) {
-            ri.close();
-            return ResultIterator.emptyResult();
+            return ri.toNull();
         }
-        if (!keepRest) {
+        if (qscope != QueryScope.All) {
             ri.close();
         }
         return ri;
@@ -367,7 +361,7 @@ public class Database implements SQL.Formatter
     }
     
     public boolean fetchRecord(RecordDescriptor red, Object obj, WhereCondition primaryKeyCondition) throws SQLException {
-    	return query(red, false, obj, primaryKeyCondition) != null;
+    	return !query(red, QueryScope.First, obj, primaryKeyCondition).isNull();
     }
 
     /** Fetch a record from the database and store the results in a JAVA object
@@ -397,28 +391,38 @@ public class Database implements SQL.Formatter
      * Following records can successivly be copied to <code>obj</code> using the
      * ResultIterator.
      */
-    public ResultIterator queryByExample(RecordDescriptor red, boolean all, Object obj, String... dbfields)
+    public ResultIterator queryByExample(RecordDescriptor red, QueryScope qscope, Object obj, String... dbfields)
         throws SQLException {
 		try {
-			return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, false));
+			return query(red, qscope, obj, red.assembleWhereCondition(obj, dbfields, false));
 		}
 		catch(Exception x) {
-			processSevereButSQLException(x);
-			return ResultIterator.emptyResult();
+			throw processSevereButSQLException(x);
 		}
     }
+
+	public boolean exists(RecordDescriptor red, Object obj) throws SQLException {
+		try {
+			WhereCondition where = red.assembleWhereCondition(obj, null, false);
+			ResultIterator ri = query(red, QueryScope.Exists, obj, where);
+			return !ri.isEmpty();
+		}
+		catch(Exception x) {
+			throw processSevereButSQLException(x);
+		}
+	}
+
 
     /** Like function <code>query()</code> above but selects using the
      * <code>like</code> operator
      */
-    public ResultIterator wildcardSearch(RecordDescriptor red, boolean all, Object obj, String... dbfields)
+    public ResultIterator wildcardSearch(RecordDescriptor red, QueryScope qscope, Object obj, String... dbfields)
         throws SQLException {
         try {
-        	return query(red, all, obj, red.assembleWhereCondition(obj, dbfields, true));
+        	return query(red, qscope, obj, red.assembleWhereCondition(obj, dbfields, true));
         }
 		catch(Exception x) {
-			processSevereButSQLException(x);
-			return ResultIterator.emptyResult();
+			throw processSevereButSQLException(x);
 		}
     }
 
@@ -432,14 +436,14 @@ public class Database implements SQL.Formatter
      * Following records can successively be copied to <code>obj</code> using the
      * ResultIterator.
      */
-    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, String where, Object... params)
+    public ResultIterator query(RecordDescriptor red, QueryScope qscope, Object obj, String where, Object... params)
         throws SQLException {
         String query = "select " + red.getResultFields() + " from " +
             getTableName(red) + where(where);
-        return fetchFirst(obj, red, all, query, params);
+        return fetchFirst(obj, red, qscope, query, params);
     }
 
-    public ResultIterator query(RecordDescriptor red, boolean all, Object obj, WhereCondition where) throws SQLException {
+    public ResultIterator query(RecordDescriptor red, QueryScope qscope, Object obj, WhereCondition where) throws SQLException {
 		String whereString = where2string(where, red.dbtableAlias);
 
     	if (where != null && where.requiresBinding(this)) {
@@ -451,16 +455,16 @@ public class Database implements SQL.Formatter
                 where.bind(this, cns);
                 ResultSet rs = cns.getStatement().executeQuery();
                 ResultIterator ri = new ResultIterator(cns.stmt, false, rs, obj, red, this, cns.con);
-                return returnIteratorIfNotEmpty(ri, query, all);
+                return returnIteratorIfNotEmpty(ri, qscope);
             }
             catch (Exception x) {
             	if (cns != null)
             		cns.closeAfterException(x);
-                return ResultIterator.emptyResult();
+                throw processSevereButSQLException(x);
             }
     	}
     	else {
-    		return query(red, all, obj, whereString);
+    		return query(red, qscope, obj, whereString);
     	}
     }
 
@@ -474,7 +478,7 @@ public class Database implements SQL.Formatter
      */
     public ResultIterator queryAll(RecordDescriptor red, Object obj)
       throws SQLException {
-        return query(red, true, obj, (String)null);
+        return query(red, QueryScope.All, obj, (String)null);
     }
 
     /** Update a database record with the data of a JAVA object according to the
@@ -736,9 +740,3 @@ public class Database implements SQL.Formatter
     public synchronized void removeListener(TransactionListener l) { txlisteners.remove(l); }
 
 }
-
-/* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/Database.java-arc  $
- * 
- *    Rev 1.1   06 Sep 2002 14:54:18   math19
- * Now use new SQLFormatter interface.
- */

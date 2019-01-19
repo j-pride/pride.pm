@@ -5,6 +5,7 @@ import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.RecordDescriptor;
 import pm.pride.WhereCondition;
+import pm.pride.Database.QueryScope;
 
 import java.sql.SQLException;
 
@@ -35,6 +36,6 @@ public class DatabaseTest extends AbstractPrideTest  {
     @Test
     public void testQueryWithWherConditionIsNull() throws SQLException {
         CountDescriptor countDesc =  new CountDescriptor(TEST_TABLE);
-        DatabaseFactory.getDatabase().query(countDesc, false, countDesc, (WhereCondition) null);
+        DatabaseFactory.getDatabase().query(countDesc, QueryScope.First, countDesc, (WhereCondition) null);
     }
 }

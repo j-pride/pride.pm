@@ -372,7 +372,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     }
 
     protected Object wrapArrayTypedValue(Connection connection, Object attrValue) throws SQLException {
-        if (attrValue.getClass().isArray()) {
+        if (!(attrValue instanceof byte[]) && attrValue.getClass().isArray()) {
             attrValue = connection.createArrayOf("text", (Object[])attrValue);
         }
         return attrValue;

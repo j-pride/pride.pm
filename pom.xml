@@ -4,7 +4,7 @@
     <groupId>pm.pride</groupId>
     <artifactId>pride</artifactId>
     <packaging>jar</packaging>
-    <version>3.2.0</version>
+    <version>3.2.2</version>
     <!-- <version>3.3-SNAPSHOT</version> -->
     <name>pride</name>
     <description>World's smallest O/R mapper for Java</description>

@@ -114,7 +114,7 @@ public class RecordDescriptor
 	/** Creates a new mapping descriptor like constructor above but always uses the current DB
 	 * context of {@link DatabaseFactory} and auto extraction mode. Constructors with an
 	 * attribute map as two-dimensional String array are deprecated. Use constructor
-	 * {@link #RecordDescriptor(Class, String, RecordDescriptor) instead, followed by
+	 * {@link #RecordDescriptor(Class, String, RecordDescriptor)} instead, followed by
 	 * calls of method {@link #row(String, String, String)} for all attributes.
      */
 	@Deprecated

@@ -57,17 +57,17 @@ public class PrideSelectTest extends AbstractPrideTest {
 	}
 	
 	@Test(expected=SQLException.class)
-	public void findXThrowsExceptionOnMissingResult() throws Exception {
+	public void findXEThrowsExceptionOnMissingResult() throws Exception {
 		Customer c = new Customer();
 		c.setId(UNKNOWN_ID);
-		c.findX();
+		c.findXE();
 	}
 
 	@Test
-	public void findCReturnsCopyOnMatch() throws Exception {
+	public void findRCReturnsCopyOnMatch() throws Exception {
 		Customer c = new Customer();
 		c.setId(1);
-		Customer fc = c.findC(Customer.class);
+		Customer fc = c.findRC(Customer.class);
 		assertNotNull(fc);
 		assertFalse(fc == c);
 		assertNull(c.getFirstName());
@@ -75,10 +75,10 @@ public class PrideSelectTest extends AbstractPrideTest {
 	}
 
 	@Test
-	public void findCReturnsNullOnMissingResult() throws Exception {
+	public void findRCReturnsNullOnMissingResult() throws Exception {
 		Customer c = new Customer();
 		c.setId(UNKNOWN_ID);
-		Customer fc = c.findC(Customer.class);
+		Customer fc = c.findRC(Customer.class);
 		assertNull(fc);
 	}
 
@@ -130,7 +130,7 @@ public class PrideSelectTest extends AbstractPrideTest {
 		count = 0;
 		lastId = -1;
 		Set<Integer> selectedIds = new HashSet<>();
-		c.queryAll().streamUncloned(Customer.class).forEach(customer -> {
+		c.queryAll().streamOE(Customer.class).forEach(customer -> {
 			assertNotNull(customer);
 			assertEquals(c, customer); // Original entity is not cloned
 			assertNotEquals(lastId, customer.getId()); // But the content differs

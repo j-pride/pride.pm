@@ -316,7 +316,7 @@ public class ResultIterator
      * Provides the results as a stream. The stream contains clones of the iterator's
      * operation object and therefore the function is only suitable for small amounts of
      * result. For iterating through large result sets you may alternatively use the function
-     * {@link #streamUncloned(Class)}.
+     * {@link #streamOE(Class)}.
      */
 	public <T> Stream<T> stream(Class<T> t) {
 		return StreamSupport.stream(new ResultSpliterator<T>(true), false);
@@ -330,7 +330,7 @@ public class ResultIterator
      * exist at a time and have their own identity. Save streaming is instead achieved by using
      * function {@link #stream(Class)}.
      */
-	public <T> Stream<T> streamUncloned(Class<T> t) {
+	public <T> Stream<T> streamOE(Class<T> t) {
 		return StreamSupport.stream(new ResultSpliterator<T>(false), false);
 	}
 	

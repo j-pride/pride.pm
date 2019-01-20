@@ -472,7 +472,7 @@ public class EntityGenerator {
 			buffer.append(");\n");
 		}
 		if (generateHybrid() && baseClassName == null) {
-			buffer.append("        findX();\n");
+			buffer.append("        findXE();\n");
 		}
 		buffer.append("    }\n");
 	}

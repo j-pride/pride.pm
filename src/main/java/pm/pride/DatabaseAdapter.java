@@ -61,13 +61,13 @@ abstract public class DatabaseAdapter
     
     /** Like {@link #findByExample(Object, RecordDescriptor, String[])} but reports a missing match by
      * a {@link FindException} rather than a return value. This is of interest when ever finding
-     * no result is an unexpected situation. In these cases findx() keeps from cluttering the
+     * no result is an unexpected situation. In these cases findByExampleXE keeps from cluttering the
      * happy-path of the application logic with if-statements for error handling.
      * <p>
      * The FindException is derived from SQLException, so there is usually no additionally catch
      * block required for this exception.
      */
-    protected static void findByExampleX(Object entity, RecordDescriptor red, String... dbkeyfields)
+    protected static void findByExampleXE(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
     	if (!findByExample(entity, red, dbkeyfields)) {
     		throw new FindException();
@@ -80,16 +80,16 @@ abstract public class DatabaseAdapter
         return getDatabase(red).fetchRecord(red, entity, false) != null;
     }
 
-    protected static Object findC(Object entity, RecordDescriptor red)
+    protected static Object findRC(Object entity, RecordDescriptor red)
         throws SQLException {
         return getDatabase(red).fetchRecord(red, entity, true);
     }
 
     /** Like {@link #find(Object, RecordDescriptor)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
-     * {@link #findByExampleX(Object, RecordDescriptor, String[])}.
+     * {@link #findByExampleXE(Object, RecordDescriptor, String[])}.
      */
-    protected static void findX(Object entity, RecordDescriptor red)
+    protected static void findXE(Object entity, RecordDescriptor red)
         throws SQLException {
     	if (!find(entity, red)) {
     		throw new FindException();
@@ -110,9 +110,9 @@ abstract public class DatabaseAdapter
 
     /** Like {@link #find(Object, RecordDescriptor, String, Object...)} but reports a missing match by
      * a {@link FindException} rather than a return value. Further details, see
-     * {@link #findByExampleX(Object, RecordDescriptor, String[])}.
+     * {@link #findByExampleXE(Object, RecordDescriptor, String[])}.
      */
-    protected static void findX(Object entity, RecordDescriptor red, String where, Object... params)
+    protected static void findXE(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
     	if (!find(entity, red, where, params)) {
     		throw new FindException();

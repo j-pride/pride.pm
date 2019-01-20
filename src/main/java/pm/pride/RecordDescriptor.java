@@ -14,6 +14,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -40,16 +41,14 @@ public class RecordDescriptor
 		public static final int INDEX = 2;
 	};
 
-	public static enum RowQualifier {
-		/** Row is the table's primary key or part of it */
-		PK
-	};
-	
     protected Class<?> objectType;
+    protected ObjectInstanciator objectInstanciator;
     protected String dbContext;
     protected String dbtable;
     protected String dbtableAlias;
     protected List<AttributeDescriptor> attrDescriptors;
+    protected List<String> primaryKeyFields;
+    protected String[] autoFields;
     protected int extractionMode;
     protected RecordDescriptor baseDescriptor;
     protected boolean withBind;
@@ -104,16 +103,39 @@ public class RecordDescriptor
     	return row(new String[] { dbfield, getter, setter });
 	}
 
+    public RecordDescriptor rowPK(String dbfield, String getter, String setter) {
+    	primaryKeyFields.add(dbfield);
+    	return row(dbfield, getter, setter);
+	}
+
+    public RecordDescriptor keyFields(String... dbfields) {
+    	primaryKeyFields.clear();
+    	primaryKeyFields.addAll(Arrays.asList(dbfields));
+    	return this;
+    }
+    
+    public RecordDescriptor autoFields(String... dbfields) {
+    	autoFields = dbfields;
+    	return this;
+    }
+    
 	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
 		    RecordDescriptor baseDescriptor, int extractionMode)
 		throws IllegalDescriptorException {
 	    this.objectType = objectType;
+	    this.objectInstanciator = new ObjectInstanciator(objectType);
 	    this.dbContext = dbContext;
 	    this.dbtable = dbtable;
 	    this.dbtableAlias = dbtableAlias;
 	    this.baseDescriptor = baseDescriptor;
 	    this.attrDescriptors = new ArrayList<>();
 	    this.extractionMode = extractionMode;
+	    this.primaryKeyFields = new ArrayList<>();
+	    // Primary Key Fields is always the cumulated list from all descriptors along an inheritance hierarchy
+	    if (baseDescriptor != null) {
+	    	this.primaryKeyFields.addAll(Arrays.asList(baseDescriptor.getPrimaryKeyFields()));
+	    	this.autoFields = baseDescriptor.getAutoFields();
+	    }
 	}
 
 	/** Creates a new mapping descriptor like constructor above but always uses the current DB
@@ -197,18 +219,15 @@ public class RecordDescriptor
     public RecordDescriptor(RecordDescriptor red, String alias) { this(red, alias, null); }
 
     public String getTableName() { return dbtable; }
-    public Class getObjectType() { return objectType; }
+    public Class<?> getObjectType() { return objectType; }
     public String getContext() { return dbContext; }
 
-    /** Get the names of the database fields making up the primary key.
-     * Currently just returns the first attribute mapping's field name, so make
-     * sure to always put the description of the primary key field at the
-     * very beginning of the mappings passed in the constructor.
-     */
+    /** Get the names of the database fields making up the primary key. */
     public String[] getPrimaryKeyFields() {
-        return (baseDescriptor != null) ? baseDescriptor.getPrimaryKeyFields() :
-            new String[]{attrDescriptors.get(0).getFieldName(dbtableAlias)};
+    	return primaryKeyFields.toArray(new String[primaryKeyFields.size()]);
     }
+
+	public String[] getAutoFields() { return autoFields; }
 
 	public int record2object(String toplevelTableAlias, Object obj, ResultSet results,
 		int position, AttributeDescriptor attrDesc)

@@ -20,6 +20,11 @@ import pm.pride.RecordDescriptor;
  */
 public class AutoCustomer extends Customer {
 
+	protected static RecordDescriptor red =
+			new RecordDescriptor(AutoCustomer.class, TABLE, Customer.red).autoFields(COL_ID);
+
+	public RecordDescriptor getDescriptor() { return red; }
+
 	public AutoCustomer() {}
 	
 	public AutoCustomer(int id) throws SQLException{
@@ -33,7 +38,5 @@ public class AutoCustomer extends Customer {
 	public AutoCustomer(int id, String firstName, String lastName, Boolean active, Date hireDate) throws SQLException {
 		super(id, firstName, lastName, active, hireDate);
 	}
-
-	public String[] getAutoFields() { return new String[] {"id"}; }
 
 }

@@ -34,7 +34,7 @@ public class DatabaseTest extends AbstractPrideTest  {
     }
 
     @Test
-    public void testQueryWithWherConditionIsNull() throws SQLException {
+    public void testQueryWithWhereConditionIsNull() throws SQLException {
         CountDescriptor countDesc =  new CountDescriptor(TEST_TABLE);
         DatabaseFactory.getDatabase().query(countDesc, QueryScope.First, countDesc, false, (WhereCondition) null);
     }

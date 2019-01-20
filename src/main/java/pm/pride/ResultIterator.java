@@ -143,7 +143,7 @@ public class ResultIterator
 	            if (red != null) {
 					try {
 						if (duplicateObj) {
-							obj = cloneObject();
+							obj = duplicateObject();
 							duplicateObj = false;
 						}
 						red.record2object(obj, results, COLUMN_STARTINDEX);
@@ -187,10 +187,8 @@ public class ResultIterator
     /** Returns the object, the ResultIterator writes its data to */
     public <T> T getObject(Class<T> t) { return (T)obj; }
     
-	protected Object cloneObject() throws ReflectiveOperationException {
-		if (cloneMethod == null)
-			cloneMethod = obj.getClass().getMethod("clone");
-		return cloneMethod.invoke(obj);
+	protected Object duplicateObject() throws ReflectiveOperationException {
+		return red.objectInstanciator.instanciate(obj);
 	}
 	
     /**
@@ -255,7 +253,7 @@ public class ResultIterator
 				do {
 					lastResultSpooled = spoolCondition.spool((T)obj);
 					if (lastResultSpooled)
-						list.add(cloneObject());
+						list.add(duplicateObject());
 					else
 						break;
 				}
@@ -358,15 +356,15 @@ public class ResultIterator
 	}
 
 	public class ResultSpliterator<T> implements Spliterator<T> {
-		final boolean withClone;
+		final boolean withDuplication;
 		
-		ResultSpliterator(boolean withClone) { this.withClone = withClone; }
+		ResultSpliterator(boolean withDuplication) { this.withDuplication = withDuplication; }
 		
 		@Override
 		public boolean tryAdvance(Consumer<? super T> action) {
 			try {
 				if (!isNull()) {
-					action.accept((T) (withClone ? cloneObject() : getObject()));
+					action.accept((T) (withDuplication ? duplicateObject() : getObject()));
 					return ResultIterator.this.next();
 				}
 			}

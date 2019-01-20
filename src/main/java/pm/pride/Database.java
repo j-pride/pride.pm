@@ -224,8 +224,8 @@ public class Database implements SQL.Formatter
 
     /** Runs an SQL update statement according to the passed operation
      * @param operation The operation to execute
-     * @param autoFields An array of field which to fetch auto-generated values from after
-     *   a successfull insertion. Should be null if either the operation is not
+     * @param autoFields An array of fields which to fetch auto-generated values from after
+     *   a successful insertion. Should be null if either the operation is not
      *   an insertion or if there are no auto-fields existing
      * @param obj The object to store auto-field values in
      * @param red Descriptor providing the field mappings
@@ -624,6 +624,9 @@ public class Database implements SQL.Formatter
         throws SQLException {
     	PreparedInsert preparedInsert = null;
 		try {
+			if (autoFields == null) {
+				autoFields = red.getAutoFields();
+			}
 			if (accessor.bindvarsByDefault()) {
 				preparedInsert = new PreparedInsert(autoFields, red);
 				return preparedInsert.execute(obj);

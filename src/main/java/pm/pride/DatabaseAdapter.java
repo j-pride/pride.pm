@@ -174,12 +174,12 @@ abstract public class DatabaseAdapter
 	 */
     protected static int create(Object entity, RecordDescriptor red)
         throws SQLException {
-        return create(entity, red, null);
+        return create(entity, red, (String[])null);
     }
 
-	/** Like function above but additionally allows to pass a set of fields which should be excluded
-	 *  from the SQL insert command. This functon is required if the table containes any database-managed
-	 *  columns which must not be provided on creation (usually sequence columns). 
+	/** Like {@link #create(Object, RecordDescriptor)} but additionally allows to pass a set of fields
+	 * which should be excluded from the SQL insert command. This function is required if the table
+	 * contains any database-managed columns which must not be provided on creation (usually sequence columns). 
 	 */
 	protected static int create(Object entity, RecordDescriptor red, String... autoFields)
 		throws SQLException {

@@ -31,20 +31,6 @@ public interface DatabaseAdapterMixin {
 	 */
 	RecordDescriptor getDescriptor();
 
-	/** Returns the primary key fields for this entity. This function
-	 * returns <code>null</code> by default causing the <code>update()</code>
-	 * and <code>delete()</code> functions below to use the first field in
-	 * the record descriptor as primary key.
-	 */
-	default String[] getKeyFields() { return null; }
-	
-	/** Returns a list of fields being managed automatically by the database
-	 * and therefore must not be passed in a record creation. This function
-	 * returns <code>null</code> by default causing all fields of the record
-	 * descriptor to be considered.
-	 */
-	default String[] getAutoFields() { return null; }
-
     default Database getDatabase(RecordDescriptor red) {
         return DatabaseFactory.getDatabase(red.getContext());
     }
@@ -61,11 +47,7 @@ public interface DatabaseAdapterMixin {
 
 	/** Same like <code>query()</code> but takes the first record only */
 	default boolean find() throws SQLException {
-		String[] pk = getKeyFields();
-		if (pk != null)
-			return findByExample(pk);
-		else
-			return DatabaseAdapter.find(getEntity(), getDescriptor());
+		return DatabaseAdapter.find(getEntity(), getDescriptor());
 	}
 
 	default <T> T findC(Class<T> t) throws SQLException {
@@ -174,10 +156,7 @@ public interface DatabaseAdapterMixin {
 	}
 	
 	default int update() throws SQLException {
-		String[] primaryKeyFields = getKeyFields();
-		return (primaryKeyFields != null) ?
-			update(primaryKeyFields) :
-			DatabaseAdapter.update(getEntity(), getDescriptor());
+		return DatabaseAdapter.update(getEntity(), getDescriptor());
 	}
 
 	default int update(String... dbkeyfields) throws SQLException {
@@ -206,15 +185,16 @@ public interface DatabaseAdapterMixin {
 		return DatabaseAdapter.update(getEntity(), getDescriptor(), where, updatefields);
 	}
 
-	default int create() throws SQLException { return create(getAutoFields()); }
+	default int create() throws SQLException {
+		return DatabaseAdapter.create(getEntity(), getDescriptor());
+	}
 
 	default int create(String... autoFields) throws SQLException {
 		return DatabaseAdapter.create(getEntity(), getDescriptor(), autoFields);
 	}
 
 	default int delete() throws SQLException {
-		String[] pk = getKeyFields();
-		return (pk != null) ? deleteByExample(pk) : DatabaseAdapter.delete(getEntity(), getDescriptor());
+		return DatabaseAdapter.delete(getEntity(), getDescriptor());
 	}
 
 	default int deleteByExample(String... dbkeyfields) throws SQLException {
@@ -237,7 +217,7 @@ public interface DatabaseAdapterMixin {
 	 * of the entity return by {@link #getEntity()}
 	 * @deprecated Use {@link #where()} instead */
 	@Deprecated
-	default String constraint() { return constraint(getKeyFields()); }
+	default String constraint() { return constraint(getDescriptor().getPrimaryKeyFields()); }
 
 	default WhereCondition where(String[] dbfields, boolean byLike) {
 		return DatabaseAdapter.assembleWhereCondition(getEntity(), dbfields, byLike, getDescriptor());
@@ -249,8 +229,7 @@ public interface DatabaseAdapterMixin {
 
 	/** Returns a {@link WhereCondition} made up from the primary key attributes
 	 * of the entity return by {@link #getEntity()} */
-	default WhereCondition where() { return where(getKeyFields()); }
-
+	default WhereCondition where() { return where(getDescriptor().getPrimaryKeyFields()); }
 
 	default void commit() throws SQLException {
 		DatabaseAdapter.commit(getDescriptor());

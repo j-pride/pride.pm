@@ -382,7 +382,8 @@ public class Database implements SQL.Formatter
 
     /** Run a database query.
      * @param red descriptor providing the field mappings and the table name to access
-     * @param all flag saying wether to fetch all matching records or only the first one
+     * @param qscope defines the number of results to be fetched - all results, only the first,
+     * or just the information if there exist any results,
      * @param obj both, destination object for result data and source object for
      * the values selection field values
      * @param dbfields table fields which are to be used as selection criteria
@@ -429,7 +430,8 @@ public class Database implements SQL.Formatter
 
     /** Run a database query.
      * @param red Descriptor providing the field mappings and the table name to access
-     * @param all Flag saying wether to fetch all matching records or only the first one
+     * @param qscope defines the number of results to be fetched - all results, only the first,
+     * or just the information if there exist any results,
      * @param obj Destination object to store the data in
      * @param where where-clause to apply (excluding the keyword 'where'!)
      * @return A {@link ResultIterator} if at least one matching record is present or null

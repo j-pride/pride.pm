@@ -21,7 +21,7 @@ import pm.pride.RecordDescriptor;
 public class AutoCustomer extends Customer {
 
 	protected static RecordDescriptor red =
-			new RecordDescriptor(AutoCustomer.class, TABLE, Customer.red).autoFields(COL_ID);
+			new RecordDescriptor(AutoCustomer.class, TABLE, Customer.red).auto(COL_ID);
 
 	public RecordDescriptor getDescriptor() { return red; }
 

@@ -156,7 +156,6 @@ public class EntityGenerator {
 			writeHeader(tableDesc, className, baseClassName, generationType, buffer);
 			writeConstants(tableDesc, className, baseClassName, generationType, buffer);
 			writeRecordDescriptor(tableDesc, className, baseClassName, generationType, buffer);
-			writePrimaryKey(tableDesc, className, baseClassName, generationType, buffer);
 			writeEntityReference(tableDesc, className, baseClassName, generationType, buffer);
 			writeAttributes(tableDesc, className, baseClassName, generationType, buffer);
 			writeGetMethods(tableDesc, className, baseClassName, generationType, buffer);
@@ -314,7 +313,9 @@ public class EntityGenerator {
             sb.append("\" )");
             buffer.append(sb.toString());
 		}
-		
+
+		writePrimaryKey(desc, className, baseClassName, generationType, buffer);
+
         buffer.append(";" + "\n\n");
 				
         buffer.append("    public RecordDescriptor getDescriptor() { return red; }" + "\n");
@@ -348,16 +349,14 @@ public class EntityGenerator {
 
         if (desc.length == 1) {
             if (hasPrimaryKey(desc[0])) {
-                buffer.append("    private static String[] keyFields = new String[] { ");
+                buffer.append("\n            .key( ");
                 for(TableColumn current: desc[0].getColumnList()) {
 					if (current.isPrimaryKeyField())
-                    	buffer.append( toColumnConstant(current) + ",");
+                    	buffer.append( toColumnConstant(current) + ", ");
             	}
-            	buffer.deleteCharAt(buffer.length()-1);
-                buffer.append(" };" + "\n");
-                buffer.append("    public String[] getKeyFields() { return keyFields; }" + "\n");
+            	buffer.deleteCharAt(buffer.length()-2);
+                buffer.append(")");
             }
-            buffer.append("\n");
         }
     }
 
@@ -473,7 +472,7 @@ public class EntityGenerator {
 			buffer.append(");\n");
 		}
 		if (generateHybrid() && baseClassName == null) {
-			buffer.append("        findx();\n");
+			buffer.append("        findX();\n");
 		}
 		buffer.append("    }\n");
 	}

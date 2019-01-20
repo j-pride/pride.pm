@@ -45,6 +45,13 @@ public interface DatabaseAdapterMixin {
 		return DatabaseAdapter.wildcard(getDescriptor(), getEntity(), dbfields);
 	}
 
+	/**
+	 * Returns true, if there exists a record in the database mathing the entity's primary key.
+	 */
+	default boolean exists() throws SQLException {
+		return DatabaseAdapter.exists(getEntity(), getDescriptor());
+	}
+	
 	/** Same like <code>query()</code> but takes the first record only */
 	default boolean find() throws SQLException {
 		return DatabaseAdapter.find(getEntity(), getDescriptor());
@@ -52,13 +59,6 @@ public interface DatabaseAdapterMixin {
 
 	default <T> T findC(Class<T> t) throws SQLException {
 		return (T)DatabaseAdapter.findC(getEntity(), getDescriptor());
-	}
-	
-	/**
-	 * Returns true, if there exists a record in the database mathing the entity's primary key.
-	 */
-	default boolean exists() throws SQLException {
-		return DatabaseAdapter.exists(getEntity(), getDescriptor());
 	}
 	
     /** Like {@link #find()} but reports a missing match by a {@link FindException} rather than
@@ -86,9 +86,16 @@ public interface DatabaseAdapterMixin {
 		DatabaseAdapter.findByExampleX(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
-	/** Same like <code>query()</code> but takes the first record only */
+	/** Same like {@link #query(String, Object...)} but takes the first record only and returns
+	 * false if there was no matching record found */
 	default boolean find(String where, Object... params) throws SQLException {
 		return DatabaseAdapter.find(getEntity(), getDescriptor(), where, params);
+	}
+
+	/** Same like {@link #query(WhereCondition)} but takes the first record only and returns
+	 * false if there was no matching record found */
+	default boolean find(WhereCondition where) throws SQLException {
+		return DatabaseAdapter.find(getEntity(), getDescriptor(), where);
 	}
 
 	/** Same like {@link #find(String)} but reports a missing match by a {@link FindException} rather than

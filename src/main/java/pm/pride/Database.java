@@ -437,7 +437,8 @@ public class Database implements SQL.Formatter
      * Following records can successively be copied to <code>obj</code> using the
      * ResultIterator.
      */
-    public ResultIterator query(RecordDescriptor red, QueryScope qscope, Object obj, boolean duplicateObj, String where, Object... params)
+    public ResultIterator query(RecordDescriptor red, QueryScope qscope,
+    		Object obj, boolean duplicateObj, String where, Object... params)
         throws SQLException {
         String query = "select " + red.getResultFields() + " from " +
             getTableName(red) + where(where);

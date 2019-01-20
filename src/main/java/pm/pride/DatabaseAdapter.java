@@ -100,7 +100,12 @@ abstract public class DatabaseAdapter
      * Returns false if no matching record could be found */
     protected static boolean find(Object entity, RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return (getDatabase(red).queryByExample(red, First, entity, false, where) != null);
+        return getDatabase(red).query(red, First, entity, false, where, params).isNull();
+    }
+
+    protected static boolean find(Object entity, RecordDescriptor red, WhereCondition where)
+        throws SQLException {
+        return getDatabase(red).query(red, First, entity, false, where).isNull();
     }
 
     /** Like {@link #find(Object, RecordDescriptor, String, Object...)} but reports a missing match by

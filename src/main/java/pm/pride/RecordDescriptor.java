@@ -108,13 +108,13 @@ public class RecordDescriptor
     	return row(dbfield, getter, setter);
 	}
 
-    public RecordDescriptor keyFields(String... dbfields) {
+    public RecordDescriptor key(String... dbfields) {
     	primaryKeyFields.clear();
     	primaryKeyFields.addAll(Arrays.asList(dbfields));
     	return this;
     }
     
-    public RecordDescriptor autoFields(String... dbfields) {
+    public RecordDescriptor auto(String... dbfields) {
     	autoFields = dbfields;
     	return this;
     }

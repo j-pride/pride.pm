@@ -42,7 +42,7 @@ public class RecordDescriptor
 	};
 
     protected Class<?> objectType;
-    protected ObjectInstanciator objectInstanciator;
+    protected ObjectFactory objectFactory;
     protected String dbContext;
     protected String dbtable;
     protected String dbtableAlias;
@@ -123,7 +123,7 @@ public class RecordDescriptor
 		    RecordDescriptor baseDescriptor, int extractionMode)
 		throws IllegalDescriptorException {
 	    this.objectType = objectType;
-	    this.objectInstanciator = new ObjectInstanciator(objectType);
+	    this.objectFactory = new ObjectFactory(objectType);
 	    this.dbContext = dbContext;
 	    this.dbtable = dbtable;
 	    this.dbtableAlias = dbtableAlias;

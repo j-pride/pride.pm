@@ -3,14 +3,12 @@ package pm.pride;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
-import oracle.jdbc.Const;
-
-public class ObjectInstanciator {
+public class ObjectFactory {
 	Method cloneMethod;
 	Constructor<?> defaultConstructor;
 	Constructor<?> copyConstructor;
 
-	public ObjectInstanciator(Class<?> objectType) {
+	public ObjectFactory(Class<?> objectType) {
 		try {
 			cloneMethod = objectType.getMethod("clone");
 		}

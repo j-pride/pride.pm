@@ -188,7 +188,7 @@ public class ResultIterator
     public <T> T getObject(Class<T> t) { return (T)obj; }
     
 	protected Object duplicateObject() throws ReflectiveOperationException {
-		return red.objectInstanciator.instanciate(obj);
+		return red.objectFactory.instanciate(obj);
 	}
 	
     /**

@@ -37,7 +37,7 @@ public interface DatabaseAdapterMixin {
 		return DatabaseAdapter.queryByExample(getDescriptor(), getEntity(), dbfields);
 	}
 
-    /** Like {@link #queryByExample(RecordDescriptor, Object, String...)} but provides the result in
+    /** Like {@link #queryByExample(String...)} but provides the results in
      * a copy of the original object. */
 	default ResultIterator queryByExampleRC(String... dbfields) throws SQLException {
 		return DatabaseAdapter.queryByExampleRC(getDescriptor(), getEntity(), dbfields);

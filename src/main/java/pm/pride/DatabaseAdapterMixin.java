@@ -101,7 +101,7 @@ public interface DatabaseAdapterMixin {
 		return DatabaseAdapter.find(getEntity(), getDescriptor(), where);
 	}
 
-	/** Same like {@link #find(String)} but reports a missing match by a {@link FindException} rather than
+	/** Same like {@link #find(String, Object...)} but reports a missing match by a {@link FindException} rather than
      * a return value. Further details concerning the intention, see {@link #findXE()}. */
 	default void findXE(String where, Object... params) throws SQLException {
 		DatabaseAdapter.findXE(getEntity(), getDescriptor(), where, params);

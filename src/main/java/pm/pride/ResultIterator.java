@@ -1,13 +1,4 @@
-/*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
- *******************************************************************************/
+// Temporäre Überschreibung der entsprechenden Klasse aus PriDE bis zum Upgrade auf Version 3.3.3, die den Bugfix enthält.
 package pm.pride;
 
 import java.sql.*;
@@ -252,8 +243,10 @@ public class ResultIterator
 				boolean lastResultSpooled = false;
 				do {
 					lastResultSpooled = spoolCondition.spool((T)obj);
-					if (lastResultSpooled)
-						list.add(duplicateObject());
+					if (lastResultSpooled) {
+                        list.add((T)obj);
+                        obj = duplicateObject();
+                    }
 					else
 						break;
 				}
@@ -364,8 +357,11 @@ public class ResultIterator
 		public boolean tryAdvance(Consumer<? super T> action) {
 			try {
 				if (!isNull()) {
-					action.accept((T) (withDuplication ? duplicateObject() : getObject()));
-					return ResultIterator.this.next();
+					action.accept((T) (getObject()));
+                    if (withDuplication) {
+                        ResultIterator.this.obj = duplicateObject();
+                    }
+                    return ResultIterator.this.next();
 				}
 			}
 			catch(SQLException | ReflectiveOperationException x) {

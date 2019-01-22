@@ -39,6 +39,15 @@ abstract public class DatabaseAdapter
             getDatabase(red).queryByExample(red, All, entity, false, dbfields) : null;
     }
 
+    /** Like {@link #queryByExample(RecordDescriptor, Object, String...)} but provides the result in
+     * a copy of the original object.
+     */
+    protected static ResultIterator queryByExampleRC(RecordDescriptor red, Object entity, String... dbfields)
+        throws SQLException {
+        return (dbfields != null) ? // null fields indicates fetching is performed in derived type
+            getDatabase(red).queryByExample(red, All, entity, true, dbfields) : null;
+    }
+
     /** Same like <code>query()</code> but performs a wildcard search */
     protected static ResultIterator wildcard(RecordDescriptor red, Object entity, String... dbfields)
         throws SQLException {

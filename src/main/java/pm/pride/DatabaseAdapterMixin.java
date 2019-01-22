@@ -32,9 +32,15 @@ public interface DatabaseAdapterMixin {
         return DatabaseFactory.getDatabase(red.getContext());
     }
     
-	/** Fetch an object by fields. The values are taken from the fields' accociated get-methods */
+	/** Fetch an object by fields. The values are taken from the fields' associated get-methods */
 	default ResultIterator queryByExample(String... dbfields) throws SQLException {
 		return DatabaseAdapter.queryByExample(getDescriptor(), getEntity(), dbfields);
+	}
+
+    /** Like {@link #queryByExample(RecordDescriptor, Object, String...)} but provides the result in
+     * a copy of the original object. */
+	default ResultIterator queryByExampleRC(String... dbfields) throws SQLException {
+		return DatabaseAdapter.queryByExampleRC(getDescriptor(), getEntity(), dbfields);
 	}
 
 	/** Same like <code>query()</code> but performs a wildcard search */

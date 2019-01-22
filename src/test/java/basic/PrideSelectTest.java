@@ -29,8 +29,6 @@ public class PrideSelectTest extends AbstractPrideTest {
 
 	private static int COUNT = 100;
 	private static int UNKNOWN_ID = COUNT+1;
-	int count;
-	int lastId;
 
 	@Override
 	public void setUp() throws Exception {
@@ -110,48 +108,6 @@ public class PrideSelectTest extends AbstractPrideTest {
 	}
 	
 	@Test
-	public void testSelectByStream() throws Exception{
-		Customer c = new Customer();
-		count = 0;
-		lastId = -1;
-		c.queryAll().stream(Customer.class).forEach(customer -> {
-			assertNotNull(customer);
-			assertNotEquals(c, customer); // Original entity is cloned
-			assertNotEquals(lastId, customer.getId()); // And the content differs
-			lastId = customer.getId();
-			count++;
-		});
-		assertEquals(count,COUNT);
-	}
-	
-	@Test
-	public void testSelectByUnclonedStream() throws Exception{
-		Customer c = new Customer();
-		count = 0;
-		lastId = -1;
-		Set<Integer> selectedIds = new HashSet<>();
-		c.queryAll().streamOE(Customer.class).forEach(customer -> {
-			assertNotNull(customer);
-			assertEquals(c, customer); // Original entity is not cloned
-			assertNotEquals(lastId, customer.getId()); // But the content differs
-			// Produce back-pressure to ensure that slow processing doesn't cause skipping of results
-			try { Thread.sleep(10); } catch (InterruptedException ir) {};
-			lastId = customer.getId();
-			selectedIds.add(lastId);
-			count++;
-		});
-		assertEquals(COUNT, count);
-		assertEquals(COUNT, selectedIds.size()); // Back-pressure didn't cause results to be skipped
-	}
-	
-	@Test
-	public void testSelectByEmptyStream() throws Exception{
-		Customer c = new Customer();
-		long count = c.query("id = 0").stream(Customer.class).count();
-		assertEquals(count, 0);
-	}
-	
-	@Test
 	public void testSelectByWildcard() throws Exception {
 		Customer c = new Customer();
 		c.setFirstName("H%");
@@ -204,8 +160,9 @@ public class PrideSelectTest extends AbstractPrideTest {
 		Customer c = new Customer();
 		Customer[] result = (Customer[])c.queryAll().toArray();
 		assertEquals(COUNT, result.length);
-		for (int i = 0; i < result.length; i++)
+		for (int i = 0; i < result.length; i++) {
 			assertEquals(result[i].getId(), i+1);
+		}
 	}
     
 	@Test
@@ -215,6 +172,13 @@ public class PrideSelectTest extends AbstractPrideTest {
 		Customer[] result = (Customer[])iter.toArray(COUNT-2);
 		assertEquals(COUNT-2, result.length);
 		assertTrue(iter.isClosed());
+	}
+    
+	@Test
+	public void testSelectEmptyArray() throws Exception {
+		Customer c = new Customer();
+		Customer[] result = c.query("id=-1").toArray(Customer.class);
+		assertEquals(0, result.length);
 	}
     
 	@Test(expected = RuntimeException.class)

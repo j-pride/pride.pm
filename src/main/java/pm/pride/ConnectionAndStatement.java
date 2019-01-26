@@ -10,7 +10,7 @@ import java.sql.Statement;
 import pm.pride.ResourceAccessor.DBType;
 import pm.pride.util.generator.PreparedStatementLogger;
 
-class ConnectionAndStatement implements PreparedOperationI {
+class ConnectionAndStatement implements PreparedOperationI, AutoCloseable {
 	final Database database;
 	final Connection con;
 	final Statement stmt;

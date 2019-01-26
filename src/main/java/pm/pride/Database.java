@@ -232,12 +232,11 @@ public class Database implements SQL.Formatter
      * @param params Optional parameters in case this is a plain prepared SQL statement,
      *   i.e. function was called from {@link #sqlUpdate(String, Object...)}
      */
-    public int sqlUpdate(String operation, String[] autoFields, Object obj, RecordDescriptor red, Object... params) throws SQLException {
-    	ConnectionAndStatement cns = null;
+    public int sqlUpdate(String operation, String[] autoFields, Object obj, RecordDescriptor red, Object... params)
+    		throws SQLException {
         ResultSet autoResults = null;
         int numRows = -1;
-        try {
-        	cns = new ConnectionAndStatement(this, operation, params);
+        try(ConnectionAndStatement cns = new ConnectionAndStatement(this, operation, params)) {
             String[] autoFieldsForExec = accessor.getAutoFields(cns.stmt, autoFields);
             if (autoFieldsForExec != null && autoFieldsForExec.length > 0) {
                 numRows = cns.executeUpdate(autoFieldsForExec);
@@ -246,11 +245,9 @@ public class Database implements SQL.Formatter
                 numRows = cns.executeUpdate();
             }
             extractAutofieldValuesForObject(numRows, autoFields, obj, cns.stmt, red);
-            cns.close();
         }
         catch(Exception x) {
-        	if (cns != null)
-        		cns.closeAfterException(x);
+        	throw processSevereButSQLException(x);
         }
         finally {
             if (autoResults != null) autoResults.close();
@@ -315,17 +312,11 @@ public class Database implements SQL.Formatter
      * @throws SQLException
      */
     public boolean sqlExecute(String sqlStatement, Object... params) throws SQLException {
-        ConnectionAndStatement cns = null;
-        try {
-        	cns = new ConnectionAndStatement(this, sqlStatement, params);
+        try(ConnectionAndStatement cns = new ConnectionAndStatement(this, sqlStatement, params)) {
         	boolean result = cns.execute();
-            cns.close();
             return result;
         }
         catch (Exception x) {
-        	if (cns != null) {
-        		cns.closeAfterException(x);
-        	}
         	throw processSevereButSQLException(x);
         }
     }

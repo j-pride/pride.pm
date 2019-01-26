@@ -7,6 +7,8 @@
  *******************************************************************************/
 package pm.pride;
 
+import java.util.Date;
+
 public class SQL {
 
 	/**
@@ -25,6 +27,10 @@ public class SQL {
 
 	public static Pre pre(String fieldname) {
 		return new Pre(fieldname);
+	}
+
+	public static Date systime() {
+		return DatabaseFactory.getDatabase().getSystime();
 	}
 	
 	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionBuilder#format(String, Object...)} */

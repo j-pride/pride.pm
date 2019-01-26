@@ -108,11 +108,11 @@ public class ResourceAccessorJSE extends AbstractResourceAccessor
      */
     public static ResourceAccessorJSE fromSystemProps() throws Exception {
 		Properties props = System.getProperties();
-		ResourceAccessorJSE accessor = new ResourceAccessorJSE(props);
-		DatabaseFactory.setResourceAccessor(accessor);
 		if (props.containsKey(Config.DB)) {
 			DatabaseFactory.setDatabaseName(props.getProperty(Config.DB));
 		}
+		ResourceAccessorJSE accessor = new ResourceAccessorJSE(props);
+		DatabaseFactory.setResourceAccessor(accessor);
 		return accessor;
     }
 }

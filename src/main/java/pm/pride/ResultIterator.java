@@ -42,7 +42,7 @@ import java.math.BigDecimal;
  *
  * @author Jan Lessner
  */
-public class ResultIterator
+public class ResultIterator implements AutoCloseable
 {
     public final static int COLUMN_STARTINDEX = 1;
     public final static long UNLIMIT_NUMBER_OF_RESULTS = -1;

@@ -215,4 +215,18 @@ public class PrideSelectTest extends AbstractPrideTest {
         assertEquals(1, lc.size());
 	}
 	
+	@Test
+	public void testAutoClose() throws Exception {
+		Customer c = new Customer();
+		ResultIterator riOut;
+		
+		try(ResultIterator ri = c.queryAll()) {
+			ri.next();
+			riOut = ri;
+			assertFalse(riOut.isClosed());
+		}
+		
+		assertTrue(riOut.isClosed());
+		
+	}
 }

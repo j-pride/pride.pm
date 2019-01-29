@@ -18,10 +18,9 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     private int columnCounter = 0;
     
     public JoinRecordDescriptor(Class<?> objectType, RecordDescriptor baseDescriptor, String tableAlias) {
-        super(objectType, baseDescriptor.dbContext,
-              baseDescriptor.getTableName() + " " +  tableAlias,
-              tableAlias, null);
+        super(objectType, baseDescriptor.getTableName() + " " +  tableAlias, tableAlias, null);
         this.base = baseDescriptor;
+        this.dbContext = baseDescriptor.dbContext;
         init();
 	}
 
@@ -30,10 +29,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     }
 
 	public JoinRecordDescriptor(Class<?> objectType, String tableName, String tableAlias) {
-		// TODO JL: centralize init code
-        super(objectType, null,
-              tableName + " " +  tableAlias,
-              tableAlias, null);
+        super(objectType, tableName + " " +  tableAlias, tableAlias, null);
         init();
 	}
 
@@ -291,7 +287,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
 		}
 
 		public Join(Class<?> objectType, String tableName, String alias, String joinOnExpression) {
-        	this(new RecordDescriptor(objectType, null, tableName, alias, null),
+        	this(new RecordDescriptor(objectType, tableName, alias, null),
         		alias, null, joinOnExpression);
 		}
 

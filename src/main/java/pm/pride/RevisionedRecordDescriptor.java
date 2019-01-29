@@ -31,8 +31,8 @@ public class RevisionedRecordDescriptor extends RecordDescriptor {
         this.revisionTableName = revisionTableName;
     }
 
-    public RevisionedRecordDescriptor(Class objectType, String dbContext, String dbtable, String revisionTableName, RecordDescriptor baseDescriptor) throws IllegalDescriptorException {
-        super(objectType, dbContext, dbtable, null, baseDescriptor);
+    public RevisionedRecordDescriptor(Class objectType, String dbtable, String revisionTableName, RecordDescriptor baseDescriptor) throws IllegalDescriptorException {
+        super(objectType, dbtable, null, baseDescriptor);
         this.revisionTableName = revisionTableName;
     }
 
@@ -49,7 +49,8 @@ public class RevisionedRecordDescriptor extends RecordDescriptor {
     public RecordDescriptor getRevisioningRecordDescriptor() {
         if (recordDescriptorForRevisioning == null) {
             this.recordDescriptorForRevisioning = new RecordDescriptor
-            		(objectType, dbContext, getRevisionTableName(), null, null, buildRevisioningAttributeMap(), ExtractionMode.AUTO);
+            		(objectType, getRevisionTableName(), null, null,
+            		 buildRevisioningAttributeMap(), ExtractionMode.AUTO).context(dbContext);
         }
         return this.recordDescriptorForRevisioning;
     }

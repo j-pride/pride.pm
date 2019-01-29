@@ -82,10 +82,10 @@ public class RecordDescriptor
      * @param extractionMode The ResultSet extraction mode according to the constants
      *   defined in interface {@link ExtractionMode}.
      */
-    public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
+    public RecordDescriptor(Class<?> objectType, String dbtable, String dbtableAlias,
 			    RecordDescriptor baseDescriptor, String[][] attributeMap, int extractionMode)
 		throws IllegalDescriptorException {
-    	this(objectType, dbContext, dbtable, dbtableAlias, baseDescriptor, extractionMode);
+    	this(objectType, dbtable, dbtableAlias, baseDescriptor, extractionMode);
         if (attributeMap != null) {
             for (String[] rawAttributeDesc: attributeMap) {
             	row(rawAttributeDesc);
@@ -119,12 +119,16 @@ public class RecordDescriptor
     	return this;
     }
     
-	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
+    public RecordDescriptor context(String contextName) {
+    	dbContext = contextName;
+    	return this;
+    }
+    
+	public RecordDescriptor(Class<?> objectType, String dbtable, String dbtableAlias,
 		    RecordDescriptor baseDescriptor, int extractionMode)
 		throws IllegalDescriptorException {
 	    this.objectType = objectType;
 	    this.objectFactory = new ObjectFactory(objectType);
-	    this.dbContext = dbContext;
 	    this.dbtable = dbtable;
 	    this.dbtableAlias = dbtableAlias;
 	    this.baseDescriptor = baseDescriptor;
@@ -148,27 +152,18 @@ public class RecordDescriptor
     public RecordDescriptor(Class<?> objectType, String dbtable,
 		RecordDescriptor baseDescriptor, String[][] attributeMap)
 		throws IllegalDescriptorException {
-        this(objectType, null, dbtable, null, baseDescriptor, attributeMap, ExtractionMode.AUTO);
+        this(objectType, dbtable, null, baseDescriptor, attributeMap, ExtractionMode.AUTO);
     }
 
     public RecordDescriptor(Class<?> objectType, String dbtable, RecordDescriptor baseDescriptor)
 		throws IllegalDescriptorException {
-        this(objectType, null, dbtable, null, baseDescriptor, null, ExtractionMode.AUTO);
+        this(objectType, dbtable, null, baseDescriptor, null, ExtractionMode.AUTO);
     }
 
-	/** Creates a new mapping descriptor like constructor above
-	 * but always uses the current DB context of {@link DatabaseFactory}.
-	 */
 	public RecordDescriptor(Class<?> objectType, String dbtable, String dbtableAlias,
-		RecordDescriptor baseDescriptor, int extractionMode)
-		throws IllegalDescriptorException {
-		this(objectType, null, dbtable, dbtableAlias, baseDescriptor, extractionMode);
-	}
-
-	public RecordDescriptor(Class<?> objectType, String dbContext, String dbtable, String dbtableAlias,
 		RecordDescriptor baseDescriptor)
 		throws IllegalDescriptorException {
-		this(objectType, dbContext, dbtable, dbtableAlias, baseDescriptor, ExtractionMode.AUTO);
+		this(objectType, dbtable, dbtableAlias, baseDescriptor, ExtractionMode.AUTO);
 	}
 
     /**

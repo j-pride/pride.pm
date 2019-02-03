@@ -107,6 +107,7 @@ class ConnectionAndStatement implements PreparedOperationI, AutoCloseable {
 	public void setBindParameter(Method setter, int parameterIndex, Object preparedValue)
 		throws ReflectiveOperationException {
 		logger.logBindingAndScroll(preparedValue, parameterIndex);
+		preparedValue = database.formatPreparedValue(preparedValue, setter.getParameterTypes()[1]);
 		setter.invoke(getStatement(), parameterIndex, preparedValue);
 	}
 

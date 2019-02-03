@@ -179,7 +179,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 				return value.toString().replace('*', '%');
 			}
 			
-			@Override public Object formatPreparedValue(Object rawValue) { return null; }
+			@Override public Object formatPreparedValue(Object rawValue, Class<?> targetType) { return null; }
 			
 			@Override
 			public boolean bindvarsByDefault() { return false; }

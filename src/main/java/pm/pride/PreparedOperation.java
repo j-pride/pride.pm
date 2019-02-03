@@ -105,9 +105,10 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
     		throws ReflectiveOperationException {
     	if (preparedValue != null) {
     		logger.logBindingAndScroll(preparedValue, parameterIndex);
-    		setter.invoke(getStatement(),
-                    new Object[] { new Integer(parameterIndex), preparedValue });
-    	} else {
+    		preparedValue = db.formatPreparedValue(preparedValue, setter.getParameterTypes()[1]);
+    		setter.invoke(getStatement(), parameterIndex, preparedValue);
+    	}
+    	else {
     		throw new IllegalArgumentException("preparedValue must not be null");
     	}
     }

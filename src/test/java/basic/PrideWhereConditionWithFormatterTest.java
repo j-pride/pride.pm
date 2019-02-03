@@ -20,11 +20,11 @@ public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest impl
     }
 
     @Override
-    public Object formatPreparedValue(Object rawValue) {
+    public Object formatPreparedValue(Object rawValue, Class<?> targetType) {
         if(rawValue instanceof String)
             rawValue = ((String) rawValue).replace('*', '%');
 
-        return DatabaseFactory.getDatabase().formatPreparedValue(rawValue);
+        return DatabaseFactory.getDatabase().formatPreparedValue(rawValue, targetType);
     }
 
     @Override

@@ -198,20 +198,20 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
     }
     
 	/**
-	 * This function maps java.util.Date to java.sql.Timestamp, assuming
-	 * that java.util.Date members are supposed to include a time with
-	 * second precision. This mapping should match the specifications in
-	 * ResultSetAccess and PreparedStatementAccess.
+	 * This function maps java.util.Date to java.sql.Date or java.sql.Timestamp
+	 * This mapping should match the specifications incResultSetAccess and
+	 * PreparedStatementAccess.
 	 * 
 	 * @param value The value to convert
+	 * @param targetType The expected type to cast the value to if known.
 	 * 
-	 * @return A java.sql.Timestamp if the passed value was of type
-	 *   java.util.Date or a derivation other than java.sql.Date or
-	 *   java.sql.Timestamp. Otherwise the passed value itself. The
-	 *   time stamp's milliseconds are rounded down to seconds.
+	 * @return A java.sql.Timestamp or a java.sql.Date, depending on the
+	 *  passed targetType. If targetType is null, the method returns a
+	 *  java.sql.Date with seconds precision if the if the value was of
+	 *  type java.util.Date or a derivation other than java.sql.Date or
+	 *  java.sql.Timestamp. Otherwise the passed value itself.
 	 */
-	protected Object castJavaUtilDate(Object value) 
-	{
+	protected Object castJavaUtilDate(Object value, Class<?> targetType) {
 		if (dbSystime != null && value instanceof java.util.Date) {
 			if (dbSystime.getTime() == ((java.util.Date) value).getTime()) {
 			  Object systimeValue = getSystimeConstant();
@@ -220,12 +220,15 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			}
 		}
 		
-		if (value instanceof java.util.Date &&
-			!(value instanceof java.sql.Date) &&
-			!(value instanceof java.sql.Timestamp)) {
-			long timeWithMillisecondsPrecision = ((java.util.Date) value).getTime();
-			long timeWithSecondsPrecision = timeWithMillisecondsPrecision - (timeWithMillisecondsPrecision % 1000);
-			return new java.sql.Date(timeWithSecondsPrecision);
+		if ((value instanceof java.util.Date) && value.getClass() != targetType) {
+			long time = ((java.util.Date) value).getTime();
+			if (targetType == null || targetType == java.sql.Date.class) {
+				long timeWithSecondsPrecision = time - (time % 1000);
+				return new java.sql.Date(timeWithSecondsPrecision);
+			}
+			else if (targetType == java.sql.Timestamp.class) {
+				return new java.sql.Timestamp(time);
+			}
 		}
 		return value;
 	}
@@ -265,7 +268,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
             return "'" + escapeBackslahes(escapeQuotes((String)value)) + "'";
         if (value.getClass() == Boolean.class)
         	return formatBoolean((Boolean)value);
-        value = castJavaUtilDate(value);
+        value = castJavaUtilDate(value, null);
 		if (value.getClass() == java.sql.Timestamp.class)
         	return formatTime((java.sql.Timestamp)value);
         else if (value.getClass() == java.sql.Date.class)
@@ -338,10 +341,10 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	/** Converts the passed value for usage in a prepared statement write access function
 	 * The function currently just runs {@link #formatEnum} or {@link #castJavaUtilDate}
 	 */
-	public Object formatPreparedValue(Object value) {
+	public Object formatPreparedValue(Object value, Class<?> targetType) {
         if (value != null && value.getClass().isEnum())
             return formatEnum((Enum)value);
-		return castJavaUtilDate(value);
+		return castJavaUtilDate(value, targetType);
 	}
 
 	/** Returns the passed logical table name as physical name */

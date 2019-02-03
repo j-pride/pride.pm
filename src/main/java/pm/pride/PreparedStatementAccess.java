@@ -121,27 +121,4 @@ public class PreparedStatementAccess
             result = (Method)preparedStatementAccessMethods.get(Enum.class.getName());
         return result;
     }
-
-    public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/PreparedStatementAccess.java-arc   1.1   23 Sep 2002 12:34:06   math19  $";
 }
-
-/* $Log:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/PreparedStatementAccess.java-arc  $
- * 
- *    Rev 1.1   23 Sep 2002 12:34:06   math19
- * Support for java.util.Date for ResultSets added. putMethod() functions are now public to allow adding self-defined type mappings.
- * 
- *    Rev 1.0   28 Aug 2002 15:32:44   math19
- * Initial revision.
-/* Revision 1.4  2001/08/14 12:55:22  lessner
-/* Timestamp introduced.
-/*
-/* Revision 1.3  2001/08/07 11:13:53  meister
-/* Deleted Debug info
-/*
-/* Revision 1.2  2001/08/07 11:01:50  meister
-/* Added long and short
-/*
-/* Revision 1.1  2001/08/06 15:55:47  lessner
-/* Minor refactoring
-/*
- */

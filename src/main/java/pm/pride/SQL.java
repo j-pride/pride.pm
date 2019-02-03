@@ -46,7 +46,7 @@ public class SQL {
 	public interface Formatter {
 	    String formatValue(Object rawValue);
 	    String formatOperator(String operator, Object rawValue);
-	    Object formatPreparedValue(Object rawValue);
+	    Object formatPreparedValue(Object rawValue, Class<?> targetType);
 	    boolean bindvarsByDefault();
 	}
 	

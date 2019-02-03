@@ -163,7 +163,7 @@ public interface ResourceAccessor extends SQL.Formatter
 	 * required if the raw value can not directly be passed to a
 	 * PreparedStatement, e.g. java.util.Date.
 	 */
-	public Object formatPreparedValue(Object value);
+	public Object formatPreparedValue(Object value, Class<?> targetType);
 
     /**
      * Retrieves the URL for this DBMS represented by the

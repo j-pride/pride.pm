@@ -94,8 +94,8 @@ class WhereFieldCondition extends WhereConditionPart {
 
 		if(value == null) return nextParam;
 
-		Object preparedValue = formatter.formatPreparedValue(value);
-		Method setter = PreparedStatementAccess.getAccessMethod(preparedValue.getClass());
+		Method setter = PreparedStatementAccess.getAccessMethod(value.getClass());
+		Object preparedValue = formatter.formatPreparedValue(value, setter.getParameterTypes()[1]);
 		cns.setBindParameter(setter, nextParam, preparedValue);
 		nextParam++;
 

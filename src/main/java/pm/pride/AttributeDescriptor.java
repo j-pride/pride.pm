@@ -355,7 +355,6 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 			throw new IllegalAccessException
 				("No prepared statement writer for " + databaseFieldName);
         Object attrValue = getValue(obj);
-        attrValue = pop.getDatabase().formatPreparedValue(attrValue);
         if (fieldAccess.isConstantGetValue()) {
             return position + 1;
         }
@@ -371,7 +370,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         return position+1;
     }
 
-    protected Object wrapArrayTypedValue(Connection connection, Object attrValue) throws SQLException {
+	protected Object wrapArrayTypedValue(Connection connection, Object attrValue) throws SQLException {
         if (!(attrValue instanceof byte[]) && attrValue.getClass().isArray()) {
             attrValue = connection.createArrayOf("text", (Object[])attrValue);
         }

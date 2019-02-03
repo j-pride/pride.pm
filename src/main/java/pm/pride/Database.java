@@ -165,8 +165,8 @@ public class Database implements SQL.Formatter
         return accessor.formatOperator(operator, rawValue);
     }
     
-	public Object formatPreparedValue(Object value) {
-		return accessor.formatPreparedValue(value);
+	public Object formatPreparedValue(Object value, Class<?> targetType) {
+		return accessor.formatPreparedValue(value, targetType);
 	}
 
     @Override

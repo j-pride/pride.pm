@@ -69,8 +69,11 @@ public class PrideDateTest extends AbstractPrideTest {
 		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myDate);
 		Customer read = new Customer(100);
 		assertNotNull(read.getHireDate());
-		// Date was written with seconds precision, i.e. milli seconds portion is gone
-		assertEquals(myDate.getTime() / 1000 * 1000, read.getHireDate().getTime());
+		// Date was written with less precision depending on database type
+		// The whole time portion may have gone
+		assertTrue(
+				"Unexpectedly high difference of " + (myDate.getTime() - read.getHireDate().getTime()),
+				myDate.getTime() - read.getHireDate().getTime() < MAX_LOSS_OF_TIME_IN_DATE);
 	}
 
 	@Test

@@ -27,8 +27,8 @@ import pm.pride.DatabaseFactory;
  * To change the template for this generated type comment go to
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
-public class PrideDateTest extends AbstractPrideTest 
-{
+public class PrideDateTest extends AbstractPrideTest {
+	long MAX_LOSS_OF_TIME_IN_DATE = 24 * 60 * 60 * 1000;
 
 	@Override
 	public void setUp() throws Exception {
@@ -81,11 +81,11 @@ public class PrideDateTest extends AbstractPrideTest
 		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myTime);
 		Customer read = new Customer(100);
 		assertNotNull(read.getHireDate());
-		// Milli seconds or even seconds portion of time stamp may have gone if the database
-		// stores dates with a lower precision. Amount of loss depends on the database type
+		// Time portion of time stamp may have gone if the database stores dates only with day precision.
+		// Amount of loss depends on the database type
 		assertTrue(
 				"Unexpectedly high difference of " + (myTime.getTime() - read.getHireDate().getTime()),
-				myTime.getTime() - read.getHireDate().getTime() < 60000);
+				myTime.getTime() - read.getHireDate().getTime() < MAX_LOSS_OF_TIME_IN_DATE);
 	}
 	
 	/**

@@ -84,8 +84,9 @@ public class PrideDateTest extends AbstractPrideTest
 		// Milli seconds portion of time stamp may have gone
 		// It depends on the database type
 		assertTrue(
+				"Unexpected time: " + read.getHireDate().getTime() + " instead of " + myTime.getTime(),
 				(myTime.getTime() / 1000 * 1000 == read.getHireDate().getTime()) ||
-				(myTime.getTime() == read.getHireDate().getTime()) );
+				(myTime.getTime() == read.getHireDate().getTime()));
 	}
 	
 	/**

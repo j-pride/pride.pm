@@ -81,12 +81,11 @@ public class PrideDateTest extends AbstractPrideTest
 		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myTime);
 		Customer read = new Customer(100);
 		assertNotNull(read.getHireDate());
-		// Milli seconds portion of time stamp may have gone
-		// It depends on the database type
+		// Milli seconds or even seconds portion of time stamp may have gone if the database
+		// stores dates with a lower precision. Amount of loss depends on the database type
 		assertTrue(
-				"Unexpected time: " + read.getHireDate().getTime() + " instead of " + myTime.getTime(),
-				(myTime.getTime() / 1000 * 1000 == read.getHireDate().getTime()) ||
-				(myTime.getTime() == read.getHireDate().getTime()));
+				"Unexpectedly high difference of " + (myTime.getTime() - read.getHireDate().getTime()),
+				myTime.getTime() - read.getHireDate().getTime() < 60000);
 	}
 	
 	/**

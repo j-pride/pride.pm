@@ -10,24 +10,19 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *     Manfred Karda�, Beckmann & Partner
  *******************************************************************************/
-import java.sql.Timestamp;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Random;
 
-import org.junit.Before;
 import org.junit.Test;
 
-import junit.framework.Assert;
-import pm.pride.AbstractResourceAccessor;
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
-import pm.pride.ResourceAccessor.DBType;
 
 /**
  * @author ggdcc04
@@ -51,31 +46,10 @@ public class PrideDateTest extends AbstractPrideTest {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		generateCustomer(1);
-//		generateCustomer(9);
+		generateCustomer(9);
     	createDateTimeTable();
 	}
 	
-	@Test
-	public void testRoundDate() throws Exception {
-		int i = 1277;
-		System.out.println(i - (i % 1000));
-		System.out.println();
-		
-		// 04.02.2019, 00:33:33
-		//long t = 1549236813499L;
-		long t = 1549346813499L;
-		System.out.println(t % AbstractResourceAccessor.MAX_TIME_PORTION_IN_DATE);
-		System.out.println(new java.util.Date(t));
-		// Wunschdatum:
-		// 04.02.2019, 00:00:00
-		long t0 = t - (t % AbstractResourceAccessor.MAX_TIME_PORTION_IN_DATE);
-		System.out.println(new java.util.Date(t0));
-		System.out.println(AbstractResourceAccessor.MAX_TIME_PORTION_IN_DATE);
-		System.out.println(t0);
-		System.out.println(t - t0);
-	}
-
 	@Test
 	public void testDatePrecisionLoss() throws Exception {
 		// java.sql.Date is derived from java.util.Date and therefore has an internal
@@ -116,6 +90,15 @@ public class PrideDateTest extends AbstractPrideTest {
 				}
 			}
 		}
+
+		PreparedStatement queryWithOffset = con.prepareStatement
+				("select datePlain from datetime_pride_test where datePlain=?");
+		java.sql.Date offsetDate = new java.sql.Date(dbPrecisionDate.getTime() + 1);
+		System.out.println(offsetDate.getTime());
+		queryWithOffset.setDate(1, offsetDate);
+		rs = query.executeQuery();
+		assertTrue(rs.next());
+		
 	}
 
 	@Test
@@ -197,22 +180,19 @@ public class PrideDateTest extends AbstractPrideTest {
 		assertTrue(myDate.equals(c2.getHireDate()));
 	}
 
-	/**
-	 * Insert a Customer and test the result
-	 */	
 	@Test
 	public void testUpdateWithDBDate() throws Exception {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.add(Calendar.DAY_OF_MONTH, -1);
 		
 		Database db = DatabaseFactory.getDatabase();
-		Customer c1 = new Customer(2);
+		Customer cWrite = new Customer(2);
 		
-		c1.setHireDate(new Date(db.getSystime().getTime()));
-		c1.update();
+		cWrite.setHireDate(new Date(db.getSystime().getTime()));
+		cWrite.update();
 		db.commit();
 		
-		Customer c2 = new Customer(2);
-		assertTrue(cal.getTime().before(c2.getHireDate()));
+		Customer cRead = new Customer(2);
+		assertTrue(cal.getTime().before(cRead.getHireDate()));
 	}
 }

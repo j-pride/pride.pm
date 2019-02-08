@@ -23,8 +23,6 @@ import java.util.Properties;
 
 public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
-	public static final long MAX_TIME_PORTION_IN_DATE = 24 * 60 * 60 * 1000;
-	
 	protected String dbType = null;
 	protected Format dateFormat = null;
 	protected Format timeFormat = null;
@@ -135,13 +133,18 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	}
 	
 	/**
-	 * Returns a format for date values, based on the database type. For Oracle databases, the proprietary to_date syntax is used.
+	 * Returns a format for date values, based on the database type. For Oracle databases, the proprietary
+	 * to_date syntax is used. The precision of date representation depends on the vendor and must match
+	 * the "native" precision loss when storing java.sql.Date values via prepared statements. Most databases
+	 * drop the complete time portion while e.g. Oracle keeps a seconds precision and SQLite keeps
+	 * everything down to milliseconds.
+	 * 
 	 * @return The common date format to use or null if there is no format known
 	 */
 	protected Format dateFormat() {
 		if (dbType != null) {
 			if(dbType.equalsIgnoreCase(DBType.ORACLE))
-				return new SimpleDateFormat("'to_date('''yyyy-MM-dd''',''YYYY-MM-DD'')'");
+				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
 			if(dbType.equalsIgnoreCase(DBType.HSQL))
 			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd''',''YYYY-MM-DD'')'");
 			if(dbType.equalsIgnoreCase(DBType.SQLITE))
@@ -222,15 +225,12 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			}
 		}
 
-		if (value instanceof java.util.Date) {
+		if (value instanceof java.util.Date && value.getClass() != targetType) {
 			long time = ((java.util.Date) value).getTime();
 			if (targetType == null || targetType == java.sql.Date.class) {
-				long timeWithDaysPrecision = time - (time % MAX_TIME_PORTION_IN_DATE);
-				return new java.sql.Date(timeWithDaysPrecision);
+				return new java.sql.Date(time);
 			}
-			if (value.getClass() != targetType) {
-				return new java.sql.Timestamp(time);
-			}
+			return new java.sql.Timestamp(time);
 		}
 		
 		return value;

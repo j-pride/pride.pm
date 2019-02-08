@@ -258,11 +258,11 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	}
 		
     /** Formats the passed object for SQL syntax, e.g. by putting single-quotes
-     * arround strings etc. The function is not very flexible yet, it just supports
+     * around strings etc. The function is not very flexible yet, it just supports
      * special formatting for String, java.util.Date, java.sql.Date, java.sql.Timestamp,
      * and null. In all other cases it performs value.toString()
      */
-    public String formatValue(Object value) {
+    public String formatValue(Object value, Class<?> targetType) {
         if (value == null)
             return "NULL";
         if (value.getClass().isEnum())
@@ -271,7 +271,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
             return "'" + escapeBackslahes(escapeQuotes((String)value)) + "'";
         if (value.getClass() == Boolean.class)
         	return formatBoolean((Boolean)value);
-        value = castJavaUtilDate(value, null);
+        value = castJavaUtilDate(value, targetType);
 		if (value.getClass() == java.sql.Timestamp.class)
         	return formatTime((java.sql.Timestamp)value);
         else if (value.getClass() == java.sql.Date.class)

@@ -55,5 +55,9 @@ public class PrideDateTestWithBindVariables extends AbstractPrideTest {
 		prideDateTest.testEqualDatesMillisecondsCorrectlyIgnored();
 	}
 	
+	@Test
+	public void testTimestampWithMilliseconds() throws Exception {
+		prideDateTest.testTimestampWithMilliseconds();
+	}
 	
 }

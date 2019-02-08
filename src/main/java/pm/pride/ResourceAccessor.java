@@ -149,7 +149,7 @@ public interface ResourceAccessor extends SQL.Formatter
     public String getTableName(String logicalTableName) throws Exception;
 
 	/** Performs an SQL formating of the passed value */
-    public String formatValue(Object value);
+    public String formatValue(Object value, Class<?> targetType);
 
 	/** Performs an SQL formating of the passed operator.
 	 * @param operator Any of the operators defined in {@link WhereCondition.Operator}

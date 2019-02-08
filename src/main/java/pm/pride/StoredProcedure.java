@@ -81,8 +81,8 @@ public abstract class StoredProcedure {
     }
 
     /** Format a value as string. This is only used for logging purposes in this class */
-    public String format(Object value) {
-        return getDatabase().formatValue(value);
+    public String format(Object value, Class<?> targetType) {
+        return getDatabase().formatValue(value, targetType);
     }
     
     /** Returns the name of the stored procedure to call.
@@ -140,7 +140,7 @@ public abstract class StoredProcedure {
                 stmt.setTimestamp(index, new Timestamp(((java.util.Date)value).getTime()));
             else
                 throw new IllegalDescriptorException("unsupported type " + type);
-            return isLogging() ? format(value) + " " : null;
+            return isLogging() ? format(value, type) + " " : null;
         }
         catch(IllegalAccessException iax) {
             throw new IllegalDescriptorException("illegal access on " + field.getName());
@@ -224,7 +224,7 @@ public abstract class StoredProcedure {
                 throw new IllegalDescriptorException("unsupported type " + type);
             if (stmt.wasNull() && type!=int.class && type!=long.class)
                 field.set(this, null);
-            return isLogging() ? format(field.get(this)) + " " : null;
+            return isLogging() ? format(field.get(this), field.getType()) + " " : null;
         }
         catch(IllegalAccessException iax) {
             throw new IllegalDescriptorException("illegal access on " + field.getName());
@@ -243,7 +243,7 @@ public abstract class StoredProcedure {
                 if (!Modifier.isFinal(modifiers))
                     log.append(getOutParam(stmt, fields[f], paramIndex));
                 else if (isLogging()) {
-                    try { log.append(format(fields[f].get(this)) + " "); }
+                    try { log.append(format(fields[f].get(this), fields[f].getType()) + " "); }
                     catch(IllegalAccessException iax) {
                         throw new IllegalDescriptorException("illegal access on " + fields[f].getName());
                     }

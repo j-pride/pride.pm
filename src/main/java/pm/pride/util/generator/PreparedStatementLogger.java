@@ -21,8 +21,8 @@ public class PreparedStatementLogger {
 		scrollLogToNextBinding();
 	}
 	
-	public void logBindingAndScroll(Object boundValue, int parameterIndex) {
-		logBuffer.append(database.formatValue(boundValue));
+	public void logBindingAndScroll(Object boundValue, int parameterIndex, Class<?> targetType) {
+		logBuffer.append(database.formatValue(boundValue, targetType));
 		scrollLogToNextBinding();
 	}
 

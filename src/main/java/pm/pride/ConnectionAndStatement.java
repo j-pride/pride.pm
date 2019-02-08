@@ -106,14 +106,15 @@ class ConnectionAndStatement implements PreparedOperationI, AutoCloseable {
 
 	public void setBindParameter(Method setter, int parameterIndex, Object preparedValue)
 		throws ReflectiveOperationException {
-		logger.logBindingAndScroll(preparedValue, parameterIndex);
-		preparedValue = database.formatPreparedValue(preparedValue, setter.getParameterTypes()[1]);
+		Class<?> targetType = setter.getParameterTypes()[1];
+		logger.logBindingAndScroll(preparedValue, parameterIndex, targetType);
+		preparedValue = database.formatPreparedValue(preparedValue, targetType);
 		setter.invoke(getStatement(), parameterIndex, preparedValue);
 	}
 
 	@Override
 	public void setBindParameterNull(int parameterIndex, int columnType) throws SQLException {
-		logger.logBindingAndScroll("NULL", parameterIndex);
+		logger.logBindingAndScroll("NULL", parameterIndex, null);
 		getStatement().setNull(parameterIndex, columnType);
 	}
 }

@@ -12,11 +12,11 @@ import java.sql.SQLException;
 
 public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest implements SQL.Formatter {
     @Override
-    public String formatValue(Object rawValue) {
+    public String formatValue(Object rawValue, Class<?> targetType) {
         if(rawValue instanceof String)
             rawValue = ((String) rawValue).replace('*', '%');
 
-        return DatabaseFactory.getDatabase().formatValue(rawValue);
+        return DatabaseFactory.getDatabase().formatValue(rawValue, targetType);
     }
 
     @Override

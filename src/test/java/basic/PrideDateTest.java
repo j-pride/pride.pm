@@ -224,17 +224,17 @@ public class PrideDateTest extends AbstractPrideTest {
 		checkOrderByResult(whereCondition, 1, 1);
 	}
 	
-//	@Test
-//	public void testTimestampWithMilliseconds() throws Exception {
-//		java.util.Date myDate = new java.util.Date();
-//		Timestamp myTime = new Timestamp(myDate.getTime());
-//		
-//		DateTime dtWrite = new DateTime("testTimestampWithMilliseconds");
-//		dtWrite.setTimePlain(myTime);
-//		dtWrite.create();
-//
-//		DateTime dtRead = new DateTime(dtWrite);
-//		assertEquals(myTime, dtRead.getTimePlain());
-//	}
+	@Test
+	public void testTimestampWithMilliseconds() throws Exception {
+		java.util.Date myDate = new java.util.Date();
+		Timestamp myTime = new Timestamp(myDate.getTime());
+		
+		DateTime dtWrite = new DateTime("testTimestampWithMilliseconds");
+		dtWrite.setTimePlain(myTime);
+		dtWrite.create();
+
+		DateTime dtRead = new DateTime(dtWrite);
+		assertEquals(myTime, dtRead.getTimePlain());
+	}
 	
 }

@@ -104,8 +104,9 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
     public void setBindParameter(Method setter, int parameterIndex, Object preparedValue)
     		throws ReflectiveOperationException {
     	if (preparedValue != null) {
-    		logger.logBindingAndScroll(preparedValue, parameterIndex);
-    		preparedValue = db.formatPreparedValue(preparedValue, setter.getParameterTypes()[1]);
+    		Class<?> targetType = setter.getParameterTypes()[1];
+    		logger.logBindingAndScroll(preparedValue, parameterIndex, targetType);
+    		preparedValue = db.formatPreparedValue(preparedValue, targetType);
     		setter.invoke(getStatement(), parameterIndex, preparedValue);
     	}
     	else {
@@ -115,7 +116,7 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
     
     @Override
     public void setBindParameterNull(int parameterIndex, int columnType) throws SQLException {
-		logger.logBindingAndScroll("NULL", parameterIndex);
+		logger.logBindingAndScroll("NULL", parameterIndex, null);
 		getStatement().setNull(parameterIndex, columnType);
     }
     

@@ -67,7 +67,7 @@ class WhereFieldCondition extends WhereConditionPart {
 		if (formatter == null || (value instanceof SQL.Pre)) {
 			return (value == null) ? "null" : value.toString();
 		}
-		return formatter.formatValue(value);
+		return formatter.formatValue(value, null);
 	}
 
 	private static String formatOperator(String operator, Object[] values, SQL.Formatter formatter) {

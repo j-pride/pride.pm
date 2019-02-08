@@ -157,8 +157,8 @@ public class Database implements SQL.Formatter
      * special formatting for String, java.util.Date, java.sql.Date, java.sql.Timestamp,
      * and null. All other other cases it runs value.toString()
      */
-    public String formatValue(Object value) {
-		return accessor.formatValue(value);
+    public String formatValue(Object value, Class<?> targetType) {
+		return accessor.formatValue(value, targetType);
     }
 
     public String formatOperator(String operator, Object rawValue) {

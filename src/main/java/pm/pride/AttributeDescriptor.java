@@ -216,7 +216,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         Object val;
         if (obj != null) {
             val = getValue(obj);
-            strval = db.formatValue(val);
+            strval = db.formatValue(val, databaseSetMethod.getParameterTypes()[1]);
         }
         else
             val = strval = getCreationValue(obj, db);
@@ -330,7 +330,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
             return (String) getValue(obj);
         }
         else if (obj != null) {
-            return db.formatValue(getValue(obj));
+            return db.formatValue(getValue(obj), databaseSetMethod.getParameterTypes()[1]);
         }
         else {
             return "?";

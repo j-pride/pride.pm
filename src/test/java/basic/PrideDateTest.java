@@ -140,14 +140,15 @@ public class PrideDateTest extends AbstractPrideTest {
 
 	@Test
 	public void testInsertWithServerTime() throws Exception{
-		Date dbTime = new Date(DatabaseFactory.getDatabase().getSystime().getTime());
+		Timestamp dbTime = new Timestamp(DatabaseFactory.getDatabase().getSystime().getTime());
 
 		DateTime dtWrite = new DateTime("testInsertWithServerTime");
-		dtWrite.setDatePlain(dbTime);
+		dtWrite.setTimePlain(dbTime);
 		dtWrite.create();
 		
+		Thread.sleep(1);
 		DateTime dtRead = new DateTime(dtWrite);
-		assertTrue(dtRead.getDatePlain().before(new java.util.Date()));
+		assertTrue(dtRead.getTimePlain().before(new java.util.Date()));
 	}
 
 	@Test

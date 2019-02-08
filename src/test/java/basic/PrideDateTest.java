@@ -11,15 +11,23 @@ package basic;
  *     Manfred Karda�, Beckmann & Partner
  *******************************************************************************/
 import java.sql.Timestamp;
+import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Random;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import junit.framework.Assert;
+import pm.pride.AbstractResourceAccessor;
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
+import pm.pride.ResourceAccessor.DBType;
 
 /**
  * @author ggdcc04
@@ -28,14 +36,88 @@ import pm.pride.DatabaseFactory;
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 public class PrideDateTest extends AbstractPrideTest {
-	long MAX_LOSS_OF_TIME_IN_DATE = 24 * 60 * 60 * 1000;
+	public static final long MAX_LOSS_OF_TIME_IN_DATE = 24 * 60 * 60 * 1000;
+	public static final String DATETIME_TEST_TABLE = "datetime_pride_test";
+
+    protected void createDateTimeTable() throws SQLException {
+        String columns = ""
+                + "timePlain timestamp, "
+                + "timeAsDate timestamp, "
+                + "datePlain date, "
+                + "dateAsTime date ";
+        dropAndCreateTable(DATETIME_TEST_TABLE, columns);
+    }
 
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
-		generateCustomer(9);
+		generateCustomer(1);
+//		generateCustomer(9);
+    	createDateTimeTable();
 	}
 	
+	@Test
+	public void testRoundDate() throws Exception {
+		int i = 1277;
+		System.out.println(i - (i % 1000));
+		System.out.println();
+		
+		// 04.02.2019, 00:33:33
+		//long t = 1549236813499L;
+		long t = 1549346813499L;
+		System.out.println(t % AbstractResourceAccessor.MAX_TIME_PORTION_IN_DATE);
+		System.out.println(new java.util.Date(t));
+		// Wunschdatum:
+		// 04.02.2019, 00:00:00
+		long t0 = t - (t % AbstractResourceAccessor.MAX_TIME_PORTION_IN_DATE);
+		System.out.println(new java.util.Date(t0));
+		System.out.println(AbstractResourceAccessor.MAX_TIME_PORTION_IN_DATE);
+		System.out.println(t0);
+		System.out.println(t - t0);
+	}
+
+	@Test
+	public void testDatePrecisionLoss() throws Exception {
+		// java.sql.Date is derived from java.util.Date and therefore has an internal
+		// precision of milliseconds. But most databases store dates with a lesser precision,
+		// usually, cutting the time portion completely. This method determines the precision loss
+		// based on low-level prepared statements, expecting that PriDE's plain SQL representation
+		// of dates produces the same loss. It should not make a difference if the user is working
+		// with plain SQL or prepared statements
+		System.out.println("################### CHECKING LOSS OF DATE PRECISION ##################");
+		Connection con = DatabaseFactory.getDatabase().getConnection(); 
+		PreparedStatement insert = con.prepareStatement
+				("insert into datetime_pride_test (datePlain) values (?)");
+
+		Calendar dateAssembly = new GregorianCalendar(2019, 12, 13, 14, 15, 16);
+		dateAssembly.set(Calendar.MILLISECOND, 170);
+		java.sql.Date fullPrecisionDate = new java.sql.Date(dateAssembly.getTimeInMillis());
+		System.out.println(fullPrecisionDate.getTime());
+		insert.setDate(1, fullPrecisionDate);
+		insert.executeUpdate();
+		
+		PreparedStatement query = con.prepareStatement
+				("select datePlain from datetime_pride_test");
+		ResultSet rs = query.executeQuery();
+		assertTrue(rs.next());
+		java.sql.Date dbPrecisionDate = rs.getDate(1);
+		System.out.println(dbPrecisionDate.getTime());
+		Calendar dateChecker = Calendar.getInstance();
+		dateChecker.setTimeInMillis(dbPrecisionDate.getTime());
+		if (dateChecker.get(Calendar.MILLISECOND) == 0) {
+			System.out.println("Millseconds lost");
+			if (dateChecker.get(Calendar.SECOND) == 0) {
+				System.out.println("Seconds lost");
+				if (dateChecker.get(Calendar.MINUTE) == 0) {
+					System.out.println("Minutes lost");
+					if (dateChecker.get(Calendar.HOUR) == 0) {
+						System.out.println("Hours lost");
+					}
+				}
+			}
+		}
+	}
+
 	@Test
 	public void testInsert() throws Exception{
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
@@ -66,13 +148,20 @@ public class PrideDateTest extends AbstractPrideTest {
 	@Test
 	public void testJavaUtilDateAsDate() throws Exception {
 		java.util.Date myDate = new java.util.Date();
+		System.out.println(myDate);
+
+		long dateWithoutTime = myDate.getTime() - (myDate.getTime() % MAX_LOSS_OF_TIME_IN_DATE);
+		myDate = new java.util.Date(dateWithoutTime);
+		System.out.println(myDate);
+		
 		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myDate);
 		Customer read = new Customer(100);
 		assertNotNull(read.getHireDate());
 		// Date was written with less precision depending on database type
 		// The whole time portion may have gone
 		assertTrue(
-				"Unexpectedly high difference of " + (myDate.getTime() - read.getHireDate().getTime()),
+				"Unexpectedly high difference of " + (myDate.getTime() - read.getHireDate().getTime()) +
+						" exceeds maximum of " + MAX_LOSS_OF_TIME_IN_DATE,
 				myDate.getTime() - read.getHireDate().getTime() < MAX_LOSS_OF_TIME_IN_DATE);
 	}
 

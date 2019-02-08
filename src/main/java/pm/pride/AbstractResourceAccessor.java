@@ -23,6 +23,8 @@ import java.util.Properties;
 
 public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
+	public static final long MAX_TIME_PORTION_IN_DATE = 24 * 60 * 60 * 1000;
+	
 	protected String dbType = null;
 	protected Format dateFormat = null;
 	protected Format timeFormat = null;
@@ -139,13 +141,13 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	protected Format dateFormat() {
 		if (dbType != null) {
 			if(dbType.equalsIgnoreCase(DBType.ORACLE))
-				return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
+				return new SimpleDateFormat("'to_date('''yyyy-MM-dd''',''YYYY-MM-DD'')'");
 			if(dbType.equalsIgnoreCase(DBType.HSQL))
-			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd HH:mm:ss''',''YYYY-MM-DD HH24:MI:SS'')'");
+			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd''',''YYYY-MM-DD'')'");
 			if(dbType.equalsIgnoreCase(DBType.SQLITE))
 				return new UnixTimeDateFormat();
 			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE))
-				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss''");
+				return new SimpleDateFormat("''yyyy-MM-dd''");
 		}
 		return null;
 	}
@@ -219,17 +221,18 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			  	return systimeValue;
 			}
 		}
-		
-		if ((value instanceof java.util.Date) && value.getClass() != targetType) {
+
+		if (value instanceof java.util.Date) {
 			long time = ((java.util.Date) value).getTime();
 			if (targetType == null || targetType == java.sql.Date.class) {
-				long timeWithSecondsPrecision = time - (time % 1000);
-				return new java.sql.Date(timeWithSecondsPrecision);
+				long timeWithDaysPrecision = time - (time % MAX_TIME_PORTION_IN_DATE);
+				return new java.sql.Date(timeWithDaysPrecision);
 			}
-			else if (targetType == java.sql.Timestamp.class) {
+			if (value.getClass() != targetType) {
 				return new java.sql.Timestamp(time);
 			}
 		}
+		
 		return value;
 	}
 	

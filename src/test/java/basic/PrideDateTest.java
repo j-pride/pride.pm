@@ -127,12 +127,6 @@ public class PrideDateTest extends AbstractPrideTest {
 	}
 
 	@Test
-	public void testSelectProblem() throws Exception {
-		ResultIterator ri = DatabaseFactory.getDatabase().sqlQuery("select * from datetime_pride_test");
-		ri.close();
-	}
-	
-	@Test
 	public void testInsert() throws Exception{
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
 

@@ -7,7 +7,7 @@ import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
 
 public class DateTime extends MappedObject {
-    public static final String TABLE = "DATETIME_PRIDE_TEST";
+    public static final String TABLE = "datetime_pride_test";
     public static final String COL_RECORD_NAME = "record_name";
     public static final String COL_TIME_PLAIN = "time_plain";
     public static final String COL_TIME_AS_DATE = "time_as_date";

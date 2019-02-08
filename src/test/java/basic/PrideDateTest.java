@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
+import pm.pride.ResultIterator;
 import pm.pride.WhereCondition;
 
 /**
@@ -125,6 +126,12 @@ public class PrideDateTest extends AbstractPrideTest {
 		assertEquals(expectedWithReducedPrecision, actualWithReducedPrecision);
 	}
 
+	@Test
+	public void testSelectProblem() throws Exception {
+		ResultIterator ri = DatabaseFactory.getDatabase().sqlQuery("select * from datetime_pride_test");
+		ri.close();
+	}
+	
 	@Test
 	public void testInsert() throws Exception{
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974

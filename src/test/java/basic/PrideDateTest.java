@@ -45,10 +45,12 @@ public class PrideDateTest extends AbstractPrideTest {
 
     protected void createDateTimeTable() throws SQLException {
         String columns = ""
-                + "timePlain timestamp, "
-                + "timeAsDate timestamp, "
-                + "datePlain date, "
-                + "dateAsTime date ";
+        		+ "record_name varchar(50), "
+                + "time_plain timestamp, "
+                + "time_as_date timestamp, "
+                + "date_plain date, "
+                + "date_as_time date, "
+                + "date_as_date date";
         dropAndCreateTable(DATETIME_TEST_TABLE, columns);
     }
 
@@ -81,13 +83,13 @@ public class PrideDateTest extends AbstractPrideTest {
 
 		Connection con = db.getConnection(); 
 		PreparedStatement insert = con.prepareStatement
-				("insert into datetime_pride_test (datePlain) values (?)");
+				("insert into datetime_pride_test (date_plain) values (?)");
 		insert.setDate(1, fullPrecisionDate);
 		insert.executeUpdate();
 		insert.close();
 		
 		PreparedStatement query = con.prepareStatement
-				("select datePlain from datetime_pride_test");
+				("select date_plain from datetime_pride_test");
 		ResultSet rs = query.executeQuery();
 		assertTrue(rs.next());
 		java.sql.Date dbPrecisionDate = rs.getDate(1);
@@ -107,44 +109,6 @@ public class PrideDateTest extends AbstractPrideTest {
     	assertNotEquals(-1, DB_DATE_PRECISION); // Come on - not even days precision??
     }
 
-	@Test
-	public void testInsert() throws Exception{
-		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
-
-		Customer c3 = new Customer(200, "two", "two", Boolean.TRUE);
-		c3.setHireDate(myDate);
-		DatabaseFactory.getDatabase().commit();
-		
-		Customer c4 = new Customer(200);
-		assertEquals("two", c3.getLastName());
-		assertTrue(myDate.equals(c3.getHireDate()));
-	}
-
-	@Test
-	public void testInsertWithServerTime() throws Exception{
-		Date dbTime = new Date(DatabaseFactory.getDatabase().getSystime().getTime());
-
-		Customer c = new Customer(100, "Easy", "Rider", Boolean.TRUE, dbTime);
-		DatabaseFactory.getDatabase().commit();
-		
-		Customer c2 = new Customer(100);
-		assertEquals("Easy", c2.getFirstName());
-		assertEquals("Rider", c2.getLastName());
-		assertNotNull(c2.getHireDate());
-		assertTrue(c2.getHireDate().before(new java.util.Date()));
-	}
-
-	@Test
-	public void testJavaUtilDateAsDate() throws Exception {
-		java.util.Date myDate = new java.util.Date();
-		System.out.println(myDate);
-		
-		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myDate);
-		Customer read = new Customer(100);
-		assertNotNull(read.getHireDate());
-		assertEqualsRoundedDates(myDate, read.getHireDate(), DB_DATE_PRECISION);
-	}
-
 	private void assertEqualsRoundedDates(
 			java.util.Date expectedWithFullPrecision,
 			java.util.Date actualWithReducedPrecision,
@@ -162,14 +126,54 @@ public class PrideDateTest extends AbstractPrideTest {
 	}
 
 	@Test
+	public void testInsert() throws Exception{
+		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
+
+		DateTime dtWrite = new DateTime();
+		dtWrite.setRecordName("testInsert");
+		dtWrite.setDatePlain(myDate);
+		dtWrite.create();
+		
+		DateTime dtRead = new DateTime(dtWrite);
+		assertTrue(myDate.equals(dtRead.getDatePlain()));
+	}
+
+	@Test
+	public void testInsertWithServerTime() throws Exception{
+		Date dbTime = new Date(DatabaseFactory.getDatabase().getSystime().getTime());
+
+		DateTime dtWrite = new DateTime("testInsertWithServerTime");
+		dtWrite.setDatePlain(dbTime);
+		dtWrite.create();
+		
+		DateTime dtRead = new DateTime(dtWrite);
+		assertTrue(dtRead.getDatePlain().before(new java.util.Date()));
+	}
+
+	@Test
+	public void testJavaUtilDateAsDate() throws Exception {
+		java.util.Date myDate = new java.util.Date();
+		System.out.println(myDate);
+
+		DateTime dtWrite = new DateTime("testJavaUtilDateAsDate");
+		dtWrite.setDateAsDate(myDate);
+		dtWrite.create();
+
+		DateTime dtRead = new DateTime(dtWrite);
+		assertEqualsRoundedDates(myDate, dtRead.getDateAsDate(), DB_DATE_PRECISION);
+	}
+
+	@Test
 	public void testTimestampAcceptedForDate() throws Exception {
 		java.util.Date myDate = new java.util.Date();
 		Timestamp myTime = new Timestamp(myDate.getTime());
-		// Timestamp is accepted although java.util.Date is by default mapped to java.sql.Date
-		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myTime);
-		Customer read = new Customer(100);
-		assertNotNull(read.getHireDate());
-		assertEqualsRoundedDates(myTime, read.getHireDate(), DB_DATE_PRECISION);
+		
+		DateTime dtWrite = new DateTime("testTimestampAcceptedForDate");
+		dtWrite.setDateAsDate(myTime);
+		dtWrite.create();
+
+		DateTime dtRead = new DateTime(dtWrite);
+		assertEqualsRoundedDates(myTime, dtRead.getDateAsDate(), DB_DATE_PRECISION);
 	}
 	
 	/**
@@ -219,5 +223,18 @@ public class PrideDateTest extends AbstractPrideTest {
 				.and("hiredate", firstCustomersHiredatePlus1Millisecond);
 		checkOrderByResult(whereCondition, 1, 1);
 	}
+	
+//	@Test
+//	public void testTimestampWithMilliseconds() throws Exception {
+//		java.util.Date myDate = new java.util.Date();
+//		Timestamp myTime = new Timestamp(myDate.getTime());
+//		
+//		DateTime dtWrite = new DateTime("testTimestampWithMilliseconds");
+//		dtWrite.setTimePlain(myTime);
+//		dtWrite.create();
+//
+//		DateTime dtRead = new DateTime(dtWrite);
+//		assertEquals(myTime, dtRead.getTimePlain());
+//	}
 	
 }

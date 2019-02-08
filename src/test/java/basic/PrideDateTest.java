@@ -47,7 +47,7 @@ public class PrideDateTest extends AbstractPrideTest {
         String columns = ""
         		+ "record_name varchar(50), "
                 + "time_plain timestamp, "
-                + "time_as_date timestamp, "
+                + "time_as_date timestamppp, "
                 + "date_plain date, "
                 + "date_as_time date, "
                 + "date_as_date date";

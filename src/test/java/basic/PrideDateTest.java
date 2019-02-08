@@ -37,7 +37,7 @@ public class PrideDateTest extends AbstractPrideTest {
 			Calendar.MILLISECOND,
 			Calendar.SECOND,
 			Calendar.MINUTE,
-			Calendar.HOUR,
+			Calendar.HOUR_OF_DAY,
 			Calendar.DAY_OF_MONTH
 	};
 	

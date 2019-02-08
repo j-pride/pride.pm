@@ -32,7 +32,6 @@ import pm.pride.WhereCondition;
  * Window>Preferences>Java>Code Generation>Code and Comments
  */
 public class PrideDateTest extends AbstractPrideTest {
-	public static final long MAX_LOSS_OF_TIME_IN_DATE = 24 * 60 * 60 * 1000;
 	public static final String DATETIME_TEST_TABLE = "datetime_pride_test";
 	public static final int[] DATE_PRECISIONS = new int[] {
 			Calendar.MILLISECOND,
@@ -139,20 +138,27 @@ public class PrideDateTest extends AbstractPrideTest {
 	public void testJavaUtilDateAsDate() throws Exception {
 		java.util.Date myDate = new java.util.Date();
 		System.out.println(myDate);
-
-		long dateWithoutTime = myDate.getTime() - (myDate.getTime() % MAX_LOSS_OF_TIME_IN_DATE);
-		myDate = new java.util.Date(dateWithoutTime);
-		System.out.println(myDate);
 		
 		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myDate);
 		Customer read = new Customer(100);
 		assertNotNull(read.getHireDate());
-		// Date was written with less precision depending on database type
-		// The whole time portion may have gone
-		assertTrue(
-				"Unexpectedly high difference of " + (myDate.getTime() - read.getHireDate().getTime()) +
-						" exceeds maximum of " + MAX_LOSS_OF_TIME_IN_DATE,
-				myDate.getTime() - read.getHireDate().getTime() < MAX_LOSS_OF_TIME_IN_DATE);
+		assertEqualsRoundedDates(myDate, read.getHireDate(), DB_DATE_PRECISION);
+	}
+
+	private void assertEqualsRoundedDates(
+			java.util.Date expectedWithFullPrecision,
+			java.util.Date actualWithReducedPrecision,
+			int precision) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(expectedWithFullPrecision);
+		for (int calendarField: DATE_PRECISIONS) {
+			if (calendarField > precision) {
+				c.set(calendarField, 0);
+			}
+		}
+		java.util.Date expectedWithReducedPrecision = c.getTime();
+		actualWithReducedPrecision = new java.util.Date(actualWithReducedPrecision.getTime());
+		assertEquals(expectedWithReducedPrecision, actualWithReducedPrecision);
 	}
 
 	@Test
@@ -163,11 +169,7 @@ public class PrideDateTest extends AbstractPrideTest {
 		Customer write = new Customer(100, "Easy", "Rider", Boolean.TRUE, myTime);
 		Customer read = new Customer(100);
 		assertNotNull(read.getHireDate());
-		// Time portion of time stamp may have gone if the database stores dates only with day precision.
-		// Amount of loss depends on the database type
-		assertTrue(
-				"Unexpectedly high difference of " + (myTime.getTime() - read.getHireDate().getTime()),
-				myTime.getTime() - read.getHireDate().getTime() < MAX_LOSS_OF_TIME_IN_DATE);
+		assertEqualsRoundedDates(myTime, read.getHireDate(), DB_DATE_PRECISION);
 	}
 	
 	/**

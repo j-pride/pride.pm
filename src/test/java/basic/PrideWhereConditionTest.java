@@ -85,15 +85,6 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	}
 	
 	@Test
-	public void testEqualDatesMillisecondsCorrectlyIgnored() throws SQLException {
-		Customer c = new Customer(1);
-		Date firstCustomersHiredatePlus1Millisecond = new Date(firstCustomersHiredate.getTime() + 1);
-		WhereCondition whereCondition = new WhereCondition()
-				.and("hiredate", firstCustomersHiredatePlus1Millisecond);
-		checkOrderByResult(whereCondition, 1, 1);
-	}
-	
-	@Test
 	public void testBind() throws Exception {
 		WhereCondition expression = new WhereCondition().bindvarsOn().
 				and("firstName", "First").
@@ -208,16 +199,6 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 
 		assertEquals("( firstname IN (SELECT FIRSTNAME FROM CUSTOMER WHERE FIRSTNAME='First') ) ", expression.toString());
 		assertEquals(1, new Customer().query(expression).toArray(Customer.class).length);
-	}
-
-	private void checkOrderByResult(WhereCondition expression, int firstId, int lastId) throws SQLException {
-		Customer c = new Customer();
-		ResultIterator ri = c.query(expression);
-		assertNotNull(ri);
-		Customer[] array = (Customer[]) ri.toArray(COUNT);
-		assertTrue(array.length > 0);
-    	assertEquals(firstId, array[0].getId());
-    	assertEquals(lastId, array[array.length - 1].getId());
 	}
 
 	@Test

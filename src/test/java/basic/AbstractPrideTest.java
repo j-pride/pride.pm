@@ -262,4 +262,14 @@ public abstract class AbstractPrideTest extends Assert {
 		assertTrue(ri.isNull());
 	}
 	
+	protected void checkOrderByResult(WhereCondition expression, int firstId, int lastId) throws SQLException {
+		Customer c = new Customer();
+		ResultIterator ri = c.query(expression);
+		assertFalse(ri.isNull());
+		Customer[] array = ri.toArray(Customer.class);
+		assertTrue(array.length > 0);
+    	assertEquals(firstId, array[0].getId());
+    	assertEquals(lastId, array[array.length - 1].getId());
+	}
+
 }

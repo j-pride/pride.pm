@@ -1,4 +1,6 @@
 package basic;
+import java.sql.SQLException;
+
 import org.junit.Test;
 
 public class PrideDateTestWithBindVariables extends AbstractPrideTest {
@@ -47,4 +49,11 @@ public class PrideDateTestWithBindVariables extends AbstractPrideTest {
 		//TODO JL: This doesn't work yet
 		//prideDateTest.testUpdateWithDBDate();
 	}
+	
+	@Test
+	public void testEqualDatesMillisecondsCorrectlyIgnored() throws SQLException {
+		prideDateTest.testEqualDatesMillisecondsCorrectlyIgnored();
+	}
+	
+	
 }

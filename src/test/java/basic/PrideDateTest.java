@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
+import pm.pride.WhereCondition;
 
 /**
  * @author ggdcc04
@@ -33,6 +34,15 @@ import pm.pride.DatabaseFactory;
 public class PrideDateTest extends AbstractPrideTest {
 	public static final long MAX_LOSS_OF_TIME_IN_DATE = 24 * 60 * 60 * 1000;
 	public static final String DATETIME_TEST_TABLE = "datetime_pride_test";
+	public static final int[] DATE_PRECISIONS = new int[] {
+			Calendar.MILLISECOND,
+			Calendar.SECOND,
+			Calendar.MINUTE,
+			Calendar.HOUR,
+			Calendar.DAY_OF_MONTH
+	};
+	
+	static int DB_DATE_PRECISION = -1;
 
     protected void createDateTimeTable() throws SQLException {
         String columns = ""
@@ -48,27 +58,34 @@ public class PrideDateTest extends AbstractPrideTest {
 		super.setUp();
 		generateCustomer(9);
     	createDateTimeTable();
+    	determineDatePrecisionLoss();
 	}
-	
-	@Test
-	public void testDatePrecisionLoss() throws Exception {
-		// java.sql.Date is derived from java.util.Date and therefore has an internal
-		// precision of milliseconds. But most databases store dates with a lesser precision,
-		// usually, cutting the time portion completely. This method determines the precision loss
-		// based on low-level prepared statements, expecting that PriDE's plain SQL representation
-		// of dates produces the same loss. It should not make a difference if the user is working
-		// with plain SQL or prepared statements
-		System.out.println("################### CHECKING LOSS OF DATE PRECISION ##################");
-		Connection con = DatabaseFactory.getDatabase().getConnection(); 
-		PreparedStatement insert = con.prepareStatement
-				("insert into datetime_pride_test (datePlain) values (?)");
 
+	/**
+	 * java.sql.Date is derived from java.util.Date and therefore has an internal
+	 * precision of milliseconds. But most databases store dates with a lesser precision,
+	 * usually, cutting the time portion completely. This method determines the precision loss
+	 * based on low-level prepared statements, expecting that PriDE's plain SQL representation
+	 * of dates produces the same loss. It should not make a difference if the user is working
+	 * with plain SQL or prepared statements
+	 */
+    public void determineDatePrecisionLoss() throws Exception {
+    	if (DB_DATE_PRECISION != -1) {
+    		return;
+    	}
+
+    	Database db = DatabaseFactory.getDatabase();
 		Calendar dateAssembly = new GregorianCalendar(2019, 12, 13, 14, 15, 16);
 		dateAssembly.set(Calendar.MILLISECOND, 170);
 		java.sql.Date fullPrecisionDate = new java.sql.Date(dateAssembly.getTimeInMillis());
 		System.out.println(fullPrecisionDate.getTime());
+
+		Connection con = db.getConnection(); 
+		PreparedStatement insert = con.prepareStatement
+				("insert into datetime_pride_test (datePlain) values (?)");
 		insert.setDate(1, fullPrecisionDate);
 		insert.executeUpdate();
+		insert.close();
 		
 		PreparedStatement query = con.prepareStatement
 				("select datePlain from datetime_pride_test");
@@ -78,28 +95,18 @@ public class PrideDateTest extends AbstractPrideTest {
 		System.out.println(dbPrecisionDate.getTime());
 		Calendar dateChecker = Calendar.getInstance();
 		dateChecker.setTimeInMillis(dbPrecisionDate.getTime());
-		if (dateChecker.get(Calendar.MILLISECOND) == 0) {
-			System.out.println("Millseconds lost");
-			if (dateChecker.get(Calendar.SECOND) == 0) {
-				System.out.println("Seconds lost");
-				if (dateChecker.get(Calendar.MINUTE) == 0) {
-					System.out.println("Minutes lost");
-					if (dateChecker.get(Calendar.HOUR) == 0) {
-						System.out.println("Hours lost");
-					}
-				}
+		for (int precision: DATE_PRECISIONS) {
+			if (dateChecker.get(precision) != 0) {
+				DB_DATE_PRECISION = precision;
+				break;
 			}
 		}
-
-		PreparedStatement queryWithOffset = con.prepareStatement
-				("select datePlain from datetime_pride_test where datePlain=?");
-		java.sql.Date offsetDate = new java.sql.Date(dbPrecisionDate.getTime() + 1);
-		System.out.println(offsetDate.getTime());
-		queryWithOffset.setDate(1, offsetDate);
-		rs = query.executeQuery();
-		assertTrue(rs.next());
-		
-	}
+		System.out.println("Date precision for " + db.getDBType() + ": " + DB_DATE_PRECISION);
+		rs.close();
+		query.close();
+		db.rollback(); // Rollback the insert above
+    	assertNotEquals(-1, DB_DATE_PRECISION); // Come on - not even days precision??
+    }
 
 	@Test
 	public void testInsert() throws Exception{
@@ -195,4 +202,20 @@ public class PrideDateTest extends AbstractPrideTest {
 		Customer cRead = new Customer(2);
 		assertTrue(cal.getTime().before(cRead.getHireDate()));
 	}
+	
+	@Test
+	public void testEqualDatesMillisecondsCorrectlyIgnored() throws SQLException {
+		if (DB_DATE_PRECISION == Calendar.MILLISECOND) {
+			System.out.println("No date portions to ignore for a database of type " +
+					DatabaseFactory.getDatabase().getDBType());
+			return;
+		}
+			
+		Customer c = new Customer(1);
+		Date firstCustomersHiredatePlus1Millisecond = new Date(firstCustomersHiredate.getTime() + 1);
+		WhereCondition whereCondition = new WhereCondition()
+				.and("hiredate", firstCustomersHiredatePlus1Millisecond);
+		checkOrderByResult(whereCondition, 1, 1);
+	}
+	
 }

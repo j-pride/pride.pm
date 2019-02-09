@@ -12,6 +12,14 @@
  vlink="#59188e">
 <h1> PriDE History</h1>
 <hr width="100%">
+<h2>Version 3.4.0, 2019-02-09</h2>
+Date and time stamp management cleaned up<br>
+ResultIterator and all PreparedOperation classes became AutoCloseable<br>
+Bugfix in ResultIterator.stream() concerned with object duplication<br>
+Some API changes for the xxxAA naming convention like andNN(), and findXE()<br>
+DatabaseAdapterMixin extended by method findRC()<br>
+Some improvements to simplify optimistic and pessimistic locking. See https://j-pride.github.io/manual/optimisticpessimistic-locking.html for details<br>
+DB context set by new context() metod of RecordDescriptor's fluent API rather than as constructor parameter<br> 
 <h2>Version 3.2.1, 2018-01-14</h2>
 JoinRecordDescriptor extended for additional join variants. See http://pride.pm/manual/joins.html for details<br>
 SQL.raw renamed to SQL.pre<br>

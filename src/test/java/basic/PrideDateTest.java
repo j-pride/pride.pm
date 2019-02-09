@@ -1,24 +1,19 @@
 package basic;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import org.junit.Test;
 
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
 import pm.pride.WhereCondition;
-import pm.pride.util.generator.TableColumn;
 
 public class PrideDateTest extends AbstractPrideTest {
 	public static final String DATETIME_TEST_TABLE = "DATETIME_PRIDE_TEST";

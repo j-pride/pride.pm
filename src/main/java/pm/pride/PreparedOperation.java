@@ -1,12 +1,8 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
+ * Copyright (c) 2001-2019 The PriDE team
  * 
  * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
+ *     Jan Lessner, S&N AG
  *******************************************************************************/
 package pm.pride;
 
@@ -18,15 +14,15 @@ import java.sql.Statement;
 import pm.pride.util.generator.PreparedStatementLogger;
 
 /**
- * Abstract base class for convenient usage of prepared statements.
- * Support for that is pretty new in PriDE and not yet completed.
- * Currently there are the derived classes {@link PreparedUpdate}
- * and {@link PreparedInsert} available for the most important kinds
- * of operations which require performance optimization.
+ * Abstract base class for convenient usage of prepared statements. Currently there
+ * are the derived classes {@link PreparedUpdate}, {@link PreparedInsert}, and
+ * {@link PreparedSelect} available for the most important kinds of operations
+ * which require performance optimization. PriDE also uses this classes internally
+ * when the usage of bind variables is switched on.
  *
- * @author <a href="mailto:jan.lessner@acoreus.de">Jan Lessner</a>
+ * @author <a href="mailto:jan.lessner@s-und-n.de">Jan Lessner</a>
  */
-abstract public class PreparedOperation implements PreparedOperationI, TransactionListener
+abstract public class PreparedOperation implements PreparedOperationI, TransactionListener, AutoCloseable
 {
     protected PreparedStatement stmt;
     protected RecordDescriptor red;
@@ -143,11 +139,4 @@ abstract public class PreparedOperation implements PreparedOperationI, Transacti
     @Override
     public void rollback(TransactionEvent e) throws SQLException { close(); }
     
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/PreparedOperation.java,v 1.1 2001/08/08 14:11:35 lessner Exp $";
 }
-
-/* $Log: PreparedOperation.java,v $
-/* Revision 1.1  2001/08/08 14:11:35  lessner
-/* Temporary state
-/*
- */

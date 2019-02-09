@@ -1,9 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
+ * Copyright (c) 2001-2019 The PriDE team
  * 
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
@@ -12,9 +8,6 @@ package pm.pride;
 
 import java.sql.SQLException;
 
-/**
- * @author <a href="mailto:jan.lessner@mathema.de">Jan Lessner</a>
- */
 public class PreparedInsert extends PreparedOperation
 {
 	protected String table;

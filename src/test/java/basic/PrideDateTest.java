@@ -129,12 +129,12 @@ public class PrideDateTest extends AbstractPrideTest {
 		Connection con = DatabaseFactory.getDatabase().getConnection();
 		DatabaseMetaData db_meta = con.getMetaData();
 
-		ResultSet rs = db_meta.getColumns(null, null, "DATETIME_PRIDE_TEST", "TIME_PLAIN");
+		ResultSet rs = db_meta.getColumns(null, null, "DATETIME_PRIDE_TEST", "DATE_PLAIN");
 		if (!rs.next()) {
-			rs = db_meta.getColumns(null, null, "datetime_pride_test", "time_plain");
+			rs = db_meta.getColumns(null, null, "datetime_pride_test", "date_plain");
 			assertTrue(rs.next());
 		}
-		int columnSize = rs.getInt("COLUMN_SIZE"); // Timetamp: 11, Date: 7
+		int columnSize = rs.getInt("COLUMN_SIZE");
 		int dataType = rs.getInt("DATA_TYPE");
 		System.out.println("################### CHARACTERISTICS OF TIMESTAMP ##################");
 		System.out.println(dataType + " / " + columnSize);

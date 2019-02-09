@@ -103,9 +103,18 @@ public class RecordDescriptor
     	return row(new String[] { dbfield, getter, setter });
 	}
 
+    public RecordDescriptor row(String dbfield, String getter, String setter, Class<?> jdbcType) {
+    	return row(new String[] { dbfield, getter, setter, jdbcType.getName() });
+	}
+
     public RecordDescriptor rowPK(String dbfield, String getter, String setter) {
     	primaryKeyFields.add(dbfield);
     	return row(dbfield, getter, setter);
+	}
+
+    public RecordDescriptor rowPK(String dbfield, String getter, String setter, Class<?> jdbcType) {
+    	primaryKeyFields.add(dbfield);
+    	return row(dbfield, getter, setter, jdbcType);
 	}
 
     public RecordDescriptor key(String... dbfields) {

@@ -28,8 +28,8 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     private static final int FIELDNAME = 0;
     private static final int GETMETHOD = 1;
     private static final int SETMETHOD = 2;
-    public static final int REVISIONINGFLAG = 3;
-    private static final int FIELDTYPE = 4;
+    private static final int FIELDTYPE = 3;
+    public static final int REVISIONINGFLAG = 4;
 
     protected String databaseFieldName;
     protected int databaseColumnType;
@@ -91,7 +91,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         Class<?> attributeType = null;
         
 		try {
-		    attributeType = (attrInfo.length > FIELDTYPE) ?
+		    attributeType = (attrInfo.length > FIELDTYPE && attrInfo[FIELDTYPE] != null) ?
 				Class.forName(attrInfo[FIELDTYPE]) : fieldAccess.type();
 			isPrimitive = attributeType.isPrimitive();
             if (attributeType.isEnum())
@@ -378,7 +378,12 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     }
 
     public String[] getRawAttributeMap() {
-        return new String[] { databaseFieldName, fieldAccess.getterName(), fieldAccess.setterName(), revisioning ? FLAG_IS_REVISIONED : FLAG_IS_NOT_REVISIONED};
+        return new String[] {
+        		databaseFieldName,
+        		fieldAccess.getterName(),
+        		fieldAccess.setterName(),
+        		null,
+        		revisioning ? FLAG_IS_REVISIONED : FLAG_IS_NOT_REVISIONED};
     }
     
 }

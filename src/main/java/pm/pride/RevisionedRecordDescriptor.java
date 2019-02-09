@@ -57,7 +57,7 @@ public class RevisionedRecordDescriptor extends RecordDescriptor {
 
     protected String[][] buildRevisioningAttributeMap() {
         List<String[]> filteredAttributes = extractRawAttributeMapForRevisioning();
-        filteredAttributes.add(new String[]{ COLUMN_REVISION_TIMESTAMP, constantValue("systimestamp"), null, FLAG_IS_REVISIONED, Timestamp.class.getName()});
+        filteredAttributes.add(new String[]{ COLUMN_REVISION_TIMESTAMP, constantValue("systimestamp"), null, Timestamp.class.getName(), FLAG_IS_REVISIONED});
         return filteredAttributes.toArray(new String[0][]);
     }
 

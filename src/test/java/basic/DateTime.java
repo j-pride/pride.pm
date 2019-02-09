@@ -51,7 +51,7 @@ public class DateTime extends MappedObject {
             new RecordDescriptor(DateTime.class, TABLE, null)
                 .row( COL_RECORD_NAME, "getRecordName", "setRecordName" )
                 .row( COL_TIME_PLAIN, "getTimePlain", "setTimePlain" )
-                .row( COL_TIME_AS_DATE, "getTimeAsDate", "setTimeAsDate" )
+                .row( COL_TIME_AS_DATE, "getTimeAsDate", "setTimeAsDate", Timestamp.class )
                 .row( COL_DATE_PLAIN, "getDatePlain", "setDatePlain" )
                 .row( COL_DATE_AS_TIME, "getDateAsTime", "setDateAsTime" )
                 .row( COL_DATE_AS_DATE, "getDateAsDate", "setDateAsDate" );

@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
-import pm.pride.ResultIterator;
 import pm.pride.WhereCondition;
 
 public class PrideDateTest extends AbstractPrideTest {
@@ -178,7 +177,6 @@ public class PrideDateTest extends AbstractPrideTest {
 	@Test
 	public void testUpdateNoDBDate() throws Exception {
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
-		Date dbTime = new Date(DatabaseFactory.getDatabase().getSystime().getTime());
 
 		Customer c1 = new Customer(1);
 		c1.setHireDate(myDate);
@@ -233,4 +231,16 @@ public class PrideDateTest extends AbstractPrideTest {
 		assertEquals(myTime, dtRead.getTimePlain());
 	}
 	
+	@Test
+	public void testTimestampAsJavaUtilDate() throws Exception {
+		java.util.Date myDate = new java.util.Date();
+
+		DateTime dtWrite = new DateTime("testTimestampAsJavaUtilDate");
+		dtWrite.setTimeAsDate(myDate);
+		dtWrite.create();
+
+		DateTime dtRead = new DateTime(dtWrite);
+		assertEquals(myDate, dtRead.getTimeAsDate());
+	}
+
 }

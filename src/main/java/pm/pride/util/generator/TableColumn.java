@@ -12,6 +12,8 @@ package pm.pride.util.generator;
 
 import java.sql.*;
 
+import pm.pride.ResourceAccessor;
+
 /**
  * Meta information about a database table column
  *
@@ -19,23 +21,23 @@ import java.sql.*;
  */
 public class TableColumn {
 
+	protected String dbType;
     protected String tableName;
     protected String columnName;
     protected String uniqueColumnName;
     protected int columnType;
+    protected int columnSize;
     protected int decimalDigits;
     protected boolean nullsForbidden;
     protected boolean primaryKeyField;
     
-    public TableColumn(String tableName, String name, int type) {
-        this(tableName, name, type, 0, false);
-    }
-    
-    public TableColumn(String tableName, String columnName, int type, int decimalDigits, boolean nullsForbidden) {
+    public TableColumn(String dbType, String tableName, String columnName, int type, int columnSize, int decimalDigits, boolean nullsForbidden) {
+    	this.dbType = dbType;
     	this.tableName = tableName;
         this.columnName = columnName;
         this.uniqueColumnName = columnName;
         this.columnType = type;
+        this.columnSize = columnSize;
         this.decimalDigits = decimalDigits;
         this.nullsForbidden = nullsForbidden;
     }
@@ -134,7 +136,7 @@ public class TableColumn {
             returnType = nullsForbidden ? "long" : "Long";
             break;
         case Types.DATE     :
-            returnType = "java.sql.Date";
+            returnType = "java.util.Date";
             break;
         case Types.BOOLEAN  :
             returnType = nullsForbidden ? "boolean" : "Boolean";
@@ -144,6 +146,12 @@ public class TableColumn {
             break;
         case Types.TIMESTAMP:
             returnType = "java.sql.Timestamp";
+            /** Special issue with Oracle: DATE columns are reported to have type TIMESTAMP
+             * via the JDBC meta data. A time stamp with a short column size is a date.
+             */
+        	if (ResourceAccessor.DBType.ORACLE.equals(dbType) && columnSize < 11) {
+                returnType = "java.util.Date";
+        	}
             break;
         default:
         	returnType = "Object";

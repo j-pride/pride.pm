@@ -125,22 +125,6 @@ public class PrideDateTest extends AbstractPrideTest {
 	}
 
 	@Test
-	public void testTimestampSize() throws Exception {
-		Connection con = DatabaseFactory.getDatabase().getConnection();
-		DatabaseMetaData db_meta = con.getMetaData();
-
-		ResultSet rs = db_meta.getColumns(null, null, "DATETIME_PRIDE_TEST", "DATE_PLAIN");
-		if (!rs.next()) {
-			rs = db_meta.getColumns(null, null, "datetime_pride_test", "date_plain");
-			assertTrue(rs.next());
-		}
-		int columnSize = rs.getInt("COLUMN_SIZE");
-		int dataType = rs.getInt("DATA_TYPE");
-		System.out.println("################### CHARACTERISTICS OF TIMESTAMP ##################");
-		System.out.println(dataType + " / " + columnSize);
-	}
-	
-	@Test
 	public void testInsert() throws Exception{
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
 

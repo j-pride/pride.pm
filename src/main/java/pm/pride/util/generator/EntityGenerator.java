@@ -45,6 +45,7 @@ public class EntityGenerator {
 	protected List<TableColumn> flatTableColumnList;
 	protected ResourceAccessor resourceAccessor;
 	protected String db;
+	protected String dbType;
 
 	public void postInit(String[] tableNames, String className,
 							   String generationType, String baseClassName)
@@ -147,6 +148,7 @@ public class EntityGenerator {
 	public String create() throws Exception {
 		createResourceAccessor();
 		db = DatabaseFactory.getDatabase().getDBName();
+		dbType = DatabaseFactory.getDatabase().getDBType();
 		Connection con = getDBConnection();
 		StringBuffer buffer = new StringBuffer();
 		if (con != null) {
@@ -181,7 +183,7 @@ public class EntityGenerator {
 		throws SQLException {
 		TableDescription[] tableDesc = new TableDescription[tableNames.length];
 		for (int i = 0; i < tableNames.length; i++) {
-			tableDesc[i] = new TableDescription(con, tableNames[i]);
+			tableDesc[i] = new TableDescription(con, dbType, tableNames[i]);
 			if (tableDesc[i].isPartial() || i > 0) {
 				generateAbstractClass = true;
 			}

@@ -30,7 +30,7 @@ public class TableDescription {
     protected String tableName;
     protected boolean partial;
 
-	protected List<TableColumn> extractColumns(DatabaseMetaData db_meta, String tableName, List<String> columnsOfInterest)
+	protected List<TableColumn> extractColumns(DatabaseMetaData db_meta, String dbType, String tableName, List<String> columnsOfInterest)
 			throws SQLException {
 		ResultSet rset2 = db_meta.getColumns (null, //con.getCatalog (),
 											  null, //"*",
@@ -43,7 +43,8 @@ public class TableDescription {
 			int decimalDigits = rset2.getInt ("DECIMAL_DIGITS");
 			boolean nullable = rset2.getInt ("NULLABLE")== ResultSetMetaData.columnNoNulls;
 			if (columnsOfInterest == null || columnsOfInterest.remove(columnName)) {
-				TableColumn tabColumn = new TableColumn(tableName, columnName, dataType, decimalDigits, nullable);
+				TableColumn tabColumn = new TableColumn(dbType, tableName, columnName,
+						dataType, columnSize, decimalDigits, nullable);
 				result.add(tabColumn);
 			}
 		}
@@ -74,16 +75,16 @@ public class TableDescription {
 		rset2.close ();
 	}
 
-	protected void init(Connection con, String tableName) throws SQLException {
+	protected void init(Connection con, String dbType, String tableName) throws SQLException {
 		if (tableName.contains(COLUMN_LIST_START)) {
-			this.tableName = extractColumnsFromTableName(con, tableName);
+			this.tableName = extractColumnsFromTableName(con, dbType, tableName);
 		}
 		else {
-			this.tableName = extractColumnsFromTableMetadata(con, tableName, null);
+			this.tableName = extractColumnsFromTableMetadata(con, dbType, tableName, null);
 		}
 	}
 	
-    private String extractColumnsFromTableName(Connection con, String tableName) throws SQLException {
+    private String extractColumnsFromTableName(Connection con, String dbType, String tableName) throws SQLException {
     	partial = true;
     	String columnNamesString = tableName
     			.replaceFirst(".+\\" + COLUMN_LIST_START, "")
@@ -92,10 +93,10 @@ public class TableDescription {
     	String[] columnNames = columnNamesString.split(COLUMN_LIST_SEPARATOR);
     	List<String> mutableColumnNameList = new ArrayList<>(Arrays.asList(columnNames));
     	String cleanedTableName = tableName.replaceFirst("\\" + COLUMN_LIST_START + ".*\\" + COLUMN_LIST_END, "");
-    	return extractColumnsFromTableMetadata(con, cleanedTableName, mutableColumnNameList);
+    	return extractColumnsFromTableMetadata(con, dbType, cleanedTableName, mutableColumnNameList);
 	}
 
-	protected String extractColumnsFromTableMetadata(Connection con, String tableName, List<String> columnsOfInterest) throws SQLException {
+	protected String extractColumnsFromTableMetadata(Connection con, String dbType, String tableName, List<String> columnsOfInterest) throws SQLException {
 		DatabaseMetaData db_meta = con.getMetaData ();
 		String[] tbl_types = { "TABLE", "VIEW" };
 		ResultSet rset1 = db_meta.getTables (null, //con.getCatalog (),
@@ -104,17 +105,17 @@ public class TableDescription {
 											 tbl_types);
 		if (rset1.next()) {
 			tableName = rset1.getString ("TABLE_NAME"); // Just in case there is something to normalize ;-)
-			this.columnList = extractColumns(db_meta, tableName, columnsOfInterest);
+			this.columnList = extractColumns(db_meta, dbType, tableName, columnsOfInterest);
 			markKeyColumns(db_meta, tableName, columnList);
 		}
 		rset1.close ();
 		return tableName;
 	}
 
-	public TableDescription(Connection con, String tableName) throws SQLException {
-		init(con, tableName);
+	public TableDescription(Connection con, String dbType, String tableName) throws SQLException {
+		init(con, dbType, tableName);
 		if (columnList == null) {
-			init(con, tableName.toUpperCase());
+			init(con, dbType, tableName.toUpperCase());
 			if (columnList == null)
 				throw new SQLException("Unknown table " + tableName);
 		}

@@ -1,22 +1,27 @@
 package basic;
 
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 import org.junit.Test;
 
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
 import pm.pride.WhereCondition;
+import pm.pride.util.generator.TableColumn;
 
 public class PrideDateTest extends AbstractPrideTest {
-	public static final String DATETIME_TEST_TABLE = "datetime_pride_test";
+	public static final String DATETIME_TEST_TABLE = "DATETIME_PRIDE_TEST";
 	public static final int[] DATE_PRECISION_LEVELS = new int[] {
 			Calendar.MILLISECOND,
 			Calendar.SECOND,
@@ -33,12 +38,12 @@ public class PrideDateTest extends AbstractPrideTest {
     	// But at least MySQL works only with seconds precision by default. That's why the
     	// timestamp columns below are specified with (3) which is the seconds fraction precision.
         String columns = ""
-        		+ "record_name varchar(50), "
-                + "time_plain timestamp(3), "
-                + "time_as_date timestamp(3), "
-                + "date_plain date, "
-                + "date_as_time date, "
-                + "date_as_date date";
+        		+ "RECORD_NAME varchar(50), "
+                + "TIME_PLAIN timestamp(3), "
+                + "TIME_AS_DATE timestamp(3), "
+                + "DATE_PLAIN date, "
+                + "DATE_AS_TIME date, "
+                + "DATE_AS_DATE date";
         dropAndCreateTable(DATETIME_TEST_TABLE, columns);
     }
 
@@ -71,13 +76,13 @@ public class PrideDateTest extends AbstractPrideTest {
 
 		Connection con = db.getConnection(); 
 		PreparedStatement insert = con.prepareStatement
-				("insert into datetime_pride_test (date_plain) values (?)");
+				("insert into DATETIME_PRIDE_TEST (DATE_PLAIN) values (?)");
 		insert.setDate(1, fullPrecisionDate);
 		insert.executeUpdate();
 		insert.close();
 		
 		PreparedStatement query = con.prepareStatement
-				("select date_plain from datetime_pride_test");
+				("select DATE_PLAIN from DATETIME_PRIDE_TEST");
 		ResultSet rs = query.executeQuery();
 		assertTrue(rs.next());
 		java.sql.Date dbPrecisionDate = rs.getDate(1);
@@ -119,6 +124,18 @@ public class PrideDateTest extends AbstractPrideTest {
 		assertEquals(expectedWithReducedPrecision, actualWithReducedPrecision);
 	}
 
+	@Test
+	public void testTimestampSize() throws Exception {
+		Connection con = DatabaseFactory.getDatabase().getConnection();
+		DatabaseMetaData db_meta = con.getMetaData();
+
+		ResultSet rs = db_meta.getColumns(null, null, "DATETIME_PRIDE_TEST", "TIME_PLAIN");
+		assertTrue(rs.next());
+		int columnSize = rs.getInt("COLUMN_SIZE"); // Timetamp: 11, Date: 7
+		System.out.println("################### SIZE OF TIMESTAMP ##################");
+		System.out.println(columnSize);
+	}
+	
 	@Test
 	public void testInsert() throws Exception{
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974

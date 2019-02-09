@@ -39,6 +39,7 @@ public class TableDescription {
 		while (rset2.next ()) {
 			String columnName = rset2.getString ("COLUMN_NAME");
 			int dataType = rset2.getInt ("DATA_TYPE");
+			int columnSize = rset2.getInt ("COLUMN_SIZE"); // Timetamp: 11, Date: 7
 			int decimalDigits = rset2.getInt ("DECIMAL_DIGITS");
 			boolean nullable = rset2.getInt ("NULLABLE")== ResultSetMetaData.columnNoNulls;
 			if (columnsOfInterest == null || columnsOfInterest.remove(columnName)) {

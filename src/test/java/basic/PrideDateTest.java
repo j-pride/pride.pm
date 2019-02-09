@@ -1,15 +1,5 @@
 package basic;
-/*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
- *     Manfred Karda�, Beckmann & Partner
- *******************************************************************************/
+
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -26,15 +16,9 @@ import pm.pride.DatabaseFactory;
 import pm.pride.ResultIterator;
 import pm.pride.WhereCondition;
 
-/**
- * @author ggdcc04
- *
- * To change the template for this generated type comment go to
- * Window>Preferences>Java>Code Generation>Code and Comments
- */
 public class PrideDateTest extends AbstractPrideTest {
 	public static final String DATETIME_TEST_TABLE = "datetime_pride_test";
-	public static final int[] DATE_PRECISIONS = new int[] {
+	public static final int[] DATE_PRECISION_LEVELS = new int[] {
 			Calendar.MILLISECOND,
 			Calendar.SECOND,
 			Calendar.MINUTE,
@@ -45,6 +29,10 @@ public class PrideDateTest extends AbstractPrideTest {
 	static int DB_DATE_PRECISION = -1;
 
     protected void createDateTimeTable() throws SQLException {
+    	// Timestamps usually have milliseconds precision in the DB (or maybe even micro seconds
+    	// which is not of interest because they are not addressable by Java standard date types.
+    	// But at least MySQL works only with seconds precision by default. That's why the
+    	// timestamp columns below are specified with (3) which is the seconds fraction precision.
         String columns = ""
         		+ "record_name varchar(50), "
                 + "time_plain timestamp(3), "
@@ -66,7 +54,7 @@ public class PrideDateTest extends AbstractPrideTest {
 	/**
 	 * java.sql.Date is derived from java.util.Date and therefore has an internal
 	 * precision of milliseconds. But most databases store dates with a lesser precision,
-	 * usually, cutting the time portion completely. This method determines the precision loss
+	 * usually cutting the time portion completely. This method determines the precision loss
 	 * based on low-level prepared statements, expecting that PriDE's plain SQL representation
 	 * of dates produces the same loss. It should not make a difference if the user is working
 	 * with plain SQL or prepared statements
@@ -97,7 +85,7 @@ public class PrideDateTest extends AbstractPrideTest {
 		System.out.println(dbPrecisionDate.getTime());
 		Calendar dateChecker = Calendar.getInstance();
 		dateChecker.setTimeInMillis(dbPrecisionDate.getTime());
-		for (int precision: DATE_PRECISIONS) {
+		for (int precision: DATE_PRECISION_LEVELS) {
 			if (dateChecker.get(precision) != 0) {
 				DB_DATE_PRECISION = precision;
 				break;
@@ -110,14 +98,20 @@ public class PrideDateTest extends AbstractPrideTest {
     	assertNotEquals(-1, DB_DATE_PRECISION); // Come on - not even days precision??
     }
 
-	private void assertEqualsRoundedDates(
+    /**
+     * Checks if two dates are equal within the precision which the database stores date values with.
+     * The method cuts off all time portions from {@link expectedWithFullPrecision} which are below
+     * the database' date precision and ensures that both values are converted to a java.util.Date
+     * before comparing them. So the function should also work with java.sql.Date and java.sql.Timestamp
+     */
+	private void assertEqualsWithReducedPrecision(
 			java.util.Date expectedWithFullPrecision,
 			java.util.Date actualWithReducedPrecision,
-			int precision) {
+			int dbDatePrecision) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(expectedWithFullPrecision);
-		for (int calendarField: DATE_PRECISIONS) {
-			if (calendarField > precision) {
+		for (int calendarField: DATE_PRECISION_LEVELS) {
+			if (calendarField > dbDatePrecision) {
 				c.set(calendarField, 0);
 			}
 		}
@@ -162,7 +156,7 @@ public class PrideDateTest extends AbstractPrideTest {
 		dtWrite.create();
 
 		DateTime dtRead = new DateTime(dtWrite);
-		assertEqualsRoundedDates(myDate, dtRead.getDateAsDate(), DB_DATE_PRECISION);
+		assertEqualsWithReducedPrecision(myDate, dtRead.getDateAsDate(), DB_DATE_PRECISION);
 	}
 
 	@Test
@@ -175,7 +169,7 @@ public class PrideDateTest extends AbstractPrideTest {
 		dtWrite.create();
 
 		DateTime dtRead = new DateTime(dtWrite);
-		assertEqualsRoundedDates(myTime, dtRead.getDateAsDate(), DB_DATE_PRECISION);
+		assertEqualsWithReducedPrecision(myTime, dtRead.getDateAsDate(), DB_DATE_PRECISION);
 	}
 	
 	/**

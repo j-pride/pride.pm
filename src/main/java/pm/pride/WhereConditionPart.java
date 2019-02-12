@@ -21,7 +21,7 @@ abstract class WhereConditionPart {
 		return toSQL(formatter, defaultTablePrefix, false);
 	}
 
-	protected abstract String toSQL(SQL.Formatter formatter, String defaultTablePrefix, boolean withBinding);
+	protected abstract String toSQL(SQL.Formatter formatter, String defaultTablePrefix, boolean ignoreBindings);
 
 	protected boolean requiresBinding(SQL.Formatter formatter) {
 		if (bind != null)

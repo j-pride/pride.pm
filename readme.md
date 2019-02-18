@@ -1,4 +1,4 @@
-# PriDE 3.4.0 2019-02-09
+# PriDE 3.4.1 2019-02-18
 
 (c) The PriDE Open Source Team
 

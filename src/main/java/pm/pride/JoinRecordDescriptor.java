@@ -69,6 +69,13 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         return leftJoin(joinDescriptor, joinAndPropertyName, joinAndPropertyName, joinOnExpression);
     }
     
+	public JoinRecordDescriptor leftJoin(String tableName, String joinName, String joinOnExpression) {
+        Join join = new LeftOuterJoin(this.objectType, tableName, joinName, joinOnExpression);
+        joins.add(join);
+        dbtable += join.getJoinExpression();
+		return this;
+	}
+
     public JoinRecordDescriptor join(Join join) {
         joins.add(join);
         dbtable += join.getJoinExpression();
@@ -351,6 +358,10 @@ public class JoinRecordDescriptor extends RecordDescriptor {
         public LeftOuterJoin(RecordDescriptor joinDescriptor, String alias, String propertyName, String joinExpression) {
             super(joinDescriptor, alias, propertyName, joinExpression);
         }
+
+		public LeftOuterJoin(Class<?> objectType, String tableName, String alias, String joinOnExpression) {
+            super(objectType, tableName, alias, joinOnExpression);
+		}
 
 		@Override
         public String getJoinExpression() {

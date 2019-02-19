@@ -18,6 +18,7 @@ matrix:
   include:
     - env: DATABASE=hsql
     - env: DATABASE=mariadb
+      before_install: mysqladmin --user=root create test
     - env: DATABASE=sqlite
     - env: DATABASE=mysql
       services: mysql

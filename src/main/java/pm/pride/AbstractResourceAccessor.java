@@ -102,7 +102,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
      * @return the string with the escaped single backslashes
      */
     protected String escapeBackslahes(String raw) {
-    	return (ResourceAccessor.DBType.MYSQL.equals(dbType)) ?
+    	return (ResourceAccessor.DBType.MYSQL.equals(dbType) ||
+    			ResourceAccessor.DBType.MARIADB.equals(dbType)) ?
     			escape(raw, '\\') : raw;
     }
 
@@ -245,6 +246,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
     */
 	private Object getSystimeConstant() {
 		if (ResourceAccessor.DBType.MYSQL.equals(dbType) ||
+			ResourceAccessor.DBType.MARIADB.equals(dbType) ||
 			ResourceAccessor.DBType.POSTGRES.equals(dbType))
 			return "CURRENT_TIMESTAMP";
 		else if (ResourceAccessor.DBType.ORACLE.equals(dbType))
@@ -390,6 +392,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
         throws SQLException {
         if (autoKeyMode == AutoKeyMode.VENDOR) {
             if (DBType.MYSQL.equalsIgnoreCase(dbType))
+                return stmt.executeQuery("SELECT LAST_INSERT_ID()");
+            if (DBType.MARIADB.equalsIgnoreCase(dbType))
                 return stmt.executeQuery("SELECT LAST_INSERT_ID()");
             if (DBType.SQLSERVER.equalsIgnoreCase(dbType))
                 return stmt.executeQuery("SELECT @@IDENTITY");

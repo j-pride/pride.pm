@@ -2,6 +2,7 @@ language: java
 
 addons:
   postgresql: "9.6"
+  mariadb: "10.3"
   
 sudo: false
 install: true
@@ -16,6 +17,7 @@ jdk:
 matrix:
   include:
     - env: DATABASE=hsql
+    - env: DATABASE=mariadb
     - env: DATABASE=sqlite
     - env: DATABASE=mysql
       services: mysql

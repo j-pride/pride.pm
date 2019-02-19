@@ -45,8 +45,8 @@ public abstract class AbstractPrideTest extends Assert {
 			{ "Peter", "Pan" },
 			{ "Heinz", "Ketchup" },
 			{ "Chris", "K." },
-			{ "Peer", "S�nlich" },
-			{ "Hans", "Imgl�ck" },
+			{ "Peer", "Sönlich" },
+			{ "Hans", "Imglück" },
 			{ "Inge", "Heim-Ermission" },
 			{ "Inge", "Knito" }
 	};
@@ -90,6 +90,8 @@ public abstract class AbstractPrideTest extends Assert {
 		if (isDBType(DBType.HSQL))
 			return "timestamp";
 		else if (isDBType(DBType.MYSQL))
+			return "datetime";
+		else if (isDBType(DBType.MARIADB))
 			return "datetime";
 		else
 			return "date";

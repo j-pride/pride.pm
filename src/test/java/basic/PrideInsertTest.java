@@ -17,6 +17,8 @@ public class PrideInsertTest extends AbstractPrideTest {
         String dbType = DatabaseFactory.getResourceAccessor().getDBType();
         if (ResourceAccessor.DBType.MYSQL.equals(dbType))
             return DEFAULT_ID_CLASSIFIER + "AUTO_INCREMENT";
+        if (ResourceAccessor.DBType.MARIADB.equals(dbType))
+            return DEFAULT_ID_CLASSIFIER + "AUTO_INCREMENT";
         if (ResourceAccessor.DBType.SQLSERVER.equals(dbType))
             return DEFAULT_ID_CLASSIFIER + "IDENTITY(1,1)";
         if (ResourceAccessor.DBType.HSQL.equals(dbType))

@@ -726,6 +726,7 @@ public class Database implements SQL.Formatter
         switch (getDBType().toLowerCase()) {
             case ResourceAccessor.DBType.HSQL:
             case ResourceAccessor.DBType.MYSQL:
+            case ResourceAccessor.DBType.MARIADB:
                 return true;
             default:
                 return false;

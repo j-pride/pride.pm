@@ -53,6 +53,7 @@ public class StoredProcedureGenerator
         if (arg.getDataType().equals("NUMBER")) return (arg.getDataLength() != null && arg.getDataLength().intValue() < 5) ? "int" : "long";
         if (arg.getDataType().equals("VARCHAR")) return "String";
         if (arg.getDataType().equals("VARCHAR2")) return "String";
+        if (arg.getDataType().equals("NVARCHAR2")) return "String";
         if (arg.getDataType().equals("DATE")) return "Date";
         return null;
     }

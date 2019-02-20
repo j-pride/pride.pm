@@ -104,6 +104,7 @@ public class TableColumn {
         
         switch (columnType) {
         case Types.VARCHAR  :
+        case Types.NVARCHAR  :
             returnType = "String";
             break;
         case Types.CHAR     :

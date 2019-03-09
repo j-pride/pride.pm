@@ -105,6 +105,8 @@ public class PreparedStatementAccess
         putMethod("setClob", Clob.class);
         putMethod("setObject", Object.class, Map.class);
         putMethod("setArray", Array.class);
+        putMethod("setArray", Array.class);
+        putMethod("setSQLXML", SQLXML.class);
     }
 
     /** Returns the ResultSet by-name access method to be used for extracting fields

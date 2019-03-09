@@ -286,10 +286,14 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
             		("Attempt to assign NULL from " + databaseFieldName + " to a primitive");
         }
         else {
-            if (enumType != null && (dbValue instanceof String))
+            if (enumType != null && (dbValue instanceof String)) {
                 dbValue = Enum.valueOf(enumType, (String)dbValue);
+            }
             else if (dbValue instanceof java.sql.Array) {
             	dbValue = sqlArray2javaArray((java.sql.Array)dbValue, fieldAccess.typeFromSetter());
+            }
+            else if (dbValue instanceof SQLXML && fieldAccess.typeFromSetter() == String.class) {
+            	dbValue = ((SQLXML)dbValue).getString();
             }
         }
         fieldAccess.set(obj, dbValue);

@@ -19,7 +19,7 @@ import pm.pride.ResourceAccessor;
  * have to follow the instructions from the site above intead, i.e. downloading JDeveloper 12
  * Java Edition and copy the JAR file to your local Maven repository.
  */
-@NeedsDBType({ResourceAccessor.DBType.ORACLE, ResourceAccessor.DBType.POSTGRES})
+@NeedsDBType(ResourceAccessor.DBType.ORACLE)
 public class PrideXMLTest extends AbstractPrideTest {
     protected void createXMLTable() throws SQLException {
         String columns = ""

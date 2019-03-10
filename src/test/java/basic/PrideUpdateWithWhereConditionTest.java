@@ -5,7 +5,7 @@ import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.WhereCondition;
 
-public class PrideUpdateTestWithWhereCondition extends AbstractPrideTest {
+public class PrideUpdateWithWhereConditionTest extends AbstractPrideTest {
 	
 	@Override
 	public void setUp() throws Exception {

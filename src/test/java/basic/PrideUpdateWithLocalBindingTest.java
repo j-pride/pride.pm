@@ -9,7 +9,7 @@ import pm.pride.WhereCondition;
  *
  * Class to Test the Update-Behaviour of the PriDE-Framework
  */
-public class PrideUpdateTestWithLocalBinding extends PrideUpdateTest {
+public class PrideUpdateWithLocalBindingTest extends PrideUpdateTest {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();

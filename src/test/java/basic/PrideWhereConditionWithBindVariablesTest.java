@@ -24,7 +24,7 @@ import pm.pride.WhereCondition;
  * simply performs exactly the same queries as {@link PrideWhereConditionTest} but forces
  * PriDE to use bind variables by default.
  */
-public class PrideWhereConditionTestWithBindVariables extends AbstractPrideTest {
+public class PrideWhereConditionWithBindVariablesTest extends AbstractPrideTest {
 
 	PrideWhereConditionTest prideWhereConditionTest = new PrideWhereConditionTest();
 	

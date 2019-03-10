@@ -12,7 +12,7 @@ import pm.pride.WhereCondition;
  *
  * Class to Test the Insert-Behaviour of the PriDE-Framework when using bind-variables
  */
-public class PrideInsertTestWithBindVariables extends AbstractPrideTest {
+public class PrideInsertWithBindVariablesTest extends AbstractPrideTest {
 	
 	PrideInsertTest prideInsertTest = new PrideInsertTest();
 

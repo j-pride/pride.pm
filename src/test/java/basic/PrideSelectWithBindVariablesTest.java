@@ -11,7 +11,7 @@ import pm.pride.WhereCondition;
  *
  * Class to Test the Select-Behaviour of the PriDE-Framework
  */
-public class PrideSelectTestWithBindVariables extends AbstractPrideTest {
+public class PrideSelectWithBindVariablesTest extends AbstractPrideTest {
 
 	PrideSelectTest prideSelectTest = new PrideSelectTest();
 	

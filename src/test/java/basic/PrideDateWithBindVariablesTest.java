@@ -3,7 +3,7 @@ import java.sql.SQLException;
 
 import org.junit.Test;
 
-public class PrideDateTestWithBindVariables extends AbstractPrideTest {
+public class PrideDateWithBindVariablesTest extends AbstractPrideTest {
 
 	PrideDateTest prideDateTest = new PrideDateTest();
 	

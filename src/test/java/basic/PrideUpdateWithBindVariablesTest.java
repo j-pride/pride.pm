@@ -10,7 +10,7 @@ import pm.pride.WhereCondition;
  *
  * Class to Test the Update-Behaviour of the PriDE-Framework
  */
-public class PrideUpdateTestWithBindVariables extends AbstractPrideTest {
+public class PrideUpdateWithBindVariablesTest extends AbstractPrideTest {
 
 	PrideUpdateTest prideUpdateTest = new PrideUpdateTest();
 	

@@ -444,10 +444,9 @@ public class Database implements SQL.Formatter
 
     	if (where != null && where.requiresBinding(this)) {
             String query = "select " + red.getResultFields() + " from " +
-                    getTableName(red) + " where " + whereString;
+                    getTableName(red) + where(whereString);
             ConnectionAndStatement cns = null;
             try {
-            	cns = new ConnectionAndStatement(this, query, true);
                 where.bind(this, cns);
                 ResultSet rs = cns.getStatement().executeQuery();
                 ResultIterator ri = new ResultIterator(cns, false, rs, obj, duplicateObj, red, this);
@@ -575,7 +574,7 @@ public class Database implements SQL.Formatter
 	    	if (where != null && where.requiresBinding(this)) {
 	    		String[] excludeFields = red.getPrimaryKeyFields();
 				String update = "update " + getTableName(red) + " set " +
-						red.getUpdateValues(null, excludeFields, updatefields, this) + " where " + whereString;
+						red.getUpdateValues(null, excludeFields, updatefields, this) + where(whereString);
 	            ConnectionAndStatement cns = null;
 	            try {
 	            	cns = new ConnectionAndStatement(this, update, true);
@@ -657,9 +656,27 @@ public class Database implements SQL.Formatter
      * @param obj not used
      * @param where where-clause to select the records of interest
      */
-    public int deleteRecord(RecordDescriptor red, Object obj, String where) throws SQLException {
+    public int deleteRecords(RecordDescriptor red, String where, Object... params) throws SQLException {
         String delete = "delete from " + getTableName(red) + where(where);
-        return sqlUpdate(delete);
+        return sqlUpdate(delete, params);
+    }
+
+    public int deleteRecords(RecordDescriptor red, WhereCondition where)
+    	throws SQLException {
+    	String whereString = where2string(where, null);
+        if (where.requiresBinding(this)) {
+            String deleteOperation = "delete from " + getTableName(red) + where(whereString);
+            try (ConnectionAndStatement cns = new ConnectionAndStatement(this, deleteOperation, true)) {
+                where.bind(this, cns);
+                return cns.getStatement().executeUpdate();
+            }
+            catch (Exception x) {
+    			throw processSevereButSQLException(x);
+            }
+        }
+        else {
+        	return deleteRecords(red, whereString);
+        }
     }
 
     /** Delete record(s) from the database.

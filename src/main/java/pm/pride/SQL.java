@@ -39,7 +39,7 @@ public class SQL {
 	}
 	
 	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionBuilder#format(String, Object...)} */
-	public static String buildx(String formatString, Object... args) {
+	public static String buildX(String formatString, Object... args) {
 		return new SQLExpressionBuilder(SQLExpressionBuilder.Validation.ExceptionCaseInsensitive).format(formatString, args);
 	}
 	

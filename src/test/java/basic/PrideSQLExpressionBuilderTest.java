@@ -80,12 +80,12 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 	
 	@Test
 	public void testNoExceptionOnMatchingNamesCaseInsensitive() {
-		SQL.buildx("@ONE", "One");
+		SQL.buildX("@ONE", "One");
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testExceptionOnWrongName() {
-		SQL.buildx("@ONE", "ON");
+		SQL.buildX("@ONE", "ON");
 	}
 	
 	@Test(expected=IllegalArgumentException.class)
@@ -101,7 +101,7 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 	
 	@Test(expected=IllegalArgumentException.class)
 	public void testNotEnoughArguments() {
-		SQL.buildx("@ONE");
+		SQL.buildX("@ONE");
 	}
 	
 	@Test(expected=IllegalArgumentException.class)

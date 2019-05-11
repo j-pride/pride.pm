@@ -200,14 +200,24 @@ abstract public class DatabaseAdapter
 		return getDatabase(red).createRecord(red, entity, autoFields);
 	}
 
-    protected static int delete(Object entity, RecordDescriptor red)
+    protected static int delete(RecordDescriptor red, String where, Object... params)
         throws SQLException {
-        return getDatabase(red).deleteRecord(red, entity);
+        return getDatabase(red).deleteRecords(red, where, params);
+    }
+
+    protected static int delete(RecordDescriptor red, WhereCondition where)
+        throws SQLException {
+        return getDatabase(red).deleteRecords(red, where);
     }
 
     protected static int deleteByExample(Object entity, RecordDescriptor red, String... dbkeyfields)
         throws SQLException {
         return getDatabase(red).deleteRecord(red, entity, dbkeyfields);
+    }
+
+    protected static int delete(Object entity, RecordDescriptor red)
+        throws SQLException {
+        return getDatabase(red).deleteRecord(red, entity);
     }
 
     /** Assembles an SQL constraint which would be used as a WHERE clause in a query.

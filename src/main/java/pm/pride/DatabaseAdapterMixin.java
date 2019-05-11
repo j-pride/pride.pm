@@ -211,6 +211,10 @@ public interface DatabaseAdapterMixin {
 		return DatabaseAdapter.deleteByExample(getEntity(), getDescriptor(), dbkeyfields);
 	}
 
+	default int delete(WhereCondition where) throws SQLException {
+		return DatabaseAdapter.delete(getDescriptor(), where);
+	}
+
 	/** @deprecated Use {@link #where(String[], boolean)} instead */
 	@Deprecated
 	default String constraint(String[] dbfields, boolean byLike) {

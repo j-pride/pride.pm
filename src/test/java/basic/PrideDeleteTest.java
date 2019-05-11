@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import pm.pride.DatabaseFactory;
 import pm.pride.ResultIterator;
+import pm.pride.WhereCondition;
 
 
 /**
@@ -61,6 +62,24 @@ public class PrideDeleteTest extends AbstractPrideTest {
     	boolean result = DatabaseFactory.getDatabase().sqlExecute(delete, "First", "Customer");
     	assertFalse(result);
     	assertEquals(customerCount-1, countCustomers());
+    }
+    
+    @Test
+    public void testDeleteWithWhereCondition() throws Exception {
+    	int customerCount = countCustomers();
+    	WhereCondition byLastName = new WhereCondition("lastName", "Customer");
+		int deleted = new Customer().delete(byLastName);
+		assertEquals(2, deleted);
+    	assertEquals(customerCount-deleted, countCustomers());
+    }
+
+    @Test
+    public void testDeleteWithWhereConditionAndBinding() throws Exception {
+    	int customerCount = countCustomers();
+    	WhereCondition byFirstName = new WhereCondition().bindvarsOn().and("lastName", "Customer");
+		int deleted = new Customer().delete(byFirstName);
+		assertEquals(2, deleted);
+    	assertEquals(customerCount-deleted, countCustomers());
     }
 
 }

@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import javax.xml.bind.DatatypeConverter;
+
 public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
 	protected String dbType = null;
@@ -287,35 +289,51 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
 	private String formatArray(Object value) {
 	    Class<?> itemClass = value.getClass().getComponentType();
-	    String result = "";
+	    if (itemClass == byte.class) {
+	    	return "('" + DatatypeConverter.printHexBinary((byte[])value) + "')";
+	    }
+	    StringBuffer result = new StringBuffer("'{");
         int length = Array.getLength(value);
         for (int i = 0; i < length; i++) {
             Object item = Array.get(value, i);
-	        if (item == null)
-	            result += "null";
-	        else if (itemClass == String.class)
-	            result += "\"" + item.toString() + "\"";
-	        else
-	            result += item.toString();
-	        result += ",";
+	    	appendFormattedCollectionItem(result, item);
 	    }
-        return "'{" + cutOfTrailingComma(result) + "}'";
+	    cutOfTrailingComma(result);
+        result.append("}'");
+        return result.toString();
     }
 
     private String formatMap(Map<?, ?> value) {
-	    String result = "";
+    	StringBuffer result = new StringBuffer("'");
 	    for (Entry<?, ?> entry: value.entrySet()) {
-	        String itemString = (entry.getValue() != null) ?
-	                ("\"" + entry.getValue().toString() + "\"") : "null";
-	        result += entry.getKey().toString() + " => " + itemString + ",";
+	    	result.append(entry.getKey().toString());
+	    	result.append(" => ");
+	    	appendFormattedCollectionItem(result, entry.getValue());
 	    }
-	    return "'" + cutOfTrailingComma(result) + "'";
+	    cutOfTrailingComma(result);
+	    result.append("'");
+	    return result.toString();
     }
     
-    private String cutOfTrailingComma(String string) {
-        if (string.length() > 0)
-            string = string.substring(0, string.length() - 1);
-        return string;
+    private void appendFormattedCollectionItem(StringBuffer result, Object item) {
+        if (item == null) {
+            result.append("null");
+        }
+        else if (item.getClass() == String.class) {
+        	result.append("\"");
+        	result.append(item.toString());
+        	result.append("\"");
+        }
+        else {
+        	result.append(item.toString());
+        }
+        result.append(",");
+	}
+
+	private void cutOfTrailingComma(StringBuffer string) {
+        if (string.length() > 0) {
+        	string.deleteCharAt(string.length()-1);
+        }
     }
 
     /** Formats an operator for usage in SQL statements.

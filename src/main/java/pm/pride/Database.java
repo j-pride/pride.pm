@@ -447,6 +447,7 @@ public class Database implements SQL.Formatter
                     getTableName(red) + where(whereString);
             ConnectionAndStatement cns = null;
             try {
+            	cns = new ConnectionAndStatement(this, query, true);
                 where.bind(this, cns);
                 ResultSet rs = cns.getStatement().executeQuery();
                 ResultIterator ri = new ResultIterator(cns, false, rs, obj, duplicateObj, red, this);

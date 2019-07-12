@@ -1,12 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
+ * Copyright (c) 2001-2019 The PriDE team
  *******************************************************************************/
 package pm.pride;
 
@@ -82,7 +75,7 @@ public abstract class StoredProcedure {
 
     /** Format a value as string. This is only used for logging purposes in this class */
     public String format(Object value, Class<?> targetType) {
-        return getDatabase().formatValue(value, targetType);
+        return getDatabase().formatValue(value, targetType, true);
     }
     
     /** Returns the name of the stored procedure to call.

@@ -1,12 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
+ * Copyright (c) 2001-2019 The PriDE team
  *******************************************************************************/
 package pm.pride;
 
@@ -16,6 +9,7 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -40,8 +34,9 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	/** Maximum number of SQL statements to be written to the log file before
 	 * the file is re-written from the start.
 	 */
-	private static final int LOGMAX_DEFAULT = 100000;
-	private static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
+	protected static final int LOGMAX_DEFAULT = 100000;
+	protected static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss.SSS");
+	protected static final int MAX_COLLECTION_ITEMS_IN_LOG = 10;
 	private String sqlLogFileName;
 	private FileWriter sqllog = null;
 	private boolean log;
@@ -266,7 +261,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
      * special formatting for String, java.util.Date, java.sql.Date, java.sql.Timestamp,
      * and null. In all other cases it performs value.toString()
      */
-    public String formatValue(Object value, Class<?> targetType) {
+    public String formatValue(Object value, Class<?> targetType, boolean forLogging) {
         if (value == null)
             return "NULL";
         if (value.getClass().isEnum())
@@ -281,29 +276,39 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
         else if (value.getClass() == java.sql.Date.class)
         	return formatDate((java.sql.Date)value);
         else if (value instanceof java.util.Map)
-            return formatMap((Map<?, ?>)value);
+            return formatMap((Map<?, ?>)value, forLogging);
         else if (value.getClass().isArray())
-            return formatArray(value);
+            return formatArray(value, forLogging);
         return value.toString();
     }
 
-	private String formatArray(Object value) {
+	private String formatArray(Object value, boolean forLogging) {
 	    Class<?> itemClass = value.getClass().getComponentType();
+	    String cutForLogging = "";
+        int length = Array.getLength(value);
+        if (forLogging && length > MAX_COLLECTION_ITEMS_IN_LOG) {
+        	length = MAX_COLLECTION_ITEMS_IN_LOG;
+        	cutForLogging = "...";
+        }
 	    if (itemClass == byte.class) {
-	    	return "('" + DatatypeConverter.printHexBinary((byte[])value) + "')";
+	    	byte[] arrayValue = (byte[])value;
+	    	if (length < arrayValue.length) {
+		    	arrayValue = Arrays.copyOf(arrayValue, length);
+	    	}
+	    	return "('" + DatatypeConverter.printHexBinary(arrayValue) + cutForLogging + "')";
 	    }
 	    StringBuffer result = new StringBuffer("'{");
-        int length = Array.getLength(value);
         for (int i = 0; i < length; i++) {
             Object item = Array.get(value, i);
 	    	appendFormattedCollectionItem(result, item);
 	    }
 	    cutOfTrailingComma(result);
+        result.append(cutForLogging);
         result.append("}'");
         return result.toString();
     }
 
-    private String formatMap(Map<?, ?> value) {
+    private String formatMap(Map<?, ?> value, boolean forLogging) {
     	StringBuffer result = new StringBuffer("'");
 	    for (Entry<?, ?> entry: value.entrySet()) {
 	    	result.append(entry.getKey().toString());
@@ -368,6 +373,47 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
         if (value != null && value.getClass().isEnum())
             return formatEnum((Enum)value);
 		return castJavaUtilDate(value, targetType);
+	}
+
+	@Override
+	public Object unformatValue(Object dbValue, Class<?> targetType) throws SQLException {
+		if (targetType.isEnum() && (dbValue instanceof String)) {
+			return Enum.valueOf((Class<Enum>) targetType, (String) dbValue);
+		}
+		else if (dbValue instanceof java.sql.Array) {
+			return sqlArray2javaArray((java.sql.Array) dbValue, targetType);
+		}
+        else if (dbValue instanceof SQLXML && targetType == String.class) {
+        	return ((SQLXML)dbValue).getString();
+        }
+		return dbValue;
+	}
+
+	/**
+	 * This method is required to also support Enums and primitive types as
+	 * array elements Additionally it turned out that Postgres (the only
+	 * database with array support we know) uses the String "NULL" to represent
+	 * a NULL value in a String arrays.
+	 */
+	protected Object sqlArray2javaArray(java.sql.Array dbValue, Class<?> targetArrayType) throws SQLException {
+		Object rawArray = dbValue.getArray();
+		Class<?> targetComponentType = targetArrayType.getComponentType();
+		if (targetComponentType.isPrimitive() || targetComponentType.isEnum()) {
+			int arrayLength = Array.getLength(rawArray);
+			Object unboxedArray = Array.newInstance(targetComponentType, arrayLength);
+			for (int i = 0; i < arrayLength; i++) {
+				Object rawItemValue = Array.get(rawArray, i);
+				if (targetComponentType.isPrimitive()) {
+					Array.set(unboxedArray, i, rawItemValue);
+				} else {
+					Object enumarizedItemValue = Enum.valueOf((Class<Enum>) targetComponentType,
+							rawItemValue.toString());
+					Array.set(unboxedArray, i, enumarizedItemValue);
+				}
+			}
+			return unboxedArray;
+		}
+		return rawArray;
 	}
 
 	/** Returns the passed logical table name as physical name */

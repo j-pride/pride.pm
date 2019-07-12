@@ -131,7 +131,7 @@ public interface ResourceAccessor extends SQL.Formatter
      * @param rawAutoFields The auto fields to consider as declared in a descriptor
      * @throws Exception
      */
-    public String[] getAutoFields(Statement stmt, String[] rawAutoFields) throws Exception;
+    String[] getAutoFields(Statement stmt, String[] rawAutoFields) throws Exception;
     
     /** Fetch the values for auto-generated fields from the last
      * insertion execution performed on the passed statement. This
@@ -141,30 +141,37 @@ public interface ResourceAccessor extends SQL.Formatter
      * @param stmt SQL statement object which was last be used to execute an insertion.
      * @param rawAutoFields The auto fields to consider as declared in a descriptor
      */
-    public ResultSet getAutoFieldVals(Statement stmt, String[] rawAutoFields)
+    ResultSet getAutoFieldVals(Statement stmt, String[] rawAutoFields)
         throws SQLException;
     
     /** Returns the physical table name for the logical table
      * name referred to by parameter <code>logicalTableName</code>
      */
-    public String getTableName(String logicalTableName) throws Exception;
+    String getTableName(String logicalTableName) throws Exception;
 
 	/** Performs an SQL formating of the passed value */
-    public String formatValue(Object value, Class<?> targetType);
+    String formatValue(Object value, Class<?> targetType, boolean forLogging);
 
 	/** Performs an SQL formating of the passed operator.
 	 * @param operator Any of the operators defined in {@link WhereCondition.Operator}
 	 * @param rawValue The raw value the operator is applied to before it
 	 *   is formated by {@link #formatValue}. May be null.
 	 */
-    public String formatOperator(String operator, Object rawValue);
+    String formatOperator(String operator, Object rawValue);
 
 	/** Performs a type conversion of a passed value for usage in
 	 * a prepared statement write access function. This function is
 	 * required if the raw value can not directly be passed to a
 	 * PreparedStatement, e.g. java.util.Date.
 	 */
-	public Object formatPreparedValue(Object value, Class<?> targetType);
+	Object formatPreparedValue(Object value, Class<?> targetType);
+
+	/**
+	 * Performs a type conversion of a passed value for usage in a result set
+	 * read access function. This function is required if the raw value can not
+	 * directly be passed to an entity's attribute, e.g. arrays or enums
+	 */
+	Object unformatValue(Object value, Class<?> targetType) throws SQLException;
 
     /**
      * Retrieves the URL for this DBMS represented by the
@@ -175,7 +182,7 @@ public interface ResourceAccessor extends SQL.Formatter
      * @return the database url
      * @throws Exception
      */
-    public String getURL(String db) throws Exception;
+    String getURL(String db) throws Exception;
     
     /**
      * Retrieves the user name as known to this database represented by the
@@ -186,19 +193,19 @@ public interface ResourceAccessor extends SQL.Formatter
      * @return the user name
      * @throws Exception
      */
-    public String getUserName(String db) throws Exception;
+    String getUserName(String db) throws Exception;
 
     /**
      * Returns the type of DB being represented by this resource accessor.
      * See constants in interface {@link DBType} for the
      * type keys which are supported by default.
      */
-    public String getDBType();
+    String getDBType();
     
     /**
      * Returns true if SQL statements should be assembled via bind-variables by default
      * Without specifying any default, PriDE talks plain SQL.
      */
-    public boolean bindvarsByDefault();
+    boolean bindvarsByDefault();
 
 }

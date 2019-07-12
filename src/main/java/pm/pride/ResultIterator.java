@@ -1,4 +1,6 @@
-// Temporäre Überschreibung der entsprechenden Klasse aus PriDE bis zum Upgrade auf Version 3.3.3, die den Bugfix enthält.
+/*******************************************************************************
+ * Copyright (c) 2001-2019 The PriDE team
+ *******************************************************************************/
 package pm.pride;
 
 import java.sql.*;
@@ -137,7 +139,7 @@ public class ResultIterator implements AutoCloseable
 							obj = duplicateObject();
 							duplicateObj = false;
 						}
-						red.record2object(obj, results, COLUMN_STARTINDEX);
+						red.record2object(obj, db, results, COLUMN_STARTINDEX);
 						red.calculateUpdateChecksum(obj);
 					}
 					catch(Exception x) {

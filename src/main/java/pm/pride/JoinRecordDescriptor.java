@@ -143,27 +143,27 @@ public class JoinRecordDescriptor extends RecordDescriptor {
      *   extraction by name (see class {@link AttributeDescriptor} for details).
      */
     @Override
-    public int record2object(String toplevelTableAlias, Object obj, ResultSet results, int position)
+    public int record2object(String toplevelTableAlias, Object obj, Database db, ResultSet results, int position)
         throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
-            position = baseDescriptor.record2object(obj, results, position);
+            position = baseDescriptor.record2object(obj, db, results, position);
         
         for (AttributeDescriptor attrDesc: attrDescriptors)
-            position = record2object(toplevelTableAlias, obj, results, position, attrDesc);
+            position = record2object(toplevelTableAlias, obj, db, results, position, attrDesc);
         
             for (Join join : joins) {
-                position = record2child(join, obj, results, position);
+                position = record2child(join, obj, db, results, position);
             }
         
         return position;
     }
     
-    private int record2child(Join join, Object obj, ResultSet results, int position) throws ReflectiveOperationException, SQLException {
+    private int record2child(Join join, Object obj, Database db, ResultSet results, int position) throws ReflectiveOperationException, SQLException {
         GetterSetterPair childAccess = join.getFieldAccess(obj);
 
         if (childAccess == null) { // No sub-object -> join aims on primary object
             for (AttributeDescriptor attrDesc: join.getAttributeDescriptors()) {
-                position = record2object(join.getAlias(), obj, results, position, attrDesc);
+                position = record2object(join.getAlias(), obj, db, results, position, attrDesc);
             }
         }
         else if (!isPrimaryKeyNull(join, results)) {
@@ -174,7 +174,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
                 childAccess.set(obj, child);
             }
             for (AttributeDescriptor attrDesc: join.getAttributeDescriptors()) {
-                position = record2object(join.getAlias(), child, results, position, attrDesc);
+                position = record2object(join.getAlias(), child, db, results, position, attrDesc);
             }
         }
         else {

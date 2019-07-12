@@ -1,9 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2018 The PriDE team
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.pm/LGPL.html
+ * Copyright (c) 2001-2019 The PriDE team
  *******************************************************************************/
 package pm.pride;
 
@@ -44,7 +40,7 @@ public class SQL {
 	}
 	
 	public interface Formatter {
-	    String formatValue(Object rawValue, Class<?> targetType);
+	    String formatValue(Object rawValue, Class<?> targetType, boolean forLogging);
 	    String formatOperator(String operator, Object rawValue);
 	    Object formatPreparedValue(Object rawValue, Class<?> targetType);
 	    boolean bindvarsByDefault();

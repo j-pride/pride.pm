@@ -117,8 +117,8 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	protected WhereCondition chain(String chainOperator, boolean skipOnNullValue, String field, String operator, Object... values) {
-		if (skipOnNullValue && values[0] == null)
-			return this;
+	    if (skipOnNullValue && (values == null || values.length == 0 || values[0] == null))
+	        return this;
 		chainOperator = chainIfNotEmpty(chainOperator);
 		WhereFieldCondition subcondition = new WhereFieldCondition(chainOperator, bind, field, operator, values);
 		return chain(subcondition);

@@ -166,8 +166,8 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	@Test
 	public void testIndividualFormatter() throws SQLException {
 		SQL.Formatter autowildcard = new SQL.Formatter() {
-			@Override public String formatValue(Object rawValue, Class<?> targetType) {
-				String value = DatabaseFactory.getDatabase().formatValue(rawValue, targetType);
+			@Override public String formatValue(Object rawValue, Class<?> targetType, boolean forLogging) {
+				String value = DatabaseFactory.getDatabase().formatValue(rawValue, targetType, forLogging);
 				return value.toString().replace('*', '%');
 			}
 			

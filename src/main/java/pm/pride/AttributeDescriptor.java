@@ -1,12 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
+ * Copyright (c) 2001-2019 The PriDE team
  *******************************************************************************/
 package pm.pride;
 
@@ -56,9 +49,6 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     /** True if the attribute represented by this descriptor is of a primitive type */
     protected boolean isPrimitive;
     
-    /** True if the attribute represented by this descriptor is an enumeration type */
-    protected Class<Enum> enumType;
-    
     protected GetterSetterPair fieldAccess;
 
     /** Create a mapping descriptor for a single database field
@@ -76,8 +66,6 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
      *   contains only 3 strings, the database field type is derived from the
      *   return type of the getter method.
      *  </OL>
-     * @param ResultSet extraction mode, as specified by interface
-     *   {@link RecordDescriptor#ExtractionMode}.
      */
     public AttributeDescriptor(Class<?> objectType, int extractionMode, String[] attrInfo)
 		throws IllegalDescriptorException {
@@ -94,8 +82,6 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 		    attributeType = (attrInfo.length > FIELDTYPE && attrInfo[FIELDTYPE] != null) ?
 				Class.forName(attrInfo[FIELDTYPE]) : fieldAccess.type();
 			isPrimitive = attributeType.isPrimitive();
-            if (attributeType.isEnum())
-                enumType = (Class<Enum>)attributeType;
 	        databaseGetByIndexMethod =
 	                ResultSetAccess.getIndexAccessMethod(attributeType);
 		    databaseGetByNameMethod = 
@@ -133,7 +119,6 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         fieldAccess = ad.fieldAccess;
         extractionMode = ad.extractionMode;
         isPrimitive = ad.isPrimitive;
-        enumType = ad.enumType;
         revisioning = ad.revisioning;
     }
 
@@ -216,7 +201,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
         Object val;
         if (obj != null) {
             val = getValue(obj);
-            strval = db.formatValue(val, databaseSetMethod.getParameterTypes()[1]);
+            strval = db.formatValue(val, databaseSetMethod.getParameterTypes()[1], false);
         }
         else
             val = strval = getCreationValue(obj, db);
@@ -260,8 +245,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
 		if (position < 0 || extractionMode == AUTO || extractionMode == NAME) {
 			try {
 				String lookupFieldName = getFieldName(tableAlias);
-				return databaseGetByNameMethod.invoke
-					(results, new Object[] { lookupFieldName });
+				return databaseGetByNameMethod.invoke(results, lookupFieldName);
 			}
 			catch(InvocationTargetException itx) {
 				if (extractionMode == NAME || position < 0)
@@ -276,53 +260,17 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     /** Fetch a value from a database result set and copy it into an object
      * according to this attribute descriptor
      */
-    protected void record2object(String tableAlias, Object obj, ResultSet results, int position)
+    protected void record2object(String tableAlias, Object obj, Database db, ResultSet results, int position)
         throws SQLException, ReflectiveOperationException {
-		Object dbValue = record2object(tableAlias, results, position);
+        Object dbValue = record2object(tableAlias, results, position);
         if (results.wasNull()) {
-            dbValue = null;
-            if (isPrimitive)
-            	throw new SQLException
-            		("Attempt to assign NULL from " + databaseFieldName + " to a primitive");
+          dbValue = null;
         }
-        else {
-            if (enumType != null && (dbValue instanceof String)) {
-                dbValue = Enum.valueOf(enumType, (String)dbValue);
-            }
-            else if (dbValue instanceof java.sql.Array) {
-            	dbValue = sqlArray2javaArray((java.sql.Array)dbValue, fieldAccess.typeFromSetter());
-            }
-            else if (dbValue instanceof SQLXML && fieldAccess.typeFromSetter() == String.class) {
-            	dbValue = ((SQLXML)dbValue).getString();
-            }
-        }
+        dbValue = db.unformatValue(dbValue, fieldAccess.typeFromSetter());
+        if (dbValue == null && isPrimitive)
+          throw new SQLException("Attempt to assign NULL from " + databaseFieldName + " to a primitive");
         fieldAccess.set(obj, dbValue);
     }
-
-    /** This method is required to also support Enums and primitive types as array elements
-     * Additionally it turned out that Postgres (the only database with array support we know)
-     * uses the String "NULL" to represent a NULL value in a String arrays.
-     */
-    private Object sqlArray2javaArray(java.sql.Array dbValue, Class<?> targetArrayType) throws SQLException {
-        Object rawArray = dbValue.getArray();
-        Class<?> targetComponentType = targetArrayType.getComponentType();
-        if (targetComponentType.isPrimitive() || targetComponentType.isEnum()) {
-            int arrayLength = Array.getLength(rawArray);
-            Object unboxedArray = Array.newInstance(targetComponentType, arrayLength);
-            for (int i = 0; i < arrayLength; i++) {
-                Object rawItemValue = Array.get(rawArray, i);
-                if (targetComponentType.isPrimitive()) {
-                    Array.set(unboxedArray, i, rawItemValue);
-                }
-                else {
-                    Object enumarizedItemValue = Enum.valueOf((Class<Enum>)targetComponentType, rawItemValue.toString());
-                    Array.set(unboxedArray, i, enumarizedItemValue);
-                }
-            }
-            return unboxedArray;
-        }
-        return rawArray;
-	}
 
 	/** Returns a string representation of the passed object's value for
      * this descriptor's attribute. If obj is null, returns "?", required
@@ -334,7 +282,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
             return (String) getValue(obj);
         }
         else if (obj != null) {
-            return db.formatValue(getValue(obj), databaseSetMethod.getParameterTypes()[1]);
+            return db.formatValue(getValue(obj), databaseSetMethod.getParameterTypes()[1], false);
         }
         else {
             return "?";

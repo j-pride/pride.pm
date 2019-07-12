@@ -153,12 +153,14 @@ public class Database implements SQL.Formatter
     }
 
     /** Formats the passed object for SQL syntax, e.g. by putting single-quotes
-     * arround strings etc. The function is not very flexible yet, it just supports
-     * special formatting for String, java.util.Date, java.sql.Date, java.sql.Timestamp,
-     * and null. All other other cases it runs value.toString()
+     * arround strings etc. If there is no formatting known, it runs value.toString().
+     * If forLogging is true, the formatting is not performed to assemble SQL statements
+     * but only to write the values to a log. In this case, the formatter may cut the
+     * content to keep from overcrowing the log files. Especially Blob and Clob content
+     * may be very large and can usually be abbreviated in logs.
      */
-    public String formatValue(Object value, Class<?> targetType) {
-		return accessor.formatValue(value, targetType);
+    public String formatValue(Object value, Class<?> targetType, boolean forLogging) {
+		return accessor.formatValue(value, targetType, forLogging);
     }
 
     public String formatOperator(String operator, Object rawValue) {
@@ -167,6 +169,14 @@ public class Database implements SQL.Formatter
     
 	public Object formatPreparedValue(Object value, Class<?> targetType) {
 		return accessor.formatPreparedValue(value, targetType);
+	}
+
+	/**
+	 * Converts the passed value, being read from an SQL ResultSet to the type
+	 * of attribute which the value is going to be transferred to.
+	 */
+	public Object unformatValue(Object value, Class<?> targetType) throws SQLException {
+		return accessor.unformatValue(value, targetType);
 	}
 
     @Override
@@ -234,7 +244,6 @@ public class Database implements SQL.Formatter
      */
     public int sqlUpdate(String operation, String[] autoFields, Object obj, RecordDescriptor red, Object... params)
     		throws SQLException {
-        ResultSet autoResults = null;
         int numRows = -1;
         try(ConnectionAndStatement cns = new ConnectionAndStatement(this, operation, params)) {
             String[] autoFieldsForExec = accessor.getAutoFields(cns.stmt, autoFields);
@@ -248,9 +257,6 @@ public class Database implements SQL.Formatter
         }
         catch(Exception x) {
         	throw processSevereButSQLException(x);
-        }
-        finally {
-            if (autoResults != null) autoResults.close();
         }
         return numRows;
     }
@@ -267,7 +273,7 @@ public class Database implements SQL.Formatter
         if (numRows == 1 && autoFields != null && autoFields.length > 0) {
             autoResults = accessor.getAutoFieldVals(stmt, autoFields);
             if (autoResults != null && autoResults.next())
-                red.record2object(obj, autoResults, ResultIterator.COLUMN_STARTINDEX, autoFields);
+            	red.record2object(obj, this, autoResults, ResultIterator.COLUMN_STARTINDEX, autoFields);
         }
     }
 

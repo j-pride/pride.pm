@@ -1,12 +1,5 @@
 /*******************************************************************************
  * Copyright (c) 2001-2019 The PriDE team
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
  *******************************************************************************/
 package pm.pride;
 

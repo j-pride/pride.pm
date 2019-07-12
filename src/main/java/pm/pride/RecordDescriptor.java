@@ -1,12 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
- * All rights reserved. This toolkit and the accompanying materials 
- * are made available under the terms of the GNU Lesser General Public
- * License (LGPL) which accompanies this distribution, and is available
- * at http://pride.sourceforge.net/LGPL.html
- * 
- * Contributors:
- *     Jan Lessner, MATHEMA Software GmbH - initial API and implementation
+ * Copyright (c) 2001-2019 The PriDE team
  *******************************************************************************/
 package pm.pride;
 
@@ -233,10 +226,10 @@ public class RecordDescriptor
 
 	public String[] getAutoFields() { return autoFields; }
 
-	public int record2object(String toplevelTableAlias, Object obj, ResultSet results,
+	public int record2object(String toplevelTableAlias, Object obj, Database db, ResultSet results,
 		int position, AttributeDescriptor attrDesc)
 		throws SQLException, ReflectiveOperationException {
-		attrDesc.record2object(toplevelTableAlias, obj, results, position);
+		attrDesc.record2object(toplevelTableAlias, obj, db, results, position);
 		return (position >= 0) ? position+1 : position;
 	}
 	
@@ -256,17 +249,17 @@ public class RecordDescriptor
      * @return The next index for subsequent extractions or -1 to force
      *   extraction by name (see class {@link AttributeDescriptor} for details).
      */
-    public int record2object(Object obj, ResultSet results, int position)
+    public int record2object(Object obj, Database db, ResultSet results, int position)
             throws SQLException, ReflectiveOperationException {
-    	return record2object(dbtableAlias, obj, results, position);
+    	return record2object(dbtableAlias, obj, db, results, position);
     }
 
-    protected int record2object(String toplevelTableAlias, Object obj, ResultSet results, int position)
+    protected int record2object(String toplevelTableAlias, Object obj, Database db, ResultSet results, int position)
         throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
-            position = baseDescriptor.record2object(toplevelTableAlias, obj, results, position);
+            position = baseDescriptor.record2object(toplevelTableAlias, obj, db, results, position);
         for (AttributeDescriptor attrDesc: attrDescriptors)
-        	position = record2object(toplevelTableAlias, obj, results, position, attrDesc);
+        	position = record2object(toplevelTableAlias, obj, db, results, position, attrDesc);
         return position;
     }
 
@@ -281,18 +274,18 @@ public class RecordDescriptor
      * @param results The result set to extract the data from
      * @param includeAttrs An array of attribute names to consider
      */
-    public int record2object(Object obj, ResultSet results, int position, String[] includeAttrs)
+    public int record2object(Object obj, Database db, ResultSet results, int position, String[] includeAttrs)
         throws SQLException, ReflectiveOperationException {
-    	return record2object(dbtableAlias, obj, results, position, includeAttrs);
+    	return record2object(dbtableAlias, obj, db, results, position, includeAttrs);
 	}
 
-    protected int record2object(String toplevelTableAlias, Object obj, ResultSet results, int position, String[] includeAttrs)
+    protected int record2object(String toplevelTableAlias, Object obj, Database db, ResultSet results, int position, String[] includeAttrs)
         throws SQLException, ReflectiveOperationException {
         if (baseDescriptor != null)
-            position = baseDescriptor.record2object(toplevelTableAlias, obj, results, position, includeAttrs);
+            position = baseDescriptor.record2object(toplevelTableAlias, obj, db, results, position, includeAttrs);
         for (AttributeDescriptor attrDesc: attrDescriptors) {
             if (contains(includeAttrs, attrDesc.getFieldName(), false))
-                position = record2object(toplevelTableAlias, obj, results, position, attrDesc);
+                position = record2object(toplevelTableAlias, obj, db, results, position, attrDesc);
         }
         return position;
     }

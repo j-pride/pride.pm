@@ -4,7 +4,7 @@
     <groupId>pm.pride</groupId>
     <artifactId>pride</artifactId>
     <packaging>jar</packaging>
-    <version>3.4.2</version>
+    <version>3.4.3</version>
     <name>pride</name>
     <description>World's smallest O/R mapper for Java</description>
     <url>http://pride.pm</url>
@@ -43,8 +43,8 @@
 	</developers>
   
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.9</maven.compiler.source>
+        <maven.compiler.target>1.9</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     

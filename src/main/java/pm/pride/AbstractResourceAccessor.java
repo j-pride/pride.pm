@@ -15,8 +15,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import javax.xml.bind.DatatypeConverter;
-
 public abstract class AbstractResourceAccessor implements ResourceAccessor {
 
 	protected String dbType = null;
@@ -295,7 +293,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	    	if (length < arrayValue.length) {
 		    	arrayValue = Arrays.copyOf(arrayValue, length);
 	    	}
-	    	return "('" + DatatypeConverter.printHexBinary(arrayValue) + cutForLogging + "')";
+	    	return "('" + printHexBinary(arrayValue) + cutForLogging + "')";
 	    }
 	    StringBuffer result = new StringBuffer("'{");
         for (int i = 0; i < length; i++) {
@@ -308,6 +306,19 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
         return result.toString();
     }
 
+	static final String HEXES = "0123456789ABCDEF";
+	public static String printHexBinary( byte [] raw ) {
+	    if ( raw == null ) {
+	        return null;
+	    }
+	    final StringBuilder hex = new StringBuilder( 2 * raw.length );
+	    for ( final byte b : raw ) {
+	        hex.append(HEXES.charAt((b & 0xF0) >> 4))
+	            .append(HEXES.charAt((b & 0x0F)));
+	    }
+	    return hex.toString();
+	}
+	
     private String formatMap(Map<?, ?> value, boolean forLogging) {
     	StringBuffer result = new StringBuffer("'");
 	    for (Entry<?, ?> entry: value.entrySet()) {

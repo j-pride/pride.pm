@@ -35,9 +35,9 @@ public class PrideDateTest extends AbstractPrideTest {
     	// timestamp columns below are specified with (3) which is the seconds fraction precision.
         String columns = ""
         		+ "RECORD_NAME varchar(50), "
-                + "TIME_PLAIN timestamp(3) , "
+                + "TIME_PLAIN timestamp(3)" + getDefaultDateString() + ", "
                 + "TIME_AS_DATE timestamp(3)" + getDefaultDateString() + ", "
-                + "DATE_PLAIN date DEFAULT" + getDefaultDateString() + ", "
+                + "DATE_PLAIN date" + getDefaultDateString() + ", "
                 + "DATE_AS_TIME date" + getDefaultDateString() + ", "
                 + "DATE_AS_DATE date" + getDefaultDateString();
         dropAndCreateTable(DATETIME_TEST_TABLE, columns);
@@ -45,7 +45,7 @@ public class PrideDateTest extends AbstractPrideTest {
     
     private String getDefaultDateString() {
     	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
-    		return "DEFAULT '1970-01-01 00:00:01'";
+    		return " DEFAULT '1970-01-01 00:00:01'";
     	}
     	return "";
     }

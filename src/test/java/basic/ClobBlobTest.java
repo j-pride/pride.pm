@@ -6,7 +6,11 @@ import org.junit.Test;
 
 import pm.pride.ResourceAccessor;
 
-@SkipForDBType(ResourceAccessor.DBType.SQLITE)
+@SkipForDBType(value = {
+		ResourceAccessor.DBType.SQLITE,
+		/* TODO JL: MariaDB doesn't have a CLOB type, try to use LONGTEXT or something else instead */
+		ResourceAccessor.DBType.MARIADB
+})
 public class ClobBlobTest extends AbstractPrideTest {
     protected void createClobBlobTable() throws SQLException {
         String columns = ""

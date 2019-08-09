@@ -34,11 +34,11 @@ public class PrideDateTest extends AbstractPrideTest {
     	// timestamp columns below are specified with (3) which is the seconds fraction precision.
         String columns = ""
         		+ "RECORD_NAME varchar(50), "
-                + "TIME_PLAIN timestamp(3), "
-                + "TIME_AS_DATE timestamp(3), "
-                + "DATE_PLAIN date, "
-                + "DATE_AS_TIME date, "
-                + "DATE_AS_DATE date";
+                + "TIME_PLAIN timestamp(3) DEFAULT '1970-01-01 00:00:01', "
+                + "TIME_AS_DATE timestamp(3) DEFAULT '1970-01-01 00:00:01', "
+                + "DATE_PLAIN date DEFAULT '1970-01-01 00:00:01', "
+                + "DATE_AS_TIME date DEFAULT '1970-01-01 00:00:01', "
+                + "DATE_AS_DATE date DEFAULT '1970-01-01 00:00:01'";
         dropAndCreateTable(DATETIME_TEST_TABLE, columns);
     }
 

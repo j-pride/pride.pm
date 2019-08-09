@@ -13,6 +13,7 @@ import pm.pride.ResourceAccessor;
 		 * For MariaDB see: https://mariadb.com/kb/en/library/blob-and-text-data-types/
 		 * */
 		ResourceAccessor.DBType.MARIADB,
+		ResourceAccessor.DBType.MYSQL, // Same as for MARIADB
 		ResourceAccessor.DBType.POSTGRES
 })
 public class ClobBlobTest extends AbstractPrideTest {

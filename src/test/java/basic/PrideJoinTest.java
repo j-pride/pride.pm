@@ -16,7 +16,7 @@ import org.junit.Assume;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import oracle.jdbc.logging.annotations.DisableTrace;
+//import oracle.jdbc.logging.annotations.DisableTrace;
 import pm.pride.*;
 /**
  * Test of table join functionality

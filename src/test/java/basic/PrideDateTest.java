@@ -13,6 +13,7 @@ import org.junit.Test;
 
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
+import pm.pride.ResourceAccessor;
 import pm.pride.WhereCondition;
 
 public class PrideDateTest extends AbstractPrideTest {
@@ -34,12 +35,19 @@ public class PrideDateTest extends AbstractPrideTest {
     	// timestamp columns below are specified with (3) which is the seconds fraction precision.
         String columns = ""
         		+ "RECORD_NAME varchar(50), "
-                + "TIME_PLAIN timestamp(3) DEFAULT '1970-01-01 00:00:01', "
-                + "TIME_AS_DATE timestamp(3) DEFAULT '1970-01-01 00:00:01', "
-                + "DATE_PLAIN date DEFAULT '1970-01-01 00:00:01', "
-                + "DATE_AS_TIME date DEFAULT '1970-01-01 00:00:01', "
-                + "DATE_AS_DATE date DEFAULT '1970-01-01 00:00:01'";
+                + "TIME_PLAIN timestamp(3) , "
+                + "TIME_AS_DATE timestamp(3)" + getDefaultDateString() + ", "
+                + "DATE_PLAIN date DEFAULT" + getDefaultDateString() + ", "
+                + "DATE_AS_TIME date" + getDefaultDateString() + ", "
+                + "DATE_AS_DATE date" + getDefaultDateString();
         dropAndCreateTable(DATETIME_TEST_TABLE, columns);
+    }
+    
+    private String getDefaultDateString() {
+    	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
+    		return "DEFAULT '1970-01-01 00:00:01'";
+    	}
+    	return "";
     }
 
 	@Override

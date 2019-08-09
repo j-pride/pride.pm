@@ -4,10 +4,7 @@ import java.sql.SQLException;
 
 import org.junit.Test;
 
-import pm.pride.Database;
-import pm.pride.DatabaseFactory;
 import pm.pride.ResourceAccessor;
-import pm.pride.WhereCondition;
 
 @SkipForDBType(ResourceAccessor.DBType.SQLITE)
 public class ClobBlobTest extends AbstractPrideTest {
@@ -66,3 +63,4 @@ public class ClobBlobTest extends AbstractPrideTest {
 	}
 	
 }
+

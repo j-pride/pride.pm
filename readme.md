@@ -1,4 +1,4 @@
-# PriDE 3.4.2 2019-02-20
+# PriDE 3.4.3 2019-09-08
 
 (c) The PriDE Open Source Team
 
@@ -42,3 +42,4 @@ Download the ojdbc8.jar from the [Oracle Technology Network](http://www.oracle.c
 Afterwards you can install it into your local repository by executing the following command
 
 	mvn install:install-file -DgroupId=com.oracle.jdbc -DartifactId=ojdbc8 -Dversion=12.2.0.1 -Dpackaging=jar -Dfile=ojdbc8.jar -DgeneratePom=true
+

@@ -12,8 +12,6 @@ import java.util.List;
 
 /**
  * A RecordDescriptor defines the mapping of relation database records to JAVA objects
- *
- * @author <a href="mailto:jan.lessner@acoreus.de">Jan Lessner</a>
  */
 public class RecordDescriptor
 {
@@ -47,7 +45,7 @@ public class RecordDescriptor
     protected boolean withBind;
 
     /** Returns <code>true</code> if the passed array of strings contains <code>element</code>.
-     * Parameter <tt>onNull</tt> is returned in case the passed string array is <tt>null</tt>.
+     * Parameter <code>onNull</code> is returned in case the passed string array is <code>null</code>.
      */
     protected static boolean contains(String[] list, String element, boolean onNull) {
         if (list == null)

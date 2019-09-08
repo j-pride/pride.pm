@@ -11,9 +11,9 @@ public class SQL {
 	 * This is just a helper class, preventing a string value from getting formatted when
 	 * passed to any expression builder function of {@link WhereCondition}. E.g. use this
 	 * type to express an equality check between two database fields like this:<p>
-	 * <tt>exp.and("field1", new SQL.Pre("field2"))</tt>
+	 * <pre>exp.and("field1", new SQL.Pre("field2"))</pre>
 	 * or
-	 * <tt>exp.and("field1", SQL.pre("field2"))</tt>
+	 * <pre>exp.and("field1", SQL.pre("field2"))</pre>
 	 */
 	public static class Pre {
 	    protected String fieldname;

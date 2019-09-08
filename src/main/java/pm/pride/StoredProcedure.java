@@ -15,7 +15,7 @@ import java.sql.*;
  * output parameters as non-final members. In/out parameters are
  * not supported because I didn't find an elegant way to do yet.
  * The procedure is called by running the {@link #execute} method.
- * E.g. the following class would run the procedure <tt>myproc</tt>
+ * E.g. the following class would run the procedure <code>myproc</code>
  * with two input Strings and one output integer:
  * <pre>
  *   public class myproc extends StoredProcedure {

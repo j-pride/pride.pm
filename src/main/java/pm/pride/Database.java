@@ -660,8 +660,8 @@ public class Database implements SQL.Formatter
 
     /** Delete a record from the database.
      * @param red descriptor providing the table name to access.
-     * @param obj not used
      * @param where where-clause to select the records of interest
+     * @param params Optional parameters if the statement contains bind variables and therefore needs to be executed as a {@link PreparedStatement}
      */
     public int deleteRecords(RecordDescriptor red, String where, Object... params) throws SQLException {
         String delete = "delete from " + getTableName(red) + where(where);

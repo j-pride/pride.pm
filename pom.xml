@@ -27,6 +27,32 @@
 	  </repository>	  
 	</distributionManagement>
 
+    <profiles>
+        <profile>
+            <id>default</id>
+			<dependencies>
+				<dependency>
+					<groupId>com.oracle.jdbc</groupId>
+					<artifactId>xdb6</artifactId>
+					<version>12.2.0.1</version>
+					<scope>test</scope>
+				</dependency>
+				<dependency>
+					<groupId>com.oracle.jdbc</groupId>
+					<artifactId>xmlparserv2</artifactId>
+					<version>12.2.0.1</version>
+					<scope>test</scope>
+				</dependency>
+			</dependencies>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+        </profile>
+        <profile>
+            <id>travis</id>
+        </profile>
+    </profiles>
+
 	<scm>
 	  <connection>scm:git:git://github.com/j-pride/pride.pm.git</connection>
 	  <developerConnection>scm:git:ssh://github.com/j-pride/pride.pm.git</developerConnection>
@@ -178,18 +204,6 @@
 			<version>12.2.0.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.oracle.jdbc</groupId>
-			<artifactId>xdb6</artifactId>
-			<version>12.2.0.1</version>
-			<scope>test</scope>
-		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.oracle.jdbc</groupId> -->
-<!-- 			<artifactId>xmlparserv2</artifactId> -->
-<!-- 			<version>12.2.0.1</version> -->
-<!-- 			<scope>test</scope> -->
-<!-- 		</dependency> -->
 		<dependency>
 		  <groupId>org.xerial</groupId>
 		  <artifactId>sqlite-jdbc</artifactId>

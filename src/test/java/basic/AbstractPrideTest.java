@@ -161,7 +161,7 @@ public abstract class AbstractPrideTest extends Assert {
 	protected void setBindvarsByDefault(boolean b) {
 	}
 
-	private void checkIfTestShouldBeSkipped() {
+	protected void checkIfTestShouldBeSkipped() {
         final String currentDbType = DatabaseFactory.getDatabase().getDBType();
         if (this.getClass().isAnnotationPresent(NeedsDBType.class)) {
 			NeedsDBType annotation = this.getClass().getAnnotation(NeedsDBType.class);

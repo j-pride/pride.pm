@@ -31,6 +31,19 @@
         <profile>
             <id>default</id>
 			<dependencies>
+				<!--
+				The following libraries are required for SQLXML support in Oracle. They have to be
+				provided in a fairly obscure way, according to the advice here:
+				https://stackoverflow.com/questions/28085992/which-settings-do-i-have-to-configure-to-use-xml-as-input-parameter-with-oracle
+				xdb6.jar can be loaded from the Oracle Maven repository using the same version as
+				for the JDBC driver. The xmlparserv2.jar library is also available there but it
+				doesn't work! You have to follow the instructions from the site above intead, i.e.
+				downloading JDeveloper 12 Java Edition and copy the JAR file to your local Maven repository.
+				Due to this strange problem, we have defined a separate profile "travis" for running
+				the unittest on Travis CI. As the Oracle XML libraries are not available on Travis,
+				we skip the Maven dependencies and the XML tests (see class PrideXMLTest).
+				The "travis" profile is adressed by Maven's -P parameter as you can see in file .travis.yml
+				-->
 				<dependency>
 					<groupId>com.oracle.jdbc</groupId>
 					<artifactId>xdb6</artifactId>
@@ -69,8 +82,8 @@
 	</developers>
   
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.9</maven.compiler.source>
+        <maven.compiler.target>1.9</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     

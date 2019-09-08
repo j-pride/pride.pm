@@ -127,6 +127,7 @@
 				Following plugins are concerned with publishing PriDE on Maven Central.
 				They are simply added here according to the descriptions at
 				https://central.sonatype.org/pages/ossrh-guide.html, December 2018
+				Introduction to publishing process, see https://www.youtube.com/watch?v=bxP9IuJbcDQ 
 			-->
 		    <plugin>
 		      <groupId>org.sonatype.plugins</groupId>

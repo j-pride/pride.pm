@@ -60,20 +60,4 @@ public class Attribute extends MappedObject
         this.seqNo = 0;
     }
     
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/Attribute.java,v 1.3 2001/07/18 17:44:19 lessner Exp $";
 }
-
-/* $Log: Attribute.java,v $
-/* Revision 1.3  2001/07/18 17:44:19  lessner
-/* Deletion was buggy.
-/*
-/* Revision 1.2  2001/07/13 07:27:45  lessner
-/* delete() method added
-/*
-/* Revision 1.1  2001/06/25 07:50:07  lessner
-/* Database framework extended by support for generic attributes
-/*
-/* Revision 1.1  2001/06/22 10:33:25  lessner
-/* Number generator classes introduced
-/*
- */

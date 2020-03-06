@@ -156,7 +156,7 @@ public class PrideJoinTest extends AbstractPrideTest {
     
     @Test(expected=IllegalArgumentException.class)
     public void testAdHocJoinMustBeCompatible() throws Exception {
-    	new Customer().joinQueryAll(IdentifiedEntity.red);
+    	new Customer().joinQueryAll(CustomerFragments.red);
     }
     
 }

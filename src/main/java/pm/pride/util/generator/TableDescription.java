@@ -28,7 +28,7 @@ public class TableDescription {
 		ResultSet rset2 = db_meta.getColumns(null, // con.getCatalog (),
 				null, // "*",
 				tableName, "%");
-		List<TableColumn> result = new ArrayList<>(0);
+		Set<TableColumn> result = new HashSet<>(0);
 		while (rset2.next()) {
 			String columnName = rset2.getString("COLUMN_NAME");
 			int dataType = rset2.getInt("DATA_TYPE");
@@ -47,7 +47,7 @@ public class TableDescription {
 		if (columnsOfInterest != null && columnsOfInterest.size() > 0) {
 			throw new SQLException("Unknown columns in table " + tableName + ": " + columnsOfInterest);
 		}
-		return result;
+		return new ArrayList(result);
 	}
 
 	protected void markKeyColumns(DatabaseMetaData db_meta, String tableName, List<TableColumn> columns)

@@ -165,4 +165,28 @@ public class TableColumn {
 	public String getTableName() {
 		return tableName;
 	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		TableColumn that = (TableColumn) o;
+
+		if (!tableName.equals(that.tableName)) {
+			return false;
+		}
+		return columnName.equals(that.columnName);
+	}
+
+	@Override
+	public int hashCode() {
+		int result = tableName.hashCode();
+		result = 31 * result + columnName.hashCode();
+		return result;
+	}
 }

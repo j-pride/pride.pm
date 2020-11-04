@@ -159,7 +159,7 @@ public class EntityGenerator {
 			writeGetMethods(tableDesc, className, baseClassName, generationType, buffer);
 			writeSetMethods(tableDesc, className, baseClassName, generationType, buffer);
 			writeFooter(tableDesc, className, baseClassName, generationType, buffer);
-					  con.rollback();
+			con.rollback(); // Avoids connection closing problems on DB2 though we are only reading from DB
             con.close();
             con = null;
 		} else {

@@ -1,4 +1,4 @@
-# PriDE 3.4.5 2020-03-07
+# PriDE 3.4.6 2020-04-11
 
 (c) The PriDE Open Source Team
 
@@ -24,10 +24,11 @@ At the moment the following types of databases are supported and actively tested
 * Postgres (Version 9.6)
 * Oracle XE 11g
 * Oracle EE (Exadata) **Not on Travis CI, but works in production!**
+* DB2 (Version 10) **Not on Travis CI, but works in production!**
 
 To build PriDE _and_ execute all tests, you have to specify a database to run the tests on:
 
-    mvn package -Duser.name=[mysql,hsql,mariadb,oracle,postgres,sqlite]
+    mvn package -Duser.name=[mysql,hsql,mariadb,oracle,postgres,sqlite,db2]
 
 To just build PriDE without execute any tests run
 ​    

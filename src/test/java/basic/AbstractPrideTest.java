@@ -53,7 +53,7 @@ public abstract class AbstractPrideTest extends Assert {
 	protected Date firstCustomersHiredate;
 
 	private static Boolean overriddenBindvarsDefault;
-	protected static final String TEST_TABLE = "customer_pride_test";
+	protected static final String TEST_TABLE = "CUSTOMER_PRIDE_TEST";
 	protected static final String REVISIONING_TEST_TABLE = "R_" + TEST_TABLE;
 	protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
 	protected static final String REVISIONED_ID_CLASSIFIER = "int ";
@@ -123,9 +123,6 @@ public abstract class AbstractPrideTest extends Assert {
         }
     };
     
-	/**
-	 * @see junit.framework.TestCase#setUp()
-	 */
     @Before
 	public void setUp() throws Exception {
 		randi = new Random();
@@ -193,9 +190,6 @@ public abstract class AbstractPrideTest extends Assert {
 		return testConfig;
 	}
 
-	/**
-	 * @see junit.framework.TestCase#tearDown()
-	 */
 	@After
 	public void tearDown() throws Exception {
 		//dropTestTable();

@@ -301,9 +301,7 @@ public class EntityGenerator {
 
     buffer.append(")");
 
-    EntityScanner entityScanner = new EntityScanner();
-    EntityInformation entityInformation = entityScanner.scan(generationType);
-    PropertyNameProvider propertyNameProvider = new PropertyNameProvider(entityInformation);
+    PropertyNameProvider propertyNameProvider = createPropertyNameProvider(generationType);
 
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.remove(tableColumn.getName()))
@@ -373,18 +371,19 @@ public class EntityGenerator {
       return;
 
     Set<String> baseClassFields = extractMappedFields(baseClassName);
-
+    PropertyNameProvider nameProvider = createPropertyNameProvider(className);
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.contains(tableColumn.getName()))
         continue;
-      buffer.append("    private " + tableColumn.getType() + " " + tableColumn.getNameCamelCaseFirstLow() + ";" + "\n");
+      String suggestedAttributeName = tableColumn.getNameCamelCaseFirstLow();
+      buffer.append("    private " + tableColumn.getType() + " " + nameProvider.lookupField(suggestedAttributeName) + ";" + "\n");
 
     }
 
     buffer.append("\n");
   }
 
-  /** Prints the geter methods for all members to standard out */
+  /** Prints the getter methods for all members to standard out */
   public void writeGetMethods (TableDescription[] desc, String className, String baseClassName,
       String generationType, StringBuffer buffer)
       throws SQLException {
@@ -392,14 +391,16 @@ public class EntityGenerator {
       return;
 
     Set<String> baseClassFields = extractMappedFields(baseClassName);
+    PropertyNameProvider nameProvider = createPropertyNameProvider(className);
 
     buffer.append("    // Read access functions" + "\n");
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.contains(tableColumn.getName()))
         continue;
-      buffer.append("    public " + tableColumn.getType()  + " get"
-          + tableColumn.getNameCamelCaseFirstUp() + "()   { return " + tableColumn.getNameCamelCaseFirstLow() + "; }" + "\n");
-
+      String suggestedMethodName = tableColumn.getNameCamelCaseFirstUp();
+      String suggestedAttributeName = tableColumn.getNameCamelCaseFirstLow();
+      buffer.append("    public " + tableColumn.getType()  + " " + nameProvider.lookupGetter(suggestedMethodName)
+          + "()   { return " + nameProvider.lookupField(suggestedAttributeName) + "; }" + "\n");
     }
     buffer.append("\n");
   }
@@ -412,17 +413,28 @@ public class EntityGenerator {
       return;
 
     Set<String> baseClassFields = extractMappedFields(baseClassName);
+    PropertyNameProvider nameProvider = createPropertyNameProvider(className);
 
     buffer.append("    // Write access functions" + "\n");
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.contains(tableColumn.getName()))
         continue;
-      buffer.append("    public void set" + tableColumn.getNameCamelCaseFirstUp() + "(" + tableColumn.getType()
-          + " " + tableColumn.getNameCamelCaseFirstLow() + ") { this." + tableColumn.getNameCamelCaseFirstLow() + " = " + tableColumn.getNameCamelCaseFirstLow() +
+      String suggestedMethodName = tableColumn.getNameCamelCaseFirstUp();
+      String suggestedAttributeName = tableColumn.getNameCamelCaseFirstLow();
+
+      buffer.append("    public void " + nameProvider.lookupSetter(suggestedMethodName) + "(" + tableColumn.getType()
+          + " " + nameProvider.lookupField(suggestedAttributeName) + ") { this." + nameProvider.lookupField(suggestedAttributeName) + " = " + nameProvider.lookupField(suggestedAttributeName) +
           "; }" + "\n");
 
     }
     buffer.append("\n");
+  }
+
+  private PropertyNameProvider createPropertyNameProvider(String generationType) {
+    EntityScanner entityScanner = new EntityScanner();
+    EntityInformation entityInformation = entityScanner.scan(generationType);
+    PropertyNameProvider propertyNameProvider = new PropertyNameProvider(entityInformation);
+    return propertyNameProvider;
   }
 
   public void writeToStringMethod(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {

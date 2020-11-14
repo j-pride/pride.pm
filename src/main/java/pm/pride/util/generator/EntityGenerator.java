@@ -301,8 +301,9 @@ public class EntityGenerator {
 
     buffer.append(")");
 
-    MethodNameResolver methodNameResolver = new MethodNameResolver();
-    methodNameResolver.extractEntityMethods(generationType);
+    EntityScanner entityScanner = new EntityScanner();
+    EntityInformation entityInformation = entityScanner.scan(generationType);
+    MethodNameProvider methodNameProvider = new MethodNameProvider(entityInformation);
 
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.remove(tableColumn.getName()))
@@ -311,9 +312,9 @@ public class EntityGenerator {
       sb.append("\n            .row( ");
       sb.append(toColumnConstant(tableColumn));
       sb.append(", \"");
-      sb.append(methodNameResolver.lookupGetter(tableColumn.getNameCamelCaseFirstUp()));
+      sb.append(methodNameProvider.lookupGetter(tableColumn.getNameCamelCaseFirstUp()));
       sb.append("\", \"");
-      sb.append(methodNameResolver.lookupSetter(tableColumn.getNameCamelCaseFirstUp()));
+      sb.append(methodNameProvider.lookupSetter(tableColumn.getNameCamelCaseFirstUp()));
       sb.append("\" )");
       buffer.append(sb.toString());
     }

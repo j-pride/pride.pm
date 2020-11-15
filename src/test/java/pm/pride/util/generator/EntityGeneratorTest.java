@@ -14,7 +14,8 @@ public class EntityGeneratorTest extends AbstractPrideTest {
         assertGeneratedFragments(generatedCode,
                 CLASS_TO_GENERATE,
                 "String getLastname",
-                "void setLastname(String");
+                "void setLastname(String",
+                "String lastname");
     }
 
     @Test
@@ -42,8 +43,24 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     public void testGenerateBeanWithCamelCasedPropertiesFromExistingBean() throws Exception {
         String generatedCode = generate(TEST_TABLE, GeneratedCustomerBeanWithCamelCasedProperties.class.getName(), "-b");
         assertGeneratedFragments(generatedCode,
-            "String getLastName",
-            "void setLastName(String");
+                "private String lastName;",
+                "String getLastName",
+                "void setLastName(String",
+                "private String firstname;",
+                "void setFirstName"
+                );
+    }
+
+    @Test
+    public void testGenerateHybridWithCamelCasedPropertiesFromExistingHybrid() throws Exception {
+        String generatedCode = generate(TEST_TABLE, GeneratedCustomerHybridWithCamelCasedProperties.class.getName());
+        assertGeneratedFragments(generatedCode,
+                "private String lastNAME;",
+                "String getLastname",
+                "void setLastname(String",
+                "private String firstname;",
+                "void setFIRSTname"
+        );
     }
 
     /** Runs the entity generator based on the database configuration being provided

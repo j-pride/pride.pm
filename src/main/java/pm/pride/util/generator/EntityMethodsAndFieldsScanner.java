@@ -3,28 +3,27 @@ package pm.pride.util.generator;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-public class EntityScanner {
-  EntityInformation entityInformation = new EntityInformation();
+public class EntityMethodsAndFieldsScanner {
+  EntityMethodsAndFields entityMethodsAndFields = new EntityMethodsAndFields();
 
-  public EntityInformation scan(String entityTypeName) {
-    entityInformation = new EntityInformation();
+  public EntityMethodsAndFields scan(String entityTypeName) {
+    entityMethodsAndFields = new EntityMethodsAndFields();
 
     try {
       Class<?> entityType = Class.forName(entityTypeName);
       extractEntityMethods(entityType);
       extractEntityFields(entityType);
-
-    } catch (ClassNotFoundException e) {
+    }
+    catch (ClassNotFoundException e) {
       // it is possible that the entity does not exist. In this case the entityInformation is empty
     }
 
-    return entityInformation;
+    return entityMethodsAndFields;
   }
 
   private void extractEntityMethods(Class<?> entityType) {
     for (Method method : entityType.getMethods()) {
-      RealName realMethodName = new RealName(method.getName());
-      entityInformation.putMethod(realMethodName);
+      entityMethodsAndFields.putMethod(method.getName());
     }
 
     Class<?> superEntityType = entityType.getSuperclass();
@@ -35,8 +34,7 @@ public class EntityScanner {
 
   private void extractEntityFields(Class<?> entityType) {
     for (Field field : entityType.getDeclaredFields()) {
-      RealName realFieldName = new RealName(field.getName());
-      entityInformation.putField(realFieldName);
+      entityMethodsAndFields.putField(field.getName());
     }
 
     Class<?> superEntityType = entityType.getSuperclass();

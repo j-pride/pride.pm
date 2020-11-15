@@ -301,7 +301,7 @@ public class EntityGenerator {
 
     buffer.append(")");
 
-    PropertyNameProvider propertyNameProvider = createPropertyNameProvider(generationType);
+    EntityMethodsAndFieldsNameProvider entityMethodsAndFieldsNameProvider = createPropertyNameProvider(generationType);
 
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.remove(tableColumn.getName()))
@@ -310,9 +310,9 @@ public class EntityGenerator {
       sb.append("\n            .row( ");
       sb.append(toColumnConstant(tableColumn));
       sb.append(", \"");
-      sb.append(propertyNameProvider.lookupGetter(tableColumn.getNameCamelCaseFirstUp()));
+      sb.append(entityMethodsAndFieldsNameProvider.lookupGetter(tableColumn.getNameCamelCaseFirstUp()));
       sb.append("\", \"");
-      sb.append(propertyNameProvider.lookupSetter(tableColumn.getNameCamelCaseFirstUp()));
+      sb.append(entityMethodsAndFieldsNameProvider.lookupSetter(tableColumn.getNameCamelCaseFirstUp()));
       sb.append("\" )");
       buffer.append(sb.toString());
     }
@@ -371,7 +371,7 @@ public class EntityGenerator {
       return;
 
     Set<String> baseClassFields = extractMappedFields(baseClassName);
-    PropertyNameProvider nameProvider = createPropertyNameProvider(className);
+    EntityMethodsAndFieldsNameProvider nameProvider = createPropertyNameProvider(className);
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.contains(tableColumn.getName()))
         continue;
@@ -391,7 +391,7 @@ public class EntityGenerator {
       return;
 
     Set<String> baseClassFields = extractMappedFields(baseClassName);
-    PropertyNameProvider nameProvider = createPropertyNameProvider(className);
+    EntityMethodsAndFieldsNameProvider nameProvider = createPropertyNameProvider(className);
 
     buffer.append("    // Read access functions" + "\n");
     for (TableColumn tableColumn: flatTableColumnList) {
@@ -413,7 +413,7 @@ public class EntityGenerator {
       return;
 
     Set<String> baseClassFields = extractMappedFields(baseClassName);
-    PropertyNameProvider nameProvider = createPropertyNameProvider(className);
+    EntityMethodsAndFieldsNameProvider nameProvider = createPropertyNameProvider(className);
 
     buffer.append("    // Write access functions" + "\n");
     for (TableColumn tableColumn: flatTableColumnList) {
@@ -430,11 +430,10 @@ public class EntityGenerator {
     buffer.append("\n");
   }
 
-  private PropertyNameProvider createPropertyNameProvider(String generationType) {
-    EntityScanner entityScanner = new EntityScanner();
-    EntityInformation entityInformation = entityScanner.scan(generationType);
-    PropertyNameProvider propertyNameProvider = new PropertyNameProvider(entityInformation);
-    return propertyNameProvider;
+  private EntityMethodsAndFieldsNameProvider createPropertyNameProvider(String generationType) {
+    EntityMethodsAndFields methodsAndFields = new EntityMethodsAndFieldsScanner().scan(generationType);
+    EntityMethodsAndFieldsNameProvider entityMethodsAndFieldsNameProvider = new EntityMethodsAndFieldsNameProvider(methodsAndFields);
+    return entityMethodsAndFieldsNameProvider;
   }
 
   public void writeToStringMethod(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {

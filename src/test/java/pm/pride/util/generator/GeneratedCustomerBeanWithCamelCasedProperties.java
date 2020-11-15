@@ -8,7 +8,7 @@ public class GeneratedCustomerBeanWithCamelCasedProperties implements Cloneable,
     private long id;
     private String type;
     private String lastName;
-    private String firstName;
+    private String firstname; // getter/setter use camel case, attribute does not
     private java.util.Date hiredate;
     private Long active;
 
@@ -16,7 +16,7 @@ public class GeneratedCustomerBeanWithCamelCasedProperties implements Cloneable,
     public long getId()   { return id; }
     public String getType()   { return type; }
     public String getLastName()   { return lastName; }
-    public String getFirstName()   { return firstName; }
+    public String getFirstName()   { return firstname; }
     public java.util.Date getHiredate()   { return hiredate; }
     public Long getActive()   { return active; }
 
@@ -24,7 +24,7 @@ public class GeneratedCustomerBeanWithCamelCasedProperties implements Cloneable,
     public void setId(long id) { this.id = id; }
     public void setType(String type) { this.type = type; }
     public void setLastName(String lastName) { this.lastName = lastName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public void setFirstName(String firstName) { this.firstname = firstName; }
     public void setHiredate(java.util.Date hiredate) { this.hiredate = hiredate; }
     public void setActive(Long active) { this.active = active; }
 

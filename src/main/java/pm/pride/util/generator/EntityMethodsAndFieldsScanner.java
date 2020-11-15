@@ -14,8 +14,8 @@ public class EntityMethodsAndFieldsScanner {
       extractEntityMethods(entityType);
       extractEntityFields(entityType);
     }
-    catch (ClassNotFoundException e) {
-      // it is possible that the entity does not exist. In this case the entityInformation is empty
+    catch (ClassNotFoundException | ExceptionInInitializerError | NoClassDefFoundError e ) {
+      // it is possible that the entity does not exist or is not constructable. In this case the entityInformation is empty
     }
 
     return entityMethodsAndFields;

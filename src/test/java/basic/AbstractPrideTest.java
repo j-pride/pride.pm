@@ -110,6 +110,7 @@ public abstract class AbstractPrideTest extends Assert {
 
 	protected void createTestTable() throws SQLException {
         createTestTable(DEFAULT_ID_CLASSIFIER);
+		DatabaseFactory.getDatabase().commit();
     }
 
     /**

@@ -2,30 +2,24 @@ package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
+import pm.pride.ResourceAccessor;
+
+import java.util.Arrays;
+import java.util.Random;
 
 import static pm.pride.ResourceAccessor.DBType.*;
 
 public class EntityGeneratorTest extends AbstractPrideTest {
-    private String TABLE_TO_GENERATE_FOR = TEST_TABLE;
-
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        // Some databases provide the table name in capital letters in the generator output
-        // MySQL even expects the table name in capital letters as input to work correctly
-        if (isDBType(ORACLE, HSQL)) {
-            TABLE_TO_GENERATE_FOR = TABLE_TO_GENERATE_FOR.toUpperCase();
-        }
-    }
 
     @Test
     public void testGenerateBean() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateBean";
-        String generatedCode = generate(TABLE_TO_GENERATE_FOR, "Customer_GenerateBean", "-b");
+        String generatedCode = generate(TEST_TABLE, "Customer_GenerateBean", "-b");
         assertGeneratedFragments(generatedCode,
                 CLASS_TO_GENERATE,
                 "String getLastname",
@@ -37,11 +31,16 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     public void testGenerateHybrid() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateHybrid";
 
-        String generatedCode = generate(TABLE_TO_GENERATE_FOR, CLASS_TO_GENERATE);
+        // Some databases provide the table name in capital letters
+        String EXPECTED_OUTPUT_TABLE_NAME = isDBType(ORACLE, HSQL)
+            ? TEST_TABLE.toUpperCase()
+            : TEST_TABLE;
+
+        String generatedCode = generate(TEST_TABLE, CLASS_TO_GENERATE);
         assertGeneratedFragments(generatedCode,
                 CLASS_TO_GENERATE,
                 MappedObject.class.getSimpleName(),
-                TABLE_TO_GENERATE_FOR,
+                EXPECTED_OUTPUT_TABLE_NAME,
                 RecordDescriptor.class.getSimpleName(),
                 "String getLastname",
                 "void setLastname(String");
@@ -49,7 +48,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
 
     @Test
     public void testGenerateDBAWithCamelCasedPropertiesFromExistingBean() throws Exception {
-        String generatedCode = generate(TABLE_TO_GENERATE_FOR, "CustomerDBA", GeneratedCustomerBeanWithCamelCasedProperties.class.getName());
+        String generatedCode = generate(TEST_TABLE, "CustomerDBA", GeneratedCustomerBeanWithCamelCasedProperties.class.getName());
         assertGeneratedFragments(generatedCode,
                 "getFirstName",
                 "getLastName");
@@ -57,7 +56,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
 
     @Test
     public void testGenerateBeanWithCamelCasedPropertiesFromExistingBean() throws Exception {
-        String generatedCode = generate(TABLE_TO_GENERATE_FOR, GeneratedCustomerBeanWithCamelCasedProperties.class.getName(), "-b");
+        String generatedCode = generate(TEST_TABLE, GeneratedCustomerBeanWithCamelCasedProperties.class.getName(), "-b");
         assertGeneratedFragments(generatedCode,
                 "private String lastName;",
                 "String getLastName",
@@ -69,7 +68,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
 
     @Test
     public void testGenerateHybridWithCamelCasedPropertiesFromExistingHybrid() throws Exception {
-        String generatedCode = generate(TABLE_TO_GENERATE_FOR, GeneratedCustomerHybridWithCamelCasedProperties.class.getName());
+        String generatedCode = generate(TEST_TABLE, GeneratedCustomerHybridWithCamelCasedProperties.class.getName());
         assertGeneratedFragments(generatedCode,
                 "private String lastNAME;",
                 "String getLastname",

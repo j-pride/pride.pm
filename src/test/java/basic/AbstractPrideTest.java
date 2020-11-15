@@ -67,6 +67,7 @@ public abstract class AbstractPrideTest extends Assert {
 //                + "hireDate " + getHireDateColumnTypeBasedOnDBType() + ","
                 + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
                 + "type varchar(10)";
+        dropTestTable(TEST_TABLE.toLowerCase());
         dropAndCreateTable(TEST_TABLE, columns);
     }
 

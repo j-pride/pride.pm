@@ -1,16 +1,10 @@
 package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
-import pm.pride.ResourceAccessor;
-
-import java.util.Arrays;
-import java.util.Random;
 
 import static pm.pride.ResourceAccessor.DBType.*;
 

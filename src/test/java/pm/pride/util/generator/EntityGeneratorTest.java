@@ -1,13 +1,16 @@
 package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
+import basic.SkipForDBType;
 import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
+import pm.pride.ResourceAccessor;
 
 import static pm.pride.ResourceAccessor.DBType.*;
 
+@SkipForDBType(value = { ResourceAccessor.DBType.MYSQL })
 public class EntityGeneratorTest extends AbstractPrideTest {
 
     @Test

@@ -46,7 +46,6 @@ public class PrideDateTest extends AbstractPrideTest {
     private String getDefaultDateString() {
     	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
     		return " DEFAULT '1970-01-01 00:00:01'";
-			//return " DEFAULT 0";
     	}
     	return "";
     }
@@ -62,6 +61,7 @@ public class PrideDateTest extends AbstractPrideTest {
 
 	private void printDBVersion() throws Exception {
     	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
+    		// 5.7.30
 			PreparedStatement pstmt
 					= DatabaseFactory.getDatabase().getConnection().prepareStatement("SHOW VARIABLES LIKE 'version'");
 

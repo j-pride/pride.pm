@@ -397,6 +397,9 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
         else if (dbValue instanceof SQLXML && targetType == String.class) {
         	return ((SQLXML)dbValue).getString();
         }
+        else if (dbValue instanceof Timestamp && targetType == Date.class) {
+        	return new Date(((Timestamp)dbValue).getTime());
+		}
 		return dbValue;
 	}
 

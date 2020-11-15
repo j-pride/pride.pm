@@ -44,9 +44,9 @@ public class PrideDateTest extends AbstractPrideTest {
     }
     
     private String getDefaultDateString() {
-    	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
-    		return " DEFAULT '1970-01-01 00:00:01'";
-    	}
+//    	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
+//    		return " DEFAULT '1970-01-01 00:00:01'";
+//    	}
     	return "";
     }
 

@@ -301,7 +301,8 @@ public class EntityGenerator {
 
     buffer.append(")");
 
-    EntityMethodsAndFieldsNameProvider entityMethodsAndFieldsNameProvider = createPropertyNameProvider(generationType);
+    EntityMethodsAndFieldsNameProvider entityMethodsAndFieldsNameProvider
+        = createPropertyNameProvider(generationType.equals(HYBRID) ? className : generationType);
 
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.remove(tableColumn.getName()))

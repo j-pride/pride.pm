@@ -55,6 +55,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     public void testGenerateHybridWithCamelCasedPropertiesFromExistingHybrid() throws Exception {
         String generatedCode = generate(TEST_TABLE, GeneratedCustomerHybridWithCamelCasedProperties.class.getName());
         assertGeneratedFragments(generatedCode,
+            ".row( COL_FIRSTNAME, \"getFIRSTname\",",
             "private String lastNAME;",
             "String getLastname",
             "void setLastname(String",

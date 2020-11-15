@@ -24,7 +24,7 @@ import pm.pride.*;
 public class PrideJoinTest extends AbstractPrideTest {
 
 	static JoinRecordDescriptor adhocJoin = new JoinRecordDescriptor(Customer.red, "husband")
-    		.join("customer_pride_test", "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName");
+    		.join(TEST_TABLE, "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName");
 
     @Override
     public void setUp() throws Exception {

@@ -49,7 +49,7 @@ public class Customer extends MappedObject implements Cloneable {
 	protected static RecordDescriptor red =
 		new RecordDescriptor(
 			Customer.class,
-			"customer_pride_test",
+			TEST_TABLE,
 			null,
 			new String[][] {
 				{ "id", "getId", "setId"},

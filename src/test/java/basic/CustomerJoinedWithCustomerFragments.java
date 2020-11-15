@@ -3,6 +3,8 @@ import pm.pride.JoinRecordDescriptor;
 import pm.pride.RecordDescriptor;
 import pm.pride.SQL;
 
+import static basic.AbstractPrideTest.TEST_TABLE;
+
 /**
  * Extension of {@link Customer} representing a customer and fragments of 
  * another joined customer. The class uses the same artificial join condition
@@ -23,7 +25,7 @@ public class CustomerJoinedWithCustomerFragments extends Customer {
 
 	public static RecordDescriptor red = new JoinRecordDescriptor
 		(CustomerJoinedWithCustomerFragments.class, Customer.red, "husband")
-			.join("customer_pride_test", "wife", "wife.lastName = husband.lastName and wife.id > husband.id")
+			.join(TEST_TABLE, "wife", "wife.lastName = husband.lastName and wife.id > husband.id")
 	    		.row(COL_FIRSTNAME, "getWifeFirstName", "setWifeFirstName")
 	    		.row(COL_ID, "getWifeId", "setWifeId");
 			

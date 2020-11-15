@@ -4,6 +4,8 @@ import pm.pride.JoinRecordDescriptor;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
 
+import static basic.AbstractPrideTest.TEST_TABLE;
+
 public class CustomerFragments extends MappedObject implements Cloneable {
 
 	String lastName;
@@ -18,10 +20,10 @@ public class CustomerFragments extends MappedObject implements Cloneable {
 	public void setWifeFirstName(String wifeFirstName) { this.wifeFirstName = wifeFirstName; }
 
 	public static RecordDescriptor red =
-    	new JoinRecordDescriptor(CustomerFragments.class, "customer_pride_test", "husband")
+    	new JoinRecordDescriptor(CustomerFragments.class, TEST_TABLE, "husband")
     		  .row("lastName", "getLastName", "setLastName")
     		  .row("firstName", "getHusbandFirstName", "setHusbandFirstName")
-    	.join("customer_pride_test", "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName")
+    	.join(TEST_TABLE, "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName")
     		  .row("firstName", "getWifeFirstName", "setWifeFirstName");
     		
     public RecordDescriptor getDescriptor() { return red; }

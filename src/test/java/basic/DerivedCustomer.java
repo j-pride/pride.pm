@@ -14,6 +14,8 @@ import java.sql.SQLException;
 
 import pm.pride.RecordDescriptor;
 
+import static basic.AbstractPrideTest.TEST_TABLE;
+
 /**
  * @author Matthias Bartels
  *
@@ -58,7 +60,7 @@ import pm.pride.RecordDescriptor;
 	public RecordDescriptor getDescriptor() { return red; }
 	
 	protected static RecordDescriptor red =
-		new RecordDescriptor(DerivedCustomer.class, "customer_pride_test", Customer.red)
+		new RecordDescriptor(DerivedCustomer.class, TEST_TABLE, Customer.red)
 			.row("street", "getStreet", "setStreet")
 			.row("city", "getCity", "setCity");
  

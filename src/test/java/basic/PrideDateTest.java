@@ -54,9 +54,26 @@ public class PrideDateTest extends AbstractPrideTest {
 	@Override
 	public void setUp() throws Exception {
 		super.setUp();
+		printDBVersion();
 		generateCustomer(9);
     	createDateTimeTable();
     	determineDatePrecisionLoss();
+	}
+
+	private void printDBVersion() throws Exception {
+    	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
+			PreparedStatement pstmt
+					= DatabaseFactory.getDatabase().getConnection().prepareStatement("SHOW VARIABLES LIKE 'version'");
+
+			ResultSet rset = pstmt.executeQuery();
+
+			while (rset.next())
+			{
+				System.out.println("MySQL version " + rset.getString("Value"));
+			}
+
+			pstmt.close();
+		}
 	}
 
 	/**

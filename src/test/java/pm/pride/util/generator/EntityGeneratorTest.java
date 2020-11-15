@@ -1,12 +1,23 @@
 package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
+import pm.pride.ResourceAccessor;
+
+import java.util.Random;
 
 public class EntityGeneratorTest extends AbstractPrideTest {
+
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
     @Test
     public void testGenerateBean() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateBean";
@@ -21,11 +32,17 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     @Test
     public void testGenerateHybrid() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateHybrid";
+
+        String dbType = DatabaseFactory.getResourceAccessor().getDBType();
+        String EXPECTED_OUTPUT_TABLE_NAME = dbType.equals(ResourceAccessor.DBType.ORACLE)
+            ? TEST_TABLE.toUpperCase()
+            : TEST_TABLE;
+
         String generatedCode = generate(TEST_TABLE, CLASS_TO_GENERATE);
         assertGeneratedFragments(generatedCode,
                 CLASS_TO_GENERATE,
                 MappedObject.class.getSimpleName(),
-                TEST_TABLE,
+                EXPECTED_OUTPUT_TABLE_NAME,
                 RecordDescriptor.class.getSimpleName(),
                 "String getLastname",
                 "void setLastname(String");

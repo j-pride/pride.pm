@@ -53,7 +53,7 @@ public abstract class AbstractPrideTest extends Assert {
 	protected Date firstCustomersHiredate;
 
 	private static Boolean overriddenBindvarsDefault;
-	protected static final String TEST_TABLE = "CUSTOMER_PRIDE_TEST";
+	protected static final String TEST_TABLE = "customer_pride_test";
 	protected static final String REVISIONING_TEST_TABLE = "R_" + TEST_TABLE;
 	protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
 	protected static final String REVISIONED_ID_CLASSIFIER = "int ";
@@ -67,7 +67,6 @@ public abstract class AbstractPrideTest extends Assert {
 //                + "hireDate " + getHireDateColumnTypeBasedOnDBType() + ","
                 + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
                 + "type varchar(10)";
-        dropTestTable(TEST_TABLE.toLowerCase());
         dropAndCreateTable(TEST_TABLE, columns);
     }
 

@@ -9,7 +9,10 @@ import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
 import pm.pride.ResourceAccessor;
 
+import java.util.Arrays;
 import java.util.Random;
+
+import static pm.pride.ResourceAccessor.DBType.*;
 
 public class EntityGeneratorTest extends AbstractPrideTest {
 
@@ -33,8 +36,8 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     public void testGenerateHybrid() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateHybrid";
 
-        String dbType = DatabaseFactory.getResourceAccessor().getDBType();
-        String EXPECTED_OUTPUT_TABLE_NAME = dbType.equals(ResourceAccessor.DBType.ORACLE)
+        // Some databases provide the table name in capital letters
+        String EXPECTED_OUTPUT_TABLE_NAME = isDBType(ORACLE, HSQL, MYSQL)
             ? TEST_TABLE.toUpperCase()
             : TEST_TABLE;
 

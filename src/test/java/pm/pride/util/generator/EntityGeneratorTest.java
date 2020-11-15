@@ -2,15 +2,10 @@ package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
-import pm.pride.ResourceAccessor;
-
-import java.util.Arrays;
-import java.util.Random;
 
 import static pm.pride.ResourceAccessor.DBType.*;
 
@@ -20,8 +15,9 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        // Some databases provide the table name in capital letters
-        if (isDBType(ORACLE, HSQL, MYSQL)) {
+        // Some databases provide the table name in capital letters in the generator output
+        // MySQL even expects the table name in capital letters as input to work correctly
+        if (isDBType(ORACLE, HSQL)) {
             TABLE_TO_GENERATE_FOR = TABLE_TO_GENERATE_FOR.toUpperCase();
         }
     }

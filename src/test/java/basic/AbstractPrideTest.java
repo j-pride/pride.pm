@@ -203,8 +203,12 @@ public abstract class AbstractPrideTest extends Assert {
         	// connection which was just used to operate on the database. So
         	// we force the creation of a new connection for that job. It should
         	// not bother any other database which is less fragile :-)
+					// However, at least DB2 complains if there is an open transaction
+					// on that connection, so we rollback whatever may have been left
+					// behind from an earlier test.
+					DatabaseFactory.getDatabase().rollback();
         	DatabaseFactory.getDatabase().releaseConnection();
-            DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE " + table);
+          DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE " + table);
         }
         catch (SQLException sqlx) {
         	// Report problem but go ahead. Maybe we are successful anyway

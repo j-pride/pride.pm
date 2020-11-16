@@ -29,7 +29,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
         String CLASS_TO_GENERATE = "Customer_GenerateHybrid";
 
         // Some databases provide the table name in capital letters
-        String EXPECTED_OUTPUT_TABLE_NAME = isDBType(ORACLE, HSQL)
+        String EXPECTED_OUTPUT_TABLE_NAME = isDBType(ORACLE, HSQL, DB2)
             ? TEST_TABLE.toUpperCase()
             : TEST_TABLE;
 

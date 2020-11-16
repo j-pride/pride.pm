@@ -46,23 +46,23 @@ public class PrideInsertTest extends AbstractPrideTest {
      * Insert customers with auto-generated primary keys
      * and fetch the key values from the database insertion operation
      */
-    @Test
+  @Test
 	public void testAutoInsert() throws Exception {
-        String autoIncClassifier = getAutoIncClassifier();
-        if (autoIncClassifier == null) {
-            System.err.println("Don't know how to auto-increment for database of type " +
-                DatabaseFactory.getResourceAccessor().getDBType() + ", skipping testAutoInsert");
-            return;
-        }
-        createTestTable(getAutoIncClassifier());
+    String autoIncClassifier = getAutoIncClassifier();
+    if (autoIncClassifier == null) {
+        System.err.println("Don't know how to auto-increment for database of type " +
+            DatabaseFactory.getResourceAccessor().getDBType() + ", skipping testAutoInsert");
+        return;
+    }
+    createTestTable(getAutoIncClassifier());
 		AutoCustomer c = new AutoCustomer("Firstname","Customer");
 		DatabaseFactory.getDatabase().commit();
-        assertTrue(c.getId() != -1);
+    assertTrue(c.getId() != -1);
 		Customer c2 = new Customer(c.getId());
-        AutoCustomer c3 = new AutoCustomer("Firstname","Customer");
-        DatabaseFactory.getDatabase().commit();
-        assertTrue(c3.getId() != -1);
-        assertEquals(c.getId() + 1, c3.getId());
+    AutoCustomer c3 = new AutoCustomer("Firstname","Customer");
+    DatabaseFactory.getDatabase().commit();
+    assertTrue(c3.getId() != -1);
+    assertEquals(c.getId() + 1, c3.getId());
 	}
 
 }

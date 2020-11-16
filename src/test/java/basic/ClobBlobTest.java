@@ -2,9 +2,13 @@ package basic;
 
 import java.sql.SQLException;
 
+import org.junit.Assume;
 import org.junit.Test;
 
+import org.sqlite.core.DB;
+import pm.pride.DatabaseFactory;
 import pm.pride.ResourceAccessor;
+import pm.pride.ResourceAccessor.DBType;
 
 @SkipForDBType(value = {
 		ResourceAccessor.DBType.SQLITE,
@@ -58,6 +62,9 @@ public class ClobBlobTest extends AbstractPrideTest {
 	
 	@Test
 	public void testInsertReadBlob() throws Exception {
+		Assume.assumeFalse("DB2 does not support BLOB insert by plain SQL",
+				isDBType(DBType.DB2)
+						&& !DatabaseFactory.getResourceAccessor().bindvarsByDefault());
 		String recordName = "blob";
 		String blobContentString = "myblob content";
 		byte[] blobContent = blobContentString.getBytes();

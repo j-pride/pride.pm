@@ -250,6 +250,8 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			return "CURRENT_DATE";
 		else if (ResourceAccessor.DBType.SQLITE.equals(dbType))
 			return "strftime('%Y-%m-%d %H:%M:%f', 'now')";
+		else if (ResourceAccessor.DBType.DB2.equals(dbType))
+			return "CURRENT DATE";
 		else
 			return new java.util.Date();
 	}

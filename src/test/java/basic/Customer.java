@@ -58,7 +58,7 @@ public class Customer extends IdentifiedEntity {
 		this.lastName = lastName;
 		this.active = active;
 		this.hireDate = hireDate;
-        this.type = CustomerType.standard;
+    this.type = CustomerType.standard;
 		create();
 	}
 

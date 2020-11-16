@@ -1,11 +1,15 @@
 package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
+<<<<<<< HEAD
 import basic.SkipForDBType;
+=======
+>>>>>>> guess_method_names
 import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
+<<<<<<< HEAD
 import pm.pride.ResourceAccessor;
 
 import static pm.pride.ResourceAccessor.DBType.*;
@@ -13,6 +17,10 @@ import static pm.pride.ResourceAccessor.DBType.*;
 @SkipForDBType(value = { ResourceAccessor.DBType.MYSQL })
 public class EntityGeneratorTest extends AbstractPrideTest {
 
+=======
+
+public class EntityGeneratorTest extends AbstractPrideTest {
+>>>>>>> guess_method_names
     @Test
     public void testGenerateBean() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateBean";
@@ -67,11 +75,24 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     public void testGenerateHybridWithCamelCasedPropertiesFromExistingHybrid() throws Exception {
         String generatedCode = generate(TEST_TABLE, GeneratedCustomerHybridWithCamelCasedProperties.class.getName());
         assertGeneratedFragments(generatedCode,
-                "private String lastNAME;",
+            ".row( COL_FIRSTNAME, \"getFIRSTname\",",
+            "private String lastNAME;",
+            "String getLastname",
+            "void setLastname(String",
+            "private String firstname;",
+            "void setFIRSTname"
+        );
+    }
+
+    @Test
+    public void testGenerateHybridWithTypoInCasedRecordDescriptor() throws Exception {
+        String generatedCode = generate(TEST_TABLE, GeneratedCustomerHybridWithTypoInRecordDescriptor.class.getName());
+        assertGeneratedFragments(generatedCode,
+                "private String lastname;",
                 "String getLastname",
                 "void setLastname(String",
                 "private String firstname;",
-                "void setFIRSTname"
+                "void setFirstname"
         );
     }
 

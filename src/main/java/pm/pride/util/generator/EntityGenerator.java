@@ -294,14 +294,15 @@ public class EntityGenerator {
     Set<String> baseClassFields = extractMappedFields(baseClassName);
     buffer.append("    protected static final RecordDescriptor red =\n");
     buffer.append("        new RecordDescriptor(");
-    buffer.append(getSimpleClassName(generationType.equals(HYBRID) ? className : generationType));
+    buffer.append(getSimpleClassName(getEntityClassName(className, generationType)));
     buffer.append(".class, ");
     buffer.append(generateAbstractClass ? "null, " : "TABLE, ");
     buffer.append(baseClassName != null ? baseClassName + ".red" : "null");
 
     buffer.append(")");
 
-    EntityMethodsAndFieldsNameProvider entityMethodsAndFieldsNameProvider = createPropertyNameProvider(generationType);
+    EntityMethodsAndFieldsNameProvider entityMethodsAndFieldsNameProvider
+        = createPropertyNameProvider(getEntityClassName(className, generationType));
 
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.remove(tableColumn.getName()))
@@ -323,6 +324,10 @@ public class EntityGenerator {
 
     buffer.append("    public RecordDescriptor getDescriptor() { return red; }" + "\n");
     buffer.append("\n");
+  }
+
+  private String getEntityClassName(String className, String generationType) {
+    return generationType.equals(HYBRID) ? className : generationType;
   }
 
   public void writeEntityReference(TableDescription[] desc, String className, String baseClassName,

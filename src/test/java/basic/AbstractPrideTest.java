@@ -103,12 +103,12 @@ public abstract class AbstractPrideTest extends Assert {
         DatabaseFactory.getDatabase().commit();
     }
     
-    protected boolean isDBType(String... types) {
-        String curremtDBType = DatabaseFactory.getDatabase().getDBType();
-		return Arrays.stream(types).anyMatch(type -> type.equalsIgnoreCase(curremtDBType));
+    protected boolean isDBType(String type) {
+        String dbType = DatabaseFactory.getDatabase().getDBType();
+        return (dbType != null && dbType.equalsIgnoreCase(type));
     }
 
-	protected void createTestTable() throws SQLException {
+    protected void createTestTable() throws SQLException {
         createTestTable(DEFAULT_ID_CLASSIFIER);
     }
 
@@ -122,7 +122,7 @@ public abstract class AbstractPrideTest extends Assert {
             throw new RuntimeException(x.getMessage(), x);
         }
     };
-    
+
     @Before
 	public void setUp() throws Exception {
 		randi = new Random();

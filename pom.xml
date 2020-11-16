@@ -238,6 +238,7 @@
 		dependencies for DB2 JDBC drivers do not bother anyone and allow running
 		the test for everyone having DB2 available
 		-->
+		<!--
 		<dependency>
 			<groupId>com.ibm.db2</groupId>
 			<artifactId>db2jcc_license_cu</artifactId>
@@ -250,5 +251,6 @@
 			<version>11.1.0</version>
 			<scope>test</scope>
 		</dependency>
+		-->
     </dependencies>
 </project>

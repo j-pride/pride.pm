@@ -194,6 +194,8 @@
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
+
+		<!-- JDBC driver libraries for various database types -->
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
@@ -229,6 +231,18 @@
 			<artifactId>mariadb-java-client</artifactId>
 			<version>2.4.0</version>
 		  	<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.db2</groupId>
+			<artifactId>db2jcc_license_cu</artifactId>
+			<version>11.1.0</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.db2</groupId>
+			<artifactId>db2java</artifactId>
+			<version>11.1.0</version>
+			<scope>test</scope>
 		</dependency>
     </dependencies>
 </project>

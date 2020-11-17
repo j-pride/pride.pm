@@ -102,11 +102,11 @@ public abstract class AbstractPrideTest extends Assert {
         DatabaseFactory.getDatabase().sqlUpdate("CREATE TABLE " + table + "(" + columns + ")");
         DatabaseFactory.getDatabase().commit();
     }
-    
-    protected boolean isDBType(String type) {
-        String dbType = DatabaseFactory.getDatabase().getDBType();
-        return (dbType != null && dbType.equalsIgnoreCase(type));
-    }
+
+	protected boolean isDBType(String... types) {
+		String curremtDBType = DatabaseFactory.getDatabase().getDBType();
+		return Arrays.stream(types).anyMatch(type -> type.equalsIgnoreCase(curremtDBType));
+	}
 
     protected void createTestTable() throws SQLException {
         createTestTable(DEFAULT_ID_CLASSIFIER);
@@ -203,12 +203,12 @@ public abstract class AbstractPrideTest extends Assert {
         	// connection which was just used to operate on the database. So
         	// we force the creation of a new connection for that job. It should
         	// not bother any other database which is less fragile :-)
-					// However, at least DB2 complains if there is an open transaction
-					// on that connection, so we rollback whatever may have been left
-					// behind from an earlier test.
-					DatabaseFactory.getDatabase().rollback();
+			// However, at least DB2 complains if there is an open transaction
+			// on that connection, so we rollback whatever may have been left
+			// behind from an earlier test.
+			DatabaseFactory.getDatabase().rollback();
         	DatabaseFactory.getDatabase().releaseConnection();
-          DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE " + table);
+        	DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE " + table);
         }
         catch (SQLException sqlx) {
         	// Report problem but go ahead. Maybe we are successful anyway

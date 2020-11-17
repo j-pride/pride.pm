@@ -1,26 +1,17 @@
 package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
-<<<<<<< HEAD
 import basic.SkipForDBType;
-=======
->>>>>>> guess_method_names
 import org.junit.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
-<<<<<<< HEAD
 import pm.pride.ResourceAccessor;
 
 import static pm.pride.ResourceAccessor.DBType.*;
 
 @SkipForDBType(value = { ResourceAccessor.DBType.MYSQL })
 public class EntityGeneratorTest extends AbstractPrideTest {
-
-=======
-
-public class EntityGeneratorTest extends AbstractPrideTest {
->>>>>>> guess_method_names
     @Test
     public void testGenerateBean() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateBean";

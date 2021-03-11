@@ -1,17 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2001-2019 The PriDE team
+ * Copyright (c) 2001-2021 The PriDE team
  *
  * Contributors:
- *     Jan Lessner, S&N AG
+ *     Jan Lessner, S&N Invent
+ *     Christian Voegtle, S&N Invent
  *     Matthias Bartels, arvato direct services
  *******************************************************************************/
 package pm.pride.util.generator;
-
-/**
- * Generator class to generate entity types from database tables
- *
- * @author <a href="mailto:matthias.bertelsmann@bertelsmann.de">Matthias Bartels</a>
- */
 
 import pm.pride.DatabaseFactory;
 import pm.pride.RecordDescriptor;
@@ -30,6 +25,9 @@ public class EntityGenerator {
   // Types of generation work products
   public static final String HYBRID = "-h";
   public static final String BEAN = "-b";
+  public static final String WITH_BEANVALIDATION = "v";
+  public static final String HYBRID_WITH_BEANVALIDATION = HYBRID + WITH_BEANVALIDATION;
+  public static final String BEAN_WITH_BEANVALIDATION = BEAN + WITH_BEANVALIDATION;
 
   protected String className;
   protected String entityClassName;
@@ -62,17 +60,15 @@ public class EntityGenerator {
     this.classLoader = classLoader;
   }
 
-  protected boolean generateBean() {
-    return generationType.equals(BEAN);
-  }
+  protected boolean generateBean() { return generationType.startsWith(BEAN); }
 
-  protected boolean generateHybrid() {
-    return generationType.equals(HYBRID);
-  }
+  protected boolean generateHybrid() { return generationType.startsWith(HYBRID); }
 
   protected boolean generateDBA() {
-    return !generationType.equals(BEAN) && !generationType.equals(HYBRID);
+    return !generationType.startsWith(BEAN) && !generationType.startsWith(HYBRID);
   }
+
+  protected boolean withBeanValidation() { return !generateDBA() && generationType.endsWith(WITH_BEANVALIDATION); }
 
   protected void createResourceAccessor() throws Exception {
     if (System.getProperty(Config.DB) == null) {
@@ -99,17 +95,14 @@ public class EntityGenerator {
     }
   }
 
-  /** Retrieve the fields being mapped by a specified class.
-   * Retrieval is performed by reflection, assuming that the
-   * class contains a static {@link RecordDescriptor} field "red"
-   * which the field names can be retrieved from by
-   * {@link RecordDescriptor#getFieldNames}. If you override the
-   * template method {@link #writeRecordDescriptor} to create
-   * record descriptor definitions differently, make sure to also
-   * adapt this function accordingly.<br>
-   * ATTENTION: This function tries to override standard security restrictions
-   * to access the protected record descriptor member. This may cause
-   * security exceptions.
+  /** Retrieve the fields being mapped by a specified class. Retrieval is performed
+   * by reflection, assuming that the class contains a static {@link RecordDescriptor}
+   * field "red" which the field names can be retrieved from by
+   * {@link RecordDescriptor#getFieldNames(String[])}. If you override the template
+   * method {@link #writeRecordDescriptor} to create record descriptor definitions
+   * differently, make sure to also adapt this function accordingly.<br>
+   * ATTENTION: This function tries to override standard security restrictions to
+   * access the protected record descriptor member. This may cause security exceptions.
    *
    * @param className The name of the class to retrieve the mapped fields from
    * @return The mapped fields
@@ -239,9 +232,13 @@ public class EntityGenerator {
   public void writeHeader (TableDescription[] desc, String className, String baseClassName,
       String generationType, StringBuffer buffer)
       throws Exception {
-    if (!generationType.equals(BEAN)) {
-      buffer.append("import java.sql.SQLException;" + "\n");
-      buffer.append("import pm.pride.*;" + "\n");
+    if (!generateBean()) {
+      buffer.append("import java.sql.SQLException;\n");
+      buffer.append("import pm.pride.*;\n");
+      buffer.append("\n");
+    }
+    if (!generateDBA() && withBeanValidation()) {
+      buffer.append("import javax.validation.constraints.*;\n");
       buffer.append("\n");
     }
     buffer.append("/**" + "\n");
@@ -267,7 +264,7 @@ public class EntityGenerator {
   public void writeConstants (TableDescription[] desc, String className,
       String baseClassName, String generationType, StringBuffer buffer)
       throws SQLException {
-    if (generationType.equals(BEAN))
+    if (generateBean())
       return;
     if (!generateAbstractClass)
       buffer.append("    public static final String TABLE = \"" + getCommaSeparatedTableNames() + "\";\n");
@@ -327,7 +324,7 @@ public class EntityGenerator {
   }
 
   private String getEntityClassName(String className, String generationType) {
-    return generationType.equals(HYBRID) ? className : generationType;
+    return generationType.startsWith(HYBRID) ? className : generationType;
   }
 
   public void writeEntityReference(TableDescription[] desc, String className, String baseClassName,
@@ -380,6 +377,9 @@ public class EntityGenerator {
     for (TableColumn tableColumn: flatTableColumnList) {
       if (baseClassFields.contains(tableColumn.getName()))
         continue;
+      if (withBeanValidation()) {
+        writeBeanValidationAnnotations(tableColumn, buffer);
+      }
       String suggestedAttributeName = tableColumn.getNameCamelCaseFirstLow();
       buffer.append("    private " + tableColumn.getType() + " " + nameProvider.lookupField(suggestedAttributeName) + ";" + "\n");
 
@@ -388,7 +388,24 @@ public class EntityGenerator {
     buffer.append("\n");
   }
 
-  /** Prints the getter methods for all members to standard out */
+  protected void writeBeanValidationAnnotations(TableColumn tableColumn, StringBuffer buffer) {
+    writeBeanValidationAnnotationNotNull(tableColumn, buffer);
+    writeBeanValidationAnnotationSize(tableColumn, buffer);
+  }
+
+  protected void writeBeanValidationAnnotationSize(TableColumn tableColumn, StringBuffer buffer) {
+    if (tableColumn.getType().equals(String.class.getSimpleName()) && tableColumn.columnSize > 0) {
+      buffer.append("    @Size(max=" + tableColumn.columnSize + ")\n");
+    }
+  }
+
+  protected void writeBeanValidationAnnotationNotNull(TableColumn tableColumn, StringBuffer buffer) {
+    if (tableColumn.nullsForbidden) {
+      buffer.append("    @NotNull\n");
+    }
+  }
+
+  /** Prints the geter methods for all members to standard out */
   public void writeGetMethods (TableDescription[] desc, String className, String baseClassName,
       String generationType, StringBuffer buffer)
       throws SQLException {
@@ -442,7 +459,7 @@ public class EntityGenerator {
   }
 
   public void writeToStringMethod(TableDescription[] desc, String className, String generationType, StringBuffer buffer) {
-    if (!generationType.equals(BEAN) && !generationType.equals(HYBRID))
+    if (!generateBean() && !generateHybrid())
       return;
     // Something intelligent would be nice but is not yet implemented
   }
@@ -620,9 +637,9 @@ public class EntityGenerator {
       className = className.substring(0,1).toUpperCase()+className.substring(1);
     }
     if (args.length > 2) {
-      if (args[1].equals(BEAN))
-        generationType = BEAN;
-      else if (!args[1].equals(HYBRID))
+      if (args[1].startsWith(BEAN))
+        generationType = args[1];
+      else if (!args[1].startsWith(HYBRID))
         generationType = args[2];
     }
     if (args.length > 3)

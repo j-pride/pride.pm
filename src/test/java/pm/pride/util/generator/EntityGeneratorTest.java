@@ -15,7 +15,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     @Test
     public void testGenerateBean() throws Exception {
         String CLASS_TO_GENERATE = "Customer_GenerateBean";
-        String generatedCode = generate(TEST_TABLE, "Customer_GenerateBean", "-b");
+        String generatedCode = generate(TEST_TABLE, "Customer_GenerateBean", EntityGenerator.BEAN);
         assertGeneratedFragments(generatedCode,
                 CLASS_TO_GENERATE,
                 "String getLastname",
@@ -52,7 +52,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
 
     @Test
     public void testGenerateBeanWithCamelCasedPropertiesFromExistingBean() throws Exception {
-        String generatedCode = generate(TEST_TABLE, GeneratedCustomerBeanWithCamelCasedProperties.class.getName(), "-b");
+        String generatedCode = generate(TEST_TABLE, GeneratedCustomerBeanWithCamelCasedProperties.class.getName(), EntityGenerator.BEAN);
         assertGeneratedFragments(generatedCode,
                 "private String lastName;",
                 "String getLastName",
@@ -85,6 +85,24 @@ public class EntityGeneratorTest extends AbstractPrideTest {
                 "private String firstname;",
                 "void setFirstname"
         );
+    }
+
+    @Test
+    public void testGenerateBeanWithBeanValidationAnnotations() throws Exception {
+        String generatedCode = generate(TEST_TABLE, "Irrelevant", EntityGenerator.BEAN_WITH_BEANVALIDATION);
+        assertGeneratedFragments(generatedCode,
+            "javax.validation.constraints.*",
+            "@NotNull",
+            "@Size(max=50)");
+    }
+
+    @Test
+    public void testGenerateHybridWithBeanValidationAnnotations() throws Exception {
+        String generatedCode = generate(TEST_TABLE, "Irrelevant", EntityGenerator.HYBRID_WITH_BEANVALIDATION);
+        assertGeneratedFragments(generatedCode,
+            "javax.validation.constraints.*",
+            "@NotNull",
+            "@Size(max=50)");
     }
 
     /** Runs the entity generator based on the database configuration being provided

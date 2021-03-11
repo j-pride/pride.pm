@@ -28,18 +28,21 @@ public class TableDescription {
 		ResultSet rset2 = db_meta.getColumns(null, // con.getCatalog (),
 				null, // "*",
 				tableName, "%");
-		Set<TableColumn> result = new HashSet<>(0);
+		List<TableColumn> result = new ArrayList<>();
 		while (rset2.next()) {
 			String columnName = rset2.getString("COLUMN_NAME");
 			int dataType = rset2.getInt("DATA_TYPE");
-			int columnSize = rset2.getInt("COLUMN_SIZE"); // Timetamp: 11, Date:
-															// 7
+			int columnSize = rset2.getInt("COLUMN_SIZE"); // Timetamp: 11, Date: 7
 			int decimalDigits = rset2.getInt("DECIMAL_DIGITS");
 			boolean nullable = rset2.getInt("NULLABLE") == ResultSetMetaData.columnNoNulls;
 			if (columnsOfInterest == null || columnsOfInterest.remove(columnName)) {
-				TableColumn tabColumn = new TableColumn(dbType, tableName, columnName, dataType, columnSize,
-						decimalDigits, nullable);
-				result.add(tabColumn);
+				TableColumn tabColumn = new TableColumn
+					(dbType, tableName, columnName, dataType, columnSize, decimalDigits, nullable);
+				if (!result.contains(tabColumn)) {
+					// It actually turned out on Oracle 11 that under certain surcumstances
+					// the column retrieval provides some columns multiple times. So we check.
+					result.add(tabColumn);
+				}
 			}
 		}
 		rset2.close();

@@ -58,6 +58,14 @@ public class TableColumn {
 		return uniqueColumnName.toLowerCase();
 	}
 
+	public int getColumnType() { return columnType; }
+
+	public int getColumnSize() { return columnSize; }
+
+	public int getDecimalDigits() { return decimalDigits; }
+
+	public boolean isNullsForbidden() { return nullsForbidden; }
+
 	/**
 	 * @return capitalized column name without underscores. Characters following
 	 *         directly after underscores are printed in uppercase.
@@ -98,8 +106,8 @@ public class TableColumn {
 	 *         null values, the functions returns primitive types, otherwise it
 	 *         returns object types.
 	 */
-	public String getType() {
-		String returnType = null;
+	public String getJavaType() {
+		String returnType;
 
 		switch (columnType) {
 		case Types.VARCHAR:

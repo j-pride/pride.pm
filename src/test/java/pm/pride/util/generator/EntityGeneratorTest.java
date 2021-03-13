@@ -90,10 +90,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     @Test
     public void testGenerateBeanWithBeanValidationAnnotations() throws Exception {
         String generatedCode = generate(TEST_TABLE, "Irrelevant", EntityGenerator.BEAN_WITH_BEANVALIDATION);
-        assertGeneratedFragments(generatedCode,
-            "javax.validation.constraints.*",
-            "@NotNull",
-            "@Size(max=50)");
+        assertBeanValidationAnnotationsPresent(generatedCode);
     }
 
     @Test
@@ -105,12 +102,23 @@ public class EntityGeneratorTest extends AbstractPrideTest {
             "@Size(max=50)");
     }
 
+    private void assertBeanValidationAnnotationsPresent(String generatedCode) {
+        assertGeneratedFragments(generatedCode,
+            "javax.validation.constraints.*",
+            "@NotNull");
+        //SQLite does not provide a reasonable information about the column size
+        if (!isDBType(SQLITE)) {
+            assertGeneratedFragments(generatedCode, "@Size(max=50)");
+
+        }
+    }
+
     /** Runs the entity generator based on the database configuration being provided
      * by the base class {@link AbstractPrideTest} */
     private String generate(String... args) throws Exception {
         EntityGenerator gen = new EntityGenerator(args) {
             @Override
-            protected void createResourceAccessor() throws Exception {
+            protected void createResourceAccessor() {
                 resourceAccessor = DatabaseFactory.getResourceAccessor();
             }
         };

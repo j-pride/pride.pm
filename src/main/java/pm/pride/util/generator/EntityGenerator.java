@@ -187,7 +187,8 @@ public class EntityGenerator {
   /** Prints the package name to standard out */
   public void writePackage (TableDescription[] desc, String className, String baseClassName,
       String generationType, StringBuffer buffer) {
-    buffer.append(getPackage(className) + "\n");
+    buffer.append(getPackage(className));
+    buffer.append("\n");
     buffer.append("\n");
   }
 
@@ -381,7 +382,7 @@ public class EntityGenerator {
         writeBeanValidationAnnotations(tableColumn, buffer);
       }
       String suggestedAttributeName = tableColumn.getNameCamelCaseFirstLow();
-      buffer.append("    private " + tableColumn.getType() + " " + nameProvider.lookupField(suggestedAttributeName) + ";" + "\n");
+      buffer.append("    private " + tableColumn.getJavaType() + " " + nameProvider.lookupField(suggestedAttributeName) + ";" + "\n");
 
     }
 
@@ -394,7 +395,7 @@ public class EntityGenerator {
   }
 
   protected void writeBeanValidationAnnotationSize(TableColumn tableColumn, StringBuffer buffer) {
-    if (tableColumn.getType().equals(String.class.getSimpleName()) && tableColumn.columnSize > 0) {
+    if (tableColumn.getJavaType().equals(String.class.getSimpleName()) && tableColumn.columnSize > 0) {
       buffer.append("    @Size(max=" + tableColumn.columnSize + ")\n");
     }
   }
@@ -421,7 +422,7 @@ public class EntityGenerator {
         continue;
       String suggestedMethodName = tableColumn.getNameCamelCaseFirstUp();
       String suggestedAttributeName = tableColumn.getNameCamelCaseFirstLow();
-      buffer.append("    public " + tableColumn.getType()  + " " + nameProvider.lookupGetter(suggestedMethodName)
+      buffer.append("    public " + tableColumn.getJavaType()  + " " + nameProvider.lookupGetter(suggestedMethodName)
           + "()   { return " + nameProvider.lookupField(suggestedAttributeName) + "; }" + "\n");
     }
     buffer.append("\n");
@@ -444,7 +445,7 @@ public class EntityGenerator {
       String suggestedMethodName = tableColumn.getNameCamelCaseFirstUp();
       String suggestedAttributeName = tableColumn.getNameCamelCaseFirstLow();
 
-      buffer.append("    public void " + nameProvider.lookupSetter(suggestedMethodName) + "(" + tableColumn.getType()
+      buffer.append("    public void " + nameProvider.lookupSetter(suggestedMethodName) + "(" + tableColumn.getJavaType()
           + " " + nameProvider.lookupField(suggestedAttributeName) + ") { this." + nameProvider.lookupField(suggestedAttributeName) + " = " + nameProvider.lookupField(suggestedAttributeName) +
           "; }" + "\n");
 
@@ -487,7 +488,7 @@ public class EntityGenerator {
     buffer.append("    public " + getSimpleClassName(className) + "(");
     for (TableColumn current: desc.getColumnList()) {
       if (current.isPrimaryKeyField())
-        buffer.append((current.getType() != null? current.getType(): "Object") + " " + current.getName() + ", ");
+        buffer.append((current.getJavaType() != null? current.getJavaType(): "Object") + " " + current.getName() + ", ");
     }
     buffer.delete(buffer.lastIndexOf(","), buffer.length());
     buffer.append(")");
@@ -542,7 +543,7 @@ public class EntityGenerator {
     List<TableColumn> tableList = tabCols.getColumnList();
     if (tableList.size() > 0) {
       TableColumn current = (TableColumn) tableList.get(0);
-      idType = current.getType();
+      idType = current.getJavaType();
     }
     else
       idType = "String";
@@ -553,13 +554,13 @@ public class EntityGenerator {
 
   protected String getPackage(String className) {
     String pack = "";
-    if (className.indexOf(".") != -1)
+    if (className.contains("."))
       pack = "package " + className.substring(0, className.lastIndexOf(".")) + ";";
     return pack;
   }
 
   protected String getSimpleClassName(String className) {
-    if (className.indexOf(".") != -1)
+    if (className.contains("."))
       return className.substring(className.lastIndexOf(".") + 1);
     else
       return className;
@@ -598,11 +599,6 @@ public class EntityGenerator {
     return flatTableColumnList;
   }
 
-  /**
-   * put your documentation comment here
-   * @param args
-   * @exception SQLException
-   */
   public EntityGenerator (String[] args) throws Exception {
     if (args.length < 1) {
       System.out.println("Usage: EntityGenerator tablename(s) [class] [beanclass | -b | -h] [baseclass]");
@@ -612,8 +608,8 @@ public class EntityGenerator {
     String className = null;
     String baseClassName = null;
     String generationType = HYBRID;
-    String[] tableNames = null;
-    if (tableName.indexOf(",") != -1) {
+    String[] tableNames;
+    if (tableName.contains(",")) {
       StringTokenizer st = new StringTokenizer(tableName, ",");
       tableNames = new String[st.countTokens()];
       for (int i = 0; i < tableNames.length; i++) {
@@ -630,7 +626,7 @@ public class EntityGenerator {
     else {
       for (int i = 0; i < tableNames.length; i++) {
         if (className == null) {
-          className = new String("");
+          className = "";
         }
         className += tableNames[i];
       }

@@ -96,10 +96,7 @@ public class EntityGeneratorTest extends AbstractPrideTest {
     @Test
     public void testGenerateHybridWithBeanValidationAnnotations() throws Exception {
         String generatedCode = generate(TEST_TABLE, "Irrelevant", EntityGenerator.HYBRID_WITH_BEANVALIDATION);
-        assertGeneratedFragments(generatedCode,
-            "javax.validation.constraints.*",
-            "@NotNull",
-            "@Size(max=50)");
+        assertBeanValidationAnnotationsPresent(generatedCode);
     }
 
     private void assertBeanValidationAnnotationsPresent(String generatedCode) {
@@ -108,7 +105,6 @@ public class EntityGeneratorTest extends AbstractPrideTest {
             "@NotNull");
         //SQLite does not provide a reasonable information about the column size
         if (!isDBType(SQLITE)) {
-            System.out.println("DB type is " + DatabaseFactory.getDatabase().getDBType());
             assertGeneratedFragments(generatedCode, "@Size(max=50)");
         }
     }

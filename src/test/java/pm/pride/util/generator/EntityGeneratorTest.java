@@ -108,8 +108,8 @@ public class EntityGeneratorTest extends AbstractPrideTest {
             "@NotNull");
         //SQLite does not provide a reasonable information about the column size
         if (!isDBType(SQLITE)) {
+            System.out.println("DB type is " + DatabaseFactory.getDatabase().getDBType());
             assertGeneratedFragments(generatedCode, "@Size(max=50)");
-
         }
     }
 

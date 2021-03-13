@@ -104,8 +104,8 @@ public abstract class AbstractPrideTest extends Assert {
     }
 
 	protected boolean isDBType(String... types) {
-		String curremtDBType = DatabaseFactory.getDatabase().getDBType();
-		return Arrays.stream(types).anyMatch(type -> type.equalsIgnoreCase(curremtDBType));
+		String currentDBType = DatabaseFactory.getDatabase().getDBType();
+		return Arrays.stream(types).anyMatch(type -> type.equalsIgnoreCase(currentDBType));
 	}
 
     protected void createTestTable() throws SQLException {

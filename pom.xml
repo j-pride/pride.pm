@@ -187,7 +187,8 @@
         </plugins>
         <finalName>${project.artifactId}-${project.version}-r${buildNumber}</finalName>
     </build>
-    <dependencies>
+
+	<dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -241,6 +242,12 @@
 		<!--
 		<dependency>
 			<groupId>com.ibm.db2</groupId>
+			<artifactId>db2jcc4</artifactId>
+			<version>4.22.29</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.db2</groupId>
 			<artifactId>db2jcc_license_cu</artifactId>
 			<version>11.1.0</version>
 			<scope>test</scope>
@@ -252,5 +259,6 @@
 			<scope>test</scope>
 		</dependency>
 		-->
+
     </dependencies>
 </project>

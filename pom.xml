@@ -37,23 +37,23 @@
 				https://stackoverflow.com/questions/28085992/which-settings-do-i-have-to-configure-to-use-xml-as-input-parameter-with-oracle
 				xdb6.jar can be loaded from the Oracle Maven repository using the same version as
 				for the JDBC driver. The xmlparserv2.jar library is also available there but it
-				doesn't work! You have to follow the instructions from the site above intead, i.e.
+				doesn't work! You have to follow the instructions from the site above instead, i.e.
 				downloading JDeveloper 12 Java Edition and copy the JAR file to your local Maven repository.
 				Due to this strange problem, we have defined a separate profile "travis" for running
 				the unittest on Travis CI. As the Oracle XML libraries are not available on Travis,
 				we skip the Maven dependencies and the XML tests (see class PrideXMLTest).
-				The "travis" profile is adressed by Maven's -P parameter as you can see in file .travis.yml
+				The "travis" profile is addressed by Maven's -P parameter as you can see in file .travis.yml
 				-->
 				<dependency>
-					<groupId>com.oracle.jdbc</groupId>
-					<artifactId>xdb6</artifactId>
-					<version>12.2.0.1</version>
+					<groupId>com.oracle.database.xml</groupId>
+					<artifactId>xdb</artifactId>
+					<version>19.3.0.0</version>
 					<scope>test</scope>
 				</dependency>
 				<dependency>
-					<groupId>com.oracle.jdbc</groupId>
+					<groupId>com.oracle.database.xml</groupId>
 					<artifactId>xmlparserv2</artifactId>
-					<version>12.2.0.1</version>
+					<version>19.3.0.0</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>
@@ -215,9 +215,9 @@
 		    <scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.oracle.jdbc</groupId>
+			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ojdbc8</artifactId>
-			<version>12.2.0.1</version>
+			<version>19.3.0.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

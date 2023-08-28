@@ -66,7 +66,7 @@ public abstract class AbstractPrideTest extends Assert {
                 + "hireDate date,"
 //                + "hireDate " + getHireDateColumnTypeBasedOnDBType() + ","
                 + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
-                + "type varchar(10)";
+                + "\"type\" varchar(10)";
         dropAndCreateTable(TEST_TABLE, columns);
     }
 
@@ -83,7 +83,7 @@ public abstract class AbstractPrideTest extends Assert {
 				+ "lastName varchar(50),"
 				+ "hireDate date,"
 				+ "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int")
-				+ (revisioningTable ? "" : (", type varchar(10)"));
+				+ (revisioningTable ? "" : (", \"type\" varchar(10)"));
 	}
 
     private String getHireDateColumnTypeBasedOnDBType() {

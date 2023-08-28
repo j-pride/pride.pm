@@ -149,30 +149,40 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
    */
   public int getColumnType(Connection con, String table) throws SQLException {
     if (databaseColumnType == Types.NULL) {
-      // For the sake of compatibility, always retrieve meta data with capitalized table and column names
-      // first and afterwards (for Postgres) with lower-cased names
+      // For the sake of compatibility, always retrieve meta data with the exact table and column names
+      // first, then with capitalized names and afterwards (for Postgres) with lower-cased names
       try {
-        databaseColumnType = selectDataType(con, table.toUpperCase(), databaseFieldName.toUpperCase());
+        databaseColumnType = selectDataType(con, table, databaseFieldName);
       }
-      catch(SQLException sqlx) {
-        databaseColumnType = selectDataType(con, table.toLowerCase(), databaseFieldName.toLowerCase());
+      catch(SQLException sqlx1) {
+        try {
+          databaseColumnType = selectDataType(con, table.toUpperCase(), databaseFieldName.toUpperCase());
+        }
+        catch(SQLException sqlx2) {
+          databaseColumnType = selectDataType(con, table.toLowerCase(), databaseFieldName.toLowerCase());
+        }
       }
     }
     return databaseColumnType;
   }
 
+  protected static String removeQuotesFromSQLIdentifier(String identifier) {
+    return identifier.replace("\"", "");
+  }
+
   protected int selectDataType(Connection con, String table, String column) throws SQLException {
     int result;
     DatabaseMetaData meta = con.getMetaData();
-    ResultSet rs = meta.getColumns
-        (null, null, table, column);
-    if (rs.next()) {
-      result = rs.getInt("DATA_TYPE");
-      rs.close();
-      return result;
-    }
-    else {
-      rs.close();
+    column = removeQuotesFromSQLIdentifier(column).toUpperCase();
+    try (ResultSet rs = meta.getColumns
+        (null, null, table, null)) {
+      while(rs.next()) {
+        String foundColumn = rs.getString("COLUMN_NAME");
+        if (removeQuotesFromSQLIdentifier(foundColumn).toUpperCase().equals(column)) {
+          result = rs.getInt("DATA_TYPE");
+          return result;
+        }
+      }
       throw new SQLException("Can't retrieve meta data for column " + column + " in table " + table);
     }
   }

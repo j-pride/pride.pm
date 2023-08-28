@@ -21,7 +21,7 @@ public class DerivedRecordDescriptorTest extends AbstractPrideTest {
 				+ "(id int not null primary key,"
 				+ "firstName varchar(50),"
 				+ "lastName varchar(50),"
-				+ "type varchar(10),"
+				+ "\"type\" varchar(10),"
 				+ "hireDate date,"
 				+ "street varchar(50),"
 				+ "city varchar(50),"

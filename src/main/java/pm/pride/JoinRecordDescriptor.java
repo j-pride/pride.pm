@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import static pm.pride.AttributeDescriptor.AS_KEYWORD;
+import static pm.pride.AttributeDescriptor.removeQuotesFromSQLIdentifier;
 
 public class JoinRecordDescriptor extends RecordDescriptor {
   public static final int MAX_ALIAS_NAME_LENGTH = 30;
@@ -228,7 +229,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
   }
 
   private String getColumnAlias(String tableAlias, String column) {
-    String alias = tableAlias + "_" + column;
+    String alias = tableAlias + "_" + removeQuotesFromSQLIdentifier(column);
     String result = columnNames.get(alias);
     if (result == null) {
       synchronized (columnNames) {

@@ -29,7 +29,8 @@ public class Customer extends IdentifiedEntity {
 	public static String COL_LASTNAME = "lastName";
 	public static String COL_ACTIVE = "active";
 	public static String COL_HIREDATE = "hireDate";
-	public static String COL_TYPE = "type";
+	// The quoted form is not actually required here but ensure that PriDE is able to deal with it
+	public static String COL_TYPE = "\"type\"";
 	
 	private String firstName;
 	private String lastName;

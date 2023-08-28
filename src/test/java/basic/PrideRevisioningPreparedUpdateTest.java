@@ -2,10 +2,7 @@ package basic;
 
 import org.junit.Test;
 
-import pm.pride.BatchUpdateRevisioningException;
-import pm.pride.DatabaseFactory;
-import pm.pride.PreparedUpdate;
-import pm.pride.ResourceAccessor;
+import pm.pride.*;
 
 import java.util.Date;
 
@@ -24,12 +21,12 @@ public class PrideRevisioningPreparedUpdateTest extends AbstractPrideTest {
 
     @Test(expected = BatchUpdateRevisioningException.class)
     public void testExpectErrorForMissingKeyFieldsBatchUpdate() throws Exception {
-        new PreparedUpdate(new String[0], new String[]{"firstName", "lastName", "hireDate", "active", "type"}, RevisionedCustomer.red);
+        new PreparedUpdate(new String[0], new String[]{"firstName", "lastName", "hireDate", "active", SQL.quote("ty pe")}, RevisionedCustomer.red);
     }
 
     @Test(expected = BatchUpdateRevisioningException.class)
     public void testExpectErrorForConflictingKeyFields() throws Exception {
-        new PreparedUpdate(new String[]{"id", "firstName"}, new String[]{"firstName", "hireDate", "lastName", "active", "type"}, RevisionedCustomer.red);
+        new PreparedUpdate(new String[]{"id", "firstName"}, new String[]{"firstName", "hireDate", "lastName", "active", SQL.quote("ty pe")}, RevisionedCustomer.red);
     }
 
     @Test

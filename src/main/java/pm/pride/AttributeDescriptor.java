@@ -6,7 +6,6 @@ package pm.pride;
 import static pm.pride.RevisionedRecordDescriptor.FLAG_IS_NOT_REVISIONED;
 import static pm.pride.RevisionedRecordDescriptor.FLAG_IS_REVISIONED;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.*;
@@ -145,40 +144,43 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
    *   The function assumes that the type is equal in all tables making
    *   use of the same attribute descriptor (e.g. all tables of a
    *   descriptor derivation hierarchy).
+   * @param database
    * @throws SQLException if meta data retrieval failed
    */
-  public int getColumnType(Connection con, String table) throws SQLException {
+  public int getColumnType(Connection con, String table, Database database) throws SQLException {
     if (databaseColumnType == Types.NULL) {
       // For the sake of compatibility, always retrieve meta data with the exact table and column names
       // first, then with capitalized names and afterwards (for Postgres) with lower-cased names
       try {
-        databaseColumnType = selectDataType(con, table, databaseFieldName);
+        databaseColumnType = selectDataType(con, table, database, databaseFieldName);
       }
       catch(SQLException sqlx1) {
         try {
-          databaseColumnType = selectDataType(con, table.toUpperCase(), databaseFieldName.toUpperCase());
+          databaseColumnType = selectDataType(con, table.toUpperCase(), database, databaseFieldName.toUpperCase());
         }
         catch(SQLException sqlx2) {
-          databaseColumnType = selectDataType(con, table.toLowerCase(), databaseFieldName.toLowerCase());
+          databaseColumnType = selectDataType(con, table.toLowerCase(), database, databaseFieldName.toLowerCase());
         }
       }
     }
     return databaseColumnType;
   }
 
-  protected static String removeQuotesFromSQLIdentifier(String identifier) {
-    return identifier.replace("\"", "");
+  protected static String toCommonIdentifier(Database database, String identifier) {
+    return identifier
+        .replace(database.getIdentifierQuotation(), "")
+        .replace(" ", "");
   }
 
-  protected int selectDataType(Connection con, String table, String column) throws SQLException {
+  protected int selectDataType(Connection con, String table, Database database, String column) throws SQLException {
     int result;
     DatabaseMetaData meta = con.getMetaData();
-    column = removeQuotesFromSQLIdentifier(column).toUpperCase();
+    column = toCommonIdentifier(database, column).toUpperCase();
     try (ResultSet rs = meta.getColumns
         (null, null, table, null)) {
       while(rs.next()) {
         String foundColumn = rs.getString("COLUMN_NAME");
-        if (removeQuotesFromSQLIdentifier(foundColumn).toUpperCase().equals(column)) {
+        if (toCommonIdentifier(database, foundColumn).toUpperCase().equals(column)) {
           result = rs.getInt("DATA_TYPE");
           return result;
         }
@@ -327,7 +329,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     }
     else {
       int columnType = getColumnType
-          (pop.getStatement().getConnection(), pop.getDatabase().getPhysicalTableName(table));
+          (pop.getStatement().getConnection(), pop.getDatabase().getPhysicalTableName(table), pop.getDatabase());
       pop.setBindParameterNull(position, columnType);
     }
     return position+1;

@@ -15,13 +15,15 @@ public class DerivedRecordDescriptorTest extends AbstractPrideTest {
 	@Override
     public void setUp() throws Exception {
         super.setUp();
+        String quote = DatabaseFactory.getDatabase().getIdentifierQuotation();
         DatabaseFactory.getDatabase().sqlUpdate("DROP TABLE " + TEST_TABLE);
 		DatabaseFactory.getDatabase().sqlUpdate(
 			"CREATE TABLE " + TEST_TABLE
 				+ "(id int not null primary key,"
 				+ "firstName varchar(50),"
 				+ "lastName varchar(50),"
-				+ "\"type\" varchar(10),"
+
+				+ SQL.quote("ty pe") + " varchar(10),"
 				+ "hireDate date,"
 				+ "street varchar(50),"
 				+ "city varchar(50),"

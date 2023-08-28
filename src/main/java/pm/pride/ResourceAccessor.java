@@ -22,40 +22,40 @@ import java.util.GregorianCalendar;
  */
 public interface ResourceAccessor extends SQL.Formatter
 {
-	public interface DBType {
-		public static final String ORACLE     = "oracle";
-		public static final String CLOUDSCAPE = "cloudscape";
-		public static final String MYSQL      = "mysql";
-		public static final String DB2        = "db2";
-		public static final String SQLSERVER  = "sqlserver";
-		public static final String POSTGRES   = "postgres";
-        public static final String HSQL       = "hsql";
-        public static final String POINTBASE  = "pointbase";
-        public static final String SQLITE     = "sqlite";
-        public static final String MARIADB    = "mariadb";
+	interface DBType {
+		String ORACLE     = "oracle";
+		String CLOUDSCAPE = "cloudscape";
+		String MYSQL      = "mysql";
+		String DB2        = "db2";
+		String SQLSERVER  = "sqlserver";
+		String POSTGRES   = "postgres";
+        String HSQL       = "hsql";
+        String POINTBASE  = "pointbase";
+        String SQLITE     = "sqlite";
+        String MARIADB    = "mariadb";
 	}
 	
-	public interface Config {
-		public static final String PREFIX     = "pride.";
-		public static final String DBTYPE     = PREFIX + "dbtype";
-		public static final String DATEFORMAT = PREFIX + "format.date";
-		public static final String TIMEFORMAT = PREFIX + "format.time";
-		public static final String LOGFILE    = PREFIX + "logfile";
-		public static final String LOGMAX     = PREFIX + "logmax";
-		public static final String USER       = PREFIX + "user";
-		public static final String PASSWORD   = PREFIX + "password";
-		public static final String DRIVER     = PREFIX + "driver";
-		public static final String SYSTIME    = PREFIX + "systime";
-		public static final String DB         = PREFIX + "db";
-		public static final String BINDVARS   = PREFIX + "bindvars";
+	interface Config {
+		String PREFIX     = "pride.";
+		String DBTYPE     = PREFIX + "dbtype";
+		String DATEFORMAT = PREFIX + "format.date";
+		String TIMEFORMAT = PREFIX + "format.time";
+		String LOGFILE    = PREFIX + "logfile";
+		String LOGMAX     = PREFIX + "logmax";
+		String USER       = PREFIX + "user";
+		String PASSWORD   = PREFIX + "password";
+		String DRIVER     = PREFIX + "driver";
+		String SYSTIME    = PREFIX + "systime";
+		String DB         = PREFIX + "db";
+		String BINDVARS   = PREFIX + "bindvars";
 		
-		public static final String EMPTY      = "";
+		String EMPTY      = "";
 	}
     
-    public static interface AutoKeyMode {
-        public static final int UNKNOWN       = 0;
-        public static final int STANDARD      = 1;
-        public static final int VENDOR        = 2;
+    interface AutoKeyMode {
+        int UNKNOWN       = 0;
+        int STANDARD      = 1;
+        int VENDOR        = 2;
     }
 	
 	/**
@@ -63,9 +63,10 @@ public interface ResourceAccessor extends SQL.Formatter
 	 * if the database specific CURRENT_TIMESTAMP has to be used
 	 * Default: Thu Jan 01 00:00:01 CET 0001
 	 */
-	public static final java.util.Date SYSTIME_DEFAULT = 
+	java.util.Date SYSTIME_DEFAULT =
 	    new Date((new GregorianCalendar(0, 0, 1, 0, 0, 1)).getTimeInMillis());
-	
+
+	String DEFAULT_IDENTIFIER_QUOTATION = "\"";
 	
 	/**
 	 * Returns the timestamp, that is currently used to indicate, that a date 
@@ -74,7 +75,7 @@ public interface ResourceAccessor extends SQL.Formatter
 	 * be replaced by a database specific string in insert and update statements.
 	 * @return The indicator timestamp
 	 */
-	public java.util.Date getSystime();
+	java.util.Date getSystime();
 	  
     /** Switch SQL logging on and off.
      * @param db The logical name of the database to toggle the logging state for
@@ -82,23 +83,23 @@ public interface ResourceAccessor extends SQL.Formatter
      * @return the new logging state. The value might defer from
      * <code>state</code> if the ResourceAccessor denies toggling.
      */
-    public boolean setLogging(Database db, boolean state);
+    boolean setLogging(Database db, boolean state);
 
     /** Returns the current SQL logging state
      * @return the current logging state - true = on, false = off */
-    public boolean isLogging();
+    boolean isLogging();
 
     /** Writes the passed operation to the SQL log, if logging is enabled
      * @param db The logical name of the database to log an operation for
      * @param operation The operation to log
      */
-    public void sqlLog(Database db, String operation);
+    void sqlLog(Database db, String operation);
 
     /** Writes the passed SQL exception to the log, if logging is enabled
      * @param db The logical name of the database to log an exception for
      * @param sqlx The exception to log
      */
-    public void sqlLogError(Database db, SQLException sqlx);
+    void sqlLogError(Database db, SQLException sqlx);
 
     /** Returns a connection to the database represented by the
      * ResourceAccessor. This function is called before every
@@ -107,20 +108,20 @@ public interface ResourceAccessor extends SQL.Formatter
      * @param db The logical name of the database to provide a connection for
      * @return The connection
      */
-    public Connection getConnection(String db) throws Exception;
+    Connection getConnection(String db) throws Exception;
     
     /** Release any connections being allocated by calls of
      * {@link ResourceAccessor#getConnection}. This function may
      * be called, before a worker thread is about to close down
      * or fall asleep.
      */
-    public void releaseConnection() throws SQLException;
+    void releaseConnection() throws SQLException;
 
     /** Release a particular connection being allocated by a call
      * of {@link ResourceAccessor#getConnection}. This function is
      * called after every every single database operation
      */
-    public void releaseConnection(Connection con) throws SQLException;
+    void releaseConnection(Connection con) throws SQLException;
 
     /** Return an array of auto fields to be used as parameter for
      * an SQL insertion operation. If the function returns null, the
@@ -208,5 +209,8 @@ public interface ResourceAccessor extends SQL.Formatter
      */
     boolean bindvarsByDefault();
 
-		boolean autogeneratedKeysSupported();
+	boolean autogeneratedKeysSupported();
+
+	String getIdentifierQuotation();
+
 }

@@ -59,6 +59,7 @@ public abstract class AbstractPrideTest extends Assert {
 	protected static final String REVISIONED_ID_CLASSIFIER = "int ";
     
     protected void createTestTable(String idFieldClassifier) throws SQLException {
+		Customer.COL_TYPE = SQL.quote(Customer.COL_TYPE);
         String columns = ""
                 + "id " + idFieldClassifier + ","
                 + "firstName varchar(50),"
@@ -66,7 +67,7 @@ public abstract class AbstractPrideTest extends Assert {
                 + "hireDate date,"
 //                + "hireDate " + getHireDateColumnTypeBasedOnDBType() + ","
                 + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
-                + "\"type\" varchar(10)";
+                + SQL.quote("ty pe") + " varchar(10)";
         dropAndCreateTable(TEST_TABLE, columns);
     }
 
@@ -77,13 +78,14 @@ public abstract class AbstractPrideTest extends Assert {
 	}
 
 	private String getTestTableColumns(String idFieldClassifier, boolean revisioningTable) {
+		String quote = DatabaseFactory.getDatabase().getIdentifierQuotation();
 		return ""
 				+ "id " + idFieldClassifier + ","
 				+ "firstName varchar(50),"
 				+ "lastName varchar(50),"
 				+ "hireDate date,"
 				+ "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int")
-				+ (revisioningTable ? "" : (", \"type\" varchar(10)"));
+				+ (revisioningTable ? "" : (", " + SQL.quote("ty pe") + " varchar(10)"));
 	}
 
     private String getHireDateColumnTypeBasedOnDBType() {

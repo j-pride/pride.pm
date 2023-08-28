@@ -5,6 +5,7 @@ import java.util.Date;
 
 import pm.pride.RecordDescriptor;
 import pm.pride.RevisionedRecordDescriptor;
+import pm.pride.SQL;
 
 public class RevisionedCustomer extends Customer {
 
@@ -14,7 +15,7 @@ public class RevisionedCustomer extends Customer {
                     {"lastName", "getLastName", "setLastName"},
                     {"hireDate", "getHireDate", "setHireDate"},
                     {"active", "getActive", "setActive"},
-                    {"\"type\"", "getType", "setType", null, RevisionedRecordDescriptor.FLAG_IS_NOT_REVISIONED}
+                    {SQL.quote("ty pe"), "getType", "setType", null, RevisionedRecordDescriptor.FLAG_IS_NOT_REVISIONED}
             }
             );
 

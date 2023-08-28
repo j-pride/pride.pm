@@ -15,6 +15,7 @@ import java.util.Date;
 
 import pm.pride.JoinRecordDescriptor;
 import pm.pride.RecordDescriptor;
+import pm.pride.SQL;
 
 /**
  * @author bart57
@@ -29,8 +30,9 @@ public class Customer extends IdentifiedEntity {
 	public static String COL_LASTNAME = "lastName";
 	public static String COL_ACTIVE = "active";
 	public static String COL_HIREDATE = "hireDate";
-	// The quoted form is not actually required here but ensure that PriDE is able to deal with it
-	public static String COL_TYPE = "\"type\"";
+	// This column needs quotation which will be added in the test bootstrap. It is used
+	// to ensure that PriDE is able to deal with it
+	public static String COL_TYPE = "ty pe";
 	
 	private String firstName;
 	private String lastName;
@@ -69,7 +71,7 @@ public class Customer extends IdentifiedEntity {
 			.row(COL_LASTNAME,  "getLastName",  "setLastName")
 			.row(COL_HIREDATE,  "getHireDate",  "setHireDate")
 			.row(COL_ACTIVE,    "getActive",    "setActive")
-			.row(COL_TYPE,    "getType",    "setType");
+			.row(SQL.quote(COL_TYPE), "getType",    "setType");
 
 	public RecordDescriptor getDescriptor() { return red; }
 

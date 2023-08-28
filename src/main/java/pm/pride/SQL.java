@@ -28,7 +28,12 @@ public class SQL {
 	public static Date systime() {
 		return DatabaseFactory.getDatabase().getSystime();
 	}
-	
+
+	public static String quote(String identifier) {
+		String quote = DatabaseFactory.getDatabase().getIdentifierQuotation();
+		return identifier.startsWith(quote) ? identifier : quote + identifier + quote;
+	}
+
 	/** Assembly of complex SQL expressions. Details see {@link SQLExpressionBuilder#format(String, Object...)} */
 	public static String build(String formatString, Object... args) {
 		return new SQLExpressionBuilder().format(formatString, args);
@@ -38,12 +43,12 @@ public class SQL {
 	public static String buildX(String formatString, Object... args) {
 		return new SQLExpressionBuilder(SQLExpressionBuilder.Validation.ExceptionCaseInsensitive).format(formatString, args);
 	}
-	
+
 	public interface Formatter {
 	    String formatValue(Object rawValue, Class<?> targetType, boolean forLogging);
 	    String formatOperator(String operator, Object rawValue);
 	    Object formatPreparedValue(Object rawValue, Class<?> targetType);
 	    boolean bindvarsByDefault();
 	}
-	
+
 }

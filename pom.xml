@@ -260,5 +260,19 @@
 		</dependency>
 		-->
 
-    </dependencies>
+		<!--
+		Microsoft SQL Server is not automatically test-covered by Travis CI. However,
+		the following dependencies for MS SQL Server JDBC drivers do not bother anyone
+		and allow running the test for everyone having SQL Server available
+		-->
+		<!--
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>12.4.0.jre11</version>
+			<scope>test</scope>
+		</dependency>
+		-->
+
+	</dependencies>
 </project>

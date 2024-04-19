@@ -23,3 +23,4 @@ test.lck
 /pom.xml.versionsBackup
 /pride-sqlite.db
 /*.db
+*.lobs

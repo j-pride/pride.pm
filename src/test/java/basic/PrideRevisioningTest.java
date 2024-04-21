@@ -1,10 +1,14 @@
 package basic;
 
-import org.junit.Test;
 
+import org.junit.jupiter.api.Test;
 import pm.pride.*;
 
 import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @NeedsDBType(ResourceAccessor.DBType.ORACLE)
 public class PrideRevisioningTest extends AbstractPrideTest {
 
@@ -34,8 +38,8 @@ public class PrideRevisioningTest extends AbstractPrideTest {
                 .and("id", id)
                 .orderBy(RevisionedRecordDescriptor.COLUMN_REVISION_TIMESTAMP, WhereCondition.Direction.ASC);
         CustomerRevision[] customerRevisions = (CustomerRevision[]) new CustomerRevision().query(where).toArray();
-        assertNotNull("No revisioned entries found", customerRevisions);
-        assertEquals("Expected number does not match actual revisions.", changedLastNames.length, customerRevisions.length);
+        assertNotNull(customerRevisions, "No revisioned entries found");
+        assertEquals(changedLastNames.length, customerRevisions.length, "Expected number does not match actual revisions.");
         for (int i = 0; i < changedLastNames.length; i++) {
             assertEquals(changedLastNames[i], customerRevisions[i].getLastName());
             assertEquals(id, customerRevisions[i].getId());

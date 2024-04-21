@@ -1,14 +1,15 @@
 package basic;
 
-import java.sql.SQLException;
-
-import org.junit.Assume;
-import org.junit.Test;
-
-import org.sqlite.core.DB;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.ResourceAccessor;
 import pm.pride.ResourceAccessor.DBType;
+
+import java.sql.SQLException;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 @SkipForDBType(value = {
 		ResourceAccessor.DBType.SQLITE,
@@ -30,6 +31,7 @@ public class ClobBlobTest extends AbstractPrideTest {
     }
 
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
     	createClobBlobTable();
@@ -62,9 +64,9 @@ public class ClobBlobTest extends AbstractPrideTest {
 	
 	@Test
 	public void testInsertReadBlob() throws Exception {
-		Assume.assumeFalse("DB2 does not support BLOB insert by plain SQL",
-				isDBType(DBType.DB2)
-						&& !DatabaseFactory.getResourceAccessor().bindvarsByDefault());
+		assumeFalse(isDBType(DBType.DB2)
+						&& !DatabaseFactory.getResourceAccessor().bindvarsByDefault(),
+				"DB2 does not support BLOB insert by plain SQL");
 		String recordName = "blob";
 		String blobContentString = "myblob content";
 		byte[] blobContent = blobContentString.getBytes();

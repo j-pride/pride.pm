@@ -12,11 +12,15 @@ package basic;
 
 import java.util.List;
 
-import org.junit.Ignore;
-import org.junit.Test;
 
 //import oracle.jdbc.logging.annotations.DisableTrace;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import pm.pride.*;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Test of table join functionality
  */
@@ -27,6 +31,7 @@ public class PrideJoinTest extends AbstractPrideTest {
     		.join(TEST_TABLE, "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName");
 
     @Override
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         generateCustomer(9);
@@ -47,7 +52,7 @@ public class PrideJoinTest extends AbstractPrideTest {
                 assertEquals("Customer", jc.getWife().getLastName());
             } else {
                 nowife++;
-                assertTrue(!jc.getFirstName().equals("First"));
+                assertNotEquals("First", jc.getFirstName());
                 assertNull(jc.getWife());
             }
         } while (iter.next());
@@ -103,7 +108,7 @@ public class PrideJoinTest extends AbstractPrideTest {
     	assertNotEquals(jcf.getId(), jcf.getWifeId());
     }
 
-    @Test @Ignore
+    @Test @Disabled
     /** Column name "id" in the where condition is ambiguous but is automatically expanded to husband.id */
     // Test is disabled until the problem is solved, that automatic expansion
     // should only happen if a column name is not unique. Otherwise the expansion
@@ -154,9 +159,9 @@ public class PrideJoinTest extends AbstractPrideTest {
     	assertEquals(1, results.get(0).getId());
     }
     
-    @Test(expected=IllegalArgumentException.class)
+    @Test
     public void testAdHocJoinMustBeCompatible() throws Exception {
-    	new Customer().joinQueryAll(CustomerFragments.red);
+    	assertThrows(IllegalArgumentException.class, () -> new Customer().joinQueryAll(CustomerFragments.red));
     }
     
 }

@@ -10,8 +10,9 @@ package basic;
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 
-import org.junit.Test;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.ResourceAccessor;
 
@@ -19,7 +20,9 @@ import java.sql.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+
 
 /**
  * Test class for testing concurrent database access from multiple threads
@@ -36,13 +39,13 @@ public class PrideThreadTest extends AbstractPrideTest {
     private static final int OPS_PER_THREAD = 100;
     private static final long MILLISECONDS_PER_DAY = 86400000L;
     
-    private HashSet threads = new HashSet();
+    private final HashSet<Thread> threads = new HashSet<>();
     private Exception lastThreadException;
     
 	@Test
     public void testConcurrentWrite() throws Exception {
         String dbType = DatabaseFactory.getDatabase().getDBType();
-        assumeFalse("Concurrent Write test does not work for MySQL", dbType.equalsIgnoreCase(ResourceAccessor.DBType.MYSQL));
+        assumeFalse(dbType.equalsIgnoreCase(ResourceAccessor.DBType.MYSQL), "Concurrent Write test does not work for MySQL");
         for (int i = 1; i < NUM_THREADS+1; i++) {
             Writer wr = new Writer(i*OPS_PER_THREAD, OPS_PER_THREAD);
             threads.add(wr);
@@ -80,6 +83,7 @@ public class PrideThreadTest extends AbstractPrideTest {
     }
 
     @Override
+    @AfterEach
     public void tearDown() throws Exception {
         if (!isDBType(ResourceAccessor.DBType.POSTGRES)) // Posgres blocks on drop table - reason is unclear
             super.tearDown();
@@ -129,7 +133,7 @@ public class PrideThreadTest extends AbstractPrideTest {
                     Customer c = new Customer(i);
                     assertEquals("f#" + i, c.getFirstName());
                     assertEquals("l#" + i, c.getLastName());
-                    assertEquals(new Boolean(i%2 > 0), c.getActive());
+                    assertEquals(i%2 > 0, c.getActive());
                     // Comparing string representations of the dates works around time zone problems
                     assertEquals(time, c.getHireDate().getTime());
                     time += MILLISECONDS_PER_DAY;

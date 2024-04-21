@@ -1,10 +1,9 @@
 package basic;
-import org.junit.Test;
 
-import junit.framework.Assert;
-import junit.framework.TestCase;
-import pm.pride.ResultIterator;
-import pm.pride.WhereCondition;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author bart57
@@ -16,12 +15,14 @@ public class PrideSelectWithBindVariablesTest extends AbstractPrideTest {
 	PrideSelectTest prideSelectTest = new PrideSelectTest();
 	
     @Override
+	@BeforeEach
     public void setUp() throws Exception {
 		prideSelectTest.setUp();
 		setBindvarsDefault(true);
 	}
 
 	@Override
+	@AfterEach
 	public void tearDown() throws Exception {
 		setBindvarsDefault(null);
 	}
@@ -61,9 +62,9 @@ public class PrideSelectWithBindVariablesTest extends AbstractPrideTest {
 		prideSelectTest.testSelectToArray();
 	}
     
-	@Test(expected = RuntimeException.class)
+	@Test
 	public void testIllegalSelect() throws Exception {
-		prideSelectTest.testIllegalSelect();
+		assertThrows(RuntimeException.class, () -> prideSelectTest.selectIllegal());
 	}
 	
 }

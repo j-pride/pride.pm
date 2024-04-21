@@ -1,17 +1,22 @@
 package basic;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ClobBlobWithBindVariablesTest extends AbstractPrideTest {
 	ClobBlobTest clobBlobTest = new ClobBlobTest();
 	
     @Override
+	@BeforeEach
 	public void setUp() throws Exception {
     	clobBlobTest.setUp();
     	setBindvarsDefault(true);
 	}
 
 	@Override
+	@AfterEach
 	public void tearDown() throws Exception {
 		setBindvarsDefault(null);
 	}

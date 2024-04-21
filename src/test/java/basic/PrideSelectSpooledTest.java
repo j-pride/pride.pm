@@ -1,10 +1,13 @@
 package basic;
-import org.junit.Test;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.ResultIterator;
 import pm.pride.ResultIterator.SpoolCondition;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /*******************************************************************************
  * Copyright (c) 2001-2007 The PriDE team and MATHEMA Software GmbH
@@ -27,6 +30,7 @@ public class PrideSelectSpooledTest extends AbstractPrideTest {
 	private static int COUNT = 100;
 
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(COUNT);

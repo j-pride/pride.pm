@@ -1,15 +1,14 @@
 package xml;
 
-import java.sql.SQLException;
-import java.util.Arrays;
-
-import org.junit.Assume;
-import org.junit.Test;
-
 import basic.AbstractPrideTest;
 import basic.NeedsDBType;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.ResourceAccessor;
+
+import java.sql.SQLException;
 
 /**
  * To make SQLXML work on Oracle, you have to collect some libraries in a fairly obscure way.
@@ -38,7 +37,7 @@ public class PrideXMLTest extends AbstractPrideTest {
 			catch(ClassNotFoundException cnfx) {
 				String message = "Skipping XML type tests on Oracle due to missing libraries";
 				System.err.println(message);
-				Assume.assumeNoException(message, cnfx);
+				Assumptions.assumeFalse(true, message);
 			}
 		}
 	}
@@ -51,6 +50,7 @@ public class PrideXMLTest extends AbstractPrideTest {
     }
 
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
     	createXMLTable();

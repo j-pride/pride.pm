@@ -9,22 +9,24 @@
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
 package basic;
+
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.BeforeEachCallback;
+import pm.pride.*;
+import pm.pride.ResourceAccessor.DBType;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Before;
-
-import pm.pride.*;
-import pm.pride.ResourceAccessor.DBType;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 /**
  * @author bart57
@@ -35,11 +37,11 @@ import pm.pride.ResourceAccessor.DBType;
  * creates a Table for Testdata 
  * and Provides a useful Method to generate Testdata
  */
-public abstract class AbstractPrideTest extends Assert {
+public abstract class AbstractPrideTest {
 	private static final String DEFAULT_CONFIG = "config/hsql.test.config.properties";
 
 	private Random randi = null;
-	private String[][] names = new String[][] {
+	private final String[][] names = new String[][] {
 			{ "Hajo", "Klick" },
 			{ "Britta", "Klick" },
 			{ "Peter", "Pan" },
@@ -118,14 +120,14 @@ public abstract class AbstractPrideTest extends Assert {
      * We use this exception listener to suppress the default listener's
      * stack trace printing.
      */
-    private static ExceptionListener exlistener = new ExceptionListener() {
+    private static final ExceptionListener exlistener = new ExceptionListener() {
         public void process(Database db, Exception x) throws Exception { throw x; }
         public RuntimeException processSevere(Database db, Exception x) {
             throw new RuntimeException(x.getMessage(), x);
         }
     };
 
-    @Before
+	@BeforeEach
 	public void setUp() throws Exception {
 		randi = new Random();
 		initDB();
@@ -165,12 +167,12 @@ public abstract class AbstractPrideTest extends Assert {
         if (this.getClass().isAnnotationPresent(NeedsDBType.class)) {
 			NeedsDBType annotation = this.getClass().getAnnotation(NeedsDBType.class);
             String[] supportedDBTypes = annotation.value();
-            Assume.assumeTrue(annotation.message(), Arrays.asList(supportedDBTypes).contains(currentDbType));
+            assumeTrue(Arrays.asList(supportedDBTypes).contains(currentDbType), annotation.message());
         }
         if (this.getClass().isAnnotationPresent(SkipForDBType.class)) {
 			SkipForDBType annotation = this.getClass().getAnnotation(SkipForDBType.class);
             String[] skippedDBTypes = annotation.value();
-            Assume.assumeFalse(annotation.message(), Arrays.asList(skippedDBTypes).contains(currentDbType));
+            assumeFalse(Arrays.asList(skippedDBTypes).contains(currentDbType), annotation.message());
         }
     }
 	
@@ -192,7 +194,7 @@ public abstract class AbstractPrideTest extends Assert {
 		return testConfig;
 	}
 
-	@After
+	@AfterEach
 	public void tearDown() throws Exception {
 		//dropTestTable();
 	}

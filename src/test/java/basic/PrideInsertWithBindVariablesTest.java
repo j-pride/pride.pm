@@ -1,11 +1,8 @@
 package basic;
-import org.junit.Test;
 
-import pm.pride.DatabaseFactory;
-import pm.pride.ResourceAccessor;
-import pm.pride.ResourceAccessorJSE;
-import pm.pride.ResultIterator;
-import pm.pride.WhereCondition;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author bart57
@@ -18,12 +15,14 @@ public class PrideInsertWithBindVariablesTest extends AbstractPrideTest {
 
 	
     @Override
+	@BeforeEach
 	public void setUp() throws Exception {
     	prideInsertTest.setUp();
     	setBindvarsDefault(true);
 	}
 
 	@Override
+	@AfterEach
 	public void tearDown() throws Exception {
 		setBindvarsDefault(null);
 	}

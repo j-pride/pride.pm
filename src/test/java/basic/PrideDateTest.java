@@ -1,20 +1,17 @@
 package basic;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
-import org.junit.Test;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.Database;
 import pm.pride.DatabaseFactory;
 import pm.pride.ResourceAccessor;
 import pm.pride.WhereCondition;
+
+import java.sql.*;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 public class PrideDateTest extends AbstractPrideTest {
 	public static final String DATETIME_TEST_TABLE = "DATETIME_PRIDE_TEST";
@@ -51,6 +48,7 @@ public class PrideDateTest extends AbstractPrideTest {
     }
 
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		printDBVersion();
@@ -90,7 +88,7 @@ public class PrideDateTest extends AbstractPrideTest {
     	}
 
     	Database db = DatabaseFactory.getDatabase();
-		Calendar dateAssembly = new GregorianCalendar(2019, 12, 13, 14, 15, 16);
+		Calendar dateAssembly = new GregorianCalendar(2019, Calendar.DECEMBER, 13, 14, 15, 16);
 		dateAssembly.set(Calendar.MILLISECOND, 170);
 		java.sql.Date fullPrecisionDate = new java.sql.Date(dateAssembly.getTimeInMillis());
 		System.out.println(fullPrecisionDate.getTime());
@@ -155,7 +153,7 @@ public class PrideDateTest extends AbstractPrideTest {
 		dtWrite.create();
 		
 		DateTime dtRead = new DateTime(dtWrite);
-		assertTrue(myDate.equals(dtRead.getDatePlain()));
+        assertEquals(myDate, dtRead.getDatePlain());
 	}
 
 	@Test
@@ -210,7 +208,7 @@ public class PrideDateTest extends AbstractPrideTest {
 		DatabaseFactory.getDatabase().commit();
 		
 		Customer c2 = new Customer(1);
-		assertTrue(myDate.equals(c2.getHireDate()));
+        assertEquals(myDate, c2.getHireDate());
 	}
 
 	@Test

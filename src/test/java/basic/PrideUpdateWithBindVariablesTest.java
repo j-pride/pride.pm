@@ -1,9 +1,8 @@
 package basic;
-import org.junit.Test;
 
-import junit.framework.Assert;
-import pm.pride.DatabaseFactory;
-import pm.pride.WhereCondition;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author bart57
@@ -15,12 +14,14 @@ public class PrideUpdateWithBindVariablesTest extends AbstractPrideTest {
 	PrideUpdateTest prideUpdateTest = new PrideUpdateTest();
 	
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		prideUpdateTest.setUp();
 		setBindvarsDefault(true);
 	}
 
 	@Override
+	@AfterEach
 	public void tearDown() {
 		setBindvarsDefault(null);
 	}

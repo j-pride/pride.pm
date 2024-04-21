@@ -15,11 +15,4 @@ public class TransactionEvent extends EventObject
 {
     public TransactionEvent(Database db) { super(db); }
 
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/TransactionEvent.java,v 1.1 2001/07/24 12:31:26 lessner Exp $";
 }
-
-/* $Log: TransactionEvent.java,v $
-/* Revision 1.1  2001/07/24 12:31:26  lessner
-/* Support for database transaction listeners added
-/*
- */

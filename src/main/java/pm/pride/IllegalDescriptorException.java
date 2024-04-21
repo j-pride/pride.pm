@@ -13,6 +13,4 @@ package pm.pride;
 public class IllegalDescriptorException extends RuntimeException
 {
     public IllegalDescriptorException(String reason) { super(reason); }
-
-    public final static String REVISION_ID = "$Header: ";
 }

@@ -68,7 +68,3 @@ public abstract class Singleton
         return _singleInstance;
     } // getInstance()
 }
-
-/*
- * $Log: Singleton.java,v $
- */

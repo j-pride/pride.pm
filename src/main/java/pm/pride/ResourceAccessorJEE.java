@@ -75,5 +75,4 @@ public class ResourceAccessorJEE extends AbstractResourceAccessor
 		super(props);
 	}
 
-    public final static String REVISION_ID = "$Header: ";
 }

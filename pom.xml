@@ -7,12 +7,12 @@
     <version>3.4.10</version>
     <name>pride</name>
     <description>World's smallest O/R mapper for Java</description>
-    <url>http://pride.pm</url>
+    <url>https://pride.pm</url>
     
 	<licenses>
 	  <license>
 	    <name>The Apache License, Version 2.0</name>
-	    <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	    <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
 	  </license>
 	</licenses>
     
@@ -82,13 +82,21 @@
 	</developers>
   
     <properties>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+		<java.version>11</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     
     <build>
         <plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
+				<configuration>
+					<source>${java.version}</source>
+					<target>${java.version}</target>
+				</configuration>
+			</plugin>
         
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -200,37 +208,37 @@
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>
-            <version>2.7.1</version>
+            <version>2.7.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.28</version>
+            <version>8.0.33</version>
             <scope>test</scope>
         </dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
-			<version>42.7.2</version>
+			<version>42.7.3</version>
 		    <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.oracle.database.jdbc</groupId>
 			<artifactId>ojdbc8</artifactId>
-			<version>19.3.0.0</version>
+			<version>23.3.0.23.09</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 		  <groupId>org.xerial</groupId>
 		  <artifactId>sqlite-jdbc</artifactId>
-		  <version>3.41.2.2</version>
+		  <version>3.45.3.0</version>
 		  <scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>2.4.0</version>
+			<version>3.3.3</version>
 		  	<scope>test</scope>
 		</dependency>
 
@@ -276,4 +284,10 @@
 		-->
 
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>maven2-release-repository</id>
+			<url>https://repo.maven.apache.org/maven2/</url>
+		</repository>
+	</repositories>
 </project>

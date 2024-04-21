@@ -1,7 +1,7 @@
 package pm.pride.util.generator;
 
-import basic.AbstractPrideTest;
-import basic.SkipForDBType;
+import pm.pride.basic.AbstractPrideTest;
+import pm.pride.basic.SkipForDBType;
 import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;

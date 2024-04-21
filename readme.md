@@ -8,8 +8,8 @@ See doc/PriDE-History.html for release notes!
 ## Latest Release on Maven Central
 [![Maven Central](https://img.shields.io/maven-central/v/pm.pride/pride.svg?label=Maven%20Central)](https://search.maven.org/search?q=g:%22pm.pride%22%20AND%20a:%22pride%22)
 
-## Travis CI Status
-[![Build Status](https://travis-ci.org/j-pride/pride.pm.svg)](https://travis-ci.org/j-pride/pride.pm)
+## CI Status
+[![Build Status](https://github.com/j-pride/pride.pm/actions/workflows/pride-ci.yaml/badge.svg)](https://github.com/j-pride/pride.pm/actions/workflows/pride-ci.yaml)
 
 
 ## Building PriDE

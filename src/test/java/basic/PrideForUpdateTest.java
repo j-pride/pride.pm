@@ -21,7 +21,7 @@ public class PrideForUpdateTest extends AbstractPrideTest{
     @Test
     public void testWhereConditionWithForUpdate() throws SQLException {
         WhereCondition expression = new WhereCondition()
-                .and("firstName", UNEQUAL, null)
+                .and("firstName", UNEQUAL, (Object) null)
                 .forUpdate();
 
         assertEquals("( firstName IS NOT null ) FOR UPDATE", expression.toString());

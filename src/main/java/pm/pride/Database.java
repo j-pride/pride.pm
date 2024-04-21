@@ -264,7 +264,7 @@ public class Database implements SQL.Formatter
     protected void revisionEntity(RecordDescriptor red, Object entity) throws SQLException {
         if (red.isRevisioned()) {
             RecordDescriptor recordDescriptorForRevisioning = ((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor();
-            createRecord(recordDescriptorForRevisioning, entity, null);
+            createRecord(recordDescriptorForRevisioning, entity, (String) null);
         }
     }
 

@@ -98,7 +98,7 @@ public class PrideThreadTest extends AbstractPrideTest {
             try {
                 long time = startId * MILLISECONDS_PER_DAY;
                 for (int i = startId; i < startId + numIds; i++) {
-                    Customer c = new Customer(i, "f#" + i, "l#" + i, new Boolean(i%2 > 0), new Date(time));
+                    Customer c = new Customer(i, "f#" + i, "l#" + i, i%2 > 0, new Date(time));
                     time += MILLISECONDS_PER_DAY;
                     DatabaseFactory.getDatabase().commit();
                 }

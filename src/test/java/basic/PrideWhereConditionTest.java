@@ -65,7 +65,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	@Test
 	public void testUnequalsWithNull() throws Exception {
 		WhereCondition expression = new WhereCondition()
-				.and("firstName", UNEQUAL, null);
+				.and("firstName", UNEQUAL, (Object) null);
 		assertNotNull(new Customer().query(expression));
 	}
 	

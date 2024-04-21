@@ -139,5 +139,4 @@ public class ResultSetAccess
         return getAccessMethod(resultSetAccessMethodsByIndex, attributeType);
     }
 
-    public final static String REVISION_ID = "$Header:   //DEZIRWD6/PVCSArchives/dmd3000-components/framework/pride/src/de/mathema/pride/ResultSetAccess.java-arc   1.1   23 Sep 2002 12:34:06   math19  $";
 }

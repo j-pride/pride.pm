@@ -1,9 +1,13 @@
 package basic;
 
-import org.junit.Test;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.SQL;
 import pm.pride.SQLExpressionBuilder;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static pm.pride.SQLExpressionBuilder.Validation.*;
 
 public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
@@ -19,8 +23,9 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 	private static final Object COLUMN_ACTIVATIONCHANNEL = "ACTIVATION_CHANNEL";
 	private static final Object COLUMN_PROMOTION_HEAD_ID = "PROMOTION_HEAD_ID";
 
-	
+
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		// Avoid database initialization. We don't need anything like that here
 		// This speeds up the test dramatically
@@ -56,9 +61,9 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 		assertEquals("2, one", result);
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testSameNameDifferentPositions() {
-        SQL.build("@1$ONE @2$ONE", "irrelevant");
+        assertThrows(IllegalArgumentException.class, () -> SQL.build("@1$ONE @2$ONE", "irrelevant"));
 	}
 	
 	@Test
@@ -83,30 +88,30 @@ public class PrideSQLExpressionBuilderTest extends AbstractPrideTest {
 		SQL.buildX("@ONE", "One");
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testExceptionOnWrongName() {
-		SQL.buildX("@ONE", "ON");
+		assertThrows(IllegalArgumentException.class , () -> SQL.buildX("@ONE", "ON"));
 	}
-	
-	@Test(expected=IllegalArgumentException.class)
+
+	@Test
 	public void testExceptionOnWrongNameByChangedDefault() {
 		try {
 			SQLExpressionBuilder.validationDefault = ExceptionCaseSensitive;
-			SQL.build("@ONE", "one");
+			assertThrows(IllegalArgumentException.class,() -> SQL.build("@ONE", "one"));
 		}
 		finally {
 			SQLExpressionBuilder.validationDefault = None;
 		}
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testNotEnoughArguments() {
-		SQL.buildX("@ONE");
+		assertThrows(IllegalArgumentException.class, () -> SQL.buildX("@ONE"));
 	}
 	
-	@Test(expected=IllegalArgumentException.class)
+	@Test
 	public void testExceptionOnWrongNameCaseInsensitive() {
-		new SQLExpressionBuilder(ExceptionCaseSensitive).format("@ONE", "One");
+		assertThrows(IllegalArgumentException.class, () -> new SQLExpressionBuilder(ExceptionCaseSensitive).format("@ONE", "One"));
 	}
 	
 	@Test

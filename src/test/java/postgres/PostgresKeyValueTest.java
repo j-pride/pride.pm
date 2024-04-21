@@ -1,19 +1,17 @@
 package postgres;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.SQLType;
-import java.util.HashMap;
-import java.util.Map;
-
+import basic.AbstractPrideTest;
 import basic.NeedsDBType;
-import pm.pride.DatabaseFactory;
+import org.junit.jupiter.api.Test;
 import pm.pride.PreparedInsert;
 import pm.pride.ResourceAccessor;
 
-import org.junit.Test;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
-import basic.AbstractPrideTest;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @NeedsDBType(ResourceAccessor.DBType.POSTGRES)
 public class PostgresKeyValueTest extends AbstractPrideTest {

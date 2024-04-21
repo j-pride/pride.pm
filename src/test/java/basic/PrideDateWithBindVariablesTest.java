@@ -1,19 +1,24 @@
 package basic;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.sql.SQLException;
 
-import org.junit.Test;
 
 public class PrideDateWithBindVariablesTest extends AbstractPrideTest {
 
 	PrideDateTest prideDateTest = new PrideDateTest();
 	
     @Override
+	@BeforeEach
 	public void setUp() throws Exception {
     	prideDateTest.setUp();
     	setBindvarsDefault(true);
 	}
 
 	@Override
+	@AfterEach
 	public void tearDown() throws Exception {
 		setBindvarsDefault(null);
 	}

@@ -1,9 +1,13 @@
 package basic;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
 
 public class PrideSelectStreamTest extends AbstractPrideTest {
 
@@ -12,6 +16,7 @@ public class PrideSelectStreamTest extends AbstractPrideTest {
 	int lastId;
 	
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(COUNT);

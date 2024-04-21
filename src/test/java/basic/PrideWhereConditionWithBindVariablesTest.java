@@ -13,8 +13,10 @@ import java.sql.SQLException;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import org.junit.Test;
 
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.WhereCondition;
 
 /**
@@ -29,12 +31,14 @@ public class PrideWhereConditionWithBindVariablesTest extends AbstractPrideTest 
 	PrideWhereConditionTest prideWhereConditionTest = new PrideWhereConditionTest();
 	
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		prideWhereConditionTest.setUp();
 		setBindvarsDefault(true);
 	}
 
 	@Override
+	@AfterEach
 	public void tearDown() {
 		setBindvarsDefault(null);
 	}

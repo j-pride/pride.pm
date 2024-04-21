@@ -1,9 +1,9 @@
 package basic;
-import org.junit.Test;
-
-import junit.framework.TestCase;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.*;
-import junit.framework.Assert;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Matthias Bartels
@@ -13,6 +13,7 @@ import junit.framework.Assert;
 public class DerivedRecordDescriptorTest extends AbstractPrideTest {
 
 	@Override
+	@BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         String quote = DatabaseFactory.getDatabase().getIdentifierQuotation();

@@ -2,8 +2,8 @@ package basic;
 
 import java.sql.Connection;
 
-import org.junit.Test;
 
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 
 /*******************************************************************************

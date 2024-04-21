@@ -1,10 +1,9 @@
 package basic;
-import java.io.*;
-import java.sql.*;
-import java.text.DateFormat;
-import java.util.Properties;
 
-import pm.pride.*;
+import pm.pride.ResourceAccessorJSE;
+
+import java.sql.Connection;
+import java.util.Properties;
 
 /**
  * This resource accessor is required for MySQL with version less than 4
@@ -23,5 +22,3 @@ public class ResourceAccessorMySQL extends ResourceAccessorJSE
     protected void setAutoCommit(Connection con, boolean state) { }
 }
 
-/* $Log: $
- */

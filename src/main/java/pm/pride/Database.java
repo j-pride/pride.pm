@@ -26,10 +26,10 @@ public class Database implements SQL.Formatter
     private final ResourceAccessor accessor;
 
     private final String dbname;
-    private Vector txlisteners = null;
+    private Vector<TransactionListener> txlisteners = null;
     private Integer statementTimeout = null;
 
-    public static enum QueryScope { First, All, Exists };
+    public enum QueryScope { First, All, Exists };
     
     // ------------- G e n e r a l   e x c e p t i o n   h a n d l i n g ------------
 
@@ -145,7 +145,7 @@ public class Database implements SQL.Formatter
 		this.accessor = accessor;
 		this.exceptionListener = el;
 		this.dbname = dbname;
-		txlisteners = new Vector(10);
+		txlisteners = new Vector<>(10);
 		if (accessor == null)
 		    processSevereException(new NoAccessorException());
         else
@@ -264,7 +264,7 @@ public class Database implements SQL.Formatter
     protected void revisionEntity(RecordDescriptor red, Object entity) throws SQLException {
         if (red.isRevisioned()) {
             RecordDescriptor recordDescriptorForRevisioning = ((RevisionedRecordDescriptor) red).getRevisioningRecordDescriptor();
-            createRecord(recordDescriptorForRevisioning, entity, null);
+            createRecord(recordDescriptorForRevisioning, entity, (String) null);
         }
     }
 

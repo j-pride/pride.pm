@@ -1,10 +1,14 @@
 package basic;
-import org.junit.Test;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.WhereCondition;
 
 import java.util.Date;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author bart57
@@ -14,6 +18,7 @@ import java.util.Date;
 public class PrideUpdateTest extends AbstractPrideTest {
 
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(9);

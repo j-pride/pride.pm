@@ -1,9 +1,9 @@
 package pm.pride.util.generator;
 
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EntityMethodsAndFieldsNameProviderTest {
   static final String COLUMNNAME_WITH_DEFAULT_CAPITALISATION = "Customerkey";
@@ -17,7 +17,8 @@ public class EntityMethodsAndFieldsNameProviderTest {
 
   static final String NOT_EXISTING_CLASS = "org.voegtle.HelloTest";
 
-  @Test public void checkGetter() {
+  @Test
+  public void checkGetter() {
     EntityMethodsAndFieldsScanner entityMethodsAndFieldsScanner = new EntityMethodsAndFieldsScanner();
     EntityMethodsAndFields entityInformation = entityMethodsAndFieldsScanner.scan(TestEntity.class.getCanonicalName());
     EntityMethodsAndFieldsNameProvider provider = new EntityMethodsAndFieldsNameProvider(entityInformation);

@@ -9,20 +9,22 @@ package basic;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
-import pm.pride.SQL;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import pm.pride.ResultIterator;
+import pm.pride.SQL;
 import pm.pride.WhereCondition;
 
-import static pm.pride.WhereCondition.Direction.*;
+import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static pm.pride.WhereCondition.Direction.ASC;
+import static pm.pride.WhereCondition.Direction.DESC;
 import static pm.pride.WhereCondition.Operator.*;
 
 /**
@@ -32,9 +34,10 @@ import static pm.pride.WhereCondition.Operator.*;
  */
 public class PrideWhereConditionTest extends AbstractPrideTest {
 
-	private static int COUNT = 100;
+	private static final int COUNT = 100;
 
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(COUNT);
@@ -65,7 +68,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 	@Test
 	public void testUnequalsWithNull() throws Exception {
 		WhereCondition expression = new WhereCondition()
-				.and("firstName", UNEQUAL, null);
+				.and("firstName", UNEQUAL, (Object) null);
 		assertNotNull(new Customer().query(expression));
 	}
 	
@@ -192,7 +195,7 @@ public class PrideWhereConditionTest extends AbstractPrideTest {
 
 	//TODO implement fluent interface for nested selects
 	@Test
-	@Ignore
+	@Disabled
 	public void testWhereWithInnerSelect() throws SQLException {
 		WhereCondition expression = new WhereCondition()
 				.and("firstname", IN, "SELECT FIRSTNAME FROM CUSTOMER WHERE FIRSTNAME='First'" );

@@ -9,11 +9,15 @@ package basic;
  * Contributors:
  *     Jan Lessner, MATHEMA Software GmbH - JUnit test suite
  *******************************************************************************/
-import org.junit.Test;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.ResultIterator;
 import pm.pride.WhereCondition;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 
 /**
@@ -26,6 +30,7 @@ public class PrideDeleteTest extends AbstractPrideTest {
 	private static final int COUNT = 10;
 
 	@Override
+	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		generateCustomer(COUNT);

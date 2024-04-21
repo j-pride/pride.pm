@@ -6,13 +6,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import basic.NeedsDBType;
+import org.junit.jupiter.api.Test;
 import pm.pride.PreparedInsert;
 import pm.pride.ResourceAccessor;
 
-import org.junit.Test;
 
 import basic.CustomerType;
 import basic.AbstractPrideTest;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @NeedsDBType(ResourceAccessor.DBType.POSTGRES)
 public class PostgresArrayTest extends AbstractPrideTest {

@@ -600,6 +600,4 @@ public class RecordDescriptor
     return GetterSetterPair.CONSTANT_VALUE_PREFIX + value;
   }
 
-  public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/RecordDescriptor.java,v 1.9 2001/08/08 14:04:23 lessner Exp $";
-
 }

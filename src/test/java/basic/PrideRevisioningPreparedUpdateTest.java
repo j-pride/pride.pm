@@ -1,32 +1,33 @@
 package basic;
 
-import org.junit.Test;
 
+import org.junit.jupiter.api.Test;
 import pm.pride.*;
 
 import java.util.Date;
 
 import static basic.PrideRevisioningTest.assertRevisioned;
 import static basic.PrideRevisioningTest.waitForRevisionTimestampChange;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @NeedsDBType(ResourceAccessor.DBType.ORACLE)
 public class PrideRevisioningPreparedUpdateTest extends AbstractPrideTest {
 
     PrideRevisioningTest revisioningTest = new PrideRevisioningTest();
 
-    @Test(expected = BatchUpdateRevisioningException.class)
+    @Test
     public void testExpectErrorForMissingUpdateFieldsBatchUpdate() throws Exception {
-        new PreparedUpdate(new String[]{"id"}, new String[]{"lastName"}, RevisionedCustomer.red);
+        assertThrows(BatchUpdateRevisioningException.class, () -> new PreparedUpdate(new String[]{"id"}, new String[]{"lastName"}, RevisionedCustomer.red));
     }
 
-    @Test(expected = BatchUpdateRevisioningException.class)
+    @Test
     public void testExpectErrorForMissingKeyFieldsBatchUpdate() throws Exception {
-        new PreparedUpdate(new String[0], new String[]{"firstName", "lastName", "hireDate", "active", SQL.quote("ty pe")}, RevisionedCustomer.red);
+        assertThrows(BatchUpdateRevisioningException.class, () -> new PreparedUpdate(new String[0], new String[]{"firstName", "lastName", "hireDate", "active", SQL.quote("ty pe")}, RevisionedCustomer.red));
     }
 
-    @Test(expected = BatchUpdateRevisioningException.class)
+    @Test
     public void testExpectErrorForConflictingKeyFields() throws Exception {
-        new PreparedUpdate(new String[]{"id", "firstName"}, new String[]{"firstName", "hireDate", "lastName", "active", SQL.quote("ty pe")}, RevisionedCustomer.red);
+        assertThrows(BatchUpdateRevisioningException.class, () -> new PreparedUpdate(new String[]{"id", "firstName"}, new String[]{"firstName", "hireDate", "lastName", "active", SQL.quote("ty pe")}, RevisionedCustomer.red));
     }
 
     @Test

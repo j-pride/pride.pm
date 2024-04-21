@@ -61,6 +61,3 @@ public class CustomerOrder extends MappedObject
         }
     }
 }
-
-/* $Log: $
- */

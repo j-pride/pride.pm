@@ -90,5 +90,4 @@ public class ResourceAccessorWeb extends ResourceAccessorJEE
 		dbConnection = new ThreadLocal();
     }
 
-    public final static String REVISION_ID = "$Header: ";
 }

@@ -1,11 +1,13 @@
 package basic;
 
-import org.junit.Test;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.SQL;
 import pm.pride.WhereCondition;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static pm.pride.WhereCondition.Operator.LIKE;
 
 import java.sql.SQLException;
@@ -38,6 +40,7 @@ public class PrideWhereConditionWithFormatterTest extends AbstractPrideTest impl
 	}
 
 	@Override
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         generateCustomer(1);

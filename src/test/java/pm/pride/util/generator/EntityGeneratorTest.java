@@ -2,12 +2,13 @@ package pm.pride.util.generator;
 
 import basic.AbstractPrideTest;
 import basic.SkipForDBType;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.MappedObject;
 import pm.pride.RecordDescriptor;
 import pm.pride.ResourceAccessor;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static pm.pride.ResourceAccessor.DBType.*;
 
 @SkipForDBType(value = { ResourceAccessor.DBType.MYSQL })
@@ -125,8 +126,8 @@ public class EntityGeneratorTest extends AbstractPrideTest {
 
     private void assertGeneratedFragments(String generatedCode, String... expectedFragments) {
         for (String fragment: expectedFragments) {
-            assertTrue("Expected fragment '" + fragment + "' not found in " + generatedCode,
-                    generatedCode.contains(fragment));
+            assertTrue(generatedCode.contains(fragment),
+                    "Expected fragment '" + fragment + "' not found in " + generatedCode);
         }
     }
 

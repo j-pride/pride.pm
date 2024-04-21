@@ -33,8 +33,8 @@ public class DatabaseFactory
      * listener. A context is identified by name.
      */
     private static class Context {
-        private static Map contextMap = new HashMap();
-        public static Context getContext(String name) { return (Context)contextMap.get(name); }
+        private static final Map<String, Context> contextMap = new HashMap<>();
+        public static Context getContext(String name) { return contextMap.get(name); }
         
         private final Singleton _singleton = new Singleton() {
                 @Override
@@ -150,5 +150,4 @@ public class DatabaseFactory
 
     private DatabaseFactory() { }
 
-    public final static String REVISION_ID = "$Header: /framework/pride/src/de/mathema/pride/DatabaseFactory.java 3     3.02.06 13:41 Less02 $";
 }

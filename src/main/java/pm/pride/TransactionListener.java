@@ -21,20 +21,13 @@ public interface TransactionListener
      * actual commitment is performed. If any listener throws an Exception
      * the commitment will be ommited.
      */
-    public void commit(TransactionEvent e) throws SQLException;
+    void commit(TransactionEvent e) throws SQLException;
 
     /** Function to be called on transaction abortion
      * The listeners' rollback functions are called <i>before</i> the
      * actual rollback is performed. If any listener throws an Exception
      * the rollback will be ommited.
      */
-    public void rollback(TransactionEvent e) throws SQLException;
-    
-    public final static String REVISION_ID = "$Header: /home/cvsroot/xbcsetup/source/packages/xbc/server/database/TransactionListener.java,v 1.1 2001/07/24 12:31:26 lessner Exp $";
+    void rollback(TransactionEvent e) throws SQLException;
 }
 
-/* $Log: TransactionListener.java,v $
-/* Revision 1.1  2001/07/24 12:31:26  lessner
-/* Support for database transaction listeners added
-/*
- */

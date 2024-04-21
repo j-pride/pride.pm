@@ -17,5 +17,4 @@ public class NoAccessorException extends Exception
     public NoAccessorException(String reason) { super(reason); }
     public NoAccessorException() {}
 
-    public final static String REVISION_ID = "$Header: ";
 }

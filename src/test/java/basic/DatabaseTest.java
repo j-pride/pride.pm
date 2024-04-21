@@ -1,7 +1,8 @@
 package basic;
 
-import org.junit.Test;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import pm.pride.DatabaseFactory;
 import pm.pride.RecordDescriptor;
 import pm.pride.WhereCondition;
@@ -28,6 +29,7 @@ public class DatabaseTest extends AbstractPrideTest  {
     }
 
     @Override
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         generateCustomer(9);

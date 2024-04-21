@@ -21,13 +21,13 @@ public interface TransactionListener
      * actual commitment is performed. If any listener throws an Exception
      * the commitment will be ommited.
      */
-    public void commit(TransactionEvent e) throws SQLException;
+    void commit(TransactionEvent e) throws SQLException;
 
     /** Function to be called on transaction abortion
      * The listeners' rollback functions are called <i>before</i> the
      * actual rollback is performed. If any listener throws an Exception
      * the rollback will be ommited.
      */
-    public void rollback(TransactionEvent e) throws SQLException;
+    void rollback(TransactionEvent e) throws SQLException;
 }
 

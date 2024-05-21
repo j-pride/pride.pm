@@ -27,17 +27,24 @@ import static org.junit.jupiter.api.Assertions.*;
 @SkipForDBType(ResourceAccessor.DBType.HSQL)
 public class PrideJoinTest extends AbstractPrideTest {
 
-	static JoinRecordDescriptor adhocJoin = new JoinRecordDescriptor(Customer.red, "husband")
-    		.join(TEST_TABLE, "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName");
+	static JoinRecordDescriptor adhocJoin;
 
-    @Override
-    @BeforeEach
-    public void setUp() throws Exception {
-        super.setUp();
-        generateCustomer(9);
+  @Override
+  @BeforeEach
+  public void setUp() throws Exception {
+    super.setUp();
+    setUpAdhocJoin();
+    generateCustomer(9);
+  }
+
+  private void setUpAdhocJoin() {
+    if (adhocJoin == null) {
+      adhocJoin = new JoinRecordDescriptor(Customer.red, "husband")
+        .join(TEST_TABLE, "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName");
     }
+  }
 
-    @Test
+  @Test
     public void testOuterJoin() throws Exception {
         int nowife = 0;
         boolean firstFound = false;

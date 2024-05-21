@@ -1,4 +1,5 @@
-package pm.pride; /*******************************************************************************
+package pm.pride;
+/*******************************************************************************
  * Copyright (c) 2001-2003 The PriDE team and MATHEMA Software Ltd.
  * All rights reserved. This toolkit and the accompanying materials 
  * are made available under the terms of an extended GNU Public License
@@ -15,7 +16,7 @@ import pm.pride.basic.Name;
 
 public class Simple {
 
-    public static void main(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
 	/*
 	ResourceAccessorJ2SE accessor = new ResourceAccessorJ2SE 
 	    ("sun.jdbc.odbc.JdbcOdbcDriver", "sa", "", "sql.log");

@@ -145,7 +145,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			    return new SimpleDateFormat("'to_date('''yyyy-MM-dd''',''YYYY-MM-DD'')'");
 			if(dbType.equalsIgnoreCase(DBType.SQLITE))
 				return new UnixTimeDateFormat();
-			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE) || dbType.equalsIgnoreCase(DBType.DB2))
+			else if(dbType.equalsIgnoreCase(DBType.DB2))
 				return new SimpleDateFormat("''yyyy-MM-dd''");
 		}
 		return null;
@@ -159,7 +159,7 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			    return new SimpleDateFormat("'to_timestamp('''yyyy-MM-dd HH:mm:ss.SSS''',''YYYY-MM-DD HH24:MI:SS.FF'')'");
 			if(dbType.equalsIgnoreCase(DBType.SQLITE))
 				return new UnixTimeDateFormat();
-			else if(dbType.equalsIgnoreCase(DBType.CLOUDSCAPE) || dbType.equalsIgnoreCase(DBType.DB2))
+			else if(dbType.equalsIgnoreCase(DBType.DB2))
 				return new SimpleDateFormat("''yyyy-MM-dd HH:mm:ss.SSS''");
 		}
 		return null;

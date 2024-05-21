@@ -13,11 +13,9 @@ package pm.pride.basic;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import pm.pride.*;
+import pm.pride.ResourceAccessor.Config;
 import pm.pride.ResourceAccessor.DBType;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -34,10 +32,9 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
  * This Class sets the stage for the Unit-Tests, 
  * it establishes the DatabaseConnection, 
  * creates a Table for Testdata 
- * and Provides a useful Method to generate Testdata
+ * and provides usefull methods to generate Testdata
  */
 public abstract class AbstractPrideTest {
-	private static final String DEFAULT_CONFIG = "config/hsql.test.config.properties";
 
 	private Random randi = null;
 	private final String[][] names = new String[][] {
@@ -54,6 +51,8 @@ public abstract class AbstractPrideTest {
 	protected Date firstCustomersHiredate;
 
 	private static Boolean overriddenBindvarsDefault;
+	private static Properties testConfig;
+
 	protected static final String TEST_TABLE = "customer_pride_test";
 	protected static final String REVISIONING_TEST_TABLE = "R_" + TEST_TABLE;
 	protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
@@ -79,7 +78,6 @@ public abstract class AbstractPrideTest {
 	}
 
 	private String getTestTableColumns(String idFieldClassifier, boolean revisioningTable) {
-		String quote = DatabaseFactory.getDatabase().getIdentifierQuotation();
 		return ""
 				+ "id " + idFieldClassifier + ","
 				+ "firstName varchar(50),"
@@ -131,8 +129,8 @@ public abstract class AbstractPrideTest {
 		randi = new Random();
 		initDB();
 		checkIfTestShouldBeSkipped();
-        createTestTable();
-        createRevisioningTestTable();
+    createTestTable();
+    createRevisioningTestTable();
 	}
 
 	protected static void setBindvarsDefault(Boolean value) {
@@ -140,22 +138,26 @@ public abstract class AbstractPrideTest {
 	}
 	
 	public static void initDB() throws Exception {
-		Properties testConfig = determineDatabaseTestConfiguration();
-		
+		if (testConfig == null) {
+			testConfig = DBConfigurator.determineDatabaseTestConfiguration();
+			System.err.println("URL: " + testConfig.getProperty(Config.DB));
+			System.err.println("DB User: " + testConfig.getProperty(Config.USER));
+		}
+
 		// Special resource accessor to allow changing the default
 		// for bind-variable usage at any time in the unit tests, not only on initialization
-        ResourceAccessor ra = new ResourceAccessorJSE(testConfig) {
+    ResourceAccessor ra = new ResourceAccessorJSE(testConfig) {
 			@Override
 			public boolean bindvarsByDefault() {
 				if (overriddenBindvarsDefault != null)
 					return overriddenBindvarsDefault;
 				return super.bindvarsByDefault();
 			}
-        };
+    };
         
-        DatabaseFactory.setResourceAccessor(ra);
-        DatabaseFactory.setExceptionListener(exlistener);
-        DatabaseFactory.setDatabaseName(testConfig.getProperty(ResourceAccessor.Config.DB));
+    DatabaseFactory.setResourceAccessor(ra);
+    DatabaseFactory.setExceptionListener(exlistener);
+    DatabaseFactory.setDatabaseName(testConfig.getProperty(ResourceAccessor.Config.DB));
 	}
 
 	protected void setBindvarsByDefault(boolean b) {
@@ -174,24 +176,6 @@ public abstract class AbstractPrideTest {
             assumeFalse(Arrays.asList(skippedDBTypes).contains(currentDbType), annotation.message());
         }
     }
-	
-	private static Properties determineDatabaseTestConfiguration() throws IOException {
-		String configFileName = System.getProperty("pride.test.config.file");
-		if (configFileName == null) {
-			String currentUser = System.getProperty("user.name");
-			configFileName = "config/" + currentUser + ".test.config.properties";
-		}
-		if (!new File(configFileName).exists()) {
-			System.err.println("Can't determine database configuration - tried to read from file: " + configFileName);
-			System.err.println("Loading default in memory configuration: " + DEFAULT_CONFIG);
-			configFileName = DEFAULT_CONFIG;
-		}
-		Properties testConfig = new Properties();
-		FileInputStream fis = new FileInputStream(configFileName);
-		testConfig.load(fis);
-		fis.close();
-		return testConfig;
-	}
 
 	@AfterEach
 	public void tearDown() throws Exception {

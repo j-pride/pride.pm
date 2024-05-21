@@ -110,6 +110,7 @@ public class JoinRecordDescriptor extends RecordDescriptor {
     return trim(names);
   }
 
+  @Override
   protected String getFieldName(String alias, AttributeDescriptor attrdesc) {
     String fullFieldName = super.getFieldName(alias, attrdesc);
     if (fullFieldName.contains(AS_KEYWORD)) {

@@ -24,15 +24,13 @@ public interface ResourceAccessor extends SQL.Formatter
 {
 	interface DBType {
 		String ORACLE     = "oracle";
-		String CLOUDSCAPE = "cloudscape";
 		String MYSQL      = "mysql";
 		String DB2        = "db2";
 		String SQLSERVER  = "sqlserver";
 		String POSTGRES   = "postgres";
-        String HSQL       = "hsql";
-        String POINTBASE  = "pointbase";
-        String SQLITE     = "sqlite";
-        String MARIADB    = "mariadb";
+    String HSQL       = "hsql";
+    String SQLITE     = "sqlite";
+    String MARIADB    = "mariadb";
 	}
 	
 	interface Config {

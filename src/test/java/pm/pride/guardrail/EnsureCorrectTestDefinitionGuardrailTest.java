@@ -1,4 +1,4 @@
-package pm.pride;
+package pm.pride.guardrail;
 
 import com.tngtech.archunit.junit.AnalyzeClasses;
 import com.tngtech.archunit.junit.ArchTest;
@@ -10,7 +10,7 @@ import pm.pride.basic.AbstractPrideTest;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.methods;
 
 @AnalyzeClasses(packages = "pm.pride")
-public class EnsureCorrectTestSetupMetaTest {
+public class EnsureCorrectTestDefinitionGuardrailTest {
 
     @ArchTest
     public static final ArchRule ensure_setUp_is_annotated_with_BeforeEach =

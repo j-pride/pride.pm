@@ -253,12 +253,6 @@
             <scope>test</scope>
         </dependency>
 		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>mysql</artifactId>
-			<version>${testcontainers.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>42.7.3</version>
@@ -281,6 +275,30 @@
 			<artifactId>mariadb-java-client</artifactId>
 			<version>3.3.3</version>
 		  	<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.ibm.db2</groupId>
+			<artifactId>db2jcc4</artifactId>
+			<version>4.32.8</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>12.4.0.jre11</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!--
+		The following dependencies are required when running unit tests for the supported
+		server-based databases in docker test containers.
+		For general information about test containers see https://testcontainers.com/
+		-->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>mysql</artifactId>
+			<version>${testcontainers.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
@@ -306,39 +324,14 @@
 			<version>${testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
-
-		<!--
-		DB2 is not automatically test-covered by Travis CI. However, the following
-		dependencies for DB2 JDBC drivers do not bother anyone and allow running
-		the test for everyone having DB2 available
-		-->
-		<dependency>
-			<groupId>com.ibm.db2</groupId>
-			<artifactId>db2jcc4</artifactId>
-			<version>4.32.8</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!--
-		Microsoft SQL Server is not automatically test-covered by Travis CI. However,
-		the following dependencies for MS SQL Server JDBC drivers do not bother anyone
-		and allow running the test for everyone having SQL Server available.
-		How to pull and run SQL Server docker image, see https://hub.docker.com/_/microsoft-mssql-server
-		-->
-		<dependency>
-			<groupId>com.microsoft.sqlserver</groupId>
-			<artifactId>mssql-jdbc</artifactId>
-			<version>12.4.0.jre11</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mssqlserver</artifactId>
 			<version>${testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 	</dependencies>
+
 	<repositories>
 		<repository>
 			<id>maven2-release-repository</id>

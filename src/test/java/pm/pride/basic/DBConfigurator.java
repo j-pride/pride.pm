@@ -97,10 +97,13 @@ public class DBConfigurator {
     else {
       configFileName = TestConfig.CONFIG_DIR + currentUser + TestConfig.FILE_SUFFIX;
       Properties testConfig = readConfigFile(configFileName);
-      configFileName = testConfig.getProperty(TestConfig.FILE);
-      if (configFileName == null) {
-        configDBType = testConfig.getProperty(TestConfig.DB);
-        if (configDBType != null) {
+      String indirectConfigFileName = testConfig.getProperty(TestConfig.FILE);
+      if (indirectConfigFileName != null) {
+        configFileName = indirectConfigFileName;
+      }
+      else {
+        String indirectConfigDBType = testConfig.getProperty(TestConfig.DB);
+        if (indirectConfigDBType != null) {
           configFileName = findConfigFileFromDBType(configDBType, currentUser);
         }
       }

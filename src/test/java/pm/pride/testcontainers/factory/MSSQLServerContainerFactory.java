@@ -8,6 +8,8 @@ public class MSSQLServerContainerFactory extends AbstractJDBCContainerFactory<MS
 
   public MSSQLServerContainerFactory(Properties prideConfig) {
     super(prideConfig, new MSSQLServerContainer(parseImage(prideConfig)));
+    // The following line is required according to the test container documentation for SQL Server
+    // See https://testcontainers.com/modules/mssql/
     container.acceptLicense();
   }
 

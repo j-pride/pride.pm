@@ -8,6 +8,8 @@ public class DB2ContainerFactory extends AbstractJDBCContainerFactory<Db2Contain
 
   public DB2ContainerFactory(Properties prideConfig) {
     super(prideConfig, new Db2Container(parseImage(prideConfig)));
+    // The following line is required according to the test container documentation for DB2
+    // See https://testcontainers.com/modules/db2/
     container.acceptLicense();
   }
 

@@ -104,7 +104,7 @@ public class DBConfigurator {
       else {
         String indirectConfigDBType = testConfig.getProperty(TestConfig.DB);
         if (indirectConfigDBType != null) {
-          configFileName = findConfigFileFromDBType(configDBType, currentUser);
+          configFileName = findConfigFileFromDBType(indirectConfigDBType, currentUser);
         }
       }
     }

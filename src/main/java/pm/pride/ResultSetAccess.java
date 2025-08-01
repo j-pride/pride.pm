@@ -3,6 +3,8 @@
  *******************************************************************************/
 package pm.pride;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.sql.*;
 import java.lang.reflect.Method;
@@ -82,9 +84,11 @@ public class ResultSetAccess
     public static void init() throws NoSuchMethodException {
         putMethod("getString", String.class);
         putMethod("getString", Enum.class);
-		putMethod("getDate", java.util.Date.class);
+		    putMethod("getDate", java.util.Date.class);
         putMethod("getDate", java.sql.Date.class);
+        putMethod("getDate", LocalDate.class);
         putMethod("getTimestamp", java.sql.Timestamp.class);
+        putMethod("getTimestamp", LocalDateTime.class);
         putMethod("getInt", Integer.class);
         putMethod("getInt", int.class);
         putMethod("getFloat", Float.class);
@@ -99,8 +103,8 @@ public class ResultSetAccess
         putMethod("getShort", Short.class);
         putMethod("getShort", short.class);
         putMethod("getBytes", byte[].class);
-		putMethod("getByte", Byte.class);
-		putMethod("getByte", byte.class);
+		    putMethod("getByte", Byte.class);
+		    putMethod("getByte", byte.class);
         putMethod("getBlob", Blob.class);
         putMethod("getClob", Clob.class);
         putMethod("getObject", Map.class);

@@ -8,6 +8,8 @@ import pm.pride.ResourceAccessor;
 import pm.pride.WhereCondition;
 
 import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
@@ -31,12 +33,14 @@ public class PrideDateTest extends AbstractPrideTest {
     	// But at least MySQL works only with seconds precision by default. That's why the
     	// timestamp columns below are specified with (3) which is the seconds fraction precision.
         String columns = ""
-        		+ "RECORD_NAME varchar(50), "
-                + "TIME_PLAIN timestamp(3)" + getDefaultDateString() + ", "
-                + "TIME_AS_DATE timestamp(3)" + getDefaultDateString() + ", "
-                + "DATE_PLAIN date" + getDefaultDateString() + ", "
-                + "DATE_AS_TIME date" + getDefaultDateString() + ", "
-                + "DATE_AS_DATE date" + getDefaultDateString();
+        		+ DateTime.COL_RECORD_NAME + " varchar(50), "
+                + DateTime.COL_TIME_PLAIN + " timestamp(3)" + getDefaultDateString() + ", "
+                + DateTime.COL_TIME_AS_DATE + " timestamp(3)" + getDefaultDateString() + ", "
+                + DateTime.COL_DATE_PLAIN + " date" + getDefaultDateString() + ", "
+                + DateTime.COL_DATE_AS_TIME + " date" + getDefaultDateString() + ", "
+                + DateTime.COL_DATE_AS_DATE + " date" + getDefaultDateString() + ", "
+                + DateTime.COL_DATE_AS_LOCAL_DATE + " date" + getDefaultDateString() + ", "
+                + DateTime.COL_DATE_AS_LOCAL_DATE_TIME + " timestamp(3)" + getDefaultDateString();
         dropAndCreateTable(DATETIME_TEST_TABLE, columns);
     }
     
@@ -47,26 +51,32 @@ public class PrideDateTest extends AbstractPrideTest {
     	return "";
     }
 
+	private String getDefaultZonedDateTimeString() {
+		if (isDBType(ResourceAccessor.DBType.MYSQL)) {
+			return " DEFAULT '1970-01-01 00:00:01 +00:00'";
+		}
+		return "";
+	}
+
 	@Override
 	@BeforeEach
 	public void setUp() throws Exception {
 		super.setUp();
 		printDBVersion();
 		generateCustomer(9);
-    	createDateTimeTable();
-    	determineDatePrecisionLoss();
+		createDateTimeTable();
+		determineDatePrecisionLoss();
 	}
 
 	private void printDBVersion() throws Exception {
-    	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
-    		// 5.7.30
+		if (isDBType(ResourceAccessor.DBType.MYSQL)) {
+			// 5.7.30
 			PreparedStatement pstmt
-					= DatabaseFactory.getDatabase().getConnection().prepareStatement("SHOW VARIABLES LIKE 'version'");
+							= DatabaseFactory.getDatabase().getConnection().prepareStatement("SHOW VARIABLES LIKE 'version'");
 
 			ResultSet rset = pstmt.executeQuery();
 
-			while (rset.next())
-			{
+			while (rset.next()) {
 				System.out.println("MySQL version " + rset.getString("Value"));
 			}
 
@@ -82,33 +92,33 @@ public class PrideDateTest extends AbstractPrideTest {
 	 * of dates produces the same loss. It should not make a difference if the user is working
 	 * with plain SQL or prepared statements
 	 */
-    public void determineDatePrecisionLoss() throws Exception {
-    	if (DB_DATE_PRECISION != -1) {
-    		return;
-    	}
+	public void determineDatePrecisionLoss() throws Exception {
+		if (DB_DATE_PRECISION != -1) {
+			return;
+		}
 
-    	Database db = DatabaseFactory.getDatabase();
+		Database db = DatabaseFactory.getDatabase();
 		Calendar dateAssembly = new GregorianCalendar(2019, Calendar.DECEMBER, 13, 14, 15, 16);
 		dateAssembly.set(Calendar.MILLISECOND, 170);
 		java.sql.Date fullPrecisionDate = new java.sql.Date(dateAssembly.getTimeInMillis());
 		System.out.println(fullPrecisionDate.getTime());
 
-		Connection con = db.getConnection(); 
+		Connection con = db.getConnection();
 		PreparedStatement insert = con.prepareStatement
-				("insert into DATETIME_PRIDE_TEST (DATE_PLAIN) values (?)");
+						("insert into DATETIME_PRIDE_TEST (DATE_PLAIN) values (?)");
 		insert.setDate(1, fullPrecisionDate);
 		insert.executeUpdate();
 		insert.close();
-		
+
 		PreparedStatement query = con.prepareStatement
-				("select DATE_PLAIN from DATETIME_PRIDE_TEST");
+						("select DATE_PLAIN from DATETIME_PRIDE_TEST");
 		ResultSet rs = query.executeQuery();
 		assertTrue(rs.next());
 		java.sql.Date dbPrecisionDate = rs.getDate(1);
 		System.out.println(dbPrecisionDate.getTime());
 		Calendar dateChecker = Calendar.getInstance();
 		dateChecker.setTimeInMillis(dbPrecisionDate.getTime());
-		for (int precision: DATE_PRECISION_LEVELS) {
+		for (int precision : DATE_PRECISION_LEVELS) {
 			if (dateChecker.get(precision) != 0) {
 				DB_DATE_PRECISION = precision;
 				break;
@@ -118,22 +128,22 @@ public class PrideDateTest extends AbstractPrideTest {
 		rs.close();
 		query.close();
 		db.rollback(); // Rollback the insert above
-    	assertNotEquals(-1, DB_DATE_PRECISION); // Come on - not even days precision??
-    }
+		assertNotEquals(-1, DB_DATE_PRECISION); // Come on - not even days precision??
+	}
 
-    /**
-     * Checks if two dates are equal within the precision which the database stores date values with.
-     * The method cuts off all time portions from {@link expectedWithFullPrecision} which are below
-     * the database' date precision and ensures that both values are converted to a java.util.Date
-     * before comparing them. So the function should also work with java.sql.Date and java.sql.Timestamp
-     */
+	/**
+	 * Checks if two dates are equal within the precision which the database stores date values with.
+	 * The method cuts off all time portions from {@link expectedWithFullPrecision} which are below
+	 * the database' date precision and ensures that both values are converted to a java.util.Date
+	 * before comparing them. So the function should also work with java.sql.Date and java.sql.Timestamp
+	 */
 	private void assertEqualsWithReducedPrecision(
-			java.util.Date expectedWithFullPrecision,
-			java.util.Date actualWithReducedPrecision,
-			int dbDatePrecision) {
+					java.util.Date expectedWithFullPrecision,
+					java.util.Date actualWithReducedPrecision,
+					int dbDatePrecision) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(expectedWithFullPrecision);
-		for (int calendarField: DATE_PRECISION_LEVELS) {
+		for (int calendarField : DATE_PRECISION_LEVELS) {
 			if (calendarField > dbDatePrecision) {
 				c.set(calendarField, 0);
 			}
@@ -144,33 +154,33 @@ public class PrideDateTest extends AbstractPrideTest {
 	}
 
 	@Test
-	public void testInsert() throws Exception{
+	void testInsert() throws Exception {
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
 
 		DateTime dtWrite = new DateTime();
 		dtWrite.setRecordName("testInsert");
 		dtWrite.setDatePlain(myDate);
 		dtWrite.create();
-		
+
 		DateTime dtRead = new DateTime(dtWrite);
-        assertEquals(myDate, dtRead.getDatePlain());
+		assertEquals(myDate, dtRead.getDatePlain());
 	}
 
 	@Test
-	public void testInsertWithServerTime() throws Exception{
+	void testInsertWithServerTime() throws Exception {
 		Timestamp dbTime = new Timestamp(DatabaseFactory.getDatabase().getSystime().getTime());
 
 		DateTime dtWrite = new DateTime("testInsertWithServerTime");
 		dtWrite.setTimePlain(dbTime);
 		dtWrite.create();
-		
+
 		Thread.sleep(1);
 		DateTime dtRead = new DateTime(dtWrite);
 		assertTrue(dtRead.getTimePlain().before(new java.util.Date()));
 	}
 
 	@Test
-	public void testJavaUtilDateAsDate() throws Exception {
+	void testJavaUtilDateAsDate() throws Exception {
 		java.util.Date myDate = new java.util.Date();
 		System.out.println(myDate);
 
@@ -183,10 +193,10 @@ public class PrideDateTest extends AbstractPrideTest {
 	}
 
 	@Test
-	public void testTimestampAcceptedForDate() throws Exception {
+	void testTimestampAcceptedForDate() throws Exception {
 		java.util.Date myDate = new java.util.Date();
 		Timestamp myTime = new Timestamp(myDate.getTime());
-		
+
 		DateTime dtWrite = new DateTime("testTimestampAcceptedForDate");
 		dtWrite.setDateAsDate(myTime);
 		dtWrite.create();
@@ -194,59 +204,59 @@ public class PrideDateTest extends AbstractPrideTest {
 		DateTime dtRead = new DateTime(dtWrite);
 		assertEqualsWithReducedPrecision(myTime, dtRead.getDateAsDate(), DB_DATE_PRECISION);
 	}
-	
+
 	/**
 	 * Update a Customer with hireDate and test the result
-	 */	
+	 */
 	@Test
-	public void testUpdateNoDBDate() throws Exception {
+	void testUpdateNoDBDate() throws Exception {
 		Date myDate = new Date((new GregorianCalendar(1974, 6, 23)).getTimeInMillis()); //23.7.1974
 
 		Customer c1 = new Customer(1);
 		c1.setHireDate(myDate);
 		c1.update();
 		DatabaseFactory.getDatabase().commit();
-		
+
 		Customer c2 = new Customer(1);
-        assertEquals(myDate, c2.getHireDate());
+		assertEquals(myDate, c2.getHireDate());
 	}
 
 	@Test
-	public void testUpdateWithDBDate() throws Exception {
+	void testUpdateWithDBDate() throws Exception {
 		GregorianCalendar cal = new GregorianCalendar();
 		cal.add(Calendar.DAY_OF_MONTH, -1);
-		
+
 		Database db = DatabaseFactory.getDatabase();
 		Customer cWrite = new Customer(2);
-		
+
 		cWrite.setHireDate(new Date(db.getSystime().getTime()));
 		cWrite.update();
 		db.commit();
-		
+
 		Customer cRead = new Customer(2);
 		assertTrue(cal.getTime().before(cRead.getHireDate()));
 	}
-	
+
 	@Test
-	public void testEqualDatesMillisecondsCorrectlyIgnored() throws SQLException {
+	void testEqualDatesMillisecondsCorrectlyIgnored() throws SQLException {
 		if (DB_DATE_PRECISION == Calendar.MILLISECOND) {
 			System.out.println("No date portions to ignore for a database of type " +
-					DatabaseFactory.getDatabase().getDBType());
+							DatabaseFactory.getDatabase().getDBType());
 			return;
 		}
-			
+
 		Customer c = new Customer(1);
 		Date firstCustomersHiredatePlus1Millisecond = new Date(firstCustomersHiredate.getTime() + 1);
 		WhereCondition whereCondition = new WhereCondition()
-				.and("hiredate", firstCustomersHiredatePlus1Millisecond);
+						.and("hiredate", firstCustomersHiredatePlus1Millisecond);
 		checkOrderByResult(whereCondition, 1, 1);
 	}
-	
+
 	@Test
-	public void testTimestampWithMilliseconds() throws Exception {
+	void testTimestampWithMilliseconds() throws Exception {
 		java.util.Date myDate = new java.util.Date();
 		Timestamp myTime = new Timestamp(myDate.getTime());
-		
+
 		DateTime dtWrite = new DateTime("testTimestampWithMilliseconds");
 		dtWrite.setTimePlain(myTime);
 		dtWrite.create();
@@ -254,9 +264,9 @@ public class PrideDateTest extends AbstractPrideTest {
 		DateTime dtRead = new DateTime(dtWrite);
 		assertEquals(myTime, dtRead.getTimePlain());
 	}
-	
+
 	@Test
-	public void testTimestampAsJavaUtilDate() throws Exception {
+	void testTimestampAsJavaUtilDate() throws Exception {
 		java.util.Date myDate = new java.util.Date();
 
 		DateTime dtWrite = new DateTime("testTimestampAsJavaUtilDate");
@@ -265,6 +275,28 @@ public class PrideDateTest extends AbstractPrideTest {
 
 		DateTime dtRead = new DateTime(dtWrite);
 		assertEquals(myDate, dtRead.getTimeAsDate());
+	}
+
+	@Test
+	void testLocalDate() throws Exception {
+		LocalDate localDate = LocalDate.of(2019, Calendar.DECEMBER, 13);
+		DateTime dtWrite = new DateTime("testLocalDate");
+		dtWrite.setLocalDate(localDate);
+		dtWrite.create();
+		DatabaseFactory.getDatabase().commit();
+		DateTime dtRead = new DateTime(dtWrite);
+		assertEquals(localDate, dtRead.getLocalDate());
+	}
+
+	@Test
+	void testLocalDateTime() throws Exception {
+		LocalDateTime localDateTime = LocalDateTime.of(2019, Calendar.DECEMBER, 13, 14, 15, 16);
+		DateTime dtWrite = new DateTime("testLocalDateTime");
+		dtWrite.setLocalDateTime(localDateTime);
+		dtWrite.create();
+		DatabaseFactory.getDatabase().commit();
+		DateTime dtRead = new DateTime(dtWrite);
+		assertEquals(localDateTime, dtRead.getLocalDateTime());
 	}
 
 }

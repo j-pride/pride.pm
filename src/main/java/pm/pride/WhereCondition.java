@@ -1,6 +1,5 @@
 package pm.pride;
 
-import java.sql.PreparedStatement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,6 +89,36 @@ public class WhereCondition extends WhereConditionPart {
     	this(null, null, null, null);
     	and(field, operator, values);
 	}
+
+	public WhereCondition(SqlFunction functionField, Object value) {
+    	this(null, null, null, null);
+    	and(functionField, value);
+	}
+	
+	public WhereCondition(SqlFunction functionField, String operator, Object... values) {
+    	this(null, null, null, null);
+    	and(functionField, operator, values);
+	}
+	
+	public WhereCondition(String field, SqlFunction functionValue) {
+    	this(null, null, null, null);
+    	and(field, functionValue);
+	}
+	
+	public WhereCondition(String field, String operator, SqlFunction functionValue) {
+    	this(null, null, null, null);
+    	and(field, operator, functionValue);
+	}
+	
+	public WhereCondition(SqlFunction functionField, SqlFunction functionValue) {
+    	this(null, null, null, null);
+    	and(functionField, functionValue);
+	}
+	
+	public WhereCondition(SqlFunction functionField, String operator, SqlFunction functionValue) {
+    	this(null, null, null, null);
+    	and(functionField, operator, functionValue);
+	}
 	
 	public WhereCondition bindvarsOn() { return bindvars(true); }
 
@@ -117,14 +146,27 @@ public class WhereCondition extends WhereConditionPart {
 	}
 
 	protected WhereCondition chain(String chainOperator, boolean skipOnNullValue, String field, String operator, Object... values) {
-	    if (skipOnNullValue && (values == null || values.length == 0 || values[0] == null))
-	        return this;
-		chainOperator = chainIfNotEmpty(chainOperator);
-		WhereFieldCondition subcondition = new WhereFieldCondition(chainOperator, bind, field, operator, values);
-		return chain(subcondition);
-	}
+    return chain(chainOperator, skipOnNullValue, operator, new WhereFieldConditionField(field), new WhereFieldConditionValues(values));
+  }
 
-	protected WhereCondition chain(String chainOperation) {
+  protected WhereCondition chain(String chainOperator, boolean skipOnNullValue, WhereFieldConditionField field, String operator, Object... values) {
+    return chain(chainOperator, skipOnNullValue, operator, field, new WhereFieldConditionValues(values));
+  }
+
+  protected WhereCondition chain(String chainOperator, boolean skipOnNullValue, String field, String operator, WhereFieldConditionValues values) {
+    return chain(chainOperator, skipOnNullValue, operator, new WhereFieldConditionField(field), values);
+  }
+
+  private WhereCondition chain(String chainOperator, boolean skipOnNullValue, String operator, WhereFieldConditionField field, WhereFieldConditionValues values) {
+    if (skipOnNullValue && (values == null || values.hasNoValues())) {
+      return this;
+    }
+    chainOperator = chainIfNotEmpty(chainOperator);
+    WhereFieldCondition subcondition = new WhereFieldCondition(chainOperator, bind, field, operator, values);
+    return chain(subcondition);
+  }
+
+  protected WhereCondition chain(String chainOperation) {
 		chainOperation = chainIfNotEmpty(chainOperation);
 		WhereCondition subcondition = new WhereCondition(this, formatter, chainOperation, null);
 		chain(subcondition);
@@ -145,7 +187,7 @@ public class WhereCondition extends WhereConditionPart {
 	public WhereCondition and(String field, String operator, Object... values) {
 		return chain(ChainOperator.AND, false, field, operator, values);
 	}
-
+  
 	/**
 	 * Like {@link #and(String, String, Object...)} but only adds the sub condition if the first value is not null.
 	 */
@@ -237,10 +279,141 @@ public class WhereCondition extends WhereConditionPart {
 		return chain(ChainOperator.OR);
 	}
 
-	/**
-	 * Closes the assembly of a sub condition
-	 * @return The sub conditions parent condition
-	 */
+  /**
+   * ANDs a condition where the left-hand side is an SQL function applied to a field and the right-hand side
+   * consists of plain value(s).
+   * <p>
+   * This behaves like {@link #and(String, String, Object...)} but allows using an {@link SqlFunction}
+   * as the field expression, e.g. {@code and(upper("last_name"), Operator.EQUAL, "DOE")}.
+   *
+   * @param functionField the {@link SqlFunction} representing the field expression (e.g. {@link SqlFunction#upper(String)}).
+   *                      The function's parameter must be the field name to which the function is applied.
+   * @param operator the comparison operator, e.g. {@link Operator#EQUAL}, {@link Operator#LIKE}, {@link Operator#BETWEEN}.
+   * @param values the value(s) to compare against, same semantics as in {@link #and(String, String, Object...)}.
+   * @return this {@link WhereCondition} to allow fluent chaining
+   */
+  public WhereCondition and(SqlFunction functionField, String operator, Object... values) {
+    return chain(ChainOperator.AND, false,
+      new WhereFieldConditionField(functionField), operator, values);
+  }
+  
+  /**
+   * Like {@link #and(SqlFunction, String, Object...)} but performs an OR-concatenation.
+   *
+   * @param functionField the {@link SqlFunction} representing the left-hand field expression
+   * @param operator the comparison operator, e.g. {@link Operator#EQUAL}
+   * @param values the value(s) to compare against
+   * @return this {@link WhereCondition} to allow fluent chaining
+   */
+  public WhereCondition or(SqlFunction functionField, String operator, Object... values) {
+    return chain(ChainOperator.OR, false,
+      new WhereFieldConditionField(functionField), operator, values);
+  }
+
+  /**
+   * ANDs a condition where the left-hand side is a plain field and the right-hand side is an SQL function value.
+   * <p>
+   * This behaves like {@link #and(String, String, Object...)} but allows using an {@link SqlFunction}
+   * as the value expression, e.g. {@code and("name", Operator.EQUAL, upper(?))} with a bound parameter.
+   *
+   * @param field the database field name on the left-hand side
+   * @param operator the comparison operator, e.g. {@link Operator#EQUAL}, {@link Operator#LIKE}
+   * @param functionValue the {@link SqlFunction} producing the value for comparison
+   * @return this {@link WhereCondition} to allow fluent chaining
+   */
+  public WhereCondition and(String field, String operator, SqlFunction functionValue) {
+    return chain(ChainOperator.AND, false,
+      field, operator, new WhereFieldConditionValues(functionValue));
+  }
+
+  /**
+   * Like {@link #and(String, String, SqlFunction)} but performs an OR-concatenation.
+   *
+   * @param field the database field name on the left-hand side
+   * @param operator the comparison operator, e.g. {@link Operator#EQUAL}
+   * @param functionValue the {@link SqlFunction} producing the value for comparison
+   * @return this {@link WhereCondition} to allow fluent chaining
+   */
+  public WhereCondition or(String field, String operator, SqlFunction functionValue) {
+    return chain(ChainOperator.OR, false,
+      field, operator, new WhereFieldConditionValues(functionValue));
+  }
+
+  /**
+   * ANDs a condition where both sides are SQL function expressions.
+   * <p>
+   * This is the function-to-function counterpart of {@link #and(String, String, Object...)} allowing
+   * you to write conditions like {@code and(upper("last_name"), Operator.EQUAL, trim(?))}.
+   *
+   * @param functionField the {@link SqlFunction} to be used as field expression on the left-hand side
+   * @param operator the comparison operator, e.g. {@link Operator#EQUAL}
+   * @param functionValue the {@link SqlFunction} providing the right-hand side value expression
+   * @return this {@link WhereCondition} to allow fluent chaining
+   */
+  public WhereCondition and(SqlFunction functionField, String operator, SqlFunction functionValue) {
+    return chain(ChainOperator.AND, false,
+      operator,
+      new WhereFieldConditionField(functionField),
+      new WhereFieldConditionValues(functionValue));
+  }
+
+  /**
+   * Like {@link #and(SqlFunction, String, SqlFunction)} but performs an OR-concatenation.
+   *
+   * @param functionField the {@link SqlFunction} to be used as the left-hand field expression
+   * @param operator the comparison operator, e.g. {@link Operator#EQUAL}
+   * @param functionValue the {@link SqlFunction} providing the right-hand side value expression
+   * @return this {@link WhereCondition} to allow fluent chaining
+   */
+  public WhereCondition or(SqlFunction functionField, String operator, SqlFunction functionValue) {
+    return chain(ChainOperator.OR, false,
+      operator,
+      new WhereFieldConditionField(functionField),
+      new WhereFieldConditionValues(functionValue));
+  }
+
+  /**
+   * Like {@link #and(SqlFunction, String, Object...)} with {@link Operator#EQUAL}
+   */
+  public WhereCondition and(SqlFunction functionField, Object value) {
+    return and(functionField, Operator.EQUAL, value);
+  }
+
+  /**
+   * Like {@link #and(String, String, SqlFunction)} with {@link Operator#EQUAL}
+   */
+  public WhereCondition and(String field, SqlFunction functionValue) {
+    return and(field, Operator.EQUAL, functionValue);
+  }
+
+  /**
+   * Like {@link #and(SqlFunction, String, SqlFunction)} with {@link Operator#EQUAL}
+   */
+  public WhereCondition and(SqlFunction functionField, SqlFunction functionValue) {
+    return and(functionField, Operator.EQUAL, functionValue);
+  }
+
+  /**
+   * Like {@link #or(SqlFunction, String, Object...)} with {@link Operator#EQUAL}
+   */
+  public WhereCondition or(SqlFunction functionField, Object value) {
+    return or(functionField, Operator.EQUAL, value);
+  }
+
+  /**
+   * Like {@link #or(String, String, SqlFunction)} with {@link Operator#EQUAL}
+   */
+  public WhereCondition or(String field, SqlFunction functionValue) {
+    return or(field, Operator.EQUAL, functionValue);
+  }
+
+  /**
+   * Like {@link #or(SqlFunction, String, SqlFunction)} with {@link Operator#EQUAL}
+   */
+  public WhereCondition or(SqlFunction functionField, SqlFunction functionValue) {
+    return or(functionField, Operator.EQUAL, functionValue);
+  }
+	
 	public WhereCondition bracketClose() {
 		return parent;
 	}

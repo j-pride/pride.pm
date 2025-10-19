@@ -227,7 +227,7 @@ class AttributeDescriptor implements WhereCondition.Operator, RecordDescriptor.E
     Object val = getValue(obj);
     String operator = byLike ? LIKE : EQUAL;
     String fieldName = getFieldName(defaultAliasPrefix);
-    return new WhereFieldCondition(null, withBind, fieldName, operator, val);
+    return new WhereFieldCondition(null, withBind, new WhereFieldConditionField(fieldName), operator, new WhereFieldConditionValues(val));
   }
 
   /** Allows to use the column names of the primary RecordDescriptor's of a JoinRecordDescriptor

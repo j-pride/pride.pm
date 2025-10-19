@@ -19,7 +19,8 @@ import static pm.pride.WhereCondition.Operator.IN;
 
 class SqlFunctionTest extends AbstractPrideTest {
 
-  public static final String TEST_CUSTOMER_LAST_NAME = "CuStOmER_NaMe";
+  public static final String TEST_PART_OF_CUSTOMER_LAST_NAME = "OmER_Na";
+  public static final String TEST_CUSTOMER_LAST_NAME = "CuSt" + TEST_PART_OF_CUSTOMER_LAST_NAME + "Me";
   public static final String TEST_CUSTOMER_FIRST_NAME = "FiRsT_NaMe";
   public static final int TEST_CUSTOMER_ID = 1;
 
@@ -43,6 +44,22 @@ class SqlFunctionTest extends AbstractPrideTest {
       assertEquals(TEST_CUSTOMER_LAST_NAME, customerInDb.getLastName());
     }
   }
+
+  @Test
+  void testFunction_upper_withWildCard() throws SQLException {
+    Database db = DatabaseFactory.getDatabase();
+    Customer customer = new Customer(TEST_CUSTOMER_ID);
+    customer.setLastName(TEST_CUSTOMER_LAST_NAME);
+    customer.update();
+    db.commit();
+    WhereCondition wc = new WhereCondition(upper(Customer.COL_LASTNAME), upper( "%" + TEST_PART_OF_CUSTOMER_LAST_NAME.toLowerCase() + "%"));
+    try (ResultIterator resultIterator = customer.query(wc)) {
+      Customer customerInDb = resultIterator.getObject(Customer.class);
+      assertNotNull(customerInDb);
+      assertEquals(TEST_CUSTOMER_LAST_NAME, customerInDb.getLastName());
+    }
+  }
+
 
   @Test
   void testFunction_upper_withOtherQueryParams() throws SQLException {

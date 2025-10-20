@@ -99,8 +99,10 @@ class WhereFieldConditionValues {
     if (function != null) {
       return bindSingleValue(function.getParameter(), formatter, cns, nextParam);
     } else {
-      for(Object aValue : values) {
-        nextParam = bindSingleValue(aValue, formatter, cns, nextParam);
+      if (values != null) {
+        for (Object aValue : values) {
+          nextParam = bindSingleValue(aValue, formatter, cns, nextParam);
+        }
       }
       return nextParam;
     }

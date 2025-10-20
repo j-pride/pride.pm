@@ -61,8 +61,8 @@ class WhereFieldConditionValues {
   private static Object value0(Object[] values) {
     return value(0, values);
   }
-  private Object[] values;
 
+  private Object[] values;
   private SqlFunction function;
 
   WhereFieldConditionValues(Object... values) {

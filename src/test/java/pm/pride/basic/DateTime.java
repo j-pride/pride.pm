@@ -61,15 +61,15 @@ public class DateTime extends MappedObject {
 	public void setLocalDateTime(LocalDateTime localDateTime) { this.localDateTime = localDateTime; }
 
   protected static final RecordDescriptor red =
-          new RecordDescriptor(DateTime.class, TABLE, null)
-                  .row(COL_RECORD_NAME, "getRecordName", "setRecordName")
-                  .row(COL_TIME_PLAIN, "getTimePlain", "setTimePlain")
-                  .row(COL_TIME_AS_DATE, "getTimeAsDate", "setTimeAsDate", Timestamp.class)
-                  .row(COL_DATE_PLAIN, "getDatePlain", "setDatePlain")
-                  .row(COL_DATE_AS_TIME, "getDateAsTime", "setDateAsTime")
-                  .row(COL_DATE_AS_DATE, "getDateAsDate", "setDateAsDate")
-                  .row(COL_DATE_AS_LOCAL_DATE, "getLocalDate", "setLocalDate")
-                  .row(COL_DATE_AS_LOCAL_DATE_TIME, "getLocalDateTime", "setLocalDateTime");
+    new RecordDescriptor(DateTime.class, TABLE, null)
+      .row(COL_RECORD_NAME, "getRecordName", "setRecordName")
+      .row(COL_TIME_PLAIN, "getTimePlain", "setTimePlain")
+      .row(COL_TIME_AS_DATE, "getTimeAsDate", "setTimeAsDate", Timestamp.class)
+      .row(COL_DATE_PLAIN, "getDatePlain", "setDatePlain")
+      .row(COL_DATE_AS_TIME, "getDateAsTime", "setDateAsTime")
+      .row(COL_DATE_AS_DATE, "getDateAsDate", "setDateAsDate")
+      .row(COL_DATE_AS_LOCAL_DATE, "getLocalDate", "setLocalDate")
+      .row(COL_DATE_AS_LOCAL_DATE_TIME, "getLocalDateTime", "setLocalDateTime");
 
   public RecordDescriptor getDescriptor() {
     return red;

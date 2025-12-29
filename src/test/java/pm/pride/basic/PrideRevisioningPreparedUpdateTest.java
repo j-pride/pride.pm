@@ -1,6 +1,7 @@
 package pm.pride.basic;
 
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import pm.pride.*;
 
@@ -10,6 +11,7 @@ import static pm.pride.basic.PrideRevisioningTest.assertRevisioned;
 import static pm.pride.basic.PrideRevisioningTest.waitForRevisionTimestampChange;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Disabled("Revisioning is deprecated")
 @NeedsDBType(ResourceAccessor.DBType.ORACLE)
 public class PrideRevisioningPreparedUpdateTest extends AbstractPrideTest {
 

@@ -39,7 +39,8 @@ public class PrideJoinTest extends AbstractPrideTest {
 
   private void setUpAdhocJoin() {
     if (adhocJoin == null) {
-      adhocJoin = new JoinRecordDescriptor(Customer.red, "husband")
+      RecordDescriptor customerDescriptor = new Customer().getDescriptor(); // Force lazy init
+      adhocJoin = new JoinRecordDescriptor(customerDescriptor, "husband")
         .join(TEST_TABLE, "wife", "wife.lastName = husband.lastName and wife.firstName != husband.firstName");
     }
   }

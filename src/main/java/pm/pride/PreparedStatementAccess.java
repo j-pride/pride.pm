@@ -3,6 +3,8 @@
  *******************************************************************************/
 package pm.pride;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.sql.*;
 import java.lang.reflect.Method;
@@ -39,7 +41,7 @@ public class PreparedStatementAccess
     public static void putMethod(String methodName, Class<?> functionParamType, Class<?> valueType)
         throws NoSuchMethodException {
         if (preparedStatementAccessMethods == null)
-            preparedStatementAccessMethods = new HashMap<String, Method>();
+            preparedStatementAccessMethods = new HashMap<>();
         Class<?>[] params = new Class[] { int.class, functionParamType };
         Method method = PreparedStatement.class.getMethod(methodName, params);
         preparedStatementAccessMethods.put(valueType.getName(), method);
@@ -77,7 +79,9 @@ public class PreparedStatementAccess
         putMethod("setString", String.class, Enum.class);
         putMethod("setDate", java.sql.Date.class, java.util.Date.class);
         putMethod("setDate", java.sql.Date.class);
+        putMethod("setDate", java.sql.Date.class, LocalDate.class);
         putMethod("setTimestamp", Timestamp.class);
+        putMethod("setTimestamp", Timestamp.class, LocalDateTime.class);
         putMethod("setInt", int.class, Integer.class);
         putMethod("setInt", int.class);
         putMethod("setFloat", float.class, Float.class);
@@ -92,8 +96,8 @@ public class PreparedStatementAccess
         putMethod("setShort", short.class, Short.class);
         putMethod("setShort", short.class);
         putMethod("setBytes", byte[].class);
-		putMethod("setByte", byte.class, Byte.class);
-		putMethod("setByte", byte.class);
+		    putMethod("setByte", byte.class, Byte.class);
+		    putMethod("setByte", byte.class);
         putMethod("setBlob", Blob.class);
         putMethod("setClob", Clob.class);
         putMethod("setObject", Object.class, Map.class);

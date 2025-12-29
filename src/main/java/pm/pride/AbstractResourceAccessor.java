@@ -9,6 +9,8 @@ import java.sql.*;
 import java.text.DateFormat;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
@@ -167,16 +169,17 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	
 	/**
 	 * Like {@link #formatTime} but for date values. This function is
-     * synchronized due to the fact that DateFormat.format is not!!
+	 * synchronized due to the fact that DateFormat.format is not!!
+	 *
 	 * @param date The value to format
 	 * @return The SQL-formatted value
 	 */
-    synchronized protected String formatDate(java.sql.Date date) {
-		if(dateFormat == null)
+	protected synchronized String formatDate(java.sql.Date date) {
+		if (dateFormat == null)
 			dateFormat = dateFormat();
 		return (dateFormat != null) ?
-			dateFormat.format(date) : "'" + date + "'";
-    }
+						dateFormat.format(date) : "'" + date + "'";
+	}
 
 	/**
 	 * Formats a time value into an SQL-suitable string. The function uses the
@@ -184,14 +187,15 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 	 * format from {@link #timeFormat}. If there is nothing to find, it returns the
 	 * value itself, surrounded by single-quotes. This function is synchronized
 	 * due to the fact that DateFormat.format is not!!
+	 *
 	 * @param time The value to format
 	 * @return The SQL-formatted value
 	 */
-    synchronized protected String formatTime(java.sql.Timestamp time) {
-		if(timeFormat == null)
+	protected synchronized String formatTime(java.sql.Timestamp time) {
+		if (timeFormat == null)
 			timeFormat = timeFormat();
 		return (timeFormat != null) ?
-			timeFormat.format(time) : "'" + time + "'";
+						timeFormat.format(time) : "'" + time + "'";
 	}
 
     protected String formatEnum(Enum value) {
@@ -258,29 +262,33 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 		
     /** Formats the passed object for SQL syntax, e.g. by putting single-quotes
      * around strings etc. The function is not very flexible yet, it just supports
-     * special formatting for String, java.util.Date, java.sql.Date, java.sql.Timestamp,
-     * and null. In all other cases it performs value.toString()
+     * special formatting for {@link String}, {@link java.util.Date}, {@link java.sql.Date}, {@link java.sql.Timestamp}, {@link LocalDate}, {@link LocalDateTime},
+     * and {@code null}. In all other cases it performs value.toString()
      */
-    public String formatValue(Object value, Class<?> targetType, boolean forLogging) {
-        if (value == null)
-            return "NULL";
-        if (value.getClass().isEnum())
-            value = formatEnum((Enum)value);
-        if (value.getClass() == String.class)
-            return "'" + escapeBackslahes(escapeQuotes((String)value)) + "'";
-        if (value.getClass() == Boolean.class)
-        	return formatBoolean((Boolean)value);
-        value = castJavaUtilDate(value, targetType);
-		if (value.getClass() == java.sql.Timestamp.class)
-        	return formatTime((java.sql.Timestamp)value);
-        else if (value.getClass() == java.sql.Date.class)
-        	return formatDate((java.sql.Date)value);
-        else if (value instanceof java.util.Map)
-            return formatMap((Map<?, ?>)value, forLogging);
-        else if (value.getClass().isArray())
-            return formatArray(value, forLogging);
-        return value.toString();
-    }
+		public String formatValue(Object value, Class<?> targetType, boolean forLogging) {
+			if (value == null)
+				return "NULL";
+			if (value.getClass().isEnum())
+				value = formatEnum((Enum) value);
+			if (value.getClass() == String.class)
+				return "'" + escapeBackslahes(escapeQuotes((String) value)) + "'";
+			if (value.getClass() == Boolean.class)
+				return formatBoolean((Boolean) value);
+			value = castJavaUtilDate(value, targetType);
+			if (value.getClass() == java.sql.Timestamp.class)
+				return formatTime((java.sql.Timestamp) value);
+			if (value.getClass() == LocalDateTime.class)
+				return formatTime(Timestamp.valueOf((LocalDateTime) value));
+			else if (value.getClass() == java.sql.Date.class)
+				return formatDate((java.sql.Date) value);
+			else if (value.getClass() == LocalDate.class)
+				return formatDate(java.sql.Date.valueOf((LocalDate) value));
+			else if (value instanceof java.util.Map)
+				return formatMap((Map<?, ?>) value, forLogging);
+			else if (value.getClass().isArray())
+				return formatArray(value, forLogging);
+			return value.toString();
+		}
 
 	private String formatArray(Object value, boolean forLogging) {
 	    Class<?> itemClass = value.getClass().getComponentType();
@@ -401,6 +409,15 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 		}
 		else if (dbValue instanceof Timestamp && targetType == Date.class) {
 			return new Date(((Timestamp)dbValue).getTime());
+		}
+		else if (dbValue instanceof Timestamp && targetType == LocalDateTime.class) {
+			return ((Timestamp)dbValue).toLocalDateTime();
+		}
+		else if (dbValue instanceof Timestamp && targetType == LocalDate.class) {
+			return ((Timestamp)dbValue).toLocalDateTime().toLocalDate();
+		}
+		else if (dbValue instanceof java.sql.Date && targetType == LocalDate.class) {
+			return ((java.sql.Date)dbValue).toLocalDate();
 		}
 		return dbValue;
 	}

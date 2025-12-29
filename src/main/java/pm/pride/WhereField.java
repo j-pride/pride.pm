@@ -1,21 +1,24 @@
 package pm.pride;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * Represents a condition field in a SQL WHERE clause.
- * This class encapsulates either a simple column field or a field derived
- * from the use of an SQL function. It provides utilities to determine the
+ * Represents a condition field in an SQL WHERE clause.
+ * This class encapsulates either a simple column name or an expression derived
+ * from applying an SQL function to that column. It provides utilities to determine the
  * fully qualified name of the field based on a default table prefix.
  */
-class WhereFieldConditionField {
+class WhereField {
 
   private String field;
-  private SqlFunction function;
+  private WhereFunction function;
 
-  WhereFieldConditionField(String field) {
+  WhereField(String field) {
     this.field = field;
   }
 
-  WhereFieldConditionField(SqlFunction function) {
+  WhereField(WhereFunction function) {
     this.function = function;
   }
 
@@ -30,26 +33,22 @@ class WhereFieldConditionField {
   }
 
   private String determineQualifiedFieldForFunction(String defaultTablePrefix) {
-    Object functionParameter = function.getParameter();
-    assertFunctionParameterNotNull(functionParameter);
-    assertFunctionParameterIsAString(functionParameter);
-    String fieldInFunction = (String) functionParameter;
-    if (defaultTablePrefix != null && !fieldInFunction.contains(".")) {
-      return function.wrapInFunction(defaultTablePrefix + "." + fieldInFunction);
-    } else {
-      return function.wrapInFunction(fieldInFunction);
+    List<String> qualifiedFields = new ArrayList<>();
+    for (Object functionParameter : function.getParameters()) {
+      assertFunctionParameterNotNull(functionParameter);
+      String fieldInFunction = functionParameter.toString();
+      if (defaultTablePrefix != null && !fieldInFunction.contains(".")) {
+        qualifiedFields.add(defaultTablePrefix + "." + fieldInFunction);
+      } else {
+        qualifiedFields.add(fieldInFunction);
+      }
     }
+    return function.wrapInFunction(qualifiedFields);
   }
 
   private void assertFunctionParameterNotNull(Object functionParameter) {
     if (functionParameter == null) {
       throw new IllegalStateException("Function parameter must not be null, when it is used as field");
-    }
-  }
-
-  private void assertFunctionParameterIsAString(Object functionParameter) {
-    if (!(functionParameter instanceof String)) {
-      throw new IllegalStateException("Function parameter must not be string describing the database field, when it is used as field");
     }
   }
 

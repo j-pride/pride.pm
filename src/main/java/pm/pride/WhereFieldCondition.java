@@ -2,11 +2,11 @@ package pm.pride;
 
 class WhereFieldCondition extends WhereConditionPart {
 
-	final WhereFieldConditionField field;
+	final WhereField field;
 	final String operator;
-	final WhereFieldConditionValues values;
+	final WhereValues values;
 	
-	public WhereFieldCondition(String chainOperator, Boolean bind, WhereFieldConditionField field, String operator, WhereFieldConditionValues values) {
+	public WhereFieldCondition(String chainOperator, Boolean bind, WhereField field, String operator, WhereValues values) {
 		this.chainOperator = chainOperator;
 		this.field = field;
 		this.operator = operator;
@@ -22,7 +22,7 @@ class WhereFieldCondition extends WhereConditionPart {
 				values.formatValueOrFunction(operator, withBinding, formatter) + " ";
 	}
 
-  private static String formatOperator(String operator, WhereFieldConditionValues values, SQL.Formatter formatter) {
+  private static String formatOperator(String operator, WhereValues values, SQL.Formatter formatter) {
     if (operator == null) {
       return "";
     }

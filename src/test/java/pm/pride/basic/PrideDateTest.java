@@ -27,36 +27,29 @@ public class PrideDateTest extends AbstractPrideTest {
 	
 	static int DB_DATE_PRECISION = -1;
 
-    protected void createDateTimeTable() throws SQLException {
-    	// Timestamps usually have milliseconds precision in the DB (or maybe even micro seconds
-    	// which is not of interest because they are not addressable by Java standard date types.
-    	// But at least MySQL works only with seconds precision by default. That's why the
-    	// timestamp columns below are specified with (3) which is the seconds fraction precision.
-        String columns = ""
-        		+ DateTime.COL_RECORD_NAME + " varchar(50), "
-                + DateTime.COL_TIME_PLAIN + " timestamp(3)" + getDefaultDateString() + ", "
-                + DateTime.COL_TIME_AS_DATE + " timestamp(3)" + getDefaultDateString() + ", "
-                + DateTime.COL_DATE_PLAIN + " date" + getDefaultDateString() + ", "
-                + DateTime.COL_DATE_AS_TIME + " date" + getDefaultDateString() + ", "
-                + DateTime.COL_DATE_AS_DATE + " date" + getDefaultDateString() + ", "
-                + DateTime.COL_DATE_AS_LOCAL_DATE + " date" + getDefaultDateString() + ", "
-                + DateTime.COL_DATE_AS_LOCAL_DATE_TIME + " timestamp(3)" + getDefaultDateString();
-        dropAndCreateTable(DATETIME_TEST_TABLE, columns);
-    }
+  protected void createDateTimeTable() throws SQLException {
+    // Timestamps usually have milliseconds precision in the DB (or maybe even micro seconds
+    // which is not of interest because they are not addressable by Java standard date types.
+    // But at least MySQL works only with seconds precision by default. That's why the
+    // timestamp columns below are specified with (3) which is the seconds fraction precision.
+    String columns = ""
+        + DateTime.COL_RECORD_NAME + " varchar(50), "
+        + DateTime.COL_TIME_PLAIN + " timestamp(3)" + getDefaultDateString() + ", "
+        + DateTime.COL_TIME_AS_DATE + " timestamp(3)" + getDefaultDateString() + ", "
+        + DateTime.COL_DATE_PLAIN + " date" + getDefaultDateString() + ", "
+        + DateTime.COL_DATE_AS_TIME + " date" + getDefaultDateString() + ", "
+        + DateTime.COL_DATE_AS_DATE + " date" + getDefaultDateString() + ", "
+        + DateTime.COL_DATE_AS_LOCAL_DATE + " date" + getDefaultDateString() + ", "
+        + DateTime.COL_DATE_AS_LOCAL_DATE_TIME + " timestamp(3)" + getDefaultDateString();
+    dropAndCreateTable(DATETIME_TEST_TABLE, columns);
+  }
     
-    private String getDefaultDateString() {
-    	if (isDBType(ResourceAccessor.DBType.MYSQL)) {
-    		return " DEFAULT '1970-01-01 00:00:01'";
-    	}
-    	return "";
+  private String getDefaultDateString() {
+    if (isDBType(ResourceAccessor.DBType.MYSQL)) {
+      return " DEFAULT '1970-01-01 00:00:01'";
     }
-
-	private String getDefaultZonedDateTimeString() {
-		if (isDBType(ResourceAccessor.DBType.MYSQL)) {
-			return " DEFAULT '1970-01-01 00:00:01 +00:00'";
-		}
-		return "";
-	}
+    return "";
+  }
 
 	@Override
 	@BeforeEach

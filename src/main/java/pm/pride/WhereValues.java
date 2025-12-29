@@ -1,6 +1,8 @@
 package pm.pride;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents condition values for a "WHERE" SQL clause, allowing for values or functions
@@ -10,7 +12,7 @@ import java.lang.reflect.Method;
  * - Formatting the values or function in SQL-compatible representations.
  * - Retrieving the raw values or function parameters.
  */
-class WhereFieldConditionValues {
+class WhereValues {
 
   private static Object value(int index, Object[] values ) {
     if (values == null)
@@ -63,20 +65,21 @@ class WhereFieldConditionValues {
   }
 
   private Object[] values;
-  private SqlFunction function;
+  private WhereFunction function;
 
-  WhereFieldConditionValues(Object... values) {
+  WhereValues(Object... values) {
     this.values = values;
   }
 
-  WhereFieldConditionValues(SqlFunction function) {
+  WhereValues(WhereFunction function) {
     this.function = function;
   }
 
   boolean hasNoValues() {
     if (function != null) {
-      return function.getParameter() == null;
-    } else {
+      return function.hasNoValues();
+    }
+    else {
       return values == null || values.length == 0 || values[0] == null;
     }
   }
@@ -96,16 +99,15 @@ class WhereFieldConditionValues {
    * @throws ReflectiveOperationException if an error occurs during reflection while binding values.
    */
   int bind(SQL.Formatter formatter, ConnectionAndStatement cns, int nextParam) throws ReflectiveOperationException {
-    if (function != null) {
-      return bindSingleValue(function.getParameter(), formatter, cns, nextParam);
-    } else {
-      if (values != null) {
-        for (Object aValue : values) {
-          nextParam = bindSingleValue(aValue, formatter, cns, nextParam);
-        }
+    Object[] valuesToBind = function != null
+      ? function.getParameters()
+      : values;
+    if (valuesToBind != null) {
+      for (Object value : valuesToBind) {
+        nextParam = bindSingleValue(value, formatter, cns, nextParam);
       }
-      return nextParam;
     }
+    return nextParam;
   }
 
   /**
@@ -133,14 +135,19 @@ class WhereFieldConditionValues {
   }
 
   private String formatFunction(boolean withBinding, SQL.Formatter formatter) {
-    return function.wrapInFunction(formatSingleValue(function.getParameter(), withBinding, formatter));
+    List<String> formattedValues = new ArrayList<>();
+    for (Object parameter : function.getParameters()) {
+      formattedValues.add(formatSingleValue(parameter, withBinding, formatter));
+    }
+    return function.wrapInFunction(formattedValues);
   }
 
   Object rawValue() {
     if (values != null) {
       return value0(values);
-    } else if (function != null) {
-      return function.getParameter();
+    }
+    else if (function != null) {
+      return value0(function.getParameters());
     }
     return null;
   }

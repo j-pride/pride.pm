@@ -1,5 +1,7 @@
 package pm.pride.basic;
 
+import pm.pride.ResourceAccessor;
+import pm.pride.ResourceAccessor.Config;
 import pm.pride.ResourceAccessor.DBType;
 import pm.pride.testcontainers.factory.AbstractContainerFactory;
 
@@ -44,6 +46,13 @@ public class DBConfigurator {
   }
 
   private static AbstractContainerFactory testContainerFactory;
+
+  public static void resetTestConfig() {
+    if (testContainerFactory != null) {
+      testContainerFactory.stop();
+      testContainerFactory = null;
+    }
+  }
 
   static Properties determineDatabaseTestConfiguration() throws IOException, ReflectiveOperationException {
     String configFileName = System.getProperty(TestConfig.FILE);

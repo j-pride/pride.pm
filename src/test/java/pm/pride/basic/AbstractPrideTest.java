@@ -58,18 +58,16 @@ public abstract class AbstractPrideTest {
 	protected static final String DEFAULT_ID_CLASSIFIER = "int not null primary key ";
 	protected static final String REVISIONED_ID_CLASSIFIER = "int ";
     
-    protected void createTestTable(String idFieldClassifier) throws SQLException {
-		Customer.COL_TYPE = SQL.quote(Customer.COL_TYPE);
-        String columns = ""
-                + "id " + idFieldClassifier + ","
-                + "firstName varchar(50),"
-                + "lastName varchar(50),"
-                + "hireDate date,"
-//                + "hireDate " + getHireDateColumnTypeBasedOnDBType() + ","
-                + "active " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
-                + SQL.quote("ty pe") + " varchar(10)";
-        dropAndCreateTable(TEST_TABLE, columns);
-    }
+  protected void createTestTable(String idFieldClassifier) throws SQLException {
+		String columns = ""
+			+ Customer.COL_ID + " " + idFieldClassifier + ","
+			+ Customer.COL_FIRSTNAME + " varchar(50),"
+			+ Customer.COL_LASTNAME + " varchar(50),"
+			+ Customer.COL_HIREDATE + " date,"
+			+ Customer.COL_ACTIVE + " " + (isDBType(DBType.POSTGRES) ? "boolean" : "int") + ","
+			+ SQL.quote(Customer.COL_TYPE) + " varchar(10)";
+    dropAndCreateTable(TEST_TABLE, columns);
+  }
 
 	protected void createRevisioningTestTable() throws SQLException {
 		String columns = getTestTableColumns(REVISIONED_ID_CLASSIFIER, true) + ","
@@ -133,6 +131,12 @@ public abstract class AbstractPrideTest {
     createRevisioningTestTable();
 	}
 
+	public static void resetTestConfig() {
+		testConfig = null;
+		Customer.resetTestConfig();
+		DBConfigurator.resetTestConfig();
+	}
+
 	protected static void setBindvarsDefault(Boolean value) {
 		overriddenBindvarsDefault = value;
 	}
@@ -149,12 +153,14 @@ public abstract class AbstractPrideTest {
     ResourceAccessor ra = new ResourceAccessorJSE(testConfig) {
 			@Override
 			public boolean bindvarsByDefault() {
-				if (overriddenBindvarsDefault != null)
+				if (overriddenBindvarsDefault != null) {
 					return overriddenBindvarsDefault;
+				}
 				return super.bindvarsByDefault();
 			}
     };
-        
+
+		DatabaseFactory.setContext(testConfig.getProperty(Config.DBTYPE));
     DatabaseFactory.setResourceAccessor(ra);
     DatabaseFactory.setExceptionListener(exlistener);
     DatabaseFactory.setDatabaseName(testConfig.getProperty(ResourceAccessor.Config.DB));
@@ -164,18 +170,18 @@ public abstract class AbstractPrideTest {
 	}
 
 	protected void checkIfTestShouldBeSkipped() {
-        final String currentDbType = DatabaseFactory.getDatabase().getDBType();
-        if (this.getClass().isAnnotationPresent(NeedsDBType.class)) {
+    final String currentDbType = DatabaseFactory.getDatabase().getDBType();
+    if (this.getClass().isAnnotationPresent(NeedsDBType.class)) {
 			NeedsDBType annotation = this.getClass().getAnnotation(NeedsDBType.class);
-            String[] supportedDBTypes = annotation.value();
-            assumeTrue(Arrays.asList(supportedDBTypes).contains(currentDbType), annotation.message());
-        }
-        if (this.getClass().isAnnotationPresent(SkipForDBType.class)) {
-			SkipForDBType annotation = this.getClass().getAnnotation(SkipForDBType.class);
-            String[] skippedDBTypes = annotation.value();
-            assumeFalse(Arrays.asList(skippedDBTypes).contains(currentDbType), annotation.message());
-        }
+      String[] supportedDBTypes = annotation.value();
+      assumeTrue(Arrays.asList(supportedDBTypes).contains(currentDbType), annotation.message());
     }
+    if (this.getClass().isAnnotationPresent(SkipForDBType.class)) {
+			SkipForDBType annotation = this.getClass().getAnnotation(SkipForDBType.class);
+      String[] skippedDBTypes = annotation.value();
+      assumeFalse(Arrays.asList(skippedDBTypes).contains(currentDbType), annotation.message());
+    }
+	}
 
 	@AfterEach
 	public void tearDown() throws Exception {

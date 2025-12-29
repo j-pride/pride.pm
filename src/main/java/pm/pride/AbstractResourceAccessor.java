@@ -495,11 +495,13 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 		if (props != null) {
 			dbType = props.getProperty(Config.DBTYPE, null);
 			String datef = props.getProperty(Config.DATEFORMAT);
-			if (datef != null)
+			if (datef != null) {
 				dateFormat = new SimpleDateFormat(datef);
+			}
 			String timef = props.getProperty(Config.TIMEFORMAT);
-			if (timef != null)
+			if (timef != null) {
 				timeFormat = new SimpleDateFormat(timef);
+			}
 
 			dbUser     = props.getProperty(Config.USER);
 			dbPassword = props.getProperty(Config.PASSWORD);
@@ -513,8 +515,9 @@ public abstract class AbstractResourceAccessor implements ResourceAccessor {
 			}
 
 			sqlLogFileName = props.getProperty(Config.LOGFILE);
-			if (sqlLogFileName != null && sqlLogFileName.length() != 0)
+			if (sqlLogFileName != null && sqlLogFileName.length() != 0) {
 				sqllog = new FileWriter(sqlLogFileName);
+			}
 				
 			String logMaxString = props.getProperty(Config.LOGMAX, "");
 			try {

@@ -37,7 +37,7 @@ public class Customer extends IdentifiedEntity {
 	private String lastName;
 	private Boolean active;
 	private Date hireDate;
-    private CustomerType type;
+  private CustomerType type;
 	
 	public Customer() {}
 	
@@ -64,15 +64,27 @@ public class Customer extends IdentifiedEntity {
 		create();
 	}
 
-	protected static RecordDescriptor red =
-		new RecordDescriptor(Customer.class, TABLE, IdentifiedEntity.red)
-			.row(COL_FIRSTNAME, "getFirstName", "setFirstName")
-			.row(COL_LASTNAME,  "getLastName",  "setLastName")
-			.row(COL_HIREDATE,  "getHireDate",  "setHireDate")
-			.row(COL_ACTIVE,    "getActive",    "setActive")
-			.row(SQL.quote(COL_TYPE), "getType",    "setType");
+	protected static RecordDescriptor red;
 
-	public RecordDescriptor getDescriptor() { return red; }
+	/** This is a very unusual lazy initialization of the record descriptor which
+	 * is required as the unit tests of PriDE may be executed on multiple database
+	 * types in a single run and the descriptor may need database-specific
+	 * reinitialization. E.g. quotations may be different. */
+	public RecordDescriptor getDescriptor() {
+		if (red == null) {
+			red = new RecordDescriptor(Customer.class, TABLE, IdentifiedEntity.red)
+				.row(COL_FIRSTNAME, "getFirstName", "setFirstName")
+				.row(COL_LASTNAME,  "getLastName",  "setLastName")
+				.row(COL_HIREDATE,  "getHireDate",  "setHireDate")
+				.row(COL_ACTIVE,    "getActive",    "setActive")
+				.row(SQL.quote(COL_TYPE), "getType",    "setType");
+		}
+		return red;
+	}
+
+	public static void resetTestConfig() {
+		red = null;
+	}
 
 	public String getFirstName() { return firstName; }
 	public String getLastName()  { return lastName; }

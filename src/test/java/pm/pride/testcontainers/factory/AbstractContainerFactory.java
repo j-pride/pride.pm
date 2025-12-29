@@ -7,7 +7,7 @@ import pm.pride.basic.DBConfigurator.TestConfig;
 
 import java.util.Properties;
 
-/** This class has only been separated in case that that PriDE has to support
+/** This class has only been separated in case that PriDE has to support
  * a test container'ed database which has no appropriate module based on
  * {@link JdbcDatabaseContainer} available. In this case the factory can not
  * be derived from {@link AbstractJDBCContainerFactory}. See factory class
@@ -39,4 +39,8 @@ public abstract class AbstractContainerFactory<C extends GenericContainer> {
   }
 
   abstract protected void synchronizePrideConfigWithContainerConfig();
+
+  public void stop() {
+    container.stop();
+  }
 }

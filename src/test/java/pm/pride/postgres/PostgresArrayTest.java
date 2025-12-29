@@ -39,7 +39,7 @@ public class PostgresArrayTest extends AbstractPrideTest {
     }
 
     @Test
-	public void testEmpty() throws Exception {
+	  public void testEmpty() throws Exception {
         CustomerArray customer = new CustomerArray(0);
         customer.create();
         customer = new CustomerArray(0);

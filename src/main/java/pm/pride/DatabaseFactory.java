@@ -123,8 +123,9 @@ public class DatabaseFactory
      * context and thus causes no context switch.
      */
     public static Database setContext(String name) {
-        if (name == null)
+        if (name == null) {
             return getDatabase();
+        }
         Context context = Context.getContext(name);
         if (context != null) {
             currentContext = context;

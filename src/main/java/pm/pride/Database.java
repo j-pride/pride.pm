@@ -54,8 +54,12 @@ public class Database implements SQL.Formatter
      * There is one unique connection returned per thread.
      */
     public Connection getConnection() throws SQLException {
-		try { return accessor.getConnection(dbname); }
-		catch(Exception x) { throw processSevereButSQLException(x); }
+      try {
+        return accessor.getConnection(dbname);
+      }
+      catch(Exception x) {
+        throw processSevereButSQLException(x);
+      }
     }
 
     /** Close the current thread's connection for later reuse.
@@ -620,9 +624,9 @@ public class Database implements SQL.Formatter
      * @param red descriptor providing the field mappings and the table name to access
      * @param obj source object to extract the data from
      */
-    public int createRecord(RecordDescriptor red, Object obj, String... autoFields)
-        throws SQLException {
-    	PreparedInsert preparedInsert = null;
+  public int createRecord(RecordDescriptor red, Object obj, String... autoFields)
+    throws SQLException {
+  	PreparedInsert preparedInsert = null;
 		try {
 			if (autoFields == null) {
 				autoFields = red.getAutoFields();
@@ -631,20 +635,20 @@ public class Database implements SQL.Formatter
 				preparedInsert = new PreparedInsert(autoFields, red);
 				return preparedInsert.execute(obj);
 			}
-            String operation = getInsertionHeader(red, autoFields) + " (" +
-                red.getCreationValues(obj, autoFields, this) + ")";
+      String operation = getInsertionHeader(red, autoFields) + " (" +
+        red.getCreationValues(obj, autoFields, this) + ")";
 			final int result = sqlUpdate(operation, autoFields, obj, red);
 			revisionEntity(red, obj);
-	    	return result;
-	    }
-		catch(Exception x) {
-			throw processSevereButSQLException(x);
-		}
-		finally {
-			if (preparedInsert != null)
-				preparedInsert.close();
-		}
+   	  return result;
     }
+    catch(Exception x) {
+      throw processSevereButSQLException(x);
+    }
+    finally {
+      if (preparedInsert != null)
+        preparedInsert.close();
+    }
+  }
 
     /** Delete a record from the database.
      * @param red descriptor providing the field mappings and the table name to access.
